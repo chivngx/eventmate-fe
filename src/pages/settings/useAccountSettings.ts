@@ -109,6 +109,7 @@ export function useAccountSettings() {
         newPassword,
         setNewPassword,
         handleUpdateProfile,
-        handleUpdatePassword
+        handleUpdatePassword,
+        hasPassword
     }
 }
