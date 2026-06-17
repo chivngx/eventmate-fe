@@ -65,17 +65,17 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
     }
 
     const rightActions = loadingAuth ? null : user ? (
-        <div className="flex items-center gap-2 sm:gap-4">
+        <div className="flex items-center gap-0.5 sm:gap-2">
 
             {/* DROPDOWN THÔNG BÁO */}
             <DropdownMenu onOpenChange={(open) => { if (open) markAsRead() }}>
-                <DropdownMenuTrigger className="relative p-2 text-slate-400 hover:text-emerald-600 transition-colors outline-none">
-                    <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
+                <DropdownMenuTrigger className="relative p-1.5 sm:p-2 text-slate-400 hover:text-emerald-600 transition-colors outline-none">
+                    <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
                     {unreadCount > 0 && (
-                        <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white animate-pulse"></span>
+                        <span className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-rose-500 rounded-full border-2 border-white animate-pulse"></span>
                     )}
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-80 mt-2 rounded-2xl p-0 shadow-xl border-slate-100 bg-white overflow-hidden">
+                <DropdownMenuContent align="end" className="w-72 sm:w-80 mt-2 rounded-2xl p-0 shadow-xl border-slate-100 bg-white overflow-hidden">
                     <div className="p-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
                         <h4 className="font-bold text-slate-900">Thông báo</h4>
                         {unreadCount > 0 && <span className="text-xs font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">{unreadCount} mới</span>}
@@ -99,12 +99,12 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
                 </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* DROPDOWN AVATAR (Giữ nguyên) */}
+            {/* DROPDOWN AVATAR */}
             <DropdownMenu>
                 <DropdownMenuTrigger className="rounded-full outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 shrink-0">
-                    <Avatar className="h-9 w-9 sm:h-10 sm:w-10 cursor-pointer border-2 border-white shadow-sm transition-transform hover:scale-105">
+                    <Avatar className="h-7 w-7 sm:h-9 sm:w-9 cursor-pointer border-2 border-white shadow-sm transition-transform hover:scale-105">
                         <AvatarImage src={avatarUrl} />
-                        <AvatarFallback className="bg-emerald-50 text-emerald-600 font-bold text-sm">
+                        <AvatarFallback className="bg-emerald-50 text-emerald-600 font-bold text-xs sm:text-sm">
                             {getInitial(fullName)}
                         </AvatarFallback>
                     </Avatar>
@@ -136,16 +136,16 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
             </DropdownMenu>
         </div>
     ) : (
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex items-center gap-1">
             <Button
                 variant="ghost"
-                className="text-[13px] sm:text-sm font-semibold text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-full px-2 sm:px-4 whitespace-nowrap"
+                className="text-xs sm:text-sm font-semibold text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-full px-2 sm:px-4 h-8 sm:h-9 whitespace-nowrap"
                 onClick={() => navigate('/login')}
             >
                 Đăng nhập
             </Button>
             <Button
-                className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-3 sm:px-5 text-[13px] sm:text-sm font-semibold shadow-sm transition-all whitespace-nowrap shrink-0"
+                className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-2.5 sm:px-5 h-8 sm:h-9 text-xs sm:text-sm font-semibold shadow-sm transition-all whitespace-nowrap shrink-0 hidden xs:inline-flex"
                 onClick={() => navigate('/register')}
             >
                 Đăng ký

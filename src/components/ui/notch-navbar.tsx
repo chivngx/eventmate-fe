@@ -179,7 +179,7 @@ const MobileThemeToggle = () => {
     return (
         <button
             onClick={toggleTheme}
-            className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-400 hover:text-emerald-600"
+            className="flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 shrink-0 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-400 hover:text-emerald-600"
             aria-label="Toggle theme"
         >
             {isDark ? <Sun className="w-4 h-4 sm:w-5 sm:h-5" /> : <Moon className="w-4 h-4 sm:w-5 sm:h-5" />}
@@ -217,9 +217,9 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                             </svg>
                         </div>
 
-                        <div className="relative w-auto h-full flex items-center justify-between gap-4 sm:gap-6 lg:gap-10 px-3 sm:px-6 pt-3 pb-1">
+                        <div className="relative w-auto h-full flex items-center justify-between gap-1 xs:gap-2 sm:gap-4 lg:gap-10 px-1.5 sm:px-4 lg:px-6 pt-3 pb-1">
 
-                            <div className="flex-shrink-0 flex items-center pl-0 md:pl-2">
+                            <div className="shrink-0 flex items-center pl-0 md:pl-2">
                                 <nav className="hidden md:flex items-center gap-0 lg:gap-1">
                                     {role === "organizer" ? (
                                         <>
@@ -234,19 +234,19 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                                     )}
                                 </nav>
                                 <button
-                                    className="md:hidden p-2 text-slate-500 hover:text-slate-900 transition-colors"
+                                    className="md:hidden p-1.5 sm:p-2 text-slate-500 hover:text-slate-900 transition-colors"
                                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                                 >
-                                    {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                                    {isMobileMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
                                 </button>
                             </div>
 
-                            <div className="flex-shrink-0 mx-2 sm:mx-4 flex justify-center z-30">
+                            <div className="shrink min-w-0 mx-1 sm:mx-3 flex justify-center z-30">
                                 {logo}
                             </div>
 
-                            <div className="flex-shrink-0 flex items-center justify-end pr-1 md:pr-2">
-                                <div className="flex items-center gap-1.5 sm:gap-3">
+                            <div className="shrink-0 flex items-center justify-end pr-0 md:pr-2">
+                                <div className="flex items-center gap-0.5 sm:gap-2">
                                     <MobileThemeToggle />
                                     {rightActions}
                                 </div>
