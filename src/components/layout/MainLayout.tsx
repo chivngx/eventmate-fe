@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 import { NotchNavbar } from "@/components/ui/notch-navbar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
@@ -11,6 +11,7 @@ import Footer from "./Footer"
 
 export default function MainLayout({ children, role }: { children: React.ReactNode, role?: string }) {
     const navigate = useNavigate()
+    const location = useLocation()
     const [user, setUser] = useState<any>(null)
     const [loadingAuth, setLoadingAuth] = useState(true)
     const [fullName, setFullName] = useState("")
@@ -165,7 +166,7 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
             </main>
 
             {/* HÀNG LOGO NHÀ TÀI TRỢ (Chỉ hiển thị logo chạy ngang) */}
-            {role !== 'organizer' && <SponsorsSection />}
+            {role !== 'organizer' && location.pathname === "/" && <SponsorsSection />}
 
             {/* FOOTER LIÊN KẾT */}
             <Footer />

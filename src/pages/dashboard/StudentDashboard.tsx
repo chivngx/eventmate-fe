@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { Search, MapPin, ChevronRight, CheckCircle2, Bookmark, CheckCircle, XCircle, Clock3 } from "lucide-react"
+import { Search, MapPin, ChevronRight, CheckCircle2, Bookmark, CheckCircle, XCircle, Clock3, Heart, ChevronLeft, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
@@ -22,6 +22,11 @@ export default function StudentDashboard() {
     // STATE MỚI: Quản lý từ khóa tìm kiếm
     const [searchTerm, setSearchTerm] = useState("")
     const [locationTerm, setLocationTerm] = useState("")
+    
+    // STATE CHO TOPCV STYLE
+    const [bookmarkedEvents, setBookmarkedEvents] = useState<Record<string, boolean>>({})
+    const [currentPage, setCurrentPage] = useState(1)
+    const [showSuggestion, setShowSuggestion] = useState(true)
 
     const fetchEventsAndApplications = async () => {
         setLoadingData(true)
@@ -105,20 +110,48 @@ export default function StudentDashboard() {
         return colors[index % colors.length]
     }
 
+    const toggleBookmark = (eventId: string) => {
+        setBookmarkedEvents(prev => ({ ...prev, [eventId]: !prev[eventId] }))
+    }
+
+    const getMockSalary = (job: any) => {
+        const desc = (job.description || "").toLowerCase()
+        if (desc.includes("tình nguyện") || desc.includes("volunteer")) return "Tình nguyện"
+        if (desc.includes("phụ cấp") || desc.includes("hỗ trợ") || desc.includes("lương")) {
+            return "Có hỗ trợ"
+        }
+        return "Cấp chứng nhận"
+    }
+
     const renderActionButton = (job: any) => {
         const status = myApplications[job.id]
 
-        if (status === 'approved') return <Button disabled className="mt-6 w-full rounded-2xl bg-emerald-100 text-emerald-700 opacity-100 font-bold sm:mt-0 sm:w-auto sm:self-center shadow-none px-6 h-11 border-2 border-emerald-200"><CheckCircle className="w-5 h-5 mr-2" /> Trúng tuyển</Button>
-        if (status === 'rejected') return <Button disabled className="mt-6 w-full rounded-2xl bg-rose-50 text-rose-500 opacity-100 font-bold sm:mt-0 sm:w-auto sm:self-center shadow-none px-6 h-11 border-2 border-rose-100"><XCircle className="w-5 h-5 mr-2" /> Chưa phù hợp</Button>
-        if (status === 'pending') return <Button disabled className="mt-6 w-full rounded-2xl bg-amber-50 text-amber-600 opacity-100 font-bold sm:mt-0 sm:w-auto sm:self-center shadow-none px-6 h-11 border-2 border-amber-100"><Clock3 className="w-5 h-5 mr-2" /> Đang chờ duyệt</Button>
+        if (status === 'approved') return (
+            <span className="text-[11px] font-extrabold text-emerald-600 bg-emerald-50 px-2 py-1 rounded border border-emerald-200 flex items-center gap-1">
+                <CheckCircle className="w-3 h-3" /> Trúng tuyển
+            </span>
+        )
+        if (status === 'rejected') return (
+            <span className="text-[11px] font-extrabold text-rose-500 bg-rose-50 px-2 py-1 rounded border border-rose-200 flex items-center gap-1">
+                <XCircle className="w-3 h-3" /> K.phù hợp
+            </span>
+        )
+        if (status === 'pending') return (
+            <span className="text-[11px] font-extrabold text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-200 flex items-center gap-1">
+                <Clock3 className="w-3 h-3" /> Chờ duyệt
+            </span>
+        )
 
         return (
             <Button
-                onClick={() => handleApply(job.id, job.organizer_id, job.title)}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    handleApply(job.id, job.organizer_id, job.title)
+                }}
                 disabled={applyingId === job.id}
-                className="mt-6 w-full rounded-2xl bg-slate-900 text-white hover:bg-emerald-600 font-bold sm:mt-0 sm:w-auto sm:self-center shadow-none transition-colors px-6 h-11 disabled:opacity-70 disabled:cursor-not-allowed"
+                className="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-extrabold px-3 py-1 h-7 shadow-sm transition-colors border-0 shrink-0"
             >
-                {applyingId === job.id ? "Đang xử lý..." : "Ứng tuyển ngay"}
+                {applyingId === job.id ? "..." : "Ứng tuyển"}
             </Button>
         )
     }
@@ -136,6 +169,19 @@ export default function StudentDashboard() {
 
         return matchesSearch && matchesLocation;
     })
+
+    // PAGINATION VÀ TABS CHO TOPCV STYLE
+    const itemsPerPage = 6
+    const totalPages = Math.ceil(filteredEvents.length / itemsPerPage) || 1
+    const paginatedEvents = filteredEvents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+
+    const locationTabs = [
+        { label: "Ngẫu nhiên", value: "" },
+        { label: "Hà Nội", value: "Hà Nội" },
+        { label: "TP. Hồ Chí Minh", value: "Hồ Chí Minh" },
+        { label: "Đà Nẵng", value: "Đà Nẵng" },
+        { label: "Cần Thơ", value: "Cần Thơ" }
+    ]
 
     return (
         <div className="space-y-8 pb-10">
@@ -197,69 +243,192 @@ export default function StudentDashboard() {
 
                 {/* CỘT CHÍNH */}
                 <div className="space-y-6 lg:col-span-8">
-                    <div className="flex items-center justify-between pb-2">
-                        <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-                            Việc làm mới nhất
-                            <Badge className="bg-emerald-100 text-emerald-700 shadow-none border-none ml-2">
-                                {filteredEvents.length}
-                            </Badge>
-                        </h2>
-                        <a href="#" className="text-sm font-bold text-emerald-600 hover:text-emerald-700 hover:underline">Xem tất cả</a>
+                    {/* TOPCV HEADER AND FILTERS */}
+                    <div className="bg-white rounded-2xl border-2 border-slate-100 p-5 space-y-4 shadow-sm">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div className="flex items-center gap-2 flex-wrap">
+                                <h2 className="text-xl font-black text-slate-800 tracking-tight">
+                                    Việc làm <span className="text-emerald-600">tốt nhất</span>
+                                </h2>
+                                <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-100 flex items-center gap-1">
+                                    ⚡ Đề xuất bởi EventMate AI
+                                </span>
+                            </div>
+                            <div className="flex items-center justify-between sm:justify-end gap-4">
+                                <button
+                                    onClick={() => {
+                                        setSearchTerm("");
+                                        setLocationTerm("");
+                                        setCurrentPage(1);
+                                    }}
+                                    className="text-xs font-extrabold text-slate-500 hover:text-emerald-600 transition-colors"
+                                >
+                                    Xem tất cả
+                                </button>
+                                <div className="flex items-center gap-1">
+                                    <button 
+                                        disabled={currentPage === 1}
+                                        onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                                        className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-emerald-600 disabled:opacity-50 disabled:hover:text-slate-400 disabled:hover:border-slate-200 transition-colors"
+                                    >
+                                        <ChevronLeft className="w-4 h-4" />
+                                    </button>
+                                    <button 
+                                        disabled={currentPage === totalPages}
+                                        onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                                        className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-emerald-600 disabled:opacity-50 disabled:hover:text-slate-400 disabled:hover:border-slate-200 transition-colors"
+                                    >
+                                        <ChevronRight className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* FILTER TAGS BAR */}
+                        <div className="flex items-center gap-3 overflow-hidden py-1 border-t border-slate-50 pt-3">
+                            <div className="flex items-center gap-1.5 shrink-0 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100 text-xs font-bold text-slate-600">
+                                <MapPin className="w-3.5 h-3.5 text-slate-400" />
+                                <span className="hidden xs:inline">Lọc theo: Địa điểm</span>
+                                <span className="xs:hidden">Địa điểm</span>
+                            </div>
+                            
+                            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth flex-1 py-0.5">
+                                {locationTabs.map(tab => (
+                                    <button
+                                        key={tab.label}
+                                        onClick={() => {
+                                            setLocationTerm(tab.value);
+                                            setCurrentPage(1);
+                                        }}
+                                        className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors border ${
+                                            (locationTerm === tab.value)
+                                            ? "bg-emerald-600 border-emerald-600 text-white shadow-sm shadow-emerald-600/10"
+                                            : "bg-slate-50 border-slate-100 text-slate-600 hover:bg-slate-100"
+                                        }`}
+                                    >
+                                        {tab.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* SUGGESTION BAR */}
+                        {showSuggestion && (
+                            <div className="bg-emerald-50/50 border border-emerald-100 rounded-xl px-4 py-2.5 flex items-center justify-between text-xs text-emerald-800 font-medium animate-in fade-in duration-300">
+                                <div className="flex items-center gap-2 pr-4">
+                                    <span className="text-base shrink-0">💡</span>
+                                    <span>Gợi ý: Nhấp vào tiêu đề hoặc ảnh để xem chi tiết và nộp đơn ứng tuyển nhanh chóng!</span>
+                                </div>
+                                <button onClick={() => setShowSuggestion(false)} className="text-emerald-600 hover:text-emerald-800 transition-colors shrink-0">
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                        )}
                     </div>
 
-                    <div className="flex flex-col gap-5">
+                    {/* EVENTS GRID */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-5">
                         {loadingData ? (
-                            <div className="text-center py-10 text-slate-500 font-medium">Đang tải sự kiện...</div>
-                        ) : filteredEvents.length === 0 ? (
-                            <div className="text-center py-12 px-6 bg-white rounded-[1.5rem] border-2 border-dashed border-slate-200">
+                            <div className="col-span-full text-center py-10 text-slate-500 font-medium">Đang tải sự kiện...</div>
+                        ) : paginatedEvents.length === 0 ? (
+                            <div className="col-span-full text-center py-12 px-6 bg-white rounded-[1.5rem] border-2 border-dashed border-slate-200">
                                 <Search className="w-10 h-10 text-slate-300 mx-auto mb-3" />
                                 <h3 className="text-lg font-bold text-slate-900">Không tìm thấy kết quả</h3>
                                 <p className="text-slate-500 font-medium mt-1">Thử thay đổi từ khóa hoặc địa điểm tìm kiếm xem sao.</p>
-                                <Button onClick={() => { setSearchTerm(""); setLocationTerm("") }} variant="link" className="text-emerald-600 font-bold mt-2">Xóa bộ lọc</Button>
+                                <Button onClick={() => { setSearchTerm(""); setLocationTerm(""); setCurrentPage(1); }} variant="link" className="text-emerald-600 font-bold mt-2">Xóa bộ lọc</Button>
                             </div>
                         ) : (
-                            filteredEvents.map((job, idx) => (
-                                <div key={job.id} className="group relative flex flex-col sm:flex-row sm:items-center justify-between rounded-[1.5rem] border-2 border-slate-100 bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-900/5 animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${idx * 50}ms` }}>
-                                    <button className="absolute right-6 top-6 text-slate-300 hover:text-emerald-600 transition-colors">
-                                        <Bookmark className="h-6 w-6" />
-                                    </button>
-
-                                    <div className="flex gap-5 items-start cursor-pointer w-full" onClick={() => navigate(`/jobs/${job.id}`)}>
-                                        <Avatar className="h-16 w-16 rounded-2xl border-2 border-slate-50 mt-1 shrink-0">
-                                            <AvatarFallback className="rounded-2xl bg-slate-100 text-2xl font-black text-slate-700 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
-                                                {job.profiles?.full_name ? job.profiles.full_name.charAt(0).toUpperCase() : "O"}
-                                            </AvatarFallback>
-                                        </Avatar>
-
-                                        <div className="pr-8 flex-1">
-                                            <div className="mb-2">
-                                                <Badge variant="secondary" className={`font-bold px-3 py-1 rounded-lg ${getColorClass(idx)}`}>
-                                                    {job.status === 'upcoming' ? "Sắp diễn ra" : job.status}
-                                                </Badge>
+                            paginatedEvents.map((job, idx) => {
+                                const isBookmarked = !!bookmarkedEvents[job.id];
+                                return (
+                                    <div 
+                                        key={job.id} 
+                                        className="group relative flex flex-col justify-between rounded-2xl border border-slate-100 bg-white p-5 transition-all duration-300 hover:border-emerald-400 hover:shadow-xl hover:shadow-emerald-950/5 hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4"
+                                        style={{ animationDelay: `${idx * 50}ms` }}
+                                    >
+                                        <div className="flex gap-4 items-start">
+                                            <Avatar 
+                                                className="h-14 w-14 rounded-xl border border-slate-100 shrink-0 cursor-pointer shadow-sm"
+                                                onClick={() => navigate(`/jobs/${job.id}`)}
+                                            >
+                                                <AvatarFallback className="rounded-xl bg-slate-50 text-xl font-black text-slate-700 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
+                                                    {job.profiles?.full_name ? job.profiles.full_name.charAt(0).toUpperCase() : "O"}
+                                                </AvatarFallback>
+                                            </Avatar>
+                                            
+                                            <div className="flex-1 min-w-0 pr-2">
+                                                <h3 
+                                                    className="text-[14px] font-extrabold text-slate-800 leading-snug group-hover:text-emerald-600 transition-colors cursor-pointer line-clamp-2"
+                                                    onClick={() => navigate(`/jobs/${job.id}`)}
+                                                    title={job.title}
+                                                >
+                                                    {job.title}
+                                                </h3>
+                                                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mt-1.5 truncate" title={job.profiles?.full_name}>
+                                                    {job.profiles?.full_name || "Đơn vị ẩn danh"}
+                                                </p>
                                             </div>
-                                            <h3 className="text-lg font-bold text-slate-900 group-hover:text-emerald-600 transition-colors leading-tight">
-                                                {job.title}
-                                            </h3>
-                                            <p className="mt-1.5 text-sm font-bold text-slate-500 uppercase tracking-wider">
-                                                {job.profiles?.full_name || "Đơn vị ẩn danh"}
-                                            </p>
-                                            <div className="mt-4 flex flex-wrap items-center gap-2 text-sm font-bold text-slate-600">
-                                                <span className="flex items-center gap-1.5 rounded-xl bg-slate-50 px-3 py-1.5 text-slate-600">
-                                                    <MapPin className="h-4 w-4 text-slate-400" /> {job.location || "Đang cập nhật"}
+                                        </div>
+
+                                        <div className="mt-5 pt-3.5 border-t border-slate-100 flex items-center justify-between gap-2">
+                                            <div className="flex flex-wrap items-center gap-1.5">
+                                                <span className="text-[11px] font-bold bg-slate-50 text-slate-600 px-2 py-1 rounded">
+                                                    {getMockSalary(job)}
                                                 </span>
-                                                <span className="flex items-center gap-1.5 rounded-xl bg-slate-50 px-3 py-1.5 text-slate-500 font-normal max-w-[200px] truncate">
-                                                    {job.description || "Chưa có mô tả"}
+                                                <span className="text-[11px] font-bold bg-slate-50 text-slate-600 px-2 py-1 rounded truncate max-w-[80px]" title={job.location}>
+                                                    {job.location || "Toàn quốc"}
                                                 </span>
+                                            </div>
+
+                                            <div className="flex items-center gap-1.5">
+                                                <button
+                                                    onClick={() => toggleBookmark(job.id)}
+                                                    className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all shrink-0 ${
+                                                        isBookmarked 
+                                                        ? "bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100" 
+                                                        : "bg-white border-slate-200 text-slate-400 hover:text-emerald-600 hover:border-emerald-600"
+                                                    }`}
+                                                >
+                                                    <Heart className={`w-3.5 h-3.5 ${isBookmarked ? "fill-current" : ""}`} />
+                                                </button>
+                                                
+                                                {renderActionButton(job)}
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="mt-6 sm:mt-0 shrink-0">
-                                        {renderActionButton(job)}
-                                    </div>
-                                </div>
-                            ))
+                                )
+                            })
                         )}
                     </div>
+
+                    {/* PAGINATION BOTTOM */}
+                    {filteredEvents.length > itemsPerPage && (
+                        <div className="flex items-center justify-center gap-4 pt-4 border-t border-slate-100 mt-6">
+                            <button
+                                disabled={currentPage === 1}
+                                onClick={() => {
+                                    setCurrentPage(prev => Math.max(prev - 1, 1));
+                                    window.scrollTo({ top: 400, behavior: 'smooth' });
+                                }}
+                                className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:text-emerald-600 disabled:opacity-50 disabled:hover:text-slate-500 disabled:hover:border-slate-200 transition-colors"
+                            >
+                                <ChevronLeft className="w-4 h-4" />
+                            </button>
+                            <span className="text-sm font-bold text-slate-600">
+                                {currentPage} / {totalPages} trang
+                            </span>
+                            <button
+                                disabled={currentPage === totalPages}
+                                onClick={() => {
+                                    setCurrentPage(prev => Math.min(prev + 1, totalPages));
+                                    window.scrollTo({ top: 400, behavior: 'smooth' });
+                                }}
+                                className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:text-emerald-600 disabled:opacity-50 disabled:hover:text-slate-500 disabled:hover:border-slate-200 transition-colors"
+                            >
+                                <ChevronRight className="w-4 h-4" />
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* CỘT PHỤ BÊN PHẢI (Giữ nguyên) */}
