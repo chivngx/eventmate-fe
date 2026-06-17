@@ -6,6 +6,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Bell, LogOut, User, Briefcase, Building2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import SponsorsSection from "./SponsorsSection"
+import Footer from "./Footer"
 
 export default function MainLayout({ children, role }: { children: React.ReactNode, role?: string }) {
     const navigate = useNavigate()
@@ -152,15 +154,21 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
     )
 
     return (
-        <div className="min-h-screen bg-slate-50 font-sans selection:bg-emerald-200">
+        <div className="min-h-screen bg-slate-50 font-sans selection:bg-emerald-200 flex flex-col">
             <NotchNavbar
                 logo={<span className="font-black text-xl tracking-tight text-slate-900 cursor-pointer" onClick={() => navigate('/')}>Event<span className="text-emerald-600">Mate</span></span>}
                 rightActions={rightActions}
                 role={role}
             />
-            <main className="pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <main className="pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex-grow w-full">
                 {children}
             </main>
+
+            {/* HÀNG LOGO NHÀ TÀI TRỢ (Chỉ hiển thị logo chạy ngang) */}
+            {role !== 'organizer' && <SponsorsSection />}
+
+            {/* FOOTER LIÊN KẾT */}
+            <Footer />
         </div>
     )
 }

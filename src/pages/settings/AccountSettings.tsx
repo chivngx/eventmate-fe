@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react"
 import { Navigate } from "react-router-dom"
 import { cn } from "@/lib/utils" // Sử dụng hàm cn chuẩn từ utils dự án
 import { Button } from "@/components/ui/button"
@@ -16,6 +17,15 @@ import MainLayout from "@/components/layout/MainLayout"
 import { useAccountSettings } from "@/pages/settings/useAccountSettings" // Import Hook vừa tạo
 
 export default function AccountSettings() {
+    const [isMobile, setIsMobile] = useState(false)
+
+    useEffect(() => {
+        const checkMobile = () => setIsMobile(window.innerWidth < 768)
+        checkMobile()
+        window.addEventListener("resize", checkMobile)
+        return () => window.removeEventListener("resize", checkMobile)
+    }, [])
+
     // Hút toàn bộ dữ liệu và hàm từ Hook logic ra
     const {
         role,
@@ -59,20 +69,20 @@ export default function AccountSettings() {
                     </div>
                 )}
 
-                {/* Cấu trúc Layout gồm cụm Tab dọc */}
-                <Tabs defaultValue="account" orientation="vertical" className="flex flex-col md:flex-row gap-6">
+                {/* Cấu trúc Layout gồm cụm Tab dọc (desktop) và ngang (mobile) */}
+                <Tabs defaultValue="account" orientation={isMobile ? "horizontal" : "vertical"} className="flex flex-col md:flex-row gap-6">
 
                     {/* Cột Điều hướng danh mục */}
-                    <TabsList className="flex flex-col w-full md:w-52 shrink-0 h-auto bg-transparent space-y-1 p-0">
+                    <TabsList className="flex flex-row md:flex-col w-full md:w-52 shrink-0 h-auto bg-slate-100 md:bg-transparent p-1 md:p-0 rounded-xl md:rounded-none space-x-1 md:space-x-0 md:space-y-1">
                         <TabsTrigger
                             value="account"
-                            className="w-full justify-start px-4 py-3 rounded-2xl font-bold text-slate-500 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:shadow-none transition-all"
+                            className="flex-1 md:flex-initial w-auto md:w-full justify-center md:justify-start px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-2xl font-bold text-slate-500 data-[state=active]:bg-white md:data-[state=active]:bg-emerald-50 data-[state=active]:text-slate-900 md:data-[state=active]:text-emerald-700 data-[state=active]:shadow-sm md:data-[state=active]:shadow-none transition-all"
                         >
                             Thông tin cá nhân
                         </TabsTrigger>
                         <TabsTrigger
                             value="password"
-                            className="w-full justify-start px-4 py-3 rounded-2xl font-bold text-slate-500 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-700 data-[state=active]:shadow-none transition-all"
+                            className="flex-1 md:flex-initial w-auto md:w-full justify-center md:justify-start px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-2xl font-bold text-slate-500 data-[state=active]:bg-white md:data-[state=active]:bg-emerald-50 data-[state=active]:text-slate-900 md:data-[state=active]:text-emerald-700 data-[state=active]:shadow-sm md:data-[state=active]:shadow-none transition-all"
                         >
                             Mật khẩu & Bảo mật
                         </TabsTrigger>

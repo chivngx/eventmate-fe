@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { supabase } from "@/lib/supabase"
+import RotatingText from "@/components/RotatingText"
 
 export default function StudentDashboard() {
     const navigate = useNavigate()
@@ -141,8 +142,23 @@ export default function StudentDashboard() {
             {/* 1. BANNER PHẲNG */}
             <div className="relative overflow-hidden rounded-[2rem] bg-emerald-500 px-6 py-14 shadow-md sm:px-16 sm:py-16 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="relative z-10 mx-auto max-w-3xl text-center space-y-5">
-                    <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl leading-tight">
-                        Nắm bắt cơ hội sự kiện <br className="hidden sm:block" /> bứt phá sự nghiệp
+                    <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl leading-tight flex flex-col items-center justify-center gap-3">
+                        <span>Nắm bắt cơ hội sự kiện</span>
+                        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+                            <span>bứt phá</span>
+                            <RotatingText
+                                texts={["sự nghiệp", "tương lai", "bản thân", "giới hạn"]}
+                                mainClassName="text-emerald-600 bg-white px-3 sm:px-4 py-0.5 sm:py-1 rounded-2xl inline-flex overflow-hidden justify-center shadow-md border-2 border-emerald-100"
+                                staggerFrom="first"
+                                initial={{ y: "100%", opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                exit={{ y: "-120%", opacity: 0 }}
+                                staggerDuration={0.02}
+                                splitLevelClassName="overflow-hidden pb-0.5"
+                                transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                                rotationInterval={2500}
+                            />
+                        </div>
                     </h1>
                     <p className="mx-auto max-w-xl text-lg text-emerald-50 font-medium">
                         Hàng ngàn vị trí Tình nguyện viên, CTV Truyền thông và Điều phối đang chờ đón bạn.
