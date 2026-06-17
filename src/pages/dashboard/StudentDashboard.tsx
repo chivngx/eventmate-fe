@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { Search, MapPin, Clock, DollarSign, ChevronRight, CheckCircle2, Bookmark, CheckCircle, XCircle, Clock3 } from "lucide-react"
+import { Search, MapPin, ChevronRight, CheckCircle2, Bookmark, CheckCircle, XCircle, Clock3 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
