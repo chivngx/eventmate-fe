@@ -25,15 +25,14 @@ const NavLink = ({ href, icon: Icon, label }: { href: string; icon: React.Compon
 // COMPONENT MỚI: MEGA MENU CHO "VIỆC LÀM"
 const JobsMegaMenu = () => {
     return (
-        <div className="group relative">
+        <div className="group">
             <button className="flex items-center gap-1.5 text-sm transition-all whitespace-nowrap px-3 sm:px-4 py-2 rounded-full font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-50">
-                <Search className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-colors" />
                 <span className="hidden sm:inline-block">Việc làm</span>
                 <ChevronDown className="w-4 h-4 text-slate-400 group-hover:rotate-180 transition-transform duration-300" />
             </button>
 
             {/* Dropdown Content - Hiển thị khi hover */}
-            <div className="absolute top-full left-0 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 w-[800px] z-[100] translate-y-2 group-hover:translate-y-0">
+            <div className="absolute top-full left-1/2 -translate-x-1/2 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 w-[800px] z-[100] translate-y-2 group-hover:translate-y-0">
                 <div className="bg-white rounded-[2rem] shadow-2xl border-2 border-slate-100 p-8 grid grid-cols-12 gap-10 relative overflow-hidden">
 
                     {/* Background bóng mờ trang trí */}
@@ -96,15 +95,14 @@ const JobsMegaMenu = () => {
 // COMPONENT MỚI: MEGA MENU CHO "TUYỂN DỤNG"
 const RecruiterMegaMenu = () => {
     return (
-        <div className="group relative">
+        <div className="group">
             <button className="flex items-center gap-1.5 text-sm transition-all whitespace-nowrap px-3 sm:px-4 py-2 rounded-full font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-50">
-                <Briefcase className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-colors" />
                 <span className="hidden sm:inline-block">Tuyển dụng</span>
                 <ChevronDown className="w-4 h-4 text-slate-400 group-hover:rotate-180 transition-transform duration-300" />
             </button>
 
             {/* Dropdown Content - Hiển thị khi hover */}
-            <div className="absolute top-full left-0 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 w-[800px] z-[100] translate-y-2 group-hover:translate-y-0">
+            <div className="absolute top-full left-1/2 -translate-x-1/2 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 w-[800px] z-[100] translate-y-2 group-hover:translate-y-0">
                 <div className="bg-white rounded-[2rem] shadow-2xl border-2 border-slate-100 p-8 grid grid-cols-12 gap-10 relative overflow-hidden">
 
                     {/* Background bóng mờ trang trí */}
@@ -203,7 +201,7 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                     </svg>
                 </div>
 
-                <div className="flex h-[72px] relative z-10 w-full max-w-[760px] lg:max-w-[860px] shrink-0 -ml-px">
+                <div className="flex h-[72px] relative z-10 w-auto shrink-0 -ml-px">
 
                     <div className="w-[50px] h-full relative shrink-0">
                         <div className="absolute inset-0 bg-white" style={{ clipPath: "path('M0 0 H50 V72 C25 72 25 48 0 48 Z')" }} />
@@ -212,16 +210,16 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                         </svg>
                     </div>
 
-                    <div className="flex-1 h-full relative min-w-0 -ml-px">
+                    <div className="flex-initial w-auto h-full relative -ml-px">
                         <div className="absolute inset-0 bg-white">
                             <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none">
                                 <line x1="0" y1="71.5" x2="100%" y2="71.5" className={strokeColor} strokeWidth={1} />
                             </svg>
                         </div>
 
-                        <div className="relative w-full h-full flex items-center justify-between px-1 sm:px-4 pt-3 pb-1">
+                        <div className="relative w-auto h-full flex items-center justify-between gap-4 sm:gap-6 lg:gap-10 px-3 sm:px-6 pt-3 pb-1">
 
-                            <div className="flex-1 flex justify-start pl-0 md:pl-2">
+                            <div className="flex-shrink-0 flex items-center pl-0 md:pl-2">
                                 <nav className="hidden md:flex items-center gap-0 lg:gap-1">
                                     {role === "organizer" ? (
                                         <>
@@ -247,7 +245,7 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                                 {logo}
                             </div>
 
-                            <div className="flex-1 flex justify-end items-center pr-1 md:pr-2">
+                            <div className="flex-shrink-0 flex items-center justify-end pr-1 md:pr-2">
                                 <div className="flex items-center gap-1.5 sm:gap-3">
                                     <MobileThemeToggle />
                                     {rightActions}

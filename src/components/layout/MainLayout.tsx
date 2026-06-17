@@ -5,9 +5,12 @@ import { NotchNavbar } from "@/components/ui/notch-navbar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Bell, LogOut, User, Briefcase, Building2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 export default function MainLayout({ children, role }: { children: React.ReactNode, role?: string }) {
     const navigate = useNavigate()
+    const [user, setUser] = useState<any>(null)
+    const [loadingAuth, setLoadingAuth] = useState(true)
     const [fullName, setFullName] = useState("")
     const [email, setEmail] = useState("")
     const [avatarUrl, setAvatarUrl] = useState("")
@@ -19,6 +22,7 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
     useEffect(() => {
         const fetchProfile = async () => {
             const { data: { user } } = await supabase.auth.getUser()
+            setUser(user)
             if (user) {
                 setEmail(user.email || "")
                 const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
@@ -36,13 +40,14 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
                     .limit(10)
                 if (notifs) setNotifications(notifs)
             }
+            setLoadingAuth(false)
         }
         fetchProfile()
     }, [])
 
     const handleLogout = async () => {
         await supabase.auth.signOut()
-        navigate("/login")
+        window.location.href = "/"
     }
 
     const getInitial = (name: string) => name ? name.charAt(0).toUpperCase() : "U"
@@ -57,7 +62,7 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
         }
     }
 
-    const rightActions = (
+    const rightActions = loadingAuth ? null : user ? (
         <div className="flex items-center gap-2 sm:gap-4">
 
             {/* DROPDOWN THÔNG BÁO */}
@@ -127,6 +132,22 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
+        </div>
+    ) : (
+        <div className="flex items-center gap-1.5 sm:gap-2">
+            <Button
+                variant="ghost"
+                className="text-[13px] sm:text-sm font-semibold text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-full px-2 sm:px-4 whitespace-nowrap"
+                onClick={() => navigate('/login')}
+            >
+                Đăng nhập
+            </Button>
+            <Button
+                className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-3 sm:px-5 text-[13px] sm:text-sm font-semibold shadow-sm transition-all whitespace-nowrap shrink-0"
+                onClick={() => navigate('/register')}
+            >
+                Đăng ký
+            </Button>
         </div>
     )
 

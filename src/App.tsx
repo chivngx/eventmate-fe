@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import Register from "./pages/auth/Register"
 import Login from "./pages/auth/Login"
@@ -8,6 +9,25 @@ import EventDetail from "./pages/EventDetail"
 import MyJobs from "./pages/MyJobs" // THÊM DÒNG IMPORT NÀY
 
 function App() {
+  useEffect(() => {
+    const cleanHash = () => {
+      if (window.location.href.includes("#")) {
+        // Đợi 300ms để Supabase Auth đọc và xử lý token fragment trước khi xóa
+        setTimeout(() => {
+          window.history.replaceState(
+            null,
+            "",
+            window.location.pathname + window.location.search
+          )
+        }, 300)
+      }
+    }
+    
+    cleanHash()
+    window.addEventListener("hashchange", cleanHash)
+    return () => window.removeEventListener("hashchange", cleanHash)
+  }, [])
+
   return (
     <Router>
       <Routes>

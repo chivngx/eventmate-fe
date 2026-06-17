@@ -24,14 +24,14 @@ export default function Login() {
     // Kiểm tra xem có phiên đăng nhập nào tồn tại sẵn không
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        navigate("/")
+        window.location.href = "/"
       }
     })
 
     // Lắng nghe sự thay đổi trạng thái theo thời gian thực (khi OAuth hoàn tất)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        navigate("/")
+        window.location.href = "/"
       }
     })
 
@@ -68,7 +68,7 @@ export default function Login() {
       setError("Email hoặc mật khẩu không chính xác. Vui lòng thử lại!")
       setLoading(false)
     } else if (data.user) {
-      navigate("/")
+      window.location.href = "/"
     }
   }
 
