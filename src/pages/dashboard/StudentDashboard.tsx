@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
-import { Search, MapPin, ChevronRight, CheckCircle2, Bookmark, CheckCircle, XCircle, Clock3, Heart, ChevronLeft, X } from "lucide-react"
+import { Search, MapPin, ChevronRight, CheckCircle2, CheckCircle, XCircle, Clock3, Heart, ChevronLeft, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { supabase } from "@/lib/supabase"
 import RotatingText from "@/components/RotatingText"
@@ -103,11 +102,6 @@ export default function StudentDashboard() {
             alert("Lỗi: " + appError.message)
         }
         setApplyingId(null)
-    }
-
-    const getColorClass = (index: number) => {
-        const colors = ["bg-orange-100 text-orange-700", "bg-emerald-100 text-emerald-700", "bg-rose-100 text-rose-700", "bg-blue-100 text-blue-700", "bg-purple-100 text-purple-700"]
-        return colors[index % colors.length]
     }
 
     const toggleBookmark = (eventId: string) => {
