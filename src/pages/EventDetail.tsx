@@ -1,0 +1,229 @@
+import { useState, useEffect } from "react"
+import { useParams, useNavigate } from "react-router-dom"
+import { supabase } from "@/lib/supabase"
+import MainLayout from "@/components/layout/MainLayout"
+import { ArrowLeft, MapPin, Calendar, Building2, CheckCircle, XCircle, Clock3, Share2, Bookmark } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+
+export default function EventDetail() {
+    const { id } = useParams<{ id: string }>()
+    const navigate = useNavigate()
+    const [event, setEvent] = useState<any>(null)
+    const [loading, setLoading] = useState(true)
+    const [role, setRole] = useState<string>("guest")
+
+    // Quản lý trạng thái ứng tuyển tại trang này
+    const [applyStatus, setApplyStatus] = useState<string | null>(null)
+    const [isApplying, setIsApplying] = useState(false)
+
+    useEffect(() => {
+        const fetchEventDetails = async () => {
+            setLoading(true)
+
+            // Lấy thông tin user hiện tại
+            const { data: { user } } = await supabase.auth.getUser()
+            if (user) {
+                const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
+                if (profile) setRole(profile.role)
+
+                // Nếu là sinh viên, kiểm tra xem đã ứng tuyển sự kiện này chưa
+                if (profile?.role === "student") {
+                    const { data: appData } = await supabase
+                        .from("applications")
+                        .select("status")
+                        .eq("event_id", id)
+                        .eq("student_id", user.id)
+                        .maybeSingle()
+
+                    if (appData) setApplyStatus(appData.status)
+                }
+            }
+
+            // Kéo dữ liệu chi tiết của sự kiện + thông tin BTC
+            const { data: eventData, error } = await supabase
+                .from("events")
+                .select("*, profiles(full_name, avatar_url)")
+                .eq("id", id)
+                .maybeSingle()
+
+            if (eventData) {
+                setEvent(eventData)
+            } else {
+                console.error("Lỗi hoặc không tìm thấy sự kiện", error)
+            }
+
+            setLoading(false)
+        }
+
+        fetchEventDetails()
+    }, [id])
+
+    const handleApply = async () => {
+        setIsApplying(true)
+        const { data: { user } } = await supabase.auth.getUser()
+
+        if (!user) {
+            alert("Bạn cần đăng nhập để ứng tuyển!")
+            navigate("/login")
+            return
+        }
+
+        const { error } = await supabase.from("applications").insert([
+            { event_id: id, student_id: user.id }
+        ])
+
+        if (error) {
+            alert("Lỗi: " + error.message)
+        } else {
+            setApplyStatus('pending')
+            alert("Ứng tuyển thành công! Vui lòng chờ BTC duyệt.")
+        }
+        setIsApplying(false)
+    }
+
+    if (loading) return (
+        <MainLayout role="guest">
+            <div className="flex justify-center items-center py-20 text-slate-500 font-medium">Đang tải chi tiết sự kiện...</div>
+        </MainLayout>
+    )
+
+    if (!event) return (
+        <MainLayout role="guest">
+            <div className="text-center py-20">
+                <h2 className="text-2xl font-black text-slate-900">Không tìm thấy sự kiện</h2>
+                <p className="text-slate-500 mt-2">Sự kiện này có thể đã bị xóa hoặc không tồn tại.</p>
+                <Button onClick={() => navigate(-1)} className="mt-4 rounded-xl bg-slate-900 text-white">Quay lại</Button>
+            </div>
+        </MainLayout>
+    )
+
+    // Hiển thị nút ứng tuyển dựa trên trạng thái
+    const renderApplyButton = () => {
+        if (role !== "student") return null // BTC không tự ứng tuyển
+
+        if (applyStatus === 'approved') {
+            return <Button disabled className="w-full rounded-2xl bg-emerald-100 text-emerald-700 font-bold h-12 border-2 border-emerald-200"><CheckCircle className="w-5 h-5 mr-2" /> Trúng tuyển</Button>
+        }
+        if (applyStatus === 'rejected') {
+            return <Button disabled className="w-full rounded-2xl bg-rose-50 text-rose-500 font-bold h-12 border-2 border-rose-100"><XCircle className="w-5 h-5 mr-2" /> Chưa phù hợp</Button>
+        }
+        if (applyStatus === 'pending') {
+            return <Button disabled className="w-full rounded-2xl bg-amber-50 text-amber-600 font-bold h-12 border-2 border-amber-100"><Clock3 className="w-5 h-5 mr-2" /> Đang chờ duyệt</Button>
+        }
+
+        return (
+            <Button
+                onClick={handleApply}
+                disabled={isApplying || event.status !== 'upcoming'}
+                className="w-full rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-12 transition-transform active:scale-95 shadow-lg shadow-emerald-600/20 disabled:opacity-50"
+            >
+                {isApplying ? "Đang xử lý..." : event.status !== 'upcoming' ? "Đã đóng đăng ký" : "Ứng tuyển ngay"}
+            </Button>
+        )
+    }
+
+    return (
+        <MainLayout role={role}>
+            <div className="max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+
+                <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-slate-500 font-bold hover:text-slate-900 mb-6 transition-colors">
+                    <ArrowLeft className="w-5 h-5" /> Quay lại
+                </button>
+
+                {/* HEADER SỰ KIỆN */}
+                <div className="bg-white rounded-[2rem] border-2 border-slate-100 shadow-sm p-8 mb-8">
+                    <div className="flex flex-col md:flex-row gap-6 items-start">
+                        <Avatar className="h-24 w-24 rounded-3xl border-4 border-slate-50 shadow-sm shrink-0">
+                            <AvatarImage src={event.profiles?.avatar_url} />
+                            <AvatarFallback className="rounded-3xl bg-emerald-50 text-emerald-600 text-3xl font-black">
+                                {event.profiles?.full_name?.charAt(0).toUpperCase() || "O"}
+                            </AvatarFallback>
+                        </Avatar>
+
+                        <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-3">
+                                <Badge variant="secondary" className={event.status === 'upcoming' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}>
+                                    {event.status === 'upcoming' ? 'Đang mở đăng ký' : 'Đã đóng'}
+                                </Badge>
+                                <span className="text-sm font-bold text-slate-400 flex items-center gap-1">
+                                    <Calendar className="w-4 h-4" /> Đăng ngày {new Date(event.created_at).toLocaleDateString('vi-VN')}
+                                </span>
+                            </div>
+
+                            <h1 className="text-3xl md:text-4xl font-black tracking-tight text-slate-900 mb-2 leading-tight">
+                                {event.title}
+                            </h1>
+
+                            <h2 className="text-lg font-bold text-slate-500 flex items-center gap-2">
+                                <Building2 className="w-5 h-5" /> {event.profiles?.full_name || "Đơn vị ẩn danh"}
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+
+                {/* BỐ CỤC 2 CỘT: CỘT NỘI DUNG & CỘT SIDEBAR */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                    {/* Cột trái: Chi tiết JD */}
+                    <div className="lg:col-span-2 space-y-8">
+                        <div className="bg-white rounded-[2rem] border-2 border-slate-100 shadow-sm p-8">
+                            <h3 className="text-xl font-extrabold text-slate-900 mb-6 flex items-center gap-2">
+                                Chi tiết công việc
+                            </h3>
+                            {/* Dùng whitespace-pre-wrap để giữ lại dấu xuống dòng khi BTC nhập form */}
+                            <div className="text-slate-700 leading-relaxed font-medium whitespace-pre-wrap">
+                                {event.description || "Chưa có mô tả chi tiết cho sự kiện này."}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Cột phải: Sidebar ghim cố định (Sticky) */}
+                    <div className="lg:col-span-1">
+                        <div className="sticky top-[100px] bg-white rounded-[2rem] border-2 border-slate-100 shadow-xl shadow-slate-900/5 p-6">
+
+                            {/* Khối Thông tin tóm tắt */}
+                            <div className="space-y-4 mb-6">
+                                <div className="flex items-start gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center shrink-0">
+                                        <MapPin className="w-5 h-5 text-emerald-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Địa điểm</p>
+                                        <p className="text-sm font-bold text-slate-900 mt-0.5">{event.location || "Đang cập nhật"}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center shrink-0">
+                                        <Clock3 className="w-5 h-5 text-emerald-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Hình thức</p>
+                                        <p className="text-sm font-bold text-slate-900 mt-0.5">Làm việc trực tiếp (Offline)</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr className="border-slate-100 mb-6" />
+
+                            {/* Khu vực Nút ứng tuyển */}
+                            {renderApplyButton()}
+
+                            {/* Nút thao tác phụ */}
+                            <div className="flex gap-2 mt-3">
+                                <Button variant="outline" className="flex-1 rounded-xl border-slate-200 text-slate-600 font-bold hover:bg-slate-50 h-11">
+                                    <Bookmark className="w-4 h-4 mr-2" /> Lưu lại
+                                </Button>
+                                <Button variant="outline" className="flex-1 rounded-xl border-slate-200 text-slate-600 font-bold hover:bg-slate-50 h-11">
+                                    <Share2 className="w-4 h-4 mr-2" /> Chia sẻ
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </MainLayout>
+    )
+}

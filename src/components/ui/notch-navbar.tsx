@@ -1,24 +1,170 @@
 import { useState, useEffect } from "react"
 import { Link, useLocation } from "react-router-dom"
-import { Search, FileText, Menu, X, Sun, Moon } from "lucide-react"
+import { Search, FileText, Menu, X, Sun, Moon, ChevronDown, Bookmark, Briefcase, Building2, Plus, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 
 const NavLink = ({ href, icon: Icon, label }: { href: string; icon: React.ComponentType<{ className?: string }>; label: string }) => {
     const location = useLocation()
-    const isActive = location.pathname === href
+    const isActive = location.pathname === href || (location.pathname + location.search === href)
 
     return (
         <Link
             to={href}
             className={cn(
-                "group flex items-center gap-1.5 text-sm transition-all whitespace-nowrap px-4 py-2 rounded-full",
+                "group flex items-center gap-1.5 text-sm transition-all whitespace-nowrap px-3 sm:px-4 py-2 rounded-full",
                 isActive ? "text-emerald-600 bg-emerald-50/80 font-bold shadow-sm border border-emerald-100/50" : "font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-50"
             )}
         >
             <Icon className={cn("w-4 h-4", isActive ? "text-emerald-600" : "text-slate-400 group-hover:text-slate-600")} />
-            <span>{label}</span>
+            <span className="hidden sm:inline-block">{label}</span>
         </Link>
+    )
+}
+
+// COMPONENT MỚI: MEGA MENU CHO "VIỆC LÀM"
+const JobsMegaMenu = () => {
+    return (
+        <div className="group relative">
+            <button className="flex items-center gap-1.5 text-sm transition-all whitespace-nowrap px-3 sm:px-4 py-2 rounded-full font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-50">
+                <Search className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-colors" />
+                <span className="hidden sm:inline-block">Việc làm</span>
+                <ChevronDown className="w-4 h-4 text-slate-400 group-hover:rotate-180 transition-transform duration-300" />
+            </button>
+
+            {/* Dropdown Content - Hiển thị khi hover */}
+            <div className="absolute top-full left-0 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 w-[800px] z-[100] translate-y-2 group-hover:translate-y-0">
+                <div className="bg-white rounded-[2rem] shadow-2xl border-2 border-slate-100 p-8 grid grid-cols-12 gap-10 relative overflow-hidden">
+
+                    {/* Background bóng mờ trang trí */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-full blur-3xl -z-10 translate-x-1/3 -translate-y-1/3 opacity-70"></div>
+
+                    {/* CỘT 1: QUẢN LÝ VIỆC LÀM */}
+                    <div className="col-span-4 space-y-8">
+                        <div>
+                            <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Quản lý Việc làm</h4>
+                            <div className="space-y-1">
+                                <Link to="/" className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
+                                    <Search className="w-5 h-5 text-emerald-500 group-hover/item:scale-110 transition-transform" /> Tìm việc sự kiện
+                                </Link>
+                                <Link to="/" className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
+                                    <Bookmark className="w-5 h-5 text-slate-400 group-hover/item:text-emerald-500 group-hover/item:scale-110 transition-all" /> Việc làm đã lưu
+                                </Link>
+                                <Link to="/my-jobs" className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
+                                    <Briefcase className="w-5 h-5 text-slate-400 group-hover/item:text-emerald-500 group-hover/item:scale-110 transition-all" /> Việc làm đã ứng tuyển
+                                </Link>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Ban Tổ Chức</h4>
+                            <Link to="/" className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
+                                <Building2 className="w-5 h-5 text-slate-400 group-hover/item:text-emerald-500 group-hover/item:scale-110 transition-all" /> Danh sách Ban tổ chức
+                            </Link>
+                        </div>
+                    </div>
+
+                    {/* CỘT 2: THEO VỊ TRÍ */}
+                    <div className="col-span-4 border-l border-slate-100 pl-6">
+                        <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-5">Việc làm theo vị trí</h4>
+                        <div className="space-y-4">
+                            {['Tình nguyện viên', 'Điều phối viên (Coordinator)', 'CTV Truyền thông', 'Hậu cần & Setup', 'MC / Hoạt náo viên', 'Hỗ trợ khách mời'].map(item => (
+                                <Link key={item} to="/" className="block text-sm font-medium text-slate-600 hover:text-emerald-600 hover:translate-x-1 hover:font-bold transition-all">
+                                    {item}
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* CỘT 3: THEO LOẠI SỰ KIỆN */}
+                    <div className="col-span-4 border-l border-slate-100 pl-6">
+                        <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-5">Việc làm theo sự kiện</h4>
+                        <div className="space-y-4">
+                            {['Lễ hội Âm nhạc', 'Hội thảo / Workshop', 'Giải đấu Thể thao', 'Giao lưu Văn hóa', 'Triển lãm / Hội chợ', 'Sự kiện Công nghệ'].map(item => (
+                                <Link key={item} to="/" className="block text-sm font-medium text-slate-600 hover:text-emerald-600 hover:translate-x-1 hover:font-bold transition-all">
+                                    {item}
+                                </Link>
+                            ))}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    )
+}
+
+// COMPONENT MỚI: MEGA MENU CHO "TUYỂN DỤNG"
+const RecruiterMegaMenu = () => {
+    return (
+        <div className="group relative">
+            <button className="flex items-center gap-1.5 text-sm transition-all whitespace-nowrap px-3 sm:px-4 py-2 rounded-full font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-50">
+                <Briefcase className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-colors" />
+                <span className="hidden sm:inline-block">Tuyển dụng</span>
+                <ChevronDown className="w-4 h-4 text-slate-400 group-hover:rotate-180 transition-transform duration-300" />
+            </button>
+
+            {/* Dropdown Content - Hiển thị khi hover */}
+            <div className="absolute top-full left-0 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 w-[800px] z-[100] translate-y-2 group-hover:translate-y-0">
+                <div className="bg-white rounded-[2rem] shadow-2xl border-2 border-slate-100 p-8 grid grid-cols-12 gap-10 relative overflow-hidden">
+
+                    {/* Background bóng mờ trang trí */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-full blur-3xl -z-10 translate-x-1/3 -translate-y-1/3 opacity-70"></div>
+
+                    {/* CỘT 1: QUẢN LÝ TUYỂN DỤNG */}
+                    <div className="col-span-4 space-y-8">
+                        <div>
+                            <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Hoạt động chính</h4>
+                            <div className="space-y-1">
+                                <Link to="/" className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
+                                    <Building2 className="w-5 h-5 text-emerald-500 group-hover/item:scale-110 transition-transform" /> Bảng điều khiển
+                                </Link>
+                                <Link to="/?action=create" className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
+                                    <Plus className="w-5 h-5 text-slate-400 group-hover/item:text-emerald-500 group-hover/item:scale-110 transition-all" /> Đăng sự kiện mới
+                                </Link>
+                            </div>
+                        </div>
+                        <div>
+                            <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Hồ sơ ứng viên</h4>
+                            <Link to="/" className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
+                                <Users className="w-5 h-5 text-slate-400 group-hover/item:text-emerald-500 group-hover/item:scale-110 transition-all" /> Duyệt hồ sơ sinh viên
+                            </Link>
+                        </div>
+                    </div>
+
+                    {/* CỘT 2: CHIẾN DỊCH VÀ PHÂN TÍCH */}
+                    <div className="col-span-4 border-l border-slate-100 pl-6">
+                        <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-5">Thống kê chiến dịch</h4>
+                        <div className="space-y-4">
+                            <div className="block text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors">
+                                <span className="font-bold text-slate-900 block">Sự kiện hoạt động</span>
+                                Theo dõi các chiến dịch tuyển dụng đang mở.
+                            </div>
+                            <div className="block text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors">
+                                <span className="font-bold text-slate-900 block">Duyệt hồ sơ nhanh</span>
+                                Phê duyệt ứng tuyển và gửi thông báo tự động.
+                            </div>
+                            <div className="block text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors">
+                                <span className="font-bold text-slate-900 block">Phản hồi ứng viên</span>
+                                Gửi mail thông báo và phản hồi tự động.
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* CỘT 3: CẨM NANG & MẪU */}
+                    <div className="col-span-4 border-l border-slate-100 pl-6">
+                        <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-5">Hướng dẫn & Mẫu</h4>
+                        <div className="space-y-4">
+                            {['Mẫu bài đăng tuyển TVN', 'Quy trình tuyển chọn', 'Tiêu chí đánh giá CV', 'Cách thu hút sinh viên', 'Câu hỏi phỏng vấn gợi ý'].map(item => (
+                                <div key={item} className="text-sm font-medium text-slate-600 hover:text-emerald-600 hover:translate-x-1 transition-all cursor-pointer">
+                                    {item}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
     )
 }
 
@@ -35,10 +181,10 @@ const MobileThemeToggle = () => {
     return (
         <button
             onClick={toggleTheme}
-            className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-400 hover:text-emerald-600"
+            className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-400 hover:text-emerald-600"
             aria-label="Toggle theme"
         >
-            {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            {isDark ? <Sun className="w-4 h-4 sm:w-5 sm:h-5" /> : <Moon className="w-4 h-4 sm:w-5 sm:h-5" />}
         </button>
     )
 }
@@ -57,7 +203,7 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                     </svg>
                 </div>
 
-                <div className="flex h-[72px] relative z-10 w-full max-w-[650px] lg:max-w-[760px] shrink-0 -ml-px">
+                <div className="flex h-[72px] relative z-10 w-full max-w-[760px] lg:max-w-[860px] shrink-0 -ml-px">
 
                     <div className="w-[50px] h-full relative shrink-0">
                         <div className="absolute inset-0 bg-white" style={{ clipPath: "path('M0 0 H50 V72 C25 72 25 48 0 48 Z')" }} />
@@ -73,14 +219,18 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                             </svg>
                         </div>
 
-                        <div className="relative w-full h-full flex items-center justify-between px-2 sm:px-4 pt-3 pb-1">
+                        <div className="relative w-full h-full flex items-center justify-between px-1 sm:px-4 pt-3 pb-1">
 
-                            {/* Đã dọn dẹp: CHỈ GIỮ LẠI VIỆC LÀM & HỒ SƠ CV */}
                             <div className="flex-1 flex justify-start pl-0 md:pl-2">
-                                <nav className="hidden md:flex items-center gap-0 lg:gap-2">
-                                    {role === "student" && (
+                                <nav className="hidden md:flex items-center gap-0 lg:gap-1">
+                                    {role === "organizer" ? (
                                         <>
-                                            <NavLink href="/jobs" icon={Search} label="Việc làm" />
+                                            <RecruiterMegaMenu />
+                                            <NavLink href="/?action=create" icon={Plus} label="Đăng sự kiện" />
+                                        </>
+                                    ) : (
+                                        <>
+                                            <JobsMegaMenu />
                                             <NavLink href="/cv" icon={FileText} label="Hồ sơ CV" />
                                         </>
                                     )}
@@ -97,8 +247,8 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                                 {logo}
                             </div>
 
-                            <div className="flex-1 flex justify-end items-center pr-1 md:pr-3">
-                                <div className="flex items-center gap-2 sm:gap-4">
+                            <div className="flex-1 flex justify-end items-center pr-1 md:pr-2">
+                                <div className="flex items-center gap-1.5 sm:gap-3">
                                     <MobileThemeToggle />
                                     {rightActions}
                                 </div>
@@ -133,12 +283,25 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                         className="fixed inset-x-0 top-[72px] z-40 bg-white border-b border-slate-100 p-4 md:hidden shadow-md rounded-b-2xl"
                     >
                         <nav className="flex flex-col gap-1">
-                            <Link to="/jobs" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 font-bold text-slate-800" onClick={() => setIsMobileMenuOpen(false)}>
-                                <Search className="w-5 h-5 text-slate-400" /> Việc làm sự kiện
-                            </Link>
-                            <Link to="/cv" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 font-bold text-slate-800" onClick={() => setIsMobileMenuOpen(false)}>
-                                <FileText className="w-5 h-5 text-slate-400" /> Hồ sơ CV của tôi
-                            </Link>
+                            {role === "organizer" ? (
+                                <>
+                                    <Link to="/" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 font-bold text-slate-800" onClick={() => setIsMobileMenuOpen(false)}>
+                                        <Building2 className="w-5 h-5 text-slate-400" /> Bảng điều khiển
+                                    </Link>
+                                    <Link to="/?action=create" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 font-bold text-slate-800" onClick={() => setIsMobileMenuOpen(false)}>
+                                        <Plus className="w-5 h-5 text-slate-400" /> Tạo sự kiện mới
+                                    </Link>
+                                </>
+                            ) : (
+                                <>
+                                    <Link to="/" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 font-bold text-slate-800" onClick={() => setIsMobileMenuOpen(false)}>
+                                        <Search className="w-5 h-5 text-slate-400" /> Việc làm sự kiện
+                                    </Link>
+                                    <Link to="/cv" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 font-bold text-slate-800" onClick={() => setIsMobileMenuOpen(false)}>
+                                        <FileText className="w-5 h-5 text-slate-400" /> Hồ sơ CV của tôi
+                                    </Link>
+                                </>
+                            )}
                         </nav>
                     </motion.div>
                 )}
