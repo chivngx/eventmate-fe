@@ -79,8 +79,7 @@ export default function EventDetail() {
         const { data: { user } } = await supabase.auth.getUser()
 
         if (!user) {
-            alert("Bạn cần đăng nhập để ứng tuyển!")
-            navigate("/login")
+            window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { mode: "login" } }))
             return
         }
 
@@ -101,7 +100,7 @@ export default function EventDetail() {
     const toggleBookmark = async () => {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) {
-            alert("Bạn cần đăng nhập để thực hiện chức năng lưu việc làm!")
+            window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { mode: "login" } }))
             return
         }
 

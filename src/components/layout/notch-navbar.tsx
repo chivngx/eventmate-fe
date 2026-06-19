@@ -4,13 +4,17 @@ import { Search, FileText, Menu, X, Sun, Moon, ChevronDown, Bookmark, Briefcase,
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 
-const NavLink = ({ href, icon: Icon, label }: { href: string; icon: React.ComponentType<{ className?: string }>; label: string }) => {
+const NavLink = ({ href, icon: Icon, label, onClick }: { href: string; icon: React.ComponentType<{ className?: string }>; label: string; onClick?: (e: React.MouseEvent) => void }) => {
     const location = useLocation()
-    const isActive = location.pathname === href
+    const currentPathWithSearch = location.pathname + location.search
+    const isActive = href.includes("?")
+        ? currentPathWithSearch === href || (href.includes("tab=events") && !location.search.includes("tab="))
+        : location.pathname === href
 
     return (
         <Link
             to={href}
+            onClick={onClick}
             className={cn(
                 "group flex items-center gap-1.5 text-sm transition-all whitespace-nowrap px-3 sm:px-4 py-2 rounded-full",
                 isActive ? "text-emerald-600 bg-emerald-50/80 font-bold shadow-sm border border-emerald-100/50" : "font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-50"
@@ -24,12 +28,19 @@ const NavLink = ({ href, icon: Icon, label }: { href: string; icon: React.Compon
 
 const RecruiterMenu = () => (
     <div className="flex items-center gap-1">
-        <NavLink href="/dashboard" icon={Briefcase} label="Bảng điều khiển" />
-        <NavLink href="/dashboard" icon={Users} label="Quản lý ứng viên" />
+        <NavLink href="/?tab=events" icon={Briefcase} label="Bảng điều khiển" />
+        <NavLink href="/?tab=applications" icon={Users} label="Quản lý ứng viên" />
     </div>
 )
 
-const JobsMegaMenu = () => {
+const JobsMegaMenu = ({ role }: { role?: string }) => {
+    const handleProtectedLink = (e: React.MouseEvent) => {
+        if (role === 'guest') {
+            e.preventDefault()
+            window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { mode: "login" } }))
+        }
+    }
+
     return (
         <div className="group relative">
             <button className="flex items-center gap-1.5 text-sm transition-all whitespace-nowrap px-3 sm:px-4 py-2 rounded-full font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-50">
@@ -52,10 +63,10 @@ const JobsMegaMenu = () => {
                                     <Search className="w-5 h-5 text-emerald-500 group-hover/item:scale-110 transition-transform" /> Tìm việc sự kiện
                                 </Link>
                                 {/* ĐÃ CẬP NHẬT: Gắn parameter ?filter=saved vào link dưới đây */}
-                                <Link to="/?filter=saved" className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
+                                <Link to="/?filter=saved" onClick={handleProtectedLink} className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
                                     <Bookmark className="w-5 h-5 text-slate-400 group-hover/item:text-emerald-500 group-hover/item:scale-110 transition-all" /> Việc làm đã lưu
                                 </Link>
-                                <Link to="/my-jobs" className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
+                                <Link to="/my-jobs" onClick={handleProtectedLink} className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
                                     <Briefcase className="w-5 h-5 text-slate-400 group-hover/item:text-emerald-500 group-hover/item:scale-110 transition-all" /> Việc làm đã ứng tuyển
                                 </Link>
                             </div>
@@ -132,7 +143,7 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                     </svg>
                 </div>
 
-                <div className="flex h-[72px] relative z-10 w-full max-w-[760px] lg:max-w-[860px] shrink-0 -ml-px">
+                <div className="flex h-[72px] relative z-10 w-fit max-w-[95vw] sm:max-w-[90vw] md:max-w-[85vw] lg:max-w-[80vw] shrink-0 -ml-px">
                     <div className="w-[50px] h-full relative shrink-0">
                         <div className="absolute inset-0 bg-white" style={{ clipPath: "path('M0 0 H50 V72 C25 72 25 48 0 48 Z')" }} />
                         <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 50 72">
@@ -150,13 +161,23 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                         <div className="relative w-full h-full flex items-center justify-between px-1 sm:px-4 pt-3 pb-1">
                             <div className="flex-1 flex justify-start pl-0 md:pl-2">
                                 <nav className="hidden md:flex items-center gap-0 lg:gap-1">
-                                    {role === 'student' ? (
-                                        <>
-                                            <JobsMegaMenu />
-                                            <NavLink href="/cv" icon={FileText} label="Hồ sơ CV" />
-                                        </>
-                                    ) : (
+                                    {role === 'organizer' || role === 'recruiter' ? (
                                         <RecruiterMenu />
+                                    ) : (
+                                        <>
+                                            <JobsMegaMenu role={role} />
+                                            <NavLink 
+                                                href="/cv" 
+                                                icon={FileText} 
+                                                label="Hồ sơ CV" 
+                                                onClick={(e) => {
+                                                    if (role === 'guest') {
+                                                        e.preventDefault()
+                                                        window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { mode: "login" } }))
+                                                    }
+                                                }}
+                                            />
+                                        </>
                                     )}
                                 </nav>
                                 <button
@@ -207,7 +228,17 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                             <Link to="/" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 font-bold text-slate-800" onClick={() => setIsMobileMenuOpen(false)}>
                                 <Search className="w-5 h-5 text-slate-400" /> Việc làm sự kiện
                             </Link>
-                            <Link to="/cv" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 font-bold text-slate-800" onClick={() => setIsMobileMenuOpen(false)}>
+                            <Link 
+                                to="/cv" 
+                                className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 font-bold text-slate-800" 
+                                onClick={(e) => {
+                                    setIsMobileMenuOpen(false)
+                                    if (role === 'guest') {
+                                        e.preventDefault()
+                                        window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { mode: "login" } }))
+                                    }
+                                }}
+                            >
                                 <FileText className="w-5 h-5 text-slate-400" /> Hồ sơ CV của tôi
                             </Link>
                         </nav>

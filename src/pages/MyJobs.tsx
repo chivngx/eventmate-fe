@@ -2,8 +2,7 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 import MainLayout from "@/components/layout/MainLayout"
-// Bổ sung thêm các Icon Tag và Clock để hiển thị trường thông tin mới mở rộng
-import { Briefcase, MapPin, Building2, CheckCircle, XCircle, Clock3, ArrowRight, CalendarDays, Tag, Clock } from "lucide-react"
+import { Briefcase, MapPin, Building2, CheckCircle, XCircle, Clock3, ArrowRight, CalendarDays, Tag, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -14,44 +13,65 @@ export default function MyJobs() {
     const [loading, setLoading] = useState(true)
     const [role, setRole] = useState("student")
 
-    useEffect(() => {
-        const fetchMyApplications = async () => {
-            setLoading(true)
-            const { data: { user } } = await supabase.auth.getUser()
+    const fetchMyApplications = async () => {
+        setLoading(true)
+        const { data: { user } } = await supabase.auth.getUser()
 
-            if (!user) {
-                navigate("/login")
-                return
-            }
-
-            // Kéo role người dùng
-            const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
-            if (profile) setRole(profile.role)
-
-            // ĐÃ NÂNG CẤP: Lấy thêm các trường position_type, category, benefits, application_deadline từ bảng events
-            const { data, error } = await supabase
-                .from("applications")
-                .select(`
-                    id, 
-                    status, 
-                    applied_at,
-                    events (
-                        id, title, location, status, position_type, category, benefits, application_deadline,
-                        profiles (full_name, avatar_url)
-                    )
-                `)
-                .eq("student_id", user.id)
-                .order("applied_at", { ascending: false })
-
-            if (!error && data) {
-                setApplications(data)
-            }
-
-            setLoading(false)
+        if (!user) {
+            navigate("/login")
+            return
         }
 
+        // Kéo quyền hạn (role) người dùng
+        const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
+        if (profile) setRole(profile.role)
+
+        // Kéo lịch sử nộp đơn tích hợp đầy đủ thông tin mở rộng của sự kiện
+        const { data, error } = await supabase
+            .from("applications")
+            .select(`
+                id, 
+                status, 
+                applied_at,
+                events (
+                    id, title, location, status, position_type, category, benefits, application_deadline,
+                    profiles (full_name, avatar_url)
+                )
+            `)
+            .eq("student_id", user.id)
+            .order("applied_at", { ascending: false })
+
+        // BỘ BẮT LỖI THÔNG MINH: Nếu gãy ngầm, bung cảnh báo lên màn hình lập tức
+        if (error) {
+            console.error("🚨 Lỗi truy vấn đơn ứng tuyển:", error)
+            alert("Lỗi kết nối Database: " + error.message + "\n\n💡 Gợi ý: Hãy kiểm tra xem bảng 'events' của bạn đã được thêm đầy đủ các cột nâng cao (position_type, category, benefits, application_deadline) chưa nhé!")
+        } else if (data) {
+            setApplications(data)
+        }
+
+        setLoading(false)
+    }
+
+    useEffect(() => {
         fetchMyApplications()
     }, [navigate])
+
+    const handleWithdraw = async (appId: string) => {
+        const isConfirmed = window.confirm("⚠️ Bạn có chắc chắn muốn rút đơn ứng tuyển sự kiện này không?\nHành động này không thể hoàn tác.")
+        if (!isConfirmed) return
+
+        const { error } = await supabase
+            .from("applications")
+            .delete()
+            .eq("id", appId)
+
+        if (!error) {
+            alert("Đã rút đơn ứng tuyển thành công.")
+            setApplications(prev => prev.filter(app => app.id !== appId))
+        } else {
+            alert("Lỗi khi hủy ứng tuyển: " + error.message)
+        }
+    }
 
     if (loading) return (
         <MainLayout role="student">
@@ -63,7 +83,7 @@ export default function MyJobs() {
         <MainLayout role={role}>
             <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
 
-                {/* HEADER */}
+                {/* HEADER TRANG */}
                 <div className="mb-8 bg-white p-8 rounded-[2rem] border-2 border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-black tracking-tight text-slate-900 flex items-center gap-3">
@@ -74,7 +94,7 @@ export default function MyJobs() {
                             Theo dõi trạng thái các đơn ứng tuyển và sự kiện bạn đã tham gia.
                         </p>
                     </div>
-                    <Badge className="bg-slate-100 text-slate-700 hover:bg-slate-200 border-none px-4 py-2 text-sm">
+                    <Badge className="bg-slate-100 text-slate-700 hover:bg-slate-200 border-none px-4 py-2 text-sm font-bold">
                         Tổng cộng: {applications.length} đơn
                     </Badge>
                 </div>
@@ -97,7 +117,7 @@ export default function MyJobs() {
                             const event = app.events
                             const organizer = event?.profiles
 
-                            // Xử lý giao diện Trạng thái đơn nộp
+                            // Xử lý giao diện màu sắc của từng trạng thái hồ sơ
                             let StatusBadge, StatusIcon, statusColor
                             if (app.status === 'approved') {
                                 StatusBadge = "Trúng tuyển"
@@ -114,9 +134,9 @@ export default function MyJobs() {
                             }
 
                             return (
-                                <div key={app.id} className="bg-white rounded-[1.5rem] border-2 border-slate-100 p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-950/5 transition-all duration-300 animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${idx * 50}ms` }}>
+                                <div key={app.id} className="bg-white rounded-[1.5rem] border-2 border-slate-100 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-950/5 transition-all duration-300 animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${idx * 50}ms` }}>
 
-                                    <div className="flex gap-5 items-start flex-1 cursor-pointer" onClick={() => navigate(`/jobs/${event?.id}`)}>
+                                    <div className="flex gap-5 items-start flex-1 cursor-pointer min-w-0" onClick={() => navigate(`/jobs/${event?.id}`)}>
                                         <Avatar className="h-16 w-16 rounded-2xl border-2 border-slate-50 mt-1 shrink-0">
                                             <AvatarImage src={organizer?.avatar_url} />
                                             <AvatarFallback className="rounded-2xl bg-slate-100 text-2xl font-black text-slate-700">
@@ -126,7 +146,7 @@ export default function MyJobs() {
 
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-3 mb-1.5 flex-wrap">
-                                                <h3 className="text-lg font-bold text-slate-900 leading-tight hover:text-emerald-600 transition-colors">
+                                                <h3 className="text-lg font-bold text-slate-900 leading-tight hover:text-emerald-600 transition-colors truncate">
                                                     {event?.title || "Sự kiện đã bị xóa"}
                                                 </h3>
                                                 {event?.status === 'upcoming' ? (
@@ -140,7 +160,6 @@ export default function MyJobs() {
                                                 <Building2 className="w-4 h-4" /> {organizer?.full_name || "Đơn vị ẩn danh"}
                                             </p>
 
-                                            {/* ĐÃ NÂNG CẤP: Hiển thị đầy đủ hàng Tag thông tin thực tế nâng cao */}
                                             <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs font-bold text-slate-400">
                                                 <span className="flex items-center gap-1 rounded bg-slate-50 px-2 py-0.5 text-slate-600">
                                                     <MapPin className="w-3.5 h-3.5 text-slate-400" /> {event?.location || "Toàn quốc"}
@@ -155,16 +174,33 @@ export default function MyJobs() {
                                                         <Tag className="w-3.5 h-3.5 text-slate-400" /> {event.category}
                                                     </span>
                                                 )}
-                                                <span className="flex items-center gap-1 text-slate-400 px-1">
+                                                <span className="flex items-center gap-1.5 text-slate-400 px-1">
                                                     <CalendarDays className="w-3.5 h-3.5 text-slate-400" /> Đã nộp: {new Date(app.applied_at).toLocaleDateString('vi-VN')}
                                                 </span>
                                             </div>
                                         </div>
                                     </div>
 
-                                    {/* THẺ TRẠNG THÁI */}
-                                    <div className={`shrink-0 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border-2 font-bold ${statusColor}`}>
-                                        {StatusIcon} {StatusBadge}
+                                    {/* KHỐI TRẠNG THÁI & HÀNH ĐỘNG RÚT ĐƠN */}
+                                    <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
+                                        <div className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl border-2 font-bold text-sm ${statusColor}`}>
+                                            {StatusIcon} {StatusBadge}
+                                        </div>
+
+                                        {app.status === "pending" && (
+                                            <Button
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleWithdraw(app.id);
+                                                }}
+                                                variant="outline"
+                                                className="rounded-2xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 font-bold h-11 px-3 shadow-none flex items-center gap-1"
+                                                title="Hủy ứng tuyển sự kiện này"
+                                            >
+                                                <Trash2 className="w-4 h-4" />
+                                                <span className="hidden md:inline">Hủy ứng tuyển</span>
+                                            </Button>
+                                        )}
                                     </div>
 
                                 </div>

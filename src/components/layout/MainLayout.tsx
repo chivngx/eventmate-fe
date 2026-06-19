@@ -1,53 +1,112 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
-import { NotchNavbar } from "@/components/ui/notch-navbar"
+import { NotchNavbar } from "@/components/layout/notch-navbar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Bell, LogOut, User, Briefcase, Building2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import AuthModal from "@/components/auth/AuthModal"
 
 export default function MainLayout({ children, role }: { children: React.ReactNode, role?: string }) {
     const navigate = useNavigate()
-    const [fullName, setFullName] = useState("")
-    const [email, setEmail] = useState("")
-    const [avatarUrl, setAvatarUrl] = useState("")
+
+    // Khởi tạo trạng thái đồng bộ từ cache để tránh giật lag hay mất avatar khi vừa chuyển tab
+    const getCachedProfile = () => {
+        const cached = localStorage.getItem("em_user_profile")
+        if (cached) {
+            try {
+                return JSON.parse(cached)
+            } catch (e) {
+                return null
+            }
+        }
+        return null
+    }
+
+    const cached = getCachedProfile()
+
+    const [user, setUser] = useState<any>(() => {
+        return cached ? { email: cached.email } : null
+    })
+    const [loadingAuth, setLoadingAuth] = useState(() => {
+        return cached ? false : true
+    })
+    const [fullName, setFullName] = useState(cached?.fullName || "")
+    const [email, setEmail] = useState(cached?.email || "")
+    const [avatarUrl, setAvatarUrl] = useState(cached?.avatarUrl || "")
+
+    const [authModal, setAuthModal] = useState<{ isOpen: boolean; mode: "login" | "register" }>({
+        isOpen: false,
+        mode: "login"
+    })
 
     // STATE THÔNG BÁO
     const [notifications, setNotifications] = useState<any[]>([])
     const unreadCount = notifications.filter(n => !n.is_read).length
 
     useEffect(() => {
+        const handleOpenAuth = (e: Event) => {
+            const customEvent = e as CustomEvent
+            setAuthModal({
+                isOpen: true,
+                mode: customEvent.detail?.mode || "login"
+            })
+        }
+        window.addEventListener("open-auth-modal", handleOpenAuth)
+        return () => window.removeEventListener("open-auth-modal", handleOpenAuth)
+    }, [])
+
+    useEffect(() => {
         let channel: any; // Biến lưu trữ kênh đăng ký Real-time để cleanup khi unmount
 
         const fetchProfileAndSetupRealtime = async () => {
-            const { data: { user } } = await supabase.auth.getUser()
-            if (user) {
-                setEmail(user.email || "")
-                const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
+            // Lấy session từ cache cục bộ (nhanh hơn getUser rất nhiều)
+            const { data: { session } } = await supabase.auth.getSession()
+            let currentUser = session?.user || null
+            
+            if (!currentUser) {
+                const { data: { user } } = await supabase.auth.getUser()
+                currentUser = user
+            }
+
+            setUser(currentUser)
+            if (currentUser) {
+                setEmail(currentUser.email || "")
+                const { data } = await supabase.from("profiles").select("*").eq("id", currentUser.id).maybeSingle()
                 if (data) {
-                    setFullName(data.full_name || "")
-                    setAvatarUrl(data.avatar_url || "")
+                    const updatedFullName = data.full_name || ""
+                    const updatedAvatarUrl = data.avatar_url || ""
+                    setFullName(updatedFullName)
+                    setAvatarUrl(updatedAvatarUrl)
+                    
+                    // Lưu lại cache mới nhất
+                    localStorage.setItem("em_user_profile", JSON.stringify({
+                        fullName: updatedFullName,
+                        avatarUrl: updatedAvatarUrl,
+                        email: currentUser.email || ""
+                    }))
                 }
 
                 // 1. Tải 10 thông báo mới nhất từ Database khi vừa nạp trang
                 const { data: notifs } = await supabase
                     .from("notifications")
                     .select("*")
-                    .eq("user_id", user.id)
+                    .eq("user_id", currentUser.id)
                     .order("created_at", { ascending: false })
                     .limit(10)
                 if (notifs) setNotifications(notifs)
 
                 // 2. [MỚI] Cài đặt kênh kết nối Real-time lắng nghe sự kiện INSERT vào bảng notifications của riêng user này
                 channel = supabase
-                    .channel(`user-realtime-notifications-${user.id}`)
+                    .channel(`user-realtime-notifications-${currentUser.id}`)
                     .on(
                         'postgres_changes',
                         {
                             event: 'INSERT',
                             schema: 'public',
                             table: 'notifications',
-                            filter: `user_id=eq.${user.id}` // Chỉ nhận thông báo gửi đích danh cho mình
+                            filter: `user_id=eq.${currentUser.id}` // Chỉ nhận thông báo gửi đích danh cho mình
                         },
                         (payload) => {
                             // Khi có dòng dữ liệu thông báo mới được kích hoạt từ DB, tự động đẩy lên đầu mảng state
@@ -55,7 +114,10 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
                         }
                     )
                     .subscribe()
+            } else {
+                localStorage.removeItem("em_user_profile")
             }
+            setLoadingAuth(false)
         }
 
         fetchProfileAndSetupRealtime()
@@ -69,8 +131,17 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
     }, [])
 
     const handleLogout = async () => {
+        localStorage.removeItem("em_user_profile")
         await supabase.auth.signOut()
-        navigate("/login")
+        
+        const privatePaths = ["/settings", "/my-jobs", "/dashboard"]
+        const isPrivate = privatePaths.some(path => window.location.pathname.startsWith(path))
+        
+        if (isPrivate) {
+            navigate("/")
+        } else {
+            window.location.reload()
+        }
     }
 
     const getInitial = (name: string) => name ? name.charAt(0).toUpperCase() : "U"
@@ -85,7 +156,7 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
         }
     }
 
-    const rightActions = (
+    const rightActions = loadingAuth ? null : user ? (
         <div className="flex items-center gap-2 sm:gap-4">
 
             {/* DROPDOWN THÔNG BÁO TỰ ĐỘNG CẬP NHẬT REAL-TIME */}
@@ -162,6 +233,22 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
                 </DropdownMenuContent>
             </DropdownMenu>
         </div>
+    ) : (
+        <div className="flex items-center gap-1 sm:gap-2">
+            <Button
+                variant="ghost"
+                className="text-xs sm:text-sm font-bold text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-full px-3 py-1.5 h-8 sm:h-9 whitespace-nowrap"
+                onClick={() => setAuthModal({ isOpen: true, mode: "login" })}
+            >
+                Đăng nhập
+            </Button>
+            <Button
+                className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-4 h-8 sm:h-9 text-xs sm:text-sm font-bold shadow-sm transition-all whitespace-nowrap shrink-0"
+                onClick={() => setAuthModal({ isOpen: true, mode: "register" })}
+            >
+                Đăng ký
+            </Button>
+        </div>
     )
 
     return (
@@ -174,6 +261,12 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
             <main className="pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
                 {children}
             </main>
+            
+            <AuthModal
+                isOpen={authModal.isOpen}
+                initialMode={authModal.mode}
+                onClose={() => setAuthModal(prev => ({ ...prev, isOpen: false }))}
+            />
         </div>
     )
 }
