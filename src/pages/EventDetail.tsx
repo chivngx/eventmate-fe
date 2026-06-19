@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 import MainLayout from "@/components/layout/MainLayout"
-// Bổ sung đầy đủ các Icon trực quan tương ứng với form nâng cao
+// Bổ sung đầy đủ các Icon trực quan tương ứng với các trường mở rộng
 import { ArrowLeft, MapPin, Calendar, Building2, CheckCircle, XCircle, Clock3, Share2, Bookmark, Briefcase, Tag, DollarSign, Users, Hourglass } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -18,6 +18,9 @@ export default function EventDetail() {
     // Quản lý trạng thái ứng tuyển tại trang này
     const [applyStatus, setApplyStatus] = useState<string | null>(null)
     const [isApplying, setIsApplying] = useState(false)
+
+    // [MỚI] State đồng bộ trạng thái lưu việc làm (Bookmark)
+    const [isBookmarked, setIsBookmarked] = useState(false)
 
     useEffect(() => {
         const fetchEventDetails = async () => {
@@ -39,6 +42,16 @@ export default function EventDetail() {
                         .maybeSingle()
 
                     if (appData) setApplyStatus(appData.status)
+
+                    // [MỚI] Kiểm tra xem sinh viên đã lưu sự kiện này thực tế trong DB chưa
+                    const { data: bookmarkData } = await supabase
+                        .from("event_bookmarks")
+                        .select("id")
+                        .eq("event_id", id)
+                        .eq("student_id", user.id)
+                        .maybeSingle()
+
+                    if (bookmarkData) setIsBookmarked(true)
                 }
             }
 
@@ -84,6 +97,41 @@ export default function EventDetail() {
         setIsApplying(false)
     }
 
+    // [MỚI] Hàm xử lý bấm nút lưu việc làm trực tiếp từ trang chi tiết
+    const toggleBookmark = async () => {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+            alert("Bạn cần đăng nhập để thực hiện chức năng lưu việc làm!")
+            return
+        }
+
+        if (isBookmarked) {
+            // Nếu đã lưu -> Tiến hành hủy lưu khỏi Database
+            const { error } = await supabase
+                .from("event_bookmarks")
+                .delete()
+                .eq("student_id", user.id)
+                .eq("event_id", id)
+
+            if (!error) {
+                setIsBookmarked(false)
+            } else {
+                alert("Lỗi khi hủy lưu việc làm: " + error.message)
+            }
+        } else {
+            // Nếu chưa lưu -> Thêm dòng đăng ký mới vào Database
+            const { error } = await supabase
+                .from("event_bookmarks")
+                .insert([{ student_id: user.id, event_id: id }])
+
+            if (!error) {
+                setIsBookmarked(true)
+            } else {
+                alert("Lỗi khi lưu việc làm: " + error.message)
+            }
+        }
+    }
+
     if (loading) return (
         <MainLayout role="guest">
             <div className="flex justify-center items-center py-20 text-slate-500 font-medium">Đang tải chi tiết sự kiện...</div>
@@ -114,7 +162,6 @@ export default function EventDetail() {
             return <Button disabled className="w-full rounded-2xl bg-amber-50 text-amber-600 font-bold h-12 border-2 border-amber-100"><Clock3 className="w-5 h-5 mr-2" /> Đang chờ duyệt</Button>
         }
 
-        // Tự động kiểm tra thời gian thực tế xem đã quá hạn chót nộp đơn hay chưa
         const isPastDeadline = event.application_deadline ? new Date() > new Date(event.application_deadline) : false;
 
         return (
@@ -170,7 +217,7 @@ export default function EventDetail() {
                     </div>
                 </div>
 
-                {/* BỐ CỤC 2 CỘT: CỘT NỘI DUNG & CỘT SIDEBAR CHI TIẾT ĐỘNG */}
+                {/* BỐ CỤC 2 CỘT: CỘT NỘI DUNG & CỘT SIDEBAR ĐỘNG */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
                     {/* Cột trái: Chi tiết JD */}
@@ -185,11 +232,11 @@ export default function EventDetail() {
                         </div>
                     </div>
 
-                    {/* Cột phải: Sidebar hiển thị trọn bộ trường thông tin nâng cao */}
+                    {/* Cột phải: Sidebar ghim cố định (Sticky) */}
                     <div className="lg:col-span-1">
                         <div className="sticky top-[100px] bg-white rounded-[2rem] border-2 border-slate-100 shadow-xl shadow-slate-900/5 p-6">
 
-                            {/* Khối Thông tin tóm tắt ĐỘNG hoàn toàn */}
+                            {/* Khối Thông tin tóm tắt */}
                             <div className="space-y-4 mb-6">
                                 <div className="flex items-start gap-3">
                                     <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center shrink-0">
@@ -267,9 +314,24 @@ export default function EventDetail() {
 
                             {/* Nút thao tác phụ */}
                             <div className="flex gap-2 mt-3">
-                                <Button variant="outline" className="flex-1 rounded-xl border-slate-200 text-slate-600 font-bold hover:bg-slate-50 h-11">
-                                    <Bookmark className="w-4 h-4 mr-2" /> Lưu lại
-                                </Button>
+                                {/* [MỚI] Đồng bộ nút Lưu việc làm hoạt động thực tế với State */}
+                                {role === 'student' ? (
+                                    <Button
+                                        onClick={toggleBookmark}
+                                        variant={isBookmarked ? "default" : "outline"}
+                                        className={`flex-1 rounded-xl font-bold h-11 transition-all ${isBookmarked
+                                                ? "bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100 hover:text-rose-600 shadow-none"
+                                                : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                                            }`}
+                                    >
+                                        <Bookmark className={`w-4 h-4 mr-2 ${isBookmarked ? "fill-current" : ""}`} />
+                                        {isBookmarked ? "Đã lưu" : "Lưu lại"}
+                                    </Button>
+                                ) : (
+                                    <Button disabled variant="outline" className="flex-1 rounded-xl border-slate-200 text-slate-300 font-bold h-11 shadow-none cursor-not-allowed">
+                                        <Bookmark className="w-4 h-4 mr-2" /> Lưu lại
+                                    </Button>
+                                )}
                                 <Button variant="outline" className="flex-1 rounded-xl border-slate-200 text-slate-600 font-bold hover:bg-slate-50 h-11">
                                     <Share2 className="w-4 h-4 mr-2" /> Chia sẻ
                                 </Button>

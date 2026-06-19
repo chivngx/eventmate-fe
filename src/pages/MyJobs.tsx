@@ -2,7 +2,8 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 import MainLayout from "@/components/layout/MainLayout"
-import { Briefcase, MapPin, Building2, CheckCircle, XCircle, Clock3, ArrowRight, CalendarDays } from "lucide-react"
+// Bổ sung thêm các Icon Tag và Clock để hiển thị trường thông tin mới mở rộng
+import { Briefcase, MapPin, Building2, CheckCircle, XCircle, Clock3, ArrowRight, CalendarDays, Tag, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -23,11 +24,11 @@ export default function MyJobs() {
                 return
             }
 
-            // Kéo role
+            // Kéo role người dùng
             const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
             if (profile) setRole(profile.role)
 
-            // Kéo lịch sử nộp đơn, Join với bảng events và bảng profiles (của BTC)
+            // ĐÃ NÂNG CẤP: Lấy thêm các trường position_type, category, benefits, application_deadline từ bảng events
             const { data, error } = await supabase
                 .from("applications")
                 .select(`
@@ -35,7 +36,7 @@ export default function MyJobs() {
                     status, 
                     applied_at,
                     events (
-                        id, title, location, status,
+                        id, title, location, status, position_type, category, benefits, application_deadline,
                         profiles (full_name, avatar_url)
                     )
                 `)
@@ -113,7 +114,7 @@ export default function MyJobs() {
                             }
 
                             return (
-                                <div key={app.id} className="bg-white rounded-[1.5rem] border-2 border-slate-100 p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-900/5 transition-all duration-300 animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${idx * 50}ms` }}>
+                                <div key={app.id} className="bg-white rounded-[1.5rem] border-2 border-slate-100 p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-950/5 transition-all duration-300 animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${idx * 50}ms` }}>
 
                                     <div className="flex gap-5 items-start flex-1 cursor-pointer" onClick={() => navigate(`/jobs/${event?.id}`)}>
                                         <Avatar className="h-16 w-16 rounded-2xl border-2 border-slate-50 mt-1 shrink-0">
@@ -123,15 +124,15 @@ export default function MyJobs() {
                                             </AvatarFallback>
                                         </Avatar>
 
-                                        <div>
-                                            <div className="flex items-center gap-3 mb-1.5">
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-3 mb-1.5 flex-wrap">
                                                 <h3 className="text-lg font-bold text-slate-900 leading-tight hover:text-emerald-600 transition-colors">
                                                     {event?.title || "Sự kiện đã bị xóa"}
                                                 </h3>
                                                 {event?.status === 'upcoming' ? (
-                                                    <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 text-[10px] px-2 py-0.5">Đang mở</Badge>
+                                                    <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 text-[10px] px-2 py-0.5 font-bold">Đang mở</Badge>
                                                 ) : (
-                                                    <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[10px] px-2 py-0.5">Đã đóng</Badge>
+                                                    <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[10px] px-2 py-0.5 font-bold">Đã đóng</Badge>
                                                 )}
                                             </div>
 
@@ -139,15 +140,30 @@ export default function MyJobs() {
                                                 <Building2 className="w-4 h-4" /> {organizer?.full_name || "Đơn vị ẩn danh"}
                                             </p>
 
-                                            <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-slate-400">
-                                                <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> {event?.location || "Đang cập nhật"}</span>
-                                                <span className="flex items-center gap-1.5"><CalendarDays className="w-4 h-4" /> Đã nộp: {new Date(app.applied_at).toLocaleDateString('vi-VN')}</span>
+                                            {/* ĐÃ NÂNG CẤP: Hiển thị đầy đủ hàng Tag thông tin thực tế nâng cao */}
+                                            <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs font-bold text-slate-400">
+                                                <span className="flex items-center gap-1 rounded bg-slate-50 px-2 py-0.5 text-slate-600">
+                                                    <MapPin className="w-3.5 h-3.5 text-slate-400" /> {event?.location || "Toàn quốc"}
+                                                </span>
+                                                {event?.position_type && (
+                                                    <span className="flex items-center gap-1 rounded bg-slate-50 px-2 py-0.5 text-slate-600">
+                                                        <Briefcase className="w-3.5 h-3.5 text-slate-400" /> {event.position_type}
+                                                    </span>
+                                                )}
+                                                {event?.category && (
+                                                    <span className="flex items-center gap-1 rounded bg-slate-50 px-2 py-0.5 text-slate-600">
+                                                        <Tag className="w-3.5 h-3.5 text-slate-400" /> {event.category}
+                                                    </span>
+                                                )}
+                                                <span className="flex items-center gap-1 text-slate-400 px-1">
+                                                    <CalendarDays className="w-3.5 h-3.5 text-slate-400" /> Đã nộp: {new Date(app.applied_at).toLocaleDateString('vi-VN')}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
 
                                     {/* THẺ TRẠNG THÁI */}
-                                    <div className={`shrink-0 flex items-center gap-2 px-4 py-3 rounded-2xl border-2 font-bold ${statusColor}`}>
+                                    <div className={`shrink-0 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border-2 font-bold ${statusColor}`}>
                                         {StatusIcon} {StatusBadge}
                                     </div>
 

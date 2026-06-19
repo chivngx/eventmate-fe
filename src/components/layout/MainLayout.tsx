@@ -1,19 +1,13 @@
 import { useEffect, useState } from "react"
-import { useNavigate, useLocation } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 import { NotchNavbar } from "@/components/ui/notch-navbar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Bell, LogOut, User, Briefcase, Building2 } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import SponsorsSection from "./SponsorsSection"
-import Footer from "./Footer"
 
 export default function MainLayout({ children, role }: { children: React.ReactNode, role?: string }) {
     const navigate = useNavigate()
-    const location = useLocation()
-    const [user, setUser] = useState<any>(null)
-    const [loadingAuth, setLoadingAuth] = useState(true)
     const [fullName, setFullName] = useState("")
     const [email, setEmail] = useState("")
     const [avatarUrl, setAvatarUrl] = useState("")
@@ -23,9 +17,10 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
     const unreadCount = notifications.filter(n => !n.is_read).length
 
     useEffect(() => {
-        const fetchProfile = async () => {
+        let channel: any; // Biến lưu trữ kênh đăng ký Real-time để cleanup khi unmount
+
+        const fetchProfileAndSetupRealtime = async () => {
             const { data: { user } } = await supabase.auth.getUser()
-            setUser(user)
             if (user) {
                 setEmail(user.email || "")
                 const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
@@ -34,7 +29,7 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
                     setAvatarUrl(data.avatar_url || "")
                 }
 
-                // Tải thông báo từ Database
+                // 1. Tải 10 thông báo mới nhất từ Database khi vừa nạp trang
                 const { data: notifs } = await supabase
                     .from("notifications")
                     .select("*")
@@ -42,20 +37,45 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
                     .order("created_at", { ascending: false })
                     .limit(10)
                 if (notifs) setNotifications(notifs)
+
+                // 2. [MỚI] Cài đặt kênh kết nối Real-time lắng nghe sự kiện INSERT vào bảng notifications của riêng user này
+                channel = supabase
+                    .channel(`user-realtime-notifications-${user.id}`)
+                    .on(
+                        'postgres_changes',
+                        {
+                            event: 'INSERT',
+                            schema: 'public',
+                            table: 'notifications',
+                            filter: `user_id=eq.${user.id}` // Chỉ nhận thông báo gửi đích danh cho mình
+                        },
+                        (payload) => {
+                            // Khi có dòng dữ liệu thông báo mới được kích hoạt từ DB, tự động đẩy lên đầu mảng state
+                            setNotifications(prev => [payload.new, ...prev].slice(0, 10))
+                        }
+                    )
+                    .subscribe()
             }
-            setLoadingAuth(false)
         }
-        fetchProfile()
+
+        fetchProfileAndSetupRealtime()
+
+        // Cleanup: Hủy lắng nghe kênh truyền khi người dùng chuyển trang hoặc đăng xuất
+        return () => {
+            if (channel) {
+                supabase.removeChannel(channel)
+            }
+        }
     }, [])
 
     const handleLogout = async () => {
         await supabase.auth.signOut()
-        window.location.href = "/"
+        navigate("/login")
     }
 
     const getInitial = (name: string) => name ? name.charAt(0).toUpperCase() : "U"
 
-    // Hàm đánh dấu đã đọc
+    // Hàm đánh dấu toàn bộ thông báo hiện tại đã đọc
     const markAsRead = async () => {
         if (unreadCount === 0) return
         const { data: { user } } = await supabase.auth.getUser()
@@ -65,18 +85,18 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
         }
     }
 
-    const rightActions = loadingAuth ? null : user ? (
-        <div className="flex items-center gap-0.5 sm:gap-2">
+    const rightActions = (
+        <div className="flex items-center gap-2 sm:gap-4">
 
-            {/* DROPDOWN THÔNG BÁO */}
+            {/* DROPDOWN THÔNG BÁO TỰ ĐỘNG CẬP NHẬT REAL-TIME */}
             <DropdownMenu onOpenChange={(open) => { if (open) markAsRead() }}>
-                <DropdownMenuTrigger className="relative p-1.5 sm:p-2 text-slate-400 hover:text-emerald-600 transition-colors outline-none">
-                    <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
+                <DropdownMenuTrigger className="relative p-2 text-slate-400 hover:text-emerald-600 transition-colors outline-none">
+                    <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
                     {unreadCount > 0 && (
-                        <span className="absolute top-1 right-1 sm:top-1.5 sm:right-1.5 w-2 h-2 sm:w-2.5 sm:h-2.5 bg-rose-500 rounded-full border-2 border-white animate-pulse"></span>
+                        <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white animate-pulse"></span>
                     )}
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-72 sm:w-80 mt-2 rounded-2xl p-0 shadow-xl border-slate-100 bg-white overflow-hidden">
+                <DropdownMenuContent align="end" className="w-80 mt-2 rounded-2xl p-0 shadow-xl border-slate-100 bg-white overflow-hidden">
                     <div className="p-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
                         <h4 className="font-bold text-slate-900">Thông báo</h4>
                         {unreadCount > 0 && <span className="text-xs font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">{unreadCount} mới</span>}
@@ -100,12 +120,12 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
                 </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* DROPDOWN AVATAR */}
+            {/* DROPDOWN AVATAR ĐIỀU HƯỚNG CHUYÊN BIỆT */}
             <DropdownMenu>
                 <DropdownMenuTrigger className="rounded-full outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 shrink-0">
-                    <Avatar className="h-7 w-7 sm:h-9 sm:w-9 cursor-pointer border-2 border-white shadow-sm transition-transform hover:scale-105">
+                    <Avatar className="h-9 w-9 sm:h-10 sm:w-10 cursor-pointer border-2 border-white shadow-sm transition-transform hover:scale-105">
                         <AvatarImage src={avatarUrl} />
-                        <AvatarFallback className="bg-emerald-50 text-emerald-600 font-bold text-xs sm:text-sm">
+                        <AvatarFallback className="bg-emerald-50 text-emerald-600 font-bold text-sm">
                             {getInitial(fullName)}
                         </AvatarFallback>
                     </Avatar>
@@ -115,61 +135,45 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
                         <p className="text-sm font-bold text-slate-900 truncate" title={fullName}>{fullName}</p>
                         <p className="text-xs text-slate-500 mt-0.5 truncate" title={email}>{email}</p>
                     </div>
+
                     <DropdownMenuSeparator className="bg-slate-100" />
+
                     {role === 'student' && (
                         <DropdownMenuItem className="cursor-pointer rounded-xl py-2.5 font-medium text-slate-700 hover:bg-slate-50" onClick={() => navigate('/my-jobs')}>
                             <Briefcase className="mr-2 h-4 w-4 text-emerald-500" /> Việc làm đã ứng tuyển
                         </DropdownMenuItem>
                     )}
+
                     {role === 'organizer' && (
-                        <DropdownMenuItem className="cursor-pointer rounded-xl py-2.5 font-medium text-slate-700 hover:bg-slate-50" onClick={() => navigate('/')}>
-                            <Building2 className="mr-2 h-4 w-4 text-emerald-500" /> Bảng điều khiển
+                        <DropdownMenuItem className="cursor-pointer rounded-xl py-2.5 font-medium text-slate-700 hover:bg-slate-50" onClick={() => navigate('/dashboard')}>
+                            <Building2 className="mr-2 h-4 w-4 text-blue-500" /> Quản lý sự kiện
                         </DropdownMenuItem>
                     )}
+
                     <DropdownMenuItem className="cursor-pointer rounded-xl py-2.5 font-medium text-slate-700 hover:bg-slate-50" onClick={() => navigate('/settings')}>
                         <User className="mr-2 h-4 w-4 text-slate-400" /> Cài đặt tài khoản
                     </DropdownMenuItem>
+
                     <DropdownMenuSeparator className="bg-slate-100" />
+
                     <DropdownMenuItem className="cursor-pointer rounded-xl py-2.5 text-rose-600 focus:bg-rose-50 focus:text-rose-600 font-bold" onClick={handleLogout}>
                         <LogOut className="mr-2 h-4 w-4" /> Đăng xuất
                     </DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>
         </div>
-    ) : (
-        <div className="flex items-center gap-1">
-            <Button
-                variant="ghost"
-                className="text-xs sm:text-sm font-semibold text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-full px-2 sm:px-4 h-8 sm:h-9 whitespace-nowrap"
-                onClick={() => navigate('/login')}
-            >
-                Đăng nhập
-            </Button>
-            <Button
-                className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-2.5 sm:px-5 h-8 sm:h-9 text-xs sm:text-sm font-semibold shadow-sm transition-all whitespace-nowrap shrink-0 hidden xs:inline-flex"
-                onClick={() => navigate('/register')}
-            >
-                Đăng ký
-            </Button>
-        </div>
     )
 
     return (
-        <div className="min-h-screen bg-slate-50 font-sans selection:bg-emerald-200 flex flex-col">
+        <div className="min-h-screen bg-slate-50 font-sans selection:bg-emerald-200">
             <NotchNavbar
                 logo={<span className="font-black text-xl tracking-tight text-slate-900 cursor-pointer" onClick={() => navigate('/')}>Event<span className="text-emerald-600">Mate</span></span>}
                 rightActions={rightActions}
                 role={role}
             />
-            <main className="pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex-grow w-full">
+            <main className="pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
                 {children}
             </main>
-
-            {/* HÀNG LOGO NHÀ TÀI TRỢ (Chỉ hiển thị logo chạy ngang) */}
-            {role !== 'organizer' && location.pathname === "/" && <SponsorsSection />}
-
-            {/* FOOTER LIÊN KẾT */}
-            <Footer />
         </div>
     )
 }
