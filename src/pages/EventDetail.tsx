@@ -2,7 +2,8 @@ import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 import MainLayout from "@/components/layout/MainLayout"
-import { ArrowLeft, MapPin, Calendar, Building2, CheckCircle, XCircle, Clock3, Share2, Bookmark } from "lucide-react"
+// Bổ sung đầy đủ các Icon trực quan tương ứng với form nâng cao
+import { ArrowLeft, MapPin, Calendar, Building2, CheckCircle, XCircle, Clock3, Share2, Bookmark, Briefcase, Tag, DollarSign, Users, Hourglass } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -99,7 +100,7 @@ export default function EventDetail() {
         </MainLayout>
     )
 
-    // Hiển thị nút ứng tuyển dựa trên trạng thái
+    // Hiển thị nút ứng tuyển dựa trên trạng thái và hạn chót thực tế
     const renderApplyButton = () => {
         if (role !== "student") return null // BTC không tự ứng tuyển
 
@@ -113,16 +114,22 @@ export default function EventDetail() {
             return <Button disabled className="w-full rounded-2xl bg-amber-50 text-amber-600 font-bold h-12 border-2 border-amber-100"><Clock3 className="w-5 h-5 mr-2" /> Đang chờ duyệt</Button>
         }
 
+        // Tự động kiểm tra thời gian thực tế xem đã quá hạn chót nộp đơn hay chưa
+        const isPastDeadline = event.application_deadline ? new Date() > new Date(event.application_deadline) : false;
+
         return (
             <Button
                 onClick={handleApply}
-                disabled={isApplying || event.status !== 'upcoming'}
+                disabled={disabledApply || isPastDeadline}
                 className="w-full rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-12 transition-transform active:scale-95 shadow-lg shadow-emerald-600/20 disabled:opacity-50"
             >
-                {isApplying ? "Đang xử lý..." : event.status !== 'upcoming' ? "Đã đóng đăng ký" : "Ứng tuyển ngay"}
+                {isApplying ? "Đang xử lý..." : isPastDeadline ? "Đã hết hạn nộp đơn" : event.status !== 'upcoming' ? "Đã đóng đăng ký" : "Ứng tuyển ngay"}
             </Button>
         )
     }
+
+    const isPastDeadline = event.application_deadline ? new Date() > new Date(event.application_deadline) : false;
+    const disabledApply = isApplying || event.status !== 'upcoming';
 
     return (
         <MainLayout role={role}>
@@ -143,9 +150,9 @@ export default function EventDetail() {
                         </Avatar>
 
                         <div className="flex-1">
-                            <div className="flex items-center gap-3 mb-3">
-                                <Badge variant="secondary" className={event.status === 'upcoming' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}>
-                                    {event.status === 'upcoming' ? 'Đang mở đăng ký' : 'Đã đóng'}
+                            <div className="flex items-center gap-3 mb-3 flex-wrap">
+                                <Badge variant="secondary" className={event.status === 'upcoming' && !isPastDeadline ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-50 text-rose-600 border-rose-100'}>
+                                    {isPastDeadline ? 'Đã hết hạn nhận hồ sơ' : event.status === 'upcoming' ? 'Đang mở đăng ký' : 'Đã đóng'}
                                 </Badge>
                                 <span className="text-sm font-bold text-slate-400 flex items-center gap-1">
                                     <Calendar className="w-4 h-4" /> Đăng ngày {new Date(event.created_at).toLocaleDateString('vi-VN')}
@@ -163,7 +170,7 @@ export default function EventDetail() {
                     </div>
                 </div>
 
-                {/* BỐ CỤC 2 CỘT: CỘT NỘI DUNG & CỘT SIDEBAR */}
+                {/* BỐ CỤC 2 CỘT: CỘT NỘI DUNG & CỘT SIDEBAR CHI TIẾT ĐỘNG */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
                     {/* Cột trái: Chi tiết JD */}
@@ -172,18 +179,17 @@ export default function EventDetail() {
                             <h3 className="text-xl font-extrabold text-slate-900 mb-6 flex items-center gap-2">
                                 Chi tiết công việc
                             </h3>
-                            {/* Dùng whitespace-pre-wrap để giữ lại dấu xuống dòng khi BTC nhập form */}
                             <div className="text-slate-700 leading-relaxed font-medium whitespace-pre-wrap">
                                 {event.description || "Chưa có mô tả chi tiết cho sự kiện này."}
                             </div>
                         </div>
                     </div>
 
-                    {/* Cột phải: Sidebar ghim cố định (Sticky) */}
+                    {/* Cột phải: Sidebar hiển thị trọn bộ trường thông tin nâng cao */}
                     <div className="lg:col-span-1">
                         <div className="sticky top-[100px] bg-white rounded-[2rem] border-2 border-slate-100 shadow-xl shadow-slate-900/5 p-6">
 
-                            {/* Khối Thông tin tóm tắt */}
+                            {/* Khối Thông tin tóm tắt ĐỘNG hoàn toàn */}
                             <div className="space-y-4 mb-6">
                                 <div className="flex items-start gap-3">
                                     <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center shrink-0">
@@ -196,18 +202,67 @@ export default function EventDetail() {
                                 </div>
                                 <div className="flex items-start gap-3">
                                     <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center shrink-0">
-                                        <Clock3 className="w-5 h-5 text-emerald-600" />
+                                        <Briefcase className="w-5 h-5 text-emerald-600" />
                                     </div>
                                     <div>
-                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Hình thức</p>
-                                        <p className="text-sm font-bold text-slate-900 mt-0.5">Làm việc trực tiếp (Offline)</p>
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Vị trí công việc</p>
+                                        <p className="text-sm font-bold text-slate-900 mt-0.5">{event.position_type || "Tình nguyện viên"}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center shrink-0">
+                                        <Tag className="w-5 h-5 text-emerald-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Loại hình sự kiện</p>
+                                        <p className="text-sm font-bold text-slate-900 mt-0.5">{event.category || "Chưa phân loại"}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center shrink-0">
+                                        <DollarSign className="w-5 h-5 text-emerald-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Quyền lợi / Phụ cấp</p>
+                                        <p className="text-sm font-bold text-slate-900 mt-0.5">{event.benefits || "Thỏa thuận"}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center shrink-0">
+                                        <Users className="w-5 h-5 text-emerald-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Số lượng tuyển</p>
+                                        <p className="text-sm font-bold text-slate-900 mt-0.5">{event.slots_needed || 1} nhân sự</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center shrink-0">
+                                        <Calendar className="w-5 h-5 text-emerald-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Ngày diễn ra</p>
+                                        <p className="text-sm font-bold text-slate-900 mt-0.5">
+                                            {event.event_date ? new Date(event.event_date).toLocaleDateString('vi-VN') : "Đang cập nhật"}
+                                        </p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center shrink-0">
+                                        <Hourglass className={`w-5 h-5 ${isPastDeadline ? 'text-rose-500 animate-bounce' : 'text-emerald-600'}`} />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Hạn chót nộp đơn</p>
+                                        <p className={`text-sm font-bold mt-0.5 ${isPastDeadline ? 'text-rose-500' : 'text-slate-900'}`}>
+                                            {event.application_deadline ? new Date(event.application_deadline).toLocaleDateString('vi-VN') : "Không giới hạn"}
+                                        </p>
                                     </div>
                                 </div>
                             </div>
 
                             <hr className="border-slate-100 mb-6" />
 
-                            {/* Khu vực Nút ứng tuyển */}
+                            {/* Khu vực Nút ứng tuyển thông minh */}
                             {renderApplyButton()}
 
                             {/* Nút thao tác phụ */}

@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react"
 import { Link, useLocation } from "react-router-dom"
-import { Search, FileText, Menu, X, Sun, Moon, ChevronDown, Bookmark, Briefcase, Building2, Plus, Users } from "lucide-react"
+import { Search, FileText, Menu, X, Sun, Moon, ChevronDown, Bookmark, Briefcase, Building2, Users } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 
 const NavLink = ({ href, icon: Icon, label }: { href: string; icon: React.ComponentType<{ className?: string }>; label: string }) => {
     const location = useLocation()
-    const isActive = location.pathname === href || (location.pathname + location.search === href)
+    const isActive = location.pathname === href
 
     return (
         <Link
@@ -22,20 +22,25 @@ const NavLink = ({ href, icon: Icon, label }: { href: string; icon: React.Compon
     )
 }
 
-// COMPONENT MỚI: MEGA MENU CHO "VIỆC LÀM"
+const RecruiterMenu = () => (
+    <div className="flex items-center gap-1">
+        <NavLink href="/dashboard" icon={Briefcase} label="Bảng điều khiển" />
+        <NavLink href="/dashboard" icon={Users} label="Quản lý ứng viên" />
+    </div>
+)
+
 const JobsMegaMenu = () => {
     return (
-        <div className="group">
+        <div className="group relative">
             <button className="flex items-center gap-1.5 text-sm transition-all whitespace-nowrap px-3 sm:px-4 py-2 rounded-full font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-50">
+                <Search className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-colors" />
                 <span className="hidden sm:inline-block">Việc làm</span>
                 <ChevronDown className="w-4 h-4 text-slate-400 group-hover:rotate-180 transition-transform duration-300" />
             </button>
 
-            {/* Dropdown Content - Hiển thị khi hover */}
-            <div className="absolute top-full left-1/2 -translate-x-1/2 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 w-[800px] z-[100] translate-y-2 group-hover:translate-y-0">
+            <div className="absolute top-full left-0 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 w-[800px] z-[100] translate-y-2 group-hover:translate-y-0">
                 <div className="bg-white rounded-[2rem] shadow-2xl border-2 border-slate-100 p-8 grid grid-cols-12 gap-10 relative overflow-hidden">
 
-                    {/* Background bóng mờ trang trí */}
                     <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-full blur-3xl -z-10 translate-x-1/3 -translate-y-1/3 opacity-70"></div>
 
                     {/* CỘT 1: QUẢN LÝ VIỆC LÀM */}
@@ -46,7 +51,8 @@ const JobsMegaMenu = () => {
                                 <Link to="/" className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
                                     <Search className="w-5 h-5 text-emerald-500 group-hover/item:scale-110 transition-transform" /> Tìm việc sự kiện
                                 </Link>
-                                <Link to="/" className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
+                                {/* ĐÃ CẬP NHẬT: Gắn parameter ?filter=saved vào link dưới đây */}
+                                <Link to="/?filter=saved" className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
                                     <Bookmark className="w-5 h-5 text-slate-400 group-hover/item:text-emerald-500 group-hover/item:scale-110 transition-all" /> Việc làm đã lưu
                                 </Link>
                                 <Link to="/my-jobs" className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
@@ -67,7 +73,7 @@ const JobsMegaMenu = () => {
                         <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-5">Việc làm theo vị trí</h4>
                         <div className="space-y-4">
                             {['Tình nguyện viên', 'Điều phối viên (Coordinator)', 'CTV Truyền thông', 'Hậu cần & Setup', 'MC / Hoạt náo viên', 'Hỗ trợ khách mời'].map(item => (
-                                <Link key={item} to="/" className="block text-sm font-medium text-slate-600 hover:text-emerald-600 hover:translate-x-1 hover:font-bold transition-all">
+                                <Link key={item} to={`/?position=${encodeURIComponent(item)}`} className="block text-sm font-medium text-slate-600 hover:text-emerald-600 hover:translate-x-1 hover:font-bold transition-all">
                                     {item}
                                 </Link>
                             ))}
@@ -79,83 +85,9 @@ const JobsMegaMenu = () => {
                         <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-5">Việc làm theo sự kiện</h4>
                         <div className="space-y-4">
                             {['Lễ hội Âm nhạc', 'Hội thảo / Workshop', 'Giải đấu Thể thao', 'Giao lưu Văn hóa', 'Triển lãm / Hội chợ', 'Sự kiện Công nghệ'].map(item => (
-                                <Link key={item} to="/" className="block text-sm font-medium text-slate-600 hover:text-emerald-600 hover:translate-x-1 hover:font-bold transition-all">
+                                <Link key={item} to={`/?category=${encodeURIComponent(item)}`} className="block text-sm font-medium text-slate-600 hover:text-emerald-600 hover:translate-x-1 hover:font-bold transition-all">
                                     {item}
                                 </Link>
-                            ))}
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    )
-}
-
-// COMPONENT MỚI: MEGA MENU CHO "TUYỂN DỤNG"
-const RecruiterMegaMenu = () => {
-    return (
-        <div className="group">
-            <button className="flex items-center gap-1.5 text-sm transition-all whitespace-nowrap px-3 sm:px-4 py-2 rounded-full font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-50">
-                <span className="hidden sm:inline-block">Tuyển dụng</span>
-                <ChevronDown className="w-4 h-4 text-slate-400 group-hover:rotate-180 transition-transform duration-300" />
-            </button>
-
-            {/* Dropdown Content - Hiển thị khi hover */}
-            <div className="absolute top-full left-1/2 -translate-x-1/2 pt-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 w-[800px] z-[100] translate-y-2 group-hover:translate-y-0">
-                <div className="bg-white rounded-[2rem] shadow-2xl border-2 border-slate-100 p-8 grid grid-cols-12 gap-10 relative overflow-hidden">
-
-                    {/* Background bóng mờ trang trí */}
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-full blur-3xl -z-10 translate-x-1/3 -translate-y-1/3 opacity-70"></div>
-
-                    {/* CỘT 1: QUẢN LÝ TUYỂN DỤNG */}
-                    <div className="col-span-4 space-y-8">
-                        <div>
-                            <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Hoạt động chính</h4>
-                            <div className="space-y-1">
-                                <Link to="/" className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
-                                    <Building2 className="w-5 h-5 text-emerald-500 group-hover/item:scale-110 transition-transform" /> Bảng điều khiển
-                                </Link>
-                                <Link to="/?action=create" className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
-                                    <Plus className="w-5 h-5 text-slate-400 group-hover/item:text-emerald-500 group-hover/item:scale-110 transition-all" /> Đăng sự kiện mới
-                                </Link>
-                            </div>
-                        </div>
-                        <div>
-                            <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Hồ sơ ứng viên</h4>
-                            <Link to="/" className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
-                                <Users className="w-5 h-5 text-slate-400 group-hover/item:text-emerald-500 group-hover/item:scale-110 transition-all" /> Duyệt hồ sơ sinh viên
-                            </Link>
-                        </div>
-                    </div>
-
-                    {/* CỘT 2: CHIẾN DỊCH VÀ PHÂN TÍCH */}
-                    <div className="col-span-4 border-l border-slate-100 pl-6">
-                        <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-5">Thống kê chiến dịch</h4>
-                        <div className="space-y-4">
-                            <div className="block text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors">
-                                <span className="font-bold text-slate-900 block">Sự kiện hoạt động</span>
-                                Theo dõi các chiến dịch tuyển dụng đang mở.
-                            </div>
-                            <div className="block text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors">
-                                <span className="font-bold text-slate-900 block">Duyệt hồ sơ nhanh</span>
-                                Phê duyệt ứng tuyển và gửi thông báo tự động.
-                            </div>
-                            <div className="block text-sm font-medium text-slate-600 hover:text-emerald-600 transition-colors">
-                                <span className="font-bold text-slate-900 block">Phản hồi ứng viên</span>
-                                Gửi mail thông báo và phản hồi tự động.
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* CỘT 3: CẨM NANG & MẪU */}
-                    <div className="col-span-4 border-l border-slate-100 pl-6">
-                        <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-5">Hướng dẫn & Mẫu</h4>
-                        <div className="space-y-4">
-                            {['Mẫu bài đăng tuyển TVN', 'Quy trình tuyển chọn', 'Tiêu chí đánh giá CV', 'Cách thu hút sinh viên', 'Câu hỏi phỏng vấn gợi ý'].map(item => (
-                                <div key={item} className="text-sm font-medium text-slate-600 hover:text-emerald-600 hover:translate-x-1 transition-all cursor-pointer">
-                                    {item}
-                                </div>
                             ))}
                         </div>
                     </div>
@@ -179,7 +111,7 @@ const MobileThemeToggle = () => {
     return (
         <button
             onClick={toggleTheme}
-            className="flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 shrink-0 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-400 hover:text-emerald-600"
+            className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-400 hover:text-emerald-600"
             aria-label="Toggle theme"
         >
             {isDark ? <Sun className="w-4 h-4 sm:w-5 sm:h-5" /> : <Moon className="w-4 h-4 sm:w-5 sm:h-5" />}
@@ -194,15 +126,13 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
     return (
         <>
             <header className={cn("fixed top-0 inset-x-0 z-50 h-[72px] flex px-0 drop-shadow-sm", className)}>
-
                 <div className="flex-1 h-12 bg-white z-20 relative min-w-0 border-b border-slate-100">
                     <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
                         <line x1="0" y1="47.5" x2="100%" y2="47.5" className={strokeColor} strokeWidth={1} />
                     </svg>
                 </div>
 
-                <div className="flex h-[72px] relative z-10 w-auto shrink-0 -ml-px">
-
+                <div className="flex h-[72px] relative z-10 w-full max-w-[760px] lg:max-w-[860px] shrink-0 -ml-px">
                     <div className="w-[50px] h-full relative shrink-0">
                         <div className="absolute inset-0 bg-white" style={{ clipPath: "path('M0 0 H50 V72 C25 72 25 48 0 48 Z')" }} />
                         <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 50 72">
@@ -210,48 +140,43 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                         </svg>
                     </div>
 
-                    <div className="flex-initial w-auto h-full relative -ml-px">
+                    <div className="flex-1 h-full relative min-w-0 -ml-px">
                         <div className="absolute inset-0 bg-white">
                             <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none">
                                 <line x1="0" y1="71.5" x2="100%" y2="71.5" className={strokeColor} strokeWidth={1} />
                             </svg>
                         </div>
 
-                        <div className="relative w-auto h-full flex items-center justify-between gap-1 xs:gap-2 sm:gap-4 lg:gap-10 px-1.5 sm:px-4 lg:px-6 pt-3 pb-1">
-
-                            <div className="shrink-0 flex items-center pl-0 md:pl-2">
+                        <div className="relative w-full h-full flex items-center justify-between px-1 sm:px-4 pt-3 pb-1">
+                            <div className="flex-1 flex justify-start pl-0 md:pl-2">
                                 <nav className="hidden md:flex items-center gap-0 lg:gap-1">
-                                    {role === "organizer" ? (
-                                        <>
-                                            <RecruiterMegaMenu />
-                                            <NavLink href="/?action=create" icon={Plus} label="Đăng sự kiện" />
-                                        </>
-                                    ) : (
+                                    {role === 'student' ? (
                                         <>
                                             <JobsMegaMenu />
                                             <NavLink href="/cv" icon={FileText} label="Hồ sơ CV" />
                                         </>
+                                    ) : (
+                                        <RecruiterMenu />
                                     )}
                                 </nav>
                                 <button
-                                    className="md:hidden p-1.5 sm:p-2 text-slate-500 hover:text-slate-900 transition-colors"
+                                    className="md:hidden p-2 text-slate-500 hover:text-slate-900 transition-colors"
                                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                                 >
-                                    {isMobileMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
+                                    {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                                 </button>
                             </div>
 
-                            <div className="shrink min-w-0 mx-1 sm:mx-3 flex justify-center z-30">
+                            <div className="flex-shrink-0 mx-2 sm:mx-4 flex justify-center z-30">
                                 {logo}
                             </div>
 
-                            <div className="shrink-0 flex items-center justify-end pr-0 md:pr-2">
-                                <div className="flex items-center gap-0.5 sm:gap-2">
+                            <div className="flex-1 flex justify-end items-center pr-1 md:pr-2">
+                                <div className="flex items-center gap-1.5 sm:gap-3">
                                     <MobileThemeToggle />
                                     {rightActions}
                                 </div>
                             </div>
-
                         </div>
                     </div>
 
@@ -261,7 +186,6 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                             <path d="M0 71.5 C25 71.5 25 47.5 50 47.5" fill="none" className={strokeColor} strokeWidth={1} />
                         </svg>
                     </div>
-
                 </div>
 
                 <div className="flex-1 h-12 bg-white z-20 relative min-w-0 -ml-px border-b border-slate-100">
@@ -269,7 +193,6 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                         <line x1="0" y1="47.5" x2="100%" y2="47.5" className={strokeColor} strokeWidth={1} />
                     </svg>
                 </div>
-
             </header>
 
             <AnimatePresence>
@@ -281,25 +204,12 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                         className="fixed inset-x-0 top-[72px] z-40 bg-white border-b border-slate-100 p-4 md:hidden shadow-md rounded-b-2xl"
                     >
                         <nav className="flex flex-col gap-1">
-                            {role === "organizer" ? (
-                                <>
-                                    <Link to="/" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 font-bold text-slate-800" onClick={() => setIsMobileMenuOpen(false)}>
-                                        <Building2 className="w-5 h-5 text-slate-400" /> Bảng điều khiển
-                                    </Link>
-                                    <Link to="/?action=create" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 font-bold text-slate-800" onClick={() => setIsMobileMenuOpen(false)}>
-                                        <Plus className="w-5 h-5 text-slate-400" /> Tạo sự kiện mới
-                                    </Link>
-                                </>
-                            ) : (
-                                <>
-                                    <Link to="/" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 font-bold text-slate-800" onClick={() => setIsMobileMenuOpen(false)}>
-                                        <Search className="w-5 h-5 text-slate-400" /> Việc làm sự kiện
-                                    </Link>
-                                    <Link to="/cv" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 font-bold text-slate-800" onClick={() => setIsMobileMenuOpen(false)}>
-                                        <FileText className="w-5 h-5 text-slate-400" /> Hồ sơ CV của tôi
-                                    </Link>
-                                </>
-                            )}
+                            <Link to="/" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 font-bold text-slate-800" onClick={() => setIsMobileMenuOpen(false)}>
+                                <Search className="w-5 h-5 text-slate-400" /> Việc làm sự kiện
+                            </Link>
+                            <Link to="/cv" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 font-bold text-slate-800" onClick={() => setIsMobileMenuOpen(false)}>
+                                <FileText className="w-5 h-5 text-slate-400" /> Hồ sơ CV của tôi
+                            </Link>
                         </nav>
                     </motion.div>
                 )}

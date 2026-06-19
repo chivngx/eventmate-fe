@@ -1,15 +1,17 @@
 import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
-import { Search, MapPin, ChevronRight, CheckCircle2, CheckCircle, XCircle, Clock3, Heart, ChevronLeft, X } from "lucide-react"
+import { useNavigate, useSearchParams } from "react-router-dom"
+import { Search, MapPin, ChevronRight, CheckCircle2, CheckCircle, XCircle, Clock3, Heart, ChevronLeft, X, Briefcase, Tag, Bookmark } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
 import { supabase } from "@/lib/supabase"
 import RotatingText from "@/components/RotatingText"
 
 export default function StudentDashboard() {
     const navigate = useNavigate()
+    const [searchParams, setSearchParams] = useSearchParams()
     const [events, setEvents] = useState<any[]>([])
     const [myApplications, setMyApplications] = useState<Record<string, string>>({})
     const [applyingId, setApplyingId] = useState<string | null>(null)
@@ -18,14 +20,17 @@ export default function StudentDashboard() {
     const [userProfile, setUserProfile] = useState<any>(null)
     const [cvProgress, setCvProgress] = useState(0)
 
-    // STATE MỚI: Quản lý từ khóa tìm kiếm
     const [searchTerm, setSearchTerm] = useState("")
     const [locationTerm, setLocationTerm] = useState("")
-    
-    // STATE CHO TOPCV STYLE
+
     const [bookmarkedEvents, setBookmarkedEvents] = useState<Record<string, boolean>>({})
     const [currentPage, setCurrentPage] = useState(1)
     const [showSuggestion, setShowSuggestion] = useState(true)
+
+    // ĐỌC BỘ LỌC TỪ URL PARAMETERS
+    const positionParam = searchParams.get("position") || ""
+    const categoryParam = searchParams.get("category") || ""
+    const filterParam = searchParams.get("filter") || "" // Đọc lệnh filter=saved
 
     const fetchEventsAndApplications = async () => {
         setLoadingData(true)
@@ -66,6 +71,17 @@ export default function StudentDashboard() {
                 appsData.forEach(app => { appMap[app.event_id] = app.status })
                 setMyApplications(appMap)
             }
+
+            const { data: bookmarksData } = await supabase
+                .from("event_bookmarks")
+                .select("event_id")
+                .eq("student_id", user.id)
+
+            if (bookmarksData) {
+                const bookmarkMap: Record<string, boolean> = {}
+                bookmarksData.forEach(b => { bookmarkMap[b.event_id] = true })
+                setBookmarkedEvents(bookmarkMap)
+            }
         }
 
         setLoadingData(false)
@@ -73,9 +89,9 @@ export default function StudentDashboard() {
 
     useEffect(() => {
         fetchEventsAndApplications()
-    }, [])
+    }, [searchParams]) // Chạy lại khi click trên thanh Navbar đổi Param
 
-    const handleApply = async (eventId: string, organizerId: string, eventTitle: string) => { // Truyền thêm organizerId và title
+    const handleApply = async (eventId: string, organizerId: string, eventTitle: string) => {
         setApplyingId(eventId)
         const { data: { user } } = await supabase.auth.getUser()
 
@@ -85,17 +101,15 @@ export default function StudentDashboard() {
             return
         }
 
-        // 1. Ghi đơn ứng tuyển
         const { error: appError } = await supabase.from("applications").insert([
             { event_id: eventId, student_id: user.id }
         ])
 
-        // 2. Bắn thông báo cho BTC
         if (!appError) {
             await supabase.from("notifications").insert([{
                 user_id: organizerId,
                 title: "Có đơn ứng tuyển mới! 📩",
-                message: `Sinh viên vừa nộp đơn vào sự kiện "${eventTitle}". Hãy vào kiểm tra ngay!`
+                message: `Bạn vừa nhận được một đơn nộp mới vào vị trí sự kiện "${eventTitle}". Hãy vào kiểm tra ngay!`
             }])
             setMyApplications(prev => ({ ...prev, [eventId]: 'pending' }))
         } else {
@@ -104,16 +118,36 @@ export default function StudentDashboard() {
         setApplyingId(null)
     }
 
-    const toggleBookmark = (eventId: string) => {
-        setBookmarkedEvents(prev => ({ ...prev, [eventId]: !prev[eventId] }))
+    const toggleBookmark = async (eventId: string) => {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+            alert("Bạn cần đăng nhập để thực hiện chức năng lưu việc làm!")
+            return
+        }
+
+        const isCurrentlyBookmarked = !!bookmarkedEvents[eventId]
+
+        if (isCurrentlyBookmarked) {
+            const { error } = await supabase
+                .from("event_bookmarks")
+                .delete()
+                .eq("student_id", user.id)
+                .eq("event_id", eventId)
+
+            if (!error) setBookmarkedEvents(prev => ({ ...prev, [eventId]: false }))
+        } else {
+            const { error } = await supabase
+                .from("event_bookmarks")
+                .insert([{ student_id: user.id, event_id: eventId }])
+
+            if (!error) setBookmarkedEvents(prev => ({ ...prev, [eventId]: true }))
+        }
     }
 
     const getMockSalary = (job: any) => {
+        if (job.benefits) return job.benefits
         const desc = (job.description || "").toLowerCase()
         if (desc.includes("tình nguyện") || desc.includes("volunteer")) return "Tình nguyện"
-        if (desc.includes("phụ cấp") || desc.includes("hỗ trợ") || desc.includes("lương")) {
-            return "Có hỗ trợ"
-        }
         return "Cấp chứng nhận"
     }
 
@@ -150,9 +184,15 @@ export default function StudentDashboard() {
         )
     }
 
+    const clearParamFilter = (paramName: string) => {
+        searchParams.delete(paramName)
+        setSearchParams(searchParams)
+        setCurrentPage(1)
+    }
+
     const firstName = userProfile?.full_name ? userProfile.full_name.split(' ').pop() : "bạn mới"
 
-    // LOGIC LỌC SỰ KIỆN: Kết hợp cả Tên sự kiện (hoặc Tên BTC) và Địa điểm
+    // LOGIC LỌC TÍCH HỢP ĐỘNG (BỔ SUNG THÊM QUÉT BIẾN FILTER_SAVED)
     const filteredEvents = events.filter(job => {
         const matchesSearch = searchTerm === "" ||
             job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -161,10 +201,19 @@ export default function StudentDashboard() {
         const matchesLocation = locationTerm === "" ||
             (job.location && job.location.toLowerCase().includes(locationTerm.toLowerCase()));
 
-        return matchesSearch && matchesLocation;
+        const matchesPosition = positionParam === "" ||
+            (job.position_type && job.position_type === positionParam);
+
+        const matchesCategory = categoryParam === "" ||
+            (job.category && job.category === categoryParam);
+
+        // NẾU BẬT FILTER=SAVED, CHỈ HIỂN THỊ CÁC JOB CÓ TRONG DANH SÁCH BOOKMARK ĐANG HOẠT ĐỘNG
+        const matchesSaved = filterParam !== "saved" || !!bookmarkedEvents[job.id];
+
+        return matchesSearch && matchesLocation && matchesPosition && matchesCategory && matchesSaved;
     })
 
-    // PAGINATION VÀ TABS CHO TOPCV STYLE
+    // PAGINATION
     const itemsPerPage = 6
     const totalPages = Math.ceil(filteredEvents.length / itemsPerPage) || 1
     const paginatedEvents = filteredEvents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
@@ -204,7 +253,6 @@ export default function StudentDashboard() {
                         Hàng ngàn vị trí Tình nguyện viên, CTV Truyền thông và Điều phối đang chờ đón bạn.
                     </p>
 
-                    {/* FORM TÌM KIẾM CÓ GẮN STATE */}
                     <div className="mx-auto mt-8 flex w-full max-w-3xl flex-col gap-2 rounded-3xl bg-white p-2 shadow-xl sm:flex-row sm:items-center sm:rounded-full">
                         <div className="flex flex-1 items-center px-4 py-2 sm:py-0">
                             <Search className="h-5 w-5 text-emerald-600" />
@@ -237,12 +285,11 @@ export default function StudentDashboard() {
 
                 {/* CỘT CHÍNH */}
                 <div className="space-y-6 lg:col-span-8">
-                    {/* TOPCV HEADER AND FILTERS */}
                     <div className="bg-white rounded-2xl border-2 border-slate-100 p-5 space-y-4 shadow-sm">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div className="flex items-center gap-2 flex-wrap">
                                 <h2 className="text-xl font-black text-slate-800 tracking-tight">
-                                    Việc làm <span className="text-emerald-600">tốt nhất</span>
+                                    {filterParam === 'saved' ? "Việc làm đã lưu ❤️" : <>Việc làm <span className="text-emerald-600">tốt nhất</span></>}
                                 </h2>
                                 <span className="bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-100 flex items-center gap-1">
                                     ⚡ Đề xuất bởi EventMate AI
@@ -253,6 +300,7 @@ export default function StudentDashboard() {
                                     onClick={() => {
                                         setSearchTerm("");
                                         setLocationTerm("");
+                                        setSearchParams({});
                                         setCurrentPage(1);
                                     }}
                                     className="text-xs font-extrabold text-slate-500 hover:text-emerald-600 transition-colors"
@@ -260,14 +308,14 @@ export default function StudentDashboard() {
                                     Xem tất cả
                                 </button>
                                 <div className="flex items-center gap-1">
-                                    <button 
+                                    <button
                                         disabled={currentPage === 1}
                                         onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
                                         className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-emerald-600 disabled:opacity-50 disabled:hover:text-slate-400 disabled:hover:border-slate-200 transition-colors"
                                     >
                                         <ChevronLeft className="w-4 h-4" />
                                     </button>
-                                    <button 
+                                    <button
                                         disabled={currentPage === totalPages}
                                         onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
                                         className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-emerald-600 disabled:opacity-50 disabled:hover:text-slate-400 disabled:hover:border-slate-200 transition-colors"
@@ -278,14 +326,38 @@ export default function StudentDashboard() {
                             </div>
                         </div>
 
-                        {/* FILTER TAGS BAR */}
+                        {/* THANH THÔNG BÁO BADGE BỘ LỌC HOẠT ĐỘNG */}
+                        {(positionParam || categoryParam || filterParam === 'saved') && (
+                            <div className="flex flex-wrap items-center gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100 animate-in fade-in duration-200">
+                                <span className="text-xs font-bold text-slate-500">Bộ lọc đang bật:</span>
+                                {filterParam === 'saved' && (
+                                    <Badge className="bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 font-bold px-2 py-1 flex items-center gap-1 text-xs">
+                                        <Bookmark className="w-3 h-3" /> Mục: Việc làm đã lưu
+                                        <X onClick={() => clearParamFilter("filter")} className="w-3 h-3 ml-1 cursor-pointer hover:text-rose-500" />
+                                    </Badge>
+                                )}
+                                {positionParam && (
+                                    <Badge className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 font-bold px-2 py-1 flex items-center gap-1 text-xs">
+                                        <Briefcase className="w-3 h-3" /> Vị trí: {positionParam}
+                                        <X onClick={() => clearParamFilter("position")} className="w-3 h-3 ml-1 cursor-pointer hover:text-rose-500" />
+                                    </Badge>
+                                )}
+                                {categoryParam && (
+                                    <Badge className="bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 font-bold px-2 py-1 flex items-center gap-1 text-xs">
+                                        <Tag className="w-3 h-3" /> Nhóm: {categoryParam}
+                                        <X onClick={() => clearParamFilter("category")} className="w-3 h-3 ml-1 cursor-pointer hover:text-rose-500" />
+                                    </Badge>
+                                )}
+                            </div>
+                        )}
+
                         <div className="flex items-center gap-3 overflow-hidden py-1 border-t border-slate-50 pt-3">
                             <div className="flex items-center gap-1.5 shrink-0 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100 text-xs font-bold text-slate-600">
                                 <MapPin className="w-3.5 h-3.5 text-slate-400" />
                                 <span className="hidden xs:inline">Lọc theo: Địa điểm</span>
                                 <span className="xs:hidden">Địa điểm</span>
                             </div>
-                            
+
                             <div className="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth flex-1 py-0.5">
                                 {locationTabs.map(tab => (
                                     <button
@@ -294,11 +366,10 @@ export default function StudentDashboard() {
                                             setLocationTerm(tab.value);
                                             setCurrentPage(1);
                                         }}
-                                        className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors border ${
-                                            (locationTerm === tab.value)
-                                            ? "bg-emerald-600 border-emerald-600 text-white shadow-sm shadow-emerald-600/10"
-                                            : "bg-slate-50 border-slate-100 text-slate-600 hover:bg-slate-100"
-                                        }`}
+                                        className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors border ${(locationTerm === tab.value)
+                                                ? "bg-emerald-600 border-emerald-600 text-white shadow-sm shadow-emerald-600/10"
+                                                : "bg-slate-50 border-slate-100 text-slate-600 hover:bg-slate-100"
+                                            }`}
                                     >
                                         {tab.label}
                                     </button>
@@ -306,7 +377,6 @@ export default function StudentDashboard() {
                             </div>
                         </div>
 
-                        {/* SUGGESTION BAR */}
                         {showSuggestion && (
                             <div className="bg-emerald-50/50 border border-emerald-100 rounded-xl px-4 py-2.5 flex items-center justify-between text-xs text-emerald-800 font-medium animate-in fade-in duration-300">
                                 <div className="flex items-center gap-2 pr-4">
@@ -320,7 +390,6 @@ export default function StudentDashboard() {
                         )}
                     </div>
 
-                    {/* EVENTS GRID */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-5">
                         {loadingData ? (
                             <div className="col-span-full text-center py-10 text-slate-500 font-medium">Đang tải sự kiện...</div>
@@ -329,19 +398,19 @@ export default function StudentDashboard() {
                                 <Search className="w-10 h-10 text-slate-300 mx-auto mb-3" />
                                 <h3 className="text-lg font-bold text-slate-900">Không tìm thấy kết quả</h3>
                                 <p className="text-slate-500 font-medium mt-1">Thử thay đổi từ khóa hoặc địa điểm tìm kiếm xem sao.</p>
-                                <Button onClick={() => { setSearchTerm(""); setLocationTerm(""); setCurrentPage(1); }} variant="link" className="text-emerald-600 font-bold mt-2">Xóa bộ lọc</Button>
+                                <Button onClick={() => { setSearchTerm(""); setLocationTerm(""); setSearchParams({}); setCurrentPage(1); }} variant="link" className="text-emerald-600 font-bold mt-2">Xóa bộ lọc</Button>
                             </div>
                         ) : (
                             paginatedEvents.map((job, idx) => {
                                 const isBookmarked = !!bookmarkedEvents[job.id];
                                 return (
-                                    <div 
-                                        key={job.id} 
+                                    <div
+                                        key={job.id}
                                         className="group relative flex flex-col justify-between rounded-2xl border border-slate-100 bg-white p-5 transition-all duration-300 hover:border-emerald-400 hover:shadow-xl hover:shadow-emerald-950/5 hover:-translate-y-1 animate-in fade-in slide-in-from-bottom-4"
                                         style={{ animationDelay: `${idx * 50}ms` }}
                                     >
                                         <div className="flex gap-4 items-start">
-                                            <Avatar 
+                                            <Avatar
                                                 className="h-14 w-14 rounded-xl border border-slate-100 shrink-0 cursor-pointer shadow-sm"
                                                 onClick={() => navigate(`/jobs/${job.id}`)}
                                             >
@@ -349,9 +418,9 @@ export default function StudentDashboard() {
                                                     {job.profiles?.full_name ? job.profiles.full_name.charAt(0).toUpperCase() : "O"}
                                                 </AvatarFallback>
                                             </Avatar>
-                                            
+
                                             <div className="flex-1 min-w-0 pr-2">
-                                                <h3 
+                                                <h3
                                                     className="text-[14px] font-extrabold text-slate-800 leading-snug group-hover:text-emerald-600 transition-colors cursor-pointer line-clamp-2"
                                                     onClick={() => navigate(`/jobs/${job.id}`)}
                                                     title={job.title}
@@ -377,15 +446,14 @@ export default function StudentDashboard() {
                                             <div className="flex items-center gap-1.5">
                                                 <button
                                                     onClick={() => toggleBookmark(job.id)}
-                                                    className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all shrink-0 ${
-                                                        isBookmarked 
-                                                        ? "bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100" 
-                                                        : "bg-white border-slate-200 text-slate-400 hover:text-emerald-600 hover:border-emerald-600"
-                                                    }`}
+                                                    className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all shrink-0 ${isBookmarked
+                                                            ? "bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100"
+                                                            : "bg-white border-slate-200 text-slate-400 hover:text-emerald-600 hover:border-emerald-600"
+                                                        }`}
                                                 >
                                                     <Heart className={`w-3.5 h-3.5 ${isBookmarked ? "fill-current" : ""}`} />
                                                 </button>
-                                                
+
                                                 {renderActionButton(job)}
                                             </div>
                                         </div>
@@ -395,7 +463,6 @@ export default function StudentDashboard() {
                         )}
                     </div>
 
-                    {/* PAGINATION BOTTOM */}
                     {filteredEvents.length > itemsPerPage && (
                         <div className="flex items-center justify-center gap-4 pt-4 border-t border-slate-100 mt-6">
                             <button
@@ -425,7 +492,7 @@ export default function StudentDashboard() {
                     )}
                 </div>
 
-                {/* CỘT PHỤ BÊN PHẢI (Giữ nguyên) */}
+                {/* CỘT PHỤ BÊN PHẢI */}
                 <div className="space-y-6 lg:col-span-4 lg:pl-2 mt-2">
                     <div className="overflow-hidden rounded-[1.5rem] border-2 border-slate-100 bg-white">
                         <div className="bg-emerald-50 p-6 flex items-center gap-4">
