@@ -19,8 +19,8 @@ export default function OrgDashboard() {
     const [benefits, setBenefits] = useState("Cấp chứng nhận")
     const [category, setCategory] = useState("Lễ hội Âm nhạc")
     const [slotsNeeded, setSlotsNeeded] = useState("1")
-    const [eventDate, setEventDate] = useState("") // [MỚI] Ngày diễn ra sự kiện
-    const [applicationDeadline, setApplicationDeadline] = useState("") // [MỚI] Hạn chót nộp đơn
+    const [eventDate, setEventDate] = useState("")
+    const [applicationDeadline, setApplicationDeadline] = useState("")
 
     const [loading, setLoading] = useState(false)
     const [fetching, setFetching] = useState(true)
@@ -97,12 +97,12 @@ export default function OrgDashboard() {
                 benefits,
                 category,
                 slots_needed: parseInt(slotsNeeded) || 1,
-                event_date: eventDate ? new Date(eventDate).toISOString() : null, // Gửi ngày lên DB
-                application_deadline: applicationDeadline ? new Date(applicationDeadline).toISOString() : null // Gửi hạn chót lên DB
+                event_date: eventDate ? new Date(eventDate).toISOString() : null,
+                application_deadline: applicationDeadline ? new Date(applicationDeadline).toISOString() : null
             }
 
             if (editingId) {
-                // UPDATE (Sửa sự kiện)
+                // UPDATE
                 const { error } = await supabase
                     .from("events")
                     .update(eventPayload)
@@ -117,7 +117,7 @@ export default function OrgDashboard() {
                     alert("Lỗi khi cập nhật: " + error.message)
                 }
             } else {
-                // INSERT (Tạo sự kiện mới)
+                // INSERT
                 const { error } = await supabase.from("events").insert([
                     { organizer_id: user.id, ...eventPayload, status: 'upcoming' }
                 ])
@@ -142,7 +142,6 @@ export default function OrgDashboard() {
         setBenefits(ev.benefits || "Cấp chứng nhận")
         setCategory(ev.category || "Lễ hội Âm nhạc")
         setSlotsNeeded(String(ev.slots_needed || 1))
-        // Trích xuất chuỗi YYYY-MM-DD từ ISO string để hiển thị lên thẻ <input type="date" />
         setEventDate(ev.event_date ? ev.event_date.split('T')[0] : "")
         setApplicationDeadline(ev.application_deadline ? ev.application_deadline.split('T')[0] : "")
         setShowForm(true)
@@ -178,7 +177,8 @@ export default function OrgDashboard() {
         setLoadingApps(false)
     }
 
-    const handleUpdateStatus = async (appId: string, studentId: string, newStatus: string) => {
+    // ĐÃ SỬA: Xóa tham số 'studentId' thừa ở đây để không bị báo lỗi TS6133
+    const handleUpdateStatus = async (appId: string, newStatus: string) => {
         const { error } = await supabase.from("applications").update({ status: newStatus }).eq("id", appId)
 
         if (!error) {
@@ -230,7 +230,7 @@ export default function OrgDashboard() {
                         </div>
                     </div>
 
-                    {/* FORM TẠO/SỬA SỰ KIỆN PHÂN LOẠI NÂNG CAO */}
+                    {/* FORM TẠO/SỬA SỰ KIỆN */}
                     {showForm && (
                         <div id="event-form" className="bg-white rounded-[2rem] border-2 border-emerald-100 shadow-xl shadow-emerald-900/5 p-6 sm:p-8 animate-in zoom-in-95 duration-200">
                             <div className="mb-6">
@@ -250,14 +250,13 @@ export default function OrgDashboard() {
                                     </div>
                                 </div>
 
-                                {/* [MỚI] HÀNG CHỌN NGÀY THÁNG ĐỒNG BỘ */}
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                     <div className="space-y-2">
                                         <label className="text-sm font-bold text-slate-700 flex items-center gap-1.5"><Calendar className="w-4 h-4 text-emerald-600" /> Ngày diễn ra sự kiện</label>
                                         <Input type="date" value={eventDate} onChange={e => setEventDate(e.target.value)} className="h-12 rounded-xl bg-slate-50 border-slate-200 text-sm font-bold text-slate-700 focus-visible:ring-emerald-500" />
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-sm font-bold text-slate-700 flex items-center gap-1.5"><Clock className="w-4 h-4 text-rose-500 animate-pulse" /> Hạn chót nộp đơn (Ngày hết hạn)</label>
+                                        <label className="text-sm font-bold text-slate-700 flex items-center gap-1.5"><Clock className="w-4 h-4 text-rose-500" /> Hạn chót nộp đơn (Ngày hết hạn)</label>
                                         <Input type="date" value={applicationDeadline} onChange={e => setApplicationDeadline(e.target.value)} className="h-12 rounded-xl bg-slate-50 border-slate-200 text-sm font-bold text-slate-700 focus-visible:ring-emerald-500" />
                                     </div>
                                 </div>
@@ -336,7 +335,6 @@ export default function OrgDashboard() {
                                             </div>
                                             <p className="text-sm text-slate-500 font-medium line-clamp-1 mb-2">{ev.description}</p>
 
-                                            {/* HIỂN THỊ CÁC TRƯỜNG DỮ LIỆU ĐỘNG THỰC TẾ KÈM HẠN CHÓT */}
                                             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-bold text-slate-400 mt-2">
                                                 <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {ev.location}</span>
                                                 <span className="flex items-center gap-1"><Briefcase className="w-3.5 h-3.5" /> {ev.position_type || "Tình nguyện viên"}</span>
@@ -412,12 +410,13 @@ export default function OrgDashboard() {
                                                     <Button onClick={() => setViewingCV(app.profiles)} variant="secondary" className="rounded-xl font-bold h-10 px-4 hover:bg-slate-200"><FileText className="w-4 h-4 mr-1.5" /> Xem CV</Button>
                                                     {app.status === 'pending' && (
                                                         <>
-                                                            <Button onClick={() => handleUpdateStatus(app.id, app.student_id, 'approved')} className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-none h-10 font-bold px-4"><CheckCircle className="w-4 h-4" /></Button>
-                                                            <Button onClick={() => handleUpdateStatus(app.id, app.student_id, 'rejected')} variant="outline" className="rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 shadow-none h-10 font-bold px-4"><XCircle className="w-4 h-4" /></Button>
+                                                            {/* ĐÃ SỬA: Xóa đối số thứ 2 'app.student_id' thừa khi gọi hàm */}
+                                                            <Button onClick={() => handleUpdateStatus(app.id, 'approved')} className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-none h-10 font-bold px-4"><CheckCircle className="w-4 h-4" /></Button>
+                                                            <Button onClick={() => handleUpdateStatus(app.id, 'rejected')} variant="outline" className="rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 shadow-none h-10 font-bold px-4"><XCircle className="w-4 h-4" /></Button>
                                                         </>
                                                     )}
                                                     {app.status !== 'pending' && (
-                                                        <Button onClick={() => handleUpdateStatus(app.id, app.student_id, 'pending')} variant="ghost" className="text-slate-400 hover:text-slate-600 font-medium text-xs underline px-2">Hoàn tác</Button>
+                                                        <Button onClick={() => handleUpdateStatus(app.id, 'pending')} variant="ghost" className="text-slate-400 hover:text-slate-600 font-medium text-xs underline px-2">Hoàn tác</Button>
                                                     )}
                                                 </div>
                                             </div>
