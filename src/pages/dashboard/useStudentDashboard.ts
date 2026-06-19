@@ -19,24 +19,28 @@ export function useStudentDashboard() {
 
     const [bookmarkedEvents, setBookmarkedEvents] = useState<Record<string, boolean>>({})
     const [currentPage, setCurrentPage] = useState(1)
+
+    const [totalPages, setTotalPages] = useState(1)
+    const [totalItems, setTotalItems] = useState(0)
+
     const [showSuggestion, setShowSuggestion] = useState(true)
 
-    // Đọc các bộ lọc truyền từ Mega Menu điều hướng xuống URL
+    const itemsPerPage = 6
+
     const positionParam = searchParams.get("position") || ""
     const categoryParam = searchParams.get("category") || ""
     const filterParam = searchParams.get("filter") || ""
 
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [searchTerm, locationTerm, benefitTerm, positionParam, categoryParam, filterParam])
+
     const fetchEventsAndApplications = async () => {
         setLoadingData(true)
 
-        const { data: eventsData } = await supabase
-            .from("events")
-            .select("*, profiles(full_name)")
-            .order("created_at", { ascending: false })
-
-        if (eventsData) setEvents(eventsData)
-
         const { data: { user } } = await supabase.auth.getUser()
+        let bookmarkedIds: string[] = []
+
         if (user) {
             const { data: profileData } = await supabase
                 .from("profiles")
@@ -75,17 +79,67 @@ export function useStudentDashboard() {
                 const bookmarkMap: Record<string, boolean> = {}
                 bookmarksData.forEach(b => { bookmarkMap[b.event_id] = true })
                 setBookmarkedEvents(bookmarkMap)
+                bookmarkedIds = bookmarksData.map(b => b.event_id)
             }
+        }
+
+        let query = supabase
+            .from("events")
+            .select("*, profiles(full_name)", { count: "exact" })
+
+        if (searchTerm) {
+            query = query.ilike("title", `%${searchTerm}%`)
+        }
+        if (locationTerm) {
+            query = query.ilike("location", `%${locationTerm}%`)
+        }
+        if (positionParam) {
+            query = query.eq("position_type", positionParam)
+        }
+        if (categoryParam) {
+            query = query.eq("category", categoryParam)
+        }
+        if (benefitTerm) {
+            query = query.eq("benefits", benefitTerm)
+        }
+        if (filterParam === "saved") {
+            if (bookmarkedIds.length > 0) {
+                query = query.in("id", bookmarkedIds)
+            } else {
+                query = query.eq("id", "00000000-0000-0000-0000-000000000000")
+            }
+        }
+
+        const from = (currentPage - 1) * itemsPerPage
+        const to = from + itemsPerPage - 1
+
+        query = query
+            .order("created_at", { ascending: false })
+            .range(from, to)
+
+        const { data: eventsData, count, error } = await query
+
+        if (!error && eventsData) {
+            setEvents(eventsData)
+            if (count !== null) {
+                setTotalItems(count)
+                setTotalPages(Math.ceil(count / itemsPerPage) || 1)
+            }
+        } else if (error) {
+            console.error("Lỗi fetch events server-side:", error)
         }
 
         setLoadingData(false)
     }
 
     useEffect(() => {
-        fetchEventsAndApplications()
-    }, [searchParams])
+        const delayDebounceFn = setTimeout(() => {
+            fetchEventsAndApplications()
+        }, 300)
 
-    // ĐÃ SỬA: Thêm dấu gạch dưới _organizerId và _eventTitle để tránh lỗi TS6133 khi dọn dẹp lệnh notify thủ công
+        return () => clearTimeout(delayDebounceFn)
+    }, [searchTerm, locationTerm, benefitTerm, searchParams, currentPage])
+
     const handleApply = async (eventId: string, _organizerId?: string, _eventTitle?: string) => {
         setApplyingId(eventId)
         const { data: { user } } = await supabase.auth.getUser()
@@ -96,12 +150,23 @@ export function useStudentDashboard() {
             return
         }
 
+        const targetEvent = events.find(e => e.id === eventId)
+        if (targetEvent) {
+            const isPastDeadline = targetEvent.application_deadline ? new Date() > new Date(targetEvent.application_deadline) : false;
+            const isClosed = targetEvent.status !== 'upcoming';
+
+            if (isPastDeadline || isClosed) {
+                alert(isPastDeadline ? "🚨 Rất tiếc, chiến dịch tuyển dụng này đã quá hạn nhận hồ sơ ứng tuyển!" : "🚨 Ban tổ chức sự kiện này đã đóng cổng nhận hồ sơ ứng tuyển!")
+                setApplyingId(null)
+                return
+            }
+        }
+
         const { error: appError } = await supabase.from("applications").insert([
             { event_id: eventId, student_id: user.id }
         ])
 
         if (!appError) {
-            // ĐÃ XÓA: Khối lệnh insert thông báo thủ công tại đây vì Database Trigger đã gánh trọn vẹn tự động!
             setMyApplications(prev => ({ ...prev, [eventId]: 'pending' }))
         } else {
             alert("Lỗi: " + appError.message)
@@ -143,32 +208,8 @@ export function useStudentDashboard() {
 
     const firstName = userProfile?.full_name ? userProfile.full_name.split(' ').pop() : "bạn mới"
 
-    // LOGIC LỌC TÍCH HỢP ĐỘNG
-    const filteredEvents = events.filter(job => {
-        const matchesSearch = searchTerm === "" ||
-            job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            job.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase());
-
-        const matchesLocation = locationTerm === "" ||
-            (job.location && job.location.toLowerCase().includes(locationTerm.toLowerCase()));
-
-        const matchesPosition = positionParam === "" ||
-            (job.position_type && job.position_type === positionParam);
-
-        const matchesCategory = categoryParam === "" ||
-            (job.category && job.category === categoryParam);
-
-        const matchesSaved = filterParam !== "saved" || !!bookmarkedEvents[job.id];
-
-        const matchesBenefit = benefitTerm === "" ||
-            (job.benefits && job.benefits === benefitTerm);
-
-        return matchesSearch && matchesLocation && matchesPosition && matchesCategory && matchesSaved && matchesBenefit;
-    })
-
-    const itemsPerPage = 6
-    const totalPages = Math.ceil(filteredEvents.length / itemsPerPage) || 1
-    const paginatedEvents = filteredEvents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+    const filteredEvents = { length: totalItems }
+    const paginatedEvents = events
 
     return {
         navigate,
@@ -201,6 +242,7 @@ export function useStudentDashboard() {
         filteredEvents,
         totalPages,
         itemsPerPage,
-        paginatedEvents
+        paginatedEvents,
+        totalItems
     }
 }
