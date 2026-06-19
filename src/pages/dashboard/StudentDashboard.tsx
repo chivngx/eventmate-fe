@@ -1,5 +1,6 @@
-import { Search, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, ChevronLeft, ChevronRight, Calendar, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import StudentHero from "@/components/dashboard/StudentHero"
 import EventCard from "@/components/dashboard/EventCard"
 import CVSuggestionCard from "@/components/dashboard/CVSuggestionCard"
@@ -23,6 +24,8 @@ export default function StudentDashboard() {
         setLocationTerm,
         benefitTerm,
         setBenefitTerm,
+        dateTerm,
+        setDateTerm,
         bookmarkedEvents,
         currentPage,
         setCurrentPage,
@@ -43,9 +46,15 @@ export default function StudentDashboard() {
         events
     } = useStudentDashboard()
 
+    const dateTabs = [
+        { label: "Tất cả thời gian", value: "" },
+        { label: "Hôm nay", value: "today" },
+        { label: "Tuần này", value: "this_week" },
+        { label: "Tháng này", value: "this_month" }
+    ]
+
     return (
         <div className="space-y-8 pb-10 animate-in fade-in duration-300">
-            {/* 1. BANNER PHẲNG & TÌM KIẾM */}
             <StudentHero
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
@@ -53,16 +62,12 @@ export default function StudentDashboard() {
                 setLocationTerm={setLocationTerm}
             />
 
-            {/* DANH MỤC NỔI BẬT KHỔ RỘNG */}
             <TrendingCategoriesSlider
                 events={events}
                 setCurrentPage={setCurrentPage}
             />
-
-            {/* 2. BỐ CỤC NỘI DUNG */}
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
 
-                {/* CỘT CHÍNH */}
                 <div className="space-y-6 lg:col-span-8">
                     <div className="bg-white rounded-2xl border-2 border-slate-100 p-5 space-y-4 shadow-sm">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -80,6 +85,7 @@ export default function StudentDashboard() {
                                         setSearchTerm("")
                                         setLocationTerm("")
                                         setBenefitTerm("")
+                                        setDateTerm("")
                                         setSearchParams({})
                                         setCurrentPage(1)
                                     }}
@@ -106,7 +112,6 @@ export default function StudentDashboard() {
                             </div>
                         </div>
 
-                        {/* BỘ LỌC NHANH & ACTIVE BADGES */}
                         <QuickFilters
                             filterParam={filterParam}
                             positionParam={positionParam}
@@ -120,9 +125,40 @@ export default function StudentDashboard() {
                             showSuggestion={showSuggestion}
                             setShowSuggestion={setShowSuggestion}
                         />
+
+                        {dateTerm && (
+                            <div className="flex flex-wrap items-center gap-2 bg-slate-50/50 p-2 rounded-xl border border-slate-100/80 animate-in fade-in duration-200 text-xs">
+                                <span className="font-bold text-slate-400">Thời gian đang lọc:</span>
+                                <Badge className="bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200 font-bold px-2 py-0.5 flex items-center gap-1 text-[11px]">
+                                    <Calendar className="w-3 h-3" /> {dateTabs.find(t => t.value === dateTerm)?.label}
+                                    <X onClick={() => setDateTerm("")} className="w-3 h-3 ml-1 cursor-pointer hover:text-rose-500" />
+                                </Badge>
+                            </div>
+                        )}
+
+                        <div className="flex items-center gap-3 overflow-hidden py-1 border-t border-slate-50 pt-3">
+                            <div className="flex items-center gap-1.5 shrink-0 bg-slate-50 px-3 py-1.5 rounded-full border border-slate-100 text-xs font-bold text-slate-600 min-w-[130px]">
+                                <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                                <span>Thời gian diễn ra</span>
+                            </div>
+
+                            <div className="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth flex-1 py-0.5">
+                                {dateTabs.map(tab => (
+                                    <button
+                                        key={tab.label}
+                                        onClick={() => setDateTerm(tab.value)}
+                                        className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-colors border ${(dateTerm === tab.value)
+                                            ? "bg-teal-600 border-teal-600 text-white shadow-sm shadow-teal-600/10"
+                                            : "bg-slate-50 border-slate-100 text-slate-600 hover:bg-slate-100"
+                                            }`}
+                                    >
+                                        {tab.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
                     </div>
 
-                    {/* DANH SÁCH EVENT CARDS */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-5">
                         {loadingData ? (
                             <div className="col-span-full text-center py-10 text-slate-500 font-medium">Đang tải sự kiện...</div>
@@ -131,7 +167,7 @@ export default function StudentDashboard() {
                                 <Search className="w-10 h-10 text-slate-300 mx-auto mb-3" />
                                 <h3 className="text-lg font-bold text-slate-900">Không tìm thấy kết quả</h3>
                                 <p className="text-slate-500 font-medium mt-1">Thử thay đổi từ khóa hoặc địa điểm tìm kiếm xem sao.</p>
-                                <Button onClick={() => { setSearchTerm(""); setLocationTerm(""); setBenefitTerm(""); setSearchParams({}); setCurrentPage(1); }} variant="link" className="text-emerald-600 font-bold mt-2">Xóa bộ lọc</Button>
+                                <Button onClick={() => { setSearchTerm(""); setLocationTerm(""); setBenefitTerm(""); setDateTerm(""); setSearchParams({}); setCurrentPage(1); }} variant="link" className="text-emerald-600 font-bold mt-2">Xóa bộ lọc</Button>
                             </div>
                         ) : (
                             paginatedEvents.map((job, idx) => (
@@ -151,7 +187,6 @@ export default function StudentDashboard() {
                         )}
                     </div>
 
-                    {/* PHÂN TRANG */}
                     <Pagination
                         currentPage={currentPage}
                         totalPages={totalPages}
@@ -161,7 +196,6 @@ export default function StudentDashboard() {
                     />
                 </div>
 
-                {/* CỘT PHỤ BÊN PHẢI (CV & GỢI Ý & NHÀ TỔ CHỨC TIÊU BIỂU) */}
                 <div className="space-y-6 lg:col-span-4 lg:pl-2 mt-2">
                     <CVSuggestionCard
                         userProfile={userProfile}
@@ -169,7 +203,7 @@ export default function StudentDashboard() {
                         firstName={firstName}
                         onNavigate={navigate}
                     />
-                    
+
                     <FeaturedOrganizers
                         events={events}
                     />

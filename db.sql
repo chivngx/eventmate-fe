@@ -253,3 +253,60 @@ GRANT ALL ON TABLE public.event_bookmarks TO anon, authenticated, service_role;
 -- Thêm cột hạn chót nộp đơn vào bảng events (Cột ngày diễn ra sự kiện event_date đã có sẵn)
 ALTER TABLE public.events 
 ADD COLUMN IF NOT EXISTS application_deadline TIMESTAMP WITH TIME ZONE;
+
+-- 1. Định nghĩa hàm xử lý tăng/giảm slots_needed tự động
+CREATE OR REPLACE FUNCTION public.manage_slots_on_approval()
+RETURNS TRIGGER 
+LANGUAGE plpgsql 
+SECURITY DEFINER
+SET search_path TO 'public'
+AS $$
+BEGIN
+    -- Trường hợp 1: UPDATE trạng thái đơn ứng tuyển (Nhà tuyển dụng Duyệt / Từ chối / Hoàn tác)
+    IF TG_OP = 'UPDATE' THEN
+        -- Nếu trạng thái chuyển từ bất kỳ mốc nào SANG 'approved' -> Giảm slot cần tuyển
+        IF OLD.status IS DISTINCT FROM NEW.status AND NEW.status = 'approved' THEN
+            UPDATE public.events
+            SET slots_needed = GREATEST(0, slots_needed - 1)
+            WHERE id = NEW.event_id;
+            
+            -- Nếu slots_needed chạm mốc 0, tự động đổi status sự kiện sang 'completed' (Đã hoàn thành tuyển)
+            UPDATE public.events
+            SET status = 'completed'
+            WHERE id = NEW.event_id AND slots_needed = 0;
+            
+        -- Nếu hoàn tác từ 'approved' QUAY VỀ trạng thái khác -> Cộng lại slot cần tuyển
+        ELSIF OLD.status = 'approved' AND NEW.status IS DISTINCT FROM 'approved' THEN
+            UPDATE public.events
+            SET slots_needed = slots_needed + 1
+            WHERE id = NEW.event_id;
+            
+            -- Nếu sự kiện đang ở 'completed' mà được phục hồi slot, chuyển lại về 'upcoming'
+            UPDATE public.events
+            SET status = 'upcoming'
+            WHERE id = NEW.event_id AND status = 'completed';
+        END IF;
+        
+    -- Trường hợp 2: DELETE dòng ứng tuyển (Sinh viên chủ động bấm Rút/Hủy đơn nộp)
+    ELSIF TG_OP = 'DELETE' THEN
+        -- Chỉ cộng lại slot nếu đơn ứng tuyển bị xóa đó ĐÃ ĐƯỢC DUYỆT trước đó
+        IF OLD.status = 'approved' THEN
+            UPDATE public.events
+            SET slots_needed = slots_needed + 1
+            WHERE id = OLD.event_id;
+            
+            UPDATE public.events
+            SET status = 'upcoming'
+            WHERE id = OLD.event_id AND status = 'completed';
+        END IF;
+    END IF;
+    
+    RETURN NULL; -- Trigger AFTER chỉ cần return NULL
+END;
+$$;
+
+-- 2. Đăng ký Trigger liên kết trực tiếp vào bảng applications
+DROP TRIGGER IF EXISTS trg_manage_slots_on_approval ON public.applications;
+CREATE TRIGGER trg_manage_slots_on_approval
+  AFTER UPDATE OF status OR DELETE ON public.applications
+  FOR EACH ROW EXECUTE PROCEDURE public.manage_slots_on_approval();

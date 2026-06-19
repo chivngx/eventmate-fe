@@ -8,6 +8,7 @@ export function useStudentDashboard() {
     const [events, setEvents] = useState<any[]>([])
     const [myApplications, setMyApplications] = useState<Record<string, string>>({})
     const [applyingId, setApplyingId] = useState<string | null>(null)
+    const [disabledApply, setDisabledApply] = useState(false)
     const [loadingData, setLoadingData] = useState(true)
 
     const [userProfile, setUserProfile] = useState<any>(null)
@@ -16,6 +17,8 @@ export function useStudentDashboard() {
     const [searchTerm, setSearchTerm] = useState("")
     const [locationTerm, setLocationTerm] = useState("")
     const [benefitTerm, setBenefitTerm] = useState("")
+
+    const [dateTerm, setDateTerm] = useState("")
 
     const [bookmarkedEvents, setBookmarkedEvents] = useState<Record<string, boolean>>({})
     const [currentPage, setCurrentPage] = useState(1)
@@ -30,10 +33,9 @@ export function useStudentDashboard() {
     const positionParam = searchParams.get("position") || ""
     const categoryParam = searchParams.get("category") || ""
     const filterParam = searchParams.get("filter") || ""
-
     useEffect(() => {
         setCurrentPage(1)
-    }, [searchTerm, locationTerm, benefitTerm, positionParam, categoryParam, filterParam])
+    }, [searchTerm, locationTerm, benefitTerm, dateTerm, positionParam, categoryParam, filterParam])
 
     const fetchEventsAndApplications = async () => {
         setLoadingData(true)
@@ -110,6 +112,30 @@ export function useStudentDashboard() {
             }
         }
 
+        if (dateTerm === "today") {
+            const start = new Date()
+            start.setHours(0, 0, 0, 0)
+            const end = new Date()
+            end.setHours(23, 59, 59, 999)
+            query = query.gte("event_date", start.toISOString()).lte("event_date", end.toISOString())
+        } else if (dateTerm === "this_week") {
+            const start = new Date()
+            const day = start.getDay()
+            const diff = start.getDate() - day + (day === 0 ? -6 : 1)
+            const monday = new Date(start.setDate(diff))
+            monday.setHours(0, 0, 0, 0)
+
+            const sunday = new Date(monday)
+            sunday.setDate(monday.getDate() + 6)
+            sunday.setHours(23, 59, 59, 999)
+            query = query.gte("event_date", monday.toISOString()).lte("event_date", sunday.toISOString())
+        } else if (dateTerm === "this_month") {
+            const start = new Date()
+            const firstDay = new Date(start.getFullYear(), start.getMonth(), 1)
+            const lastDay = new Date(start.getFullYear(), start.getMonth() + 1, 0, 23, 59, 59, 999)
+            query = query.gte("event_date", firstDay.toISOString()).lte("event_date", lastDay.toISOString())
+        }
+
         const from = (currentPage - 1) * itemsPerPage
         const to = from + itemsPerPage - 1
 
@@ -138,7 +164,7 @@ export function useStudentDashboard() {
         }, 300)
 
         return () => clearTimeout(delayDebounceFn)
-    }, [searchTerm, locationTerm, benefitTerm, searchParams, currentPage])
+    }, [searchTerm, locationTerm, benefitTerm, dateTerm, searchParams, currentPage])
 
     const handleApply = async (eventId: string, _organizerId?: string, _eventTitle?: string) => {
         setApplyingId(eventId)
@@ -218,6 +244,8 @@ export function useStudentDashboard() {
         events,
         myApplications,
         applyingId,
+        disabledApply,
+        setDisabledApply,
         loadingData,
         userProfile,
         cvProgress,
@@ -227,6 +255,8 @@ export function useStudentDashboard() {
         setLocationTerm,
         benefitTerm,
         setBenefitTerm,
+        dateTerm,
+        setDateTerm,
         bookmarkedEvents,
         currentPage,
         setCurrentPage,
