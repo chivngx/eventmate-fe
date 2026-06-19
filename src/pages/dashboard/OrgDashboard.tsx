@@ -1,18 +1,27 @@
 import { useState, useEffect } from "react"
-import { useSearchParams } from "react-router-dom" // Thêm thư viện để đọc tham số từ Navbar
+import { useSearchParams } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
-import { Plus, Calendar, MapPin, Users, Activity, ArrowLeft, CheckCircle, XCircle, FileText, X, Phone, GraduationCap, Sparkles, Pencil, Trash2 } from "lucide-react"
+import { Plus, Calendar, Users, Activity, ArrowLeft, CheckCircle, XCircle, FileText, X, Phone, GraduationCap, Sparkles, Pencil, Trash2, MapPin, Briefcase, Award, Tag, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function OrgDashboard() {
-    const [searchParams, setSearchParams] = useSearchParams() // Đọc tham số url (ví dụ: ?action=create)
+    const [searchParams, setSearchParams] = useSearchParams()
     const [events, setEvents] = useState<any[]>([])
+
+    // Cấu trúc form dữ liệu nâng cao + Trường ngày tháng mới
     const [title, setTitle] = useState("")
     const [desc, setDesc] = useState("")
     const [location, setLocation] = useState("")
+    const [positionType, setPositionType] = useState("Tình nguyện viên")
+    const [benefits, setBenefits] = useState("Cấp chứng nhận")
+    const [category, setCategory] = useState("Lễ hội Âm nhạc")
+    const [slotsNeeded, setSlotsNeeded] = useState("1")
+    const [eventDate, setEventDate] = useState("") // [MỚI] Ngày diễn ra sự kiện
+    const [applicationDeadline, setApplicationDeadline] = useState("") // [MỚI] Hạn chót nộp đơn
+
     const [loading, setLoading] = useState(false)
     const [fetching, setFetching] = useState(true)
 
@@ -23,18 +32,6 @@ export default function OrgDashboard() {
     const [applications, setApplications] = useState<any[]>([])
     const [loadingApps, setLoadingApps] = useState(false)
     const [viewingCV, setViewingCV] = useState<any | null>(null)
-
-    // LẮNG NGHE NAVBAR: Nếu bấm nút "Đăng sự kiện" từ thanh điều hướng, tự động mở form ra
-    useEffect(() => {
-        if (searchParams.get("action") === "create") {
-            setShowForm(true)
-            setEditingId(null)
-            // Xóa tham số trên URL đi sau khi đã mở form để tránh bị lặp lại khi F5
-            searchParams.delete("action")
-            setSearchParams(searchParams, { replace: true })
-            window.scrollTo({ top: 0, behavior: "smooth" })
-        }
-    }, [searchParams])
 
     const fetchMyEvents = async () => {
         setFetching(true)
@@ -55,29 +52,60 @@ export default function OrgDashboard() {
         fetchMyEvents()
     }, [])
 
+    useEffect(() => {
+        if (searchParams.get("action") === "create") {
+            setShowForm(true)
+            setTimeout(() => {
+                const element = document.getElementById("event-form")
+                if (element) {
+                    element.scrollIntoView({ behavior: "smooth" })
+                }
+            }, 150)
+        }
+    }, [searchParams])
+
     const resetForm = () => {
         setTitle("")
         setDesc("")
         setLocation("")
+        setPositionType("Tình nguyện viên")
+        setBenefits("Cấp chứng nhận")
+        setCategory("Lễ hội Âm nhạc")
+        setSlotsNeeded("1")
+        setEventDate("")
+        setApplicationDeadline("")
         setEditingId(null)
         setShowForm(false)
+        setSearchParams({})
     }
 
     const handleSubmitEvent = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!title || !desc || !location) {
-            alert("Vui lòng điền đầy đủ thông tin!")
+        if (!title || !desc || !location || !eventDate || !applicationDeadline) {
+            alert("Vui lòng điền đầy đủ thông tin và chọn thời hạn!");
             return
         }
         setLoading(true)
         const { data: { user } } = await supabase.auth.getUser()
 
         if (user) {
+            const eventPayload = {
+                title,
+                description: desc,
+                location,
+                position_type: positionType,
+                benefits,
+                category,
+                slots_needed: parseInt(slotsNeeded) || 1,
+                event_date: eventDate ? new Date(eventDate).toISOString() : null, // Gửi ngày lên DB
+                application_deadline: applicationDeadline ? new Date(applicationDeadline).toISOString() : null // Gửi hạn chót lên DB
+            }
+
             if (editingId) {
-                // Sửa sự kiện cũ
+                // UPDATE (Sửa sự kiện)
                 const { error } = await supabase
                     .from("events")
-                    .update({ title, description: desc, location })
+                    .update(eventPayload)
                     .eq("id", editingId)
                     .eq("organizer_id", user.id)
 
@@ -89,9 +117,9 @@ export default function OrgDashboard() {
                     alert("Lỗi khi cập nhật: " + error.message)
                 }
             } else {
-                // Tạo sự kiện mới
+                // INSERT (Tạo sự kiện mới)
                 const { error } = await supabase.from("events").insert([
-                    { organizer_id: user.id, title, description: desc, location, status: 'upcoming' }
+                    { organizer_id: user.id, ...eventPayload, status: 'upcoming' }
                 ])
                 if (!error) {
                     alert("Tạo sự kiện thành công!")
@@ -110,6 +138,13 @@ export default function OrgDashboard() {
         setTitle(ev.title)
         setDesc(ev.description)
         setLocation(ev.location)
+        setPositionType(ev.position_type || "Tình nguyện viên")
+        setBenefits(ev.benefits || "Cấp chứng nhận")
+        setCategory(ev.category || "Lễ hội Âm nhạc")
+        setSlotsNeeded(String(ev.slots_needed || 1))
+        // Trích xuất chuỗi YYYY-MM-DD từ ISO string để hiển thị lên thẻ <input type="date" />
+        setEventDate(ev.event_date ? ev.event_date.split('T')[0] : "")
+        setApplicationDeadline(ev.application_deadline ? ev.application_deadline.split('T')[0] : "")
         setShowForm(true)
         window.scrollTo({ top: 0, behavior: 'smooth' })
     }
@@ -133,9 +168,9 @@ export default function OrgDashboard() {
         const { data, error } = await supabase
             .from("applications")
             .select(`
-                id, status, applied_at, student_id, 
-                profiles!applications_student_id_fkey (id, full_name, email, avatar_url, phone, university, bio, skills)
-            `)
+            id, status, applied_at, student_id, 
+            profiles!applications_student_id_fkey (id, full_name, email, avatar_url, phone, university, bio, skills)
+        `)
             .eq("event_id", event.id)
             .order("applied_at", { ascending: false })
 
@@ -148,16 +183,6 @@ export default function OrgDashboard() {
 
         if (!error) {
             setApplications(apps => apps.map(app => app.id === appId ? { ...app, status: newStatus } : app))
-
-            // BẮN THÔNG BÁO CHO TRẠNG THÁI CỦA SINH VIÊN
-            if (newStatus !== 'pending') {
-                const notifTitle = newStatus === 'approved' ? '🎉 Chúc mừng bạn trúng tuyển!' : 'Thư cảm ơn hồ sơ'
-                const notifMessage = newStatus === 'approved'
-                    ? `Đơn ứng tuyển của bạn vào vị trí "${selectedEvent.title}" đã được Ban tổ chức chấp thuận.`
-                    : `Rất tiếc, bạn chưa phù hợp với sự kiện "${selectedEvent.title}" lần này. Hẹn gặp lại bạn ở các chương trình sau nhé!`
-
-                await supabase.from("notifications").insert([{ user_id: studentId, title: notifTitle, message: notifMessage }])
-            }
         } else {
             alert("Lỗi khi cập nhật trạng thái: " + error.message)
         }
@@ -205,9 +230,9 @@ export default function OrgDashboard() {
                         </div>
                     </div>
 
-                    {/* FORM TẠO/SỬA SỰ KIỆN */}
+                    {/* FORM TẠO/SỬA SỰ KIỆN PHÂN LOẠI NÂNG CAO */}
                     {showForm && (
-                        <div className="bg-white rounded-[2rem] border-2 border-emerald-100 shadow-xl shadow-emerald-900/5 p-6 sm:p-8 animate-in zoom-in-95 duration-200">
+                        <div id="event-form" className="bg-white rounded-[2rem] border-2 border-emerald-100 shadow-xl shadow-emerald-900/5 p-6 sm:p-8 animate-in zoom-in-95 duration-200">
                             <div className="mb-6">
                                 <h2 className="text-xl font-extrabold text-slate-900">
                                     {editingId ? "✏️ Chỉnh sửa sự kiện" : "Tạo sự kiện & Tuyển dụng mới"}
@@ -217,15 +242,59 @@ export default function OrgDashboard() {
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                                     <div className="space-y-2">
                                         <label className="text-sm font-bold text-slate-700">Tên sự kiện / Vị trí tuyển</label>
-                                        <Input placeholder="VD: Tình nguyện viên Lễ hội âm nhạc..." value={title} onChange={e => setTitle(e.target.value)} className="h-12 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-emerald-500 text-base font-medium" />
+                                        <Input placeholder="VD: Tình nguyện viên Lễ hội âm nhạc..." value={title} onChange={e => setTitle(e.target.value)} className="h-12 rounded-xl bg-slate-50 border-slate-200 text-base font-medium focus-visible:ring-emerald-500" />
                                     </div>
                                     <div className="space-y-2">
                                         <label className="text-sm font-bold text-slate-700">Địa điểm tổ chức</label>
-                                        <Input placeholder="VD: Quận 1, TP.HCM" value={location} onChange={e => setLocation(e.target.value)} className="h-12 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-emerald-500 text-base font-medium" />
+                                        <Input placeholder="VD: Đà Nẵng, Hà Nội..." value={location} onChange={e => setLocation(e.target.value)} className="h-12 rounded-xl bg-slate-50 border-slate-200 text-base font-medium focus-visible:ring-emerald-500" />
                                     </div>
                                 </div>
+
+                                {/* [MỚI] HÀNG CHỌN NGÀY THÁNG ĐỒNG BỘ */}
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-slate-700 flex items-center gap-1.5"><Calendar className="w-4 h-4 text-emerald-600" /> Ngày diễn ra sự kiện</label>
+                                        <Input type="date" value={eventDate} onChange={e => setEventDate(e.target.value)} className="h-12 rounded-xl bg-slate-50 border-slate-200 text-sm font-bold text-slate-700 focus-visible:ring-emerald-500" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-slate-700 flex items-center gap-1.5"><Clock className="w-4 h-4 text-rose-500 animate-pulse" /> Hạn chót nộp đơn (Ngày hết hạn)</label>
+                                        <Input type="date" value={applicationDeadline} onChange={e => setApplicationDeadline(e.target.value)} className="h-12 rounded-xl bg-slate-50 border-slate-200 text-sm font-bold text-slate-700 focus-visible:ring-emerald-500" />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-slate-700">Vị trí tuyển dụng</label>
+                                        <select value={positionType} onChange={e => setPositionType(e.target.value)} className="h-12 rounded-xl bg-slate-50 border-2 border-slate-100 p-2 text-sm font-bold text-slate-700 w-full focus:outline-none focus:border-emerald-500">
+                                            {['Tình nguyện viên', 'Điều phối viên (Coordinator)', 'CTV Truyền thông', 'Hậu cần & Setup', 'MC / Hoạt náo viên', 'Hỗ trợ khách mời'].map(t => (
+                                                <option key={t} value={t}>{t}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-slate-700">Loại hình sự kiện</label>
+                                        <select value={category} onChange={e => setCategory(e.target.value)} className="h-12 rounded-xl bg-slate-50 border-2 border-slate-100 p-2 text-sm font-bold text-slate-700 w-full focus:outline-none focus:border-emerald-500">
+                                            {['Lễ hội Âm nhạc', 'Hội thảo / Workshop', 'Giải đấu Thể thao', 'Giao lưu Văn hóa', 'Triển lãm / Hội chợ', 'Sự kiện Công nghệ'].map(c => (
+                                                <option key={c} value={c}>{c}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-slate-700">Quyền lợi / Phụ cấp</label>
+                                        <select value={benefits} onChange={e => setBenefits(e.target.value)} className="h-12 rounded-xl bg-slate-50 border-2 border-slate-100 p-2 text-sm font-bold text-slate-700 w-full focus:outline-none focus:border-emerald-500">
+                                            {['Cấp chứng nhận', 'Có phụ cấp ăn uống', 'Hỗ trợ lương cứng', 'Thỏa thuận'].map(b => (
+                                                <option key={b} value={b}>{b}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-slate-700">Số lượng cần tuyển</label>
+                                        <Input type="number" min="1" value={slotsNeeded} onChange={e => setSlotsNeeded(e.target.value)} className="h-12 rounded-xl bg-slate-50 border-slate-200 text-base font-medium focus-visible:ring-emerald-500" />
+                                    </div>
+                                </div>
+
                                 <div className="space-y-2">
-                                    <label className="text-sm font-bold text-slate-700">Mô tả công việc & Yêu cầu</label>
+                                    <label className="text-sm font-bold text-slate-700">Mô tả công việc & Yêu cầu cụ thể</label>
                                     <textarea placeholder="Nhập mô tả chi tiết..." value={desc} onChange={e => setDesc(e.target.value)} rows={5} className="w-full rounded-xl bg-slate-50 border-2 border-slate-200 p-4 text-sm font-medium focus:outline-none focus:border-emerald-500 resize-none whitespace-pre-wrap" />
                                 </div>
                                 <div className="flex justify-end pt-2 gap-3">
@@ -261,35 +330,34 @@ export default function OrgDashboard() {
                                         <div className="flex-1 pr-4">
                                             <div className="flex items-center gap-3 mb-2">
                                                 <h4 className="text-lg font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">{ev.title}</h4>
-                                                <Badge variant="secondary" className={ev.status === 'upcoming' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'}>
+                                                <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
                                                     {ev.status === 'upcoming' ? 'Đang mở' : 'Đã đóng'}
                                                 </Badge>
                                             </div>
-                                            <p className="text-sm text-slate-500 font-medium line-clamp-1 mb-3">{ev.description}</p>
+                                            <p className="text-sm text-slate-500 font-medium line-clamp-1 mb-2">{ev.description}</p>
+
+                                            {/* HIỂN THỊ CÁC TRƯỜNG DỮ LIỆU ĐỘNG THỰC TẾ KÈM HẠN CHÓT */}
+                                            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-bold text-slate-400 mt-2">
+                                                <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {ev.location}</span>
+                                                <span className="flex items-center gap-1"><Briefcase className="w-3.5 h-3.5" /> {ev.position_type || "Tình nguyện viên"}</span>
+                                                <span className="flex items-center gap-1"><Tag className="w-3.5 h-3.5" /> {ev.category || "Lễ hội"}</span>
+                                                <span className="flex items-center gap-1"><Award className="w-3.5 h-3.5" /> Tuyển: {ev.slots_needed || 1} người</span>
+                                                {ev.application_deadline && (
+                                                    <span className="flex items-center gap-1 text-rose-500 bg-rose-50/50 px-2 py-0.5 rounded border border-rose-100">
+                                                        <Clock className="w-3.5 h-3.5" /> Hạn nộp: {new Date(ev.application_deadline).toLocaleDateString('vi-VN')}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
 
-                                        <div className="mt-4 sm:mt-0 flex gap-2 shrink-0 flex-wrap">
-                                            <Button
-                                                onClick={() => handleViewApplications(ev)}
-                                                variant="outline"
-                                                className="rounded-xl border-slate-200 text-slate-700 font-bold hover:bg-emerald-50 hover:text-emerald-600 transition-colors"
-                                            >
+                                        <div className="mt-4 sm:mt-0 flex gap-2 shrink-0 flex-wrap items-center">
+                                            <Button onClick={() => handleViewApplications(ev)} variant="outline" className="rounded-xl border-slate-200 text-slate-700 font-bold hover:bg-emerald-50 hover:text-emerald-600 transition-colors">
                                                 <Users className="w-4 h-4 mr-2" /> Xem đơn nộp
                                             </Button>
-                                            <Button
-                                                onClick={() => handleEditClick(ev)}
-                                                variant="outline"
-                                                className="rounded-xl border-slate-200 text-slate-500 font-bold hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors px-3"
-                                                title="Chỉnh sửa sự kiện"
-                                            >
+                                            <Button onClick={() => handleEditClick(ev)} variant="outline" className="rounded-xl border-slate-200 text-slate-500 font-bold hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors px-3" title="Chỉnh sửa sự kiện">
                                                 <Pencil className="w-4 h-4" />
                                             </Button>
-                                            <Button
-                                                onClick={() => handleDeleteEvent(ev.id)}
-                                                variant="outline"
-                                                className="rounded-xl border-slate-200 text-slate-500 font-bold hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-colors px-3"
-                                                title="Xóa sự kiện"
-                                            >
+                                            <Button onClick={() => handleDeleteEvent(ev.id)} variant="outline" className="rounded-xl border-slate-200 text-slate-500 font-bold hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-colors px-3" title="Xóa sự kiện">
                                                 <Trash2 className="w-4 h-4" />
                                             </Button>
                                         </div>
@@ -362,7 +430,7 @@ export default function OrgDashboard() {
                 </div>
             )}
 
-            {/* POPUP XEM CVỨNG VIÊN */}
+            {/* POPUP XEM CV GIỮ NGUYÊN */}
             {viewingCV && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
                     <div className="bg-white rounded-[2rem] w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
