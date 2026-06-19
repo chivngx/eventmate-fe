@@ -85,7 +85,8 @@ export function useStudentDashboard() {
         fetchEventsAndApplications()
     }, [searchParams])
 
-    const handleApply = async (eventId: string, organizerId: string, eventTitle: string) => {
+    // ĐÃ SỬA: Thêm dấu gạch dưới _organizerId và _eventTitle để tránh lỗi TS6133 khi dọn dẹp lệnh notify thủ công
+    const handleApply = async (eventId: string, _organizerId?: string, _eventTitle?: string) => {
         setApplyingId(eventId)
         const { data: { user } } = await supabase.auth.getUser()
 
@@ -100,11 +101,7 @@ export function useStudentDashboard() {
         ])
 
         if (!appError) {
-            await supabase.from("notifications").insert([{
-                user_id: organizerId,
-                title: "Có đơn ứng tuyển mới! 📩",
-                message: `Bạn vừa nhận được một đơn nộp mới vào vị trí sự kiện "${eventTitle}". Hãy vào kiểm tra ngay!`
-            }])
+            // ĐÃ XÓA: Khối lệnh insert thông báo thủ công tại đây vì Database Trigger đã gánh trọn vẹn tự động!
             setMyApplications(prev => ({ ...prev, [eventId]: 'pending' }))
         } else {
             alert("Lỗi: " + appError.message)
@@ -169,7 +166,6 @@ export function useStudentDashboard() {
         return matchesSearch && matchesLocation && matchesPosition && matchesCategory && matchesSaved && matchesBenefit;
     })
 
-    // PAGINATION
     const itemsPerPage = 6
     const totalPages = Math.ceil(filteredEvents.length / itemsPerPage) || 1
     const paginatedEvents = filteredEvents.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)

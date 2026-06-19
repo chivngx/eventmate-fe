@@ -47,13 +47,6 @@ export default function EventCard({
 
   const matchScore = getMatchScore()
 
-  const getMockSalary = (item: any) => {
-    if (item.benefits) return item.benefits
-    const desc = (item.description || "").toLowerCase()
-    if (desc.includes("tình nguyện") || desc.includes("volunteer")) return "Tình nguyện"
-    return "Cấp chứng nhận"
-  }
-
   const renderActionButton = () => {
     if (myApplicationStatus === "approved") {
       return (
@@ -64,7 +57,7 @@ export default function EventCard({
     }
     if (myApplicationStatus === "rejected") {
       return (
-        <span className="text-[11px] font-extrabold text-rose-500 bg-rose-50 px-2 py-1 rounded border border-rose-200 flex items-center gap-1">
+        <span className="text-[11px] font-extrabold text-rose-50 bg-rose-50 px-2 py-1 rounded border border-rose-200 flex items-center gap-1">
           <XCircle className="w-3 h-3" /> K.phù hợp
         </span>
       )
@@ -143,7 +136,7 @@ export default function EventCard({
       <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="text-[11px] font-medium bg-[#edeff0] text-[#263a4d] px-2.5 py-0.5 rounded-full">
-            {getMockSalary(job)}
+            {job.benefits || "Thỏa thuận"}
           </span>
           <span className="text-[11px] font-medium bg-[#edeff0] text-[#263a4d] px-2.5 py-0.5 rounded-full" title={job.location}>
             {job.location || "Toàn quốc"}
@@ -154,8 +147,8 @@ export default function EventCard({
           <button
             onClick={() => onToggleBookmark(job.id)}
             className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all shrink-0 ${isBookmarked
-                ? "bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100"
-                : "bg-white border-slate-200 text-slate-400 hover:text-[#00b14f] hover:border-[#00b14f]"
+              ? "bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100"
+              : "bg-white border-slate-200 text-slate-400 hover:text-[#00b14f] hover:border-[#00b14f]"
               }`}
           >
             <Heart className={`w-3.5 h-3.5 ${isBookmarked ? "fill-current" : ""}`} />
