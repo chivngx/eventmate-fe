@@ -17,15 +17,20 @@ export default function StudentHero({
   setLocationTerm
 }: StudentHeroProps) {
   return (
-    <div className="relative overflow-hidden rounded-[2rem] bg-emerald-500 px-6 py-14 shadow-md sm:px-16 sm:py-16 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div 
+      className="relative overflow-hidden rounded-3xl px-6 py-14 shadow-lg sm:px-16 sm:py-16 animate-in fade-in slide-in-from-bottom-4 duration-500"
+      style={{
+        background: "linear-gradient(135deg, #002b33 0%, #008060 60%, #2bab60 100%)"
+      }}
+    >
       <div className="relative z-10 mx-auto max-w-3xl text-center space-y-5">
-        <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl leading-tight flex flex-col items-center justify-center gap-3">
-          <span>Nắm bắt cơ hội sự kiện</span>
+        <h1 className="text-3xl font-black tracking-tight text-white sm:text-4xl leading-tight flex flex-col items-center justify-center gap-3">
+          <span>Tìm cơ hội sự kiện</span>
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-            <span>bứt phá</span>
+            <span>phù hợp nhất với</span>
             <RotatingText
-              texts={["sự nghiệp", "tương lai", "bản thân", "giới hạn"]}
-              mainClassName="text-emerald-600 bg-white px-3 sm:px-4 py-0.5 sm:py-1 rounded-2xl inline-flex overflow-hidden justify-center shadow-md border-2 border-emerald-100"
+              texts={["sự nghiệp", "tương lai", "năng lực", "đam mê"]}
+              mainClassName="text-emerald-700 bg-white px-3 sm:px-4 py-0.5 sm:py-1 rounded-xl inline-flex overflow-hidden justify-center shadow-md border border-emerald-100"
               staggerFrom="first"
               initial={{ y: "100%", opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -37,32 +42,32 @@ export default function StudentHero({
             />
           </div>
         </h1>
-        <p className="mx-auto max-w-xl text-lg text-emerald-50 font-medium">
+        <p className="mx-auto max-w-xl text-sm sm:text-base text-emerald-50/80 font-medium">
           Hàng ngàn vị trí Tình nguyện viên, CTV Truyền thông và Điều phối đang chờ đón bạn.
         </p>
-
-        <div className="mx-auto mt-8 flex w-full max-w-3xl flex-col gap-2 rounded-3xl bg-white p-2 shadow-xl sm:flex-row sm:items-center sm:rounded-full">
+ 
+        <div className="mx-auto mt-8 flex w-full max-w-3xl flex-col gap-2 rounded-2xl bg-white p-2 shadow-md sm:flex-row sm:items-center">
           <div className="flex flex-1 items-center px-4 py-2 sm:py-0">
-            <Search className="h-5 w-5 text-emerald-600" />
+            <Search className="h-5 w-5 text-emerald-600 shrink-0" />
             <Input
               placeholder="Tìm tên sự kiện, BTC..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="border-0 bg-transparent shadow-none focus-visible:ring-0 text-slate-900 font-bold text-base placeholder:text-slate-400 h-11"
+              className="border-0 bg-transparent shadow-none focus-visible:ring-0 text-slate-800 font-bold text-base placeholder:text-slate-400 h-11"
             />
           </div>
           <div className="hidden h-8 w-[2px] bg-slate-100 sm:block"></div>
           <div className="flex flex-1 items-center px-4 py-2 sm:py-0">
-            <MapPin className="h-5 w-5 text-slate-400" />
+            <MapPin className="h-5 w-5 text-slate-400 shrink-0" />
             <Input
-              placeholder="Địa điểm (VD: Quận 1)"
+              placeholder="Địa điểm (VD: Hà Nội, Đà Nẵng)"
               value={locationTerm}
               onChange={(e) => setLocationTerm(e.target.value)}
-              className="border-0 bg-transparent shadow-none focus-visible:ring-0 text-slate-900 font-bold text-base placeholder:text-slate-400 h-11"
+              className="border-0 bg-transparent shadow-none focus-visible:ring-0 text-slate-800 font-bold text-base placeholder:text-slate-400 h-11"
             />
           </div>
-          <Button className="h-12 w-full rounded-2xl sm:rounded-full bg-slate-900 px-10 text-base font-bold text-white hover:bg-slate-800 sm:w-auto transition-transform hover:scale-105 active:scale-95">
-            Tìm việc ngay
+          <Button className="h-11 w-full rounded-xl bg-[#00b14f] hover:bg-[#009b45] px-8 text-sm font-black text-white sm:w-auto transition-all shadow-md shadow-emerald-700/20">
+            Tìm kiếm ngay
           </Button>
         </div>
       </div>

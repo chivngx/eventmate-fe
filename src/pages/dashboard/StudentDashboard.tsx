@@ -5,6 +5,8 @@ import EventCard from "@/components/dashboard/EventCard"
 import CVSuggestionCard from "@/components/dashboard/CVSuggestionCard"
 import QuickFilters from "@/components/dashboard/QuickFilters"
 import Pagination from "@/components/dashboard/Pagination"
+import TrendingCategoriesSlider from "@/components/dashboard/TrendingCategoriesSlider"
+import FeaturedOrganizers from "@/components/dashboard/FeaturedOrganizers"
 import { useStudentDashboard } from "./useStudentDashboard"
 
 export default function StudentDashboard() {
@@ -37,17 +39,24 @@ export default function StudentDashboard() {
         totalPages,
         itemsPerPage,
         paginatedEvents,
-        myApplications
+        myApplications,
+        events
     } = useStudentDashboard()
 
     return (
-        <div className="space-y-8 pb-10">
+        <div className="space-y-8 pb-10 animate-in fade-in duration-300">
             {/* 1. BANNER PHẲNG & TÌM KIẾM */}
             <StudentHero
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
                 locationTerm={locationTerm}
                 setLocationTerm={setLocationTerm}
+            />
+
+            {/* DANH MỤC NỔI BẬT KHỔ RỘNG */}
+            <TrendingCategoriesSlider
+                events={events}
+                setCurrentPage={setCurrentPage}
             />
 
             {/* 2. BỐ CỤC NỘI DUNG */}
@@ -136,6 +145,7 @@ export default function StudentDashboard() {
                                     onApply={handleApply}
                                     applyingId={applyingId}
                                     onNavigateToJob={(jobId) => navigate(`/jobs/${jobId}`)}
+                                    userSkills={userProfile?.skills}
                                 />
                             ))
                         )}
@@ -151,13 +161,17 @@ export default function StudentDashboard() {
                     />
                 </div>
 
-                {/* CỘT PHỤ BÊN PHẢI (CV & GỢI Ý) */}
+                {/* CỘT PHỤ BÊN PHẢI (CV & GỢI Ý & NHÀ TỔ CHỨC TIÊU BIỂU) */}
                 <div className="space-y-6 lg:col-span-4 lg:pl-2 mt-2">
                     <CVSuggestionCard
                         userProfile={userProfile}
                         cvProgress={cvProgress}
                         firstName={firstName}
                         onNavigate={navigate}
+                    />
+                    
+                    <FeaturedOrganizers
+                        events={events}
                     />
                 </div>
 

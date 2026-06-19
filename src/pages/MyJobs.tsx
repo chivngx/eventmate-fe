@@ -181,26 +181,48 @@ export default function MyJobs() {
                                         </div>
                                     </div>
 
-                                    {/* KHỐI TRẠNG THÁI & HÀNH ĐỘNG RÚT ĐƠN */}
-                                    <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
-                                        <div className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-2xl border-2 font-bold text-sm ${statusColor}`}>
-                                            {StatusIcon} {StatusBadge}
+                                    {/* PIPELINE TRẠNG THÁI KIỂU TOPCV */}
+                                    <div className="flex flex-col items-end gap-3 shrink-0 w-full sm:w-auto">
+                                        <div className="flex items-center gap-2 text-xs font-black text-slate-400 bg-slate-50/50 p-2 rounded-xl border border-slate-100 flex-wrap">
+                                            <span className="text-slate-500">Quy trình:</span>
+                                            
+                                            {/* Bước 1 */}
+                                            <span className="text-emerald-600 flex items-center gap-0.5">
+                                                ✓ Nộp đơn
+                                            </span>
+                                            <span className="text-slate-300">➔</span>
+                                            
+                                            {/* Bước 2 */}
+                                            <span className={app.status === 'pending' ? 'text-amber-600 font-black animate-pulse' : 'text-emerald-600'}>
+                                                {app.status === 'pending' ? '● Đang duyệt' : '✓ Đang duyệt'}
+                                            </span>
+                                            <span className="text-slate-300">➔</span>
+                                            
+                                            {/* Bước 3 */}
+                                            <span className={app.status === 'approved' ? 'text-emerald-600' : app.status === 'rejected' ? 'text-rose-500' : 'text-slate-300'}>
+                                                {app.status === 'approved' ? '✓ Trúng tuyển' : app.status === 'rejected' ? '✗ K.Phù hợp' : 'Kết quả'}
+                                            </span>
                                         </div>
 
-                                        {app.status === "pending" && (
-                                            <Button
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleWithdraw(app.id);
-                                                }}
-                                                variant="outline"
-                                                className="rounded-2xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 font-bold h-11 px-3 shadow-none flex items-center gap-1"
-                                                title="Hủy ứng tuyển sự kiện này"
-                                            >
-                                                <Trash2 className="w-4 h-4" />
-                                                <span className="hidden md:inline">Hủy ứng tuyển</span>
-                                            </Button>
-                                        )}
+                                        <div className="flex items-center gap-2 w-full justify-end">
+                                            <div className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl border-2 font-bold text-xs ${statusColor}`}>
+                                                {StatusIcon} {StatusBadge}
+                                            </div>
+                                            {app.status === "pending" && (
+                                                <Button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleWithdraw(app.id);
+                                                    }}
+                                                    variant="outline"
+                                                    className="rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 font-bold h-8 px-2.5 shadow-none flex items-center gap-1 text-xs"
+                                                    title="Hủy ứng tuyển sự kiện này"
+                                                >
+                                                    <Trash2 className="w-3.5 h-3.5" />
+                                                    <span className="hidden md:inline">Hủy</span>
+                                                </Button>
+                                            )}
+                                        </div>
                                     </div>
 
                                 </div>

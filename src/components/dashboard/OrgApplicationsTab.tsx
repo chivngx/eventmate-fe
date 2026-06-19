@@ -73,6 +73,29 @@ export default function OrgApplicationsTab({
                     else if (app.status === 'approved') statusBadge = <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 shadow-none">Đã duyệt</Badge>
                     else statusBadge = <Badge className="bg-rose-100 text-rose-700 hover:bg-rose-100 shadow-none">Đã từ chối</Badge>
 
+                    const getCandidateMatchScore = () => {
+                      const userSkills = app.profiles?.skills
+                      if (!userSkills) return null
+                      const skills = userSkills.split(",").map((s: string) => s.trim().toLowerCase()).filter(Boolean)
+                      if (skills.length === 0) return null
+
+                      const searchText = `${app.events?.title || ""} ${app.events?.description || ""} ${app.events?.category || ""} ${app.events?.position_type || ""}`.toLowerCase()
+                      let matches = 0
+                      skills.forEach((skill: string) => {
+                        if (searchText.includes(skill)) {
+                          matches++
+                        }
+                      })
+
+                      if (matches > 0) {
+                        const ratio = matches / skills.length
+                        return Math.round(55 + (ratio * 45))
+                      }
+                      return 35
+                    }
+
+                    const candidateMatchScore = getCandidateMatchScore()
+
                     return (
                       <div key={app.id} className="flex flex-col md:flex-row md:items-center justify-between p-5 rounded-2xl border-2 border-slate-100 bg-slate-50/50 hover:bg-white hover:border-emerald-200 transition-colors">
                         <div className="flex items-center gap-4 mb-4 md:mb-0">
@@ -81,7 +104,14 @@ export default function OrgApplicationsTab({
                             <AvatarFallback className="bg-slate-200 text-slate-600 font-bold">{app.profiles?.full_name?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
                           </Avatar>
                           <div>
-                            <h4 className="text-base font-bold text-slate-900">{app.profiles?.full_name || "Ứng viên ẩn danh"}</h4>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h4 className="text-base font-bold text-slate-900">{app.profiles?.full_name || "Ứng viên ẩn danh"}</h4>
+                              {candidateMatchScore !== null && (
+                                <span className="bg-emerald-50 text-emerald-700 text-[10px] font-black px-2 py-0.5 rounded border border-emerald-200">
+                                  🔥 Match: {candidateMatchScore}%
+                                </span>
+                              )}
+                            </div>
                             <p className="text-xs text-slate-500 mt-0.5">Ứng tuyển vào: <span className="font-bold text-emerald-600">{app.events?.title}</span></p>
                             <div className="flex items-center gap-3 mt-1.5 flex-wrap">
                               <span className="text-xs font-semibold text-slate-500">{app.profiles?.email}</span>

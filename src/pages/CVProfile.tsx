@@ -4,17 +4,20 @@ import { supabase } from "@/lib/supabase"
 import MainLayout from "@/components/layout/MainLayout"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
-import { GraduationCap, Phone, Sparkles, Save, FileText, User } from "lucide-react"
+import { GraduationCap, Phone, Sparkles, Save, FileText, User, Eye } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import CVPreviewModal from "@/components/dashboard/CVPreviewModal"
 
 export default function CVProfile() {
     const navigate = useNavigate()
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
     const [role, setRole] = useState<string>("student")
+    const [cvPreviewOpen, setCvPreviewOpen] = useState(false)
 
     // State thông tin người dùng bổ sung hiển thị trực quan
     const [fullName, setFullName] = useState("")
+    const [email, setEmail] = useState("")
     const [avatarUrl, setAvatarUrl] = useState("")
 
     // State form CV
@@ -40,6 +43,7 @@ export default function CVProfile() {
             if (data) {
                 setRole(data.role)
                 setFullName(data.full_name || "")
+                setEmail(data.email || user.email || "")
                 setAvatarUrl(data.avatar_url || "")
                 setPhone(data.phone || "")
                 setUniversity(data.university || "")
@@ -170,7 +174,15 @@ export default function CVProfile() {
                             />
                         </div>
 
-                        <div className="flex justify-end pt-4 border-t-2 border-slate-50">
+                        <div className="flex justify-end items-center gap-3 pt-4 border-t-2 border-slate-50">
+                            <Button
+                                type="button"
+                                onClick={() => setCvPreviewOpen(true)}
+                                variant="outline"
+                                className="rounded-2xl border-emerald-200 hover:bg-emerald-50 text-emerald-700 font-bold h-12 px-6"
+                            >
+                                <Eye className="w-5 h-5 mr-2" /> Xem trước & Tải CV
+                            </Button>
                             <Button
                                 type="submit"
                                 disabled={saving}
@@ -183,6 +195,20 @@ export default function CVProfile() {
                 </div>
 
             </div>
+            
+            <CVPreviewModal
+                isOpen={cvPreviewOpen}
+                onClose={() => setCvPreviewOpen(false)}
+                profile={{
+                    full_name: fullName,
+                    email: email,
+                    avatar_url: avatarUrl,
+                    phone: phone,
+                    university: university,
+                    bio: bio,
+                    skills: skills
+                }}
+            />
         </MainLayout>
     )
 }
