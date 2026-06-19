@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react"
-import { useSearchParams } from "react-router-dom"
+import { useSearchParams } from "react-router-dom" // Thêm thư viện để đọc tham số từ Navbar
 import { supabase } from "@/lib/supabase"
-import { Plus, Calendar, Users, Activity, ArrowLeft, CheckCircle, XCircle, FileText, X, Phone, GraduationCap, Sparkles, Pencil, Trash2 } from "lucide-react"
+import { Plus, Calendar, MapPin, Users, Activity, ArrowLeft, CheckCircle, XCircle, FileText, X, Phone, GraduationCap, Sparkles, Pencil, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function OrgDashboard() {
-    const [searchParams, setSearchParams] = useSearchParams()
+    const [searchParams, setSearchParams] = useSearchParams() // Đọc tham số url (ví dụ: ?action=create)
     const [events, setEvents] = useState<any[]>([])
     const [title, setTitle] = useState("")
     const [desc, setDesc] = useState("")
@@ -16,7 +16,6 @@ export default function OrgDashboard() {
     const [loading, setLoading] = useState(false)
     const [fetching, setFetching] = useState(true)
 
-    // STATE MỚI: Quản lý Form và Chỉnh sửa
     const [showForm, setShowForm] = useState(false)
     const [editingId, setEditingId] = useState<string | null>(null)
 
@@ -24,6 +23,18 @@ export default function OrgDashboard() {
     const [applications, setApplications] = useState<any[]>([])
     const [loadingApps, setLoadingApps] = useState(false)
     const [viewingCV, setViewingCV] = useState<any | null>(null)
+
+    // LẮNG NGHE NAVBAR: Nếu bấm nút "Đăng sự kiện" từ thanh điều hướng, tự động mở form ra
+    useEffect(() => {
+        if (searchParams.get("action") === "create") {
+            setShowForm(true)
+            setEditingId(null)
+            // Xóa tham số trên URL đi sau khi đã mở form để tránh bị lặp lại khi F5
+            searchParams.delete("action")
+            setSearchParams(searchParams, { replace: true })
+            window.scrollTo({ top: 0, behavior: "smooth" })
+        }
+    }, [searchParams])
 
     const fetchMyEvents = async () => {
         setFetching(true)
@@ -44,28 +55,14 @@ export default function OrgDashboard() {
         fetchMyEvents()
     }, [])
 
-    useEffect(() => {
-        if (searchParams.get("action") === "create") {
-            setShowForm(true)
-            setTimeout(() => {
-                const element = document.getElementById("event-form")
-                if (element) {
-                    element.scrollIntoView({ behavior: "smooth" })
-                }
-            }, 150)
-        }
-    }, [searchParams])
-
     const resetForm = () => {
         setTitle("")
         setDesc("")
         setLocation("")
         setEditingId(null)
         setShowForm(false)
-        setSearchParams({})
     }
 
-    // LOGIC GỘP: Tạo mới HOẶC Cập nhật
     const handleSubmitEvent = async (e: React.FormEvent) => {
         e.preventDefault()
         if (!title || !desc || !location) {
@@ -77,7 +74,7 @@ export default function OrgDashboard() {
 
         if (user) {
             if (editingId) {
-                // UPDATE (Sửa)
+                // Sửa sự kiện cũ
                 const { error } = await supabase
                     .from("events")
                     .update({ title, description: desc, location })
@@ -92,7 +89,7 @@ export default function OrgDashboard() {
                     alert("Lỗi khi cập nhật: " + error.message)
                 }
             } else {
-                // INSERT (Tạo mới)
+                // Tạo sự kiện mới
                 const { error } = await supabase.from("events").insert([
                     { organizer_id: user.id, title, description: desc, location, status: 'upcoming' }
                 ])
@@ -108,17 +105,15 @@ export default function OrgDashboard() {
         setLoading(false)
     }
 
-    // LOGIC CHỈNH SỬA
     const handleEditClick = (ev: any) => {
         setEditingId(ev.id)
         setTitle(ev.title)
         setDesc(ev.description)
         setLocation(ev.location)
         setShowForm(true)
-        window.scrollTo({ top: 0, behavior: 'smooth' }) // Cuộn mượt lên form
+        window.scrollTo({ top: 0, behavior: 'smooth' })
     }
 
-    // LOGIC XÓA
     const handleDeleteEvent = async (id: string) => {
         const isConfirmed = window.confirm("🚨 BẠN CÓ CHẮC CHẮN MUỐN XÓA SỰ KIỆN NÀY?\nToàn bộ đơn ứng tuyển của sinh viên cũng sẽ bị xóa vĩnh viễn!")
         if (!isConfirmed) return
@@ -128,7 +123,7 @@ export default function OrgDashboard() {
             alert("Lỗi khi xóa: " + error.message)
         } else {
             alert("Đã xóa sự kiện thành công.")
-            fetchMyEvents() // Tải lại danh sách
+            fetchMyEvents()
         }
     }
 
@@ -138,9 +133,9 @@ export default function OrgDashboard() {
         const { data, error } = await supabase
             .from("applications")
             .select(`
-            id, status, applied_at, student_id, 
-            profiles!applications_student_id_fkey (id, full_name, email, avatar_url, phone, university, bio, skills)
-        `)
+                id, status, applied_at, student_id, 
+                profiles!applications_student_id_fkey (id, full_name, email, avatar_url, phone, university, bio, skills)
+            `)
             .eq("event_id", event.id)
             .order("applied_at", { ascending: false })
 
@@ -154,14 +149,14 @@ export default function OrgDashboard() {
         if (!error) {
             setApplications(apps => apps.map(app => app.id === appId ? { ...app, status: newStatus } : app))
 
-            // TỰ ĐỘNG BẮN THÔNG BÁO CHO SINH VIÊN
+            // BẮN THÔNG BÁO CHO TRẠNG THÁI CỦA SINH VIÊN
             if (newStatus !== 'pending') {
-                const title = newStatus === 'approved' ? '🎉 Chúc mừng bạn trúng tuyển!' : 'Thư cảm ơn'
-                const message = newStatus === 'approved'
+                const notifTitle = newStatus === 'approved' ? '🎉 Chúc mừng bạn trúng tuyển!' : 'Thư cảm ơn hồ sơ'
+                const notifMessage = newStatus === 'approved'
                     ? `Đơn ứng tuyển của bạn vào vị trí "${selectedEvent.title}" đã được Ban tổ chức chấp thuận.`
-                    : `Rất tiếc, bạn chưa phù hợp với sự kiện "${selectedEvent.title}" lần này. Hẹn gặp lại bạn ở các sự kiện sau!`
+                    : `Rất tiếc, bạn chưa phù hợp với sự kiện "${selectedEvent.title}" lần này. Hẹn gặp lại bạn ở các chương trình sau nhé!`
 
-                await supabase.from("notifications").insert([{ user_id: studentId, title, message }])
+                await supabase.from("notifications").insert([{ user_id: studentId, title: notifTitle, message: notifMessage }])
             }
         } else {
             alert("Lỗi khi cập nhật trạng thái: " + error.message)
@@ -212,7 +207,7 @@ export default function OrgDashboard() {
 
                     {/* FORM TẠO/SỬA SỰ KIỆN */}
                     {showForm && (
-                        <div id="event-form" className="bg-white rounded-[2rem] border-2 border-emerald-100 shadow-xl shadow-emerald-900/5 p-6 sm:p-8 animate-in zoom-in-95 duration-200">
+                        <div className="bg-white rounded-[2rem] border-2 border-emerald-100 shadow-xl shadow-emerald-900/5 p-6 sm:p-8 animate-in zoom-in-95 duration-200">
                             <div className="mb-6">
                                 <h2 className="text-xl font-extrabold text-slate-900">
                                     {editingId ? "✏️ Chỉnh sửa sự kiện" : "Tạo sự kiện & Tuyển dụng mới"}
@@ -273,7 +268,6 @@ export default function OrgDashboard() {
                                             <p className="text-sm text-slate-500 font-medium line-clamp-1 mb-3">{ev.description}</p>
                                         </div>
 
-                                        {/* NHÓM NÚT ACTION (XEM, SỬA, XÓA) */}
                                         <div className="mt-4 sm:mt-0 flex gap-2 shrink-0 flex-wrap">
                                             <Button
                                                 onClick={() => handleViewApplications(ev)}
@@ -310,7 +304,6 @@ export default function OrgDashboard() {
                     <button onClick={() => setSelectedEvent(null)} className="flex items-center gap-2 text-slate-500 font-bold hover:text-slate-900 mb-6 transition-colors">
                         <ArrowLeft className="w-5 h-5" /> Quay lại danh sách sự kiện
                     </button>
-                    {/* Phần duyệt ứng viên giữ nguyên như cũ */}
                     <div className="bg-white rounded-[2rem] border-2 border-slate-100 shadow-sm overflow-hidden">
                         <div className="p-6 border-b border-slate-100 bg-emerald-50/50">
                             <h2 className="text-xl font-black text-slate-900">Hồ sơ ứng tuyển</h2>
@@ -369,7 +362,7 @@ export default function OrgDashboard() {
                 </div>
             )}
 
-            {/* POPUP XEM CV GIỮ NGUYÊN NHƯ CŨ */}
+            {/* POPUP XEM CVỨNG VIÊN */}
             {viewingCV && (
                 <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
                     <div className="bg-white rounded-[2rem] w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
