@@ -47,9 +47,6 @@ export default function EventCard({
 
   const matchScore = getMatchScore()
 
-  const isPastDeadline = job.application_deadline ? new Date() > new Date(job.application_deadline) : false;
-  const isClosed = job.status !== 'upcoming';
-
   const renderActionButton = () => {
     if (myApplicationStatus === "approved") {
       return (
@@ -69,21 +66,6 @@ export default function EventCard({
       return (
         <span className="text-[11px] font-extrabold text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-200 flex items-center gap-1">
           <Clock3 className="w-3 h-3" /> Chờ duyệt
-        </span>
-      )
-    }
-
-    if (isPastDeadline) {
-      return (
-        <span className="text-[11px] font-extrabold text-rose-600 bg-rose-50 px-2.5 py-1 rounded border border-rose-200 flex items-center gap-1">
-          <XCircle className="w-3 h-3" /> Hết hạn nộp
-        </span>
-      )
-    }
-    if (isClosed) {
-      return (
-        <span className="text-[11px] font-extrabold text-slate-500 bg-slate-50 px-2.5 py-1 rounded border border-slate-200 flex items-center gap-1">
-          <XCircle className="w-3 h-3" /> Đã đóng cổng
         </span>
       )
     }
@@ -153,21 +135,25 @@ export default function EventCard({
 
       <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
         <div className="flex flex-wrap items-center gap-1.5 flex-1 min-w-0">
-          <span className="text-[11px] font-medium bg-[#edeff0] text-[#263a4d] px-2.5 py-0.5 rounded-full truncate max-w-[100px]" title={job.benefits}>
+          {/* ĐÃ SỬA: Hiển thị trực tiếp quyền lợi thực tế từ Database */}
+          <span className="text-[11px] font-medium bg-[#edeff0] text-[#263a4d] px-2.5 py-0.5 rounded-full truncate max-w-[90px]">
             {job.benefits || "Thỏa thuận"}
           </span>
-          <span className="text-[11px] font-medium bg-[#edeff0] text-[#263a4d] px-2.5 py-0.5 rounded-full truncate max-w-[80px]" title={job.location}>
-            {job.location || "Toàn quốc"}
+          {/* ĐÃ SỬA: Loại bỏ chữ "Toàn quốc", ưu tiên hiển thị tên Phường/Xã chuẩn từ Database */}
+          <span className="text-[11px] font-medium bg-[#edeff0] text-[#263a4d] px-2.5 py-0.5 rounded-full truncate max-w-[100px]" title={job.danang_wards?.name || job.location}>
+            {job.danang_wards?.name ? `P. ${job.danang_wards.name}` : (job.location || "Đà Nẵng")}
           </span>
 
-          {job.application_deadline && (
-            <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full whitespace-nowrap border ${isPastDeadline
-                ? "bg-rose-50 text-rose-600 border-rose-100"
-                : "bg-amber-50 text-amber-700 border-amber-100"
-              }`}>
-              Hạn: {new Date(job.application_deadline).toLocaleDateString('vi-VN')}
-            </span>
-          )}
+          {/* [MỚI] LỐI TẮT BẢN ĐỒ TÌM ĐƯỜNG ĐI */}
+          <a
+            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((job.location ? job.location + ', ' : '') + (job.danang_wards?.name ? 'Phường ' + job.danang_wards.name + ', ' : '') + 'Đà Nẵng')}`}
+            target="_blank"
+            rel="noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="text-[10px] font-extrabold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 flex items-center gap-0.5 hover:bg-emerald-100 transition-colors"
+          >
+            🗺️ Bản đồ
+          </a>
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0">

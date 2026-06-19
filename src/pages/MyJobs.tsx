@@ -22,11 +22,10 @@ export default function MyJobs() {
             return
         }
 
-        // Kéo quyền hạn (role) người dùng
         const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
         if (profile) setRole(profile.role)
 
-        // Kéo lịch sử nộp đơn tích hợp đầy đủ thông tin mở rộng của sự kiện
+        // ĐÃ SỬA: Bổ sung danang_wards(name) vào chuỗi truy vấn đa bảng của Supabase
         const { data, error } = await supabase
             .from("applications")
             .select(`
@@ -34,17 +33,17 @@ export default function MyJobs() {
                 status, 
                 applied_at,
                 events (
-                    id, title, location, status, position_type, category, benefits, application_deadline,
+                    id, title, location, status, position_type, category, benefits, application_deadline, ward_id,
+                    danang_wards (name),
                     profiles (full_name, avatar_url)
                 )
             `)
             .eq("student_id", user.id)
             .order("applied_at", { ascending: false })
 
-        // BỘ BẮT LỖI THÔNG MINH: Nếu gãy ngầm, bung cảnh báo lên màn hình lập tức
         if (error) {
             console.error("🚨 Lỗi truy vấn đơn ứng tuyển:", error)
-            alert("Lỗi kết nối Database: " + error.message + "\n\n💡 Gợi ý: Hãy kiểm tra xem bảng 'events' của bạn đã được thêm đầy đủ các cột nâng cao (position_type, category, benefits, application_deadline) chưa nhé!")
+            alert("Lỗi kết nối Database: " + error.message)
         } else if (data) {
             setApplications(data)
         }
@@ -83,7 +82,6 @@ export default function MyJobs() {
         <MainLayout role={role}>
             <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
 
-                {/* HEADER TRANG */}
                 <div className="mb-8 bg-white p-8 rounded-[2rem] border-2 border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-black tracking-tight text-slate-900 flex items-center gap-3">
@@ -99,7 +97,6 @@ export default function MyJobs() {
                     </Badge>
                 </div>
 
-                {/* DANH SÁCH ĐƠN NỘP */}
                 <div className="space-y-4">
                     {applications.length === 0 ? (
                         <div className="text-center py-16 bg-white rounded-[2rem] border-2 border-dashed border-slate-200">
@@ -117,7 +114,6 @@ export default function MyJobs() {
                             const event = app.events
                             const organizer = event?.profiles
 
-                            // Xử lý giao diện màu sắc của từng trạng thái hồ sơ
                             let StatusBadge, StatusIcon, statusColor
                             if (app.status === 'approved') {
                                 StatusBadge = "Trúng tuyển"
@@ -161,8 +157,10 @@ export default function MyJobs() {
                                             </p>
 
                                             <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs font-bold text-slate-400">
-                                                <span className="flex items-center gap-1 rounded bg-slate-50 px-2 py-0.5 text-slate-600">
-                                                    <MapPin className="w-3.5 h-3.5 text-slate-400" /> {event?.location || "Toàn quốc"}
+                                                {/* ĐÃ SỬA: Gỡ chữ "Toàn quốc", ưu tiên Phường/Xã chuẩn từ DB */}
+                                                <span className="flex items-center gap-1 rounded bg-slate-50 px-2 py-0.5 text-slate-600 max-w-[180px] truncate" title={event?.location}>
+                                                    <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                                                    {event?.danang_wards?.name ? `P. ${event.danang_wards.name}` : (event?.location || "Đà Nẵng")}
                                                 </span>
                                                 {event?.position_type && (
                                                     <span className="flex items-center gap-1 rounded bg-slate-50 px-2 py-0.5 text-slate-600">
@@ -181,31 +179,32 @@ export default function MyJobs() {
                                         </div>
                                     </div>
 
-                                    {/* PIPELINE TRẠNG THÁI KIỂU TOPCV */}
                                     <div className="flex flex-col items-end gap-3 shrink-0 w-full sm:w-auto">
                                         <div className="flex items-center gap-2 text-xs font-black text-slate-400 bg-slate-50/50 p-2 rounded-xl border border-slate-100 flex-wrap">
                                             <span className="text-slate-500">Quy trình:</span>
-                                            
-                                            {/* Bước 1 */}
-                                            <span className="text-emerald-600 flex items-center gap-0.5">
-                                                ✓ Nộp đơn
-                                            </span>
+                                            <span className="text-emerald-600 flex items-center gap-0.5">✓ Nộp đơn</span>
                                             <span className="text-slate-300">➔</span>
-                                            
-                                            {/* Bước 2 */}
                                             <span className={app.status === 'pending' ? 'text-amber-600 font-black animate-pulse' : 'text-emerald-600'}>
                                                 {app.status === 'pending' ? '● Đang duyệt' : '✓ Đang duyệt'}
                                             </span>
                                             <span className="text-slate-300">➔</span>
-                                            
-                                            {/* Bước 3 */}
                                             <span className={app.status === 'approved' ? 'text-emerald-600' : app.status === 'rejected' ? 'text-rose-500' : 'text-slate-300'}>
                                                 {app.status === 'approved' ? '✓ Trúng tuyển' : app.status === 'rejected' ? '✗ K.Phù hợp' : 'Kết quả'}
                                             </span>
                                         </div>
 
                                         <div className="flex items-center gap-2 w-full justify-end">
-                                            <div className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl border-2 font-bold text-xs ${statusColor}`}>
+                                            {/* [MỚI] LỐI TẮT BẢN ĐỒ NGAY TRÊN DÒNG LỊCH SỬ ỨNG TUYỂN */}
+                                            <a
+                                                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((event?.location ? event.location + ', ' : '') + (event?.danang_wards?.name ? 'Phường ' + event.danang_wards.name + ', ' : '') + 'Đà Nẵng')}`}
+                                                target="_blank"
+                                                rel="noreferrer"
+                                                onClick={(e) => e.stopPropagation()}
+                                                className="flex items-center gap-0.5 rounded-xl bg-emerald-50 border border-emerald-100 px-2.5 py-1.5 text-xs font-bold text-emerald-600 hover:bg-emerald-100 transition-colors h-8"
+                                            >
+                                                🗺️ Bản đồ
+                                            </a>
+                                            <div className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl border-2 font-bold text-xs h-8 ${statusColor}`}>
                                                 {StatusIcon} {StatusBadge}
                                             </div>
                                             {app.status === "pending" && (
