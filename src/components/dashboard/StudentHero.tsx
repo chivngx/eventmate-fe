@@ -6,18 +6,20 @@ import RotatingText from "@/components/RotatingText"
 interface StudentHeroProps {
   searchTerm: string
   setSearchTerm: (value: string) => void
-  locationTerm: string
-  setLocationTerm: (value: string) => void
+  wardIdTerm: string                  // [MỚI] Liên kết ID xã phường thay vì text tự do
+  setWardIdTerm: (value: string) => void
+  activeWards: any[]                  // [MỚI] Nhận danh sách các xã phường đang có bài đăng thực tế
 }
 
 export default function StudentHero({
   searchTerm,
   setSearchTerm,
-  locationTerm,
-  setLocationTerm
+  wardIdTerm,
+  setWardIdTerm,
+  activeWards
 }: StudentHeroProps) {
   return (
-    <div 
+    <div
       className="relative overflow-hidden rounded-3xl px-6 py-14 shadow-lg sm:px-16 sm:py-16 animate-in fade-in slide-in-from-bottom-4 duration-500"
       style={{
         background: "linear-gradient(135deg, #002b33 0%, #008060 60%, #2bab60 100%)"
@@ -43,9 +45,9 @@ export default function StudentHero({
           </div>
         </h1>
         <p className="mx-auto max-w-xl text-sm sm:text-base text-emerald-50/80 font-medium">
-          Hàng ngàn vị trí Tình nguyện viên, CTV Truyền thông và Điều phối đang chờ đón bạn.
+          Hàng ngàn vị trí Tình nguyện viên, CTV Truyền thông và Điều phối đang chờ đón bạn tại Đà Nẵng.
         </p>
- 
+
         <div className="mx-auto mt-8 flex w-full max-w-3xl flex-col gap-2 rounded-2xl bg-white p-2 shadow-md sm:flex-row sm:items-center">
           <div className="flex flex-1 items-center px-4 py-2 sm:py-0">
             <Search className="h-5 w-5 text-emerald-600 shrink-0" />
@@ -56,16 +58,24 @@ export default function StudentHero({
               className="border-0 bg-transparent shadow-none focus-visible:ring-0 text-slate-800 font-bold text-base placeholder:text-slate-400 h-11"
             />
           </div>
+
           <div className="hidden h-8 w-[2px] bg-slate-100 sm:block"></div>
+
           <div className="flex flex-1 items-center px-4 py-2 sm:py-0">
             <MapPin className="h-5 w-5 text-slate-400 shrink-0" />
-            <Input
-              placeholder="Địa điểm (VD: Hà Nội, Đà Nẵng)"
-              value={locationTerm}
-              onChange={(e) => setLocationTerm(e.target.value)}
-              className="border-0 bg-transparent shadow-none focus-visible:ring-0 text-slate-800 font-bold text-base placeholder:text-slate-400 h-11"
-            />
+            {/* ĐÃ SỬA: Thay thế ô nhập địa điểm tự do thành Dropdown tuyển chọn các xã phường ĐANG CÓ công việc thực tế */}
+            <select
+              value={wardIdTerm}
+              onChange={(e) => setWardIdTerm(e.target.value)}
+              className="border-0 bg-transparent shadow-none focus-visible:ring-0 text-slate-800 font-bold text-base h-11 w-full focus:outline-none cursor-pointer pl-2 bg-white"
+            >
+              <option value="">Tất cả khu vực có bài đăng</option>
+              {activeWards.map(w => (
+                <option key={w.id} value={w.id}>{w.name}</option>
+              ))}
+            </select>
           </div>
+
           <Button className="h-11 w-full rounded-xl bg-[#00b14f] hover:bg-[#009b45] px-8 text-sm font-black text-white sm:w-auto transition-all shadow-md shadow-emerald-700/20">
             Tìm kiếm ngay
           </Button>

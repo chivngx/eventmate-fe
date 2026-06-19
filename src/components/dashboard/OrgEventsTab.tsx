@@ -1,191 +1,144 @@
-import { Plus, Calendar, Activity, Users, Pencil, Trash2, MapPin, Briefcase, Tag, Award, Clock, ArrowLeft, FileText, CheckCircle, XCircle } from "lucide-react"
+import { Edit2, Trash2, Users, Calendar, MapPin, Briefcase, Tag, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import CVViewModal from "./CVViewModal"
+import { X } from "lucide-react"
 
 interface OrgEventsTabProps {
-  events: any[]
   fetching: boolean
-  showForm: boolean
-  setShowForm: (val: boolean | ((prev: boolean) => boolean)) => void
-  resetForm: () => void
-  totalEvents: number
-  activeEvents: number
-  selectedEvent: any
-  setSelectedEvent: (val: any) => void
+  events: any[]
+  onEditClick: (ev: any) => void
+  onDeleteEvent: (id: string) => void
+  onViewApplications: (ev: any) => void
+  selectedEvent: any | null
   loadingApps: boolean
   applications: any[]
-  setViewingCV: (val: any) => void
-  handleUpdateStatus: (appId: string, status: string) => void
-  handleEditClick: (ev: any) => void
-  handleDeleteEvent: (id: string) => void
-  handleViewApplications: (ev: any) => void
+  onUpdateStatus: (appId: string, status: string) => void
+  viewingCV: any | null
+  setViewingCV: (cv: any | null) => void
+  onCloseAppsModal: () => void
 }
 
 export default function OrgEventsTab({
-  events,
   fetching,
-  showForm,
-  setShowForm,
-  resetForm,
-  totalEvents,
-  activeEvents,
+  events,
+  onEditClick,
+  onDeleteEvent,
+  onViewApplications,
   selectedEvent,
-  setSelectedEvent,
   loadingApps,
   applications,
+  onUpdateStatus,
+  viewingCV,
   setViewingCV,
-  handleUpdateStatus,
-  handleEditClick,
-  handleDeleteEvent,
-  handleViewApplications
+  onCloseAppsModal
 }: OrgEventsTabProps) {
+
+  if (fetching) return <div className="text-center py-10 text-slate-500 font-medium">Đang tải danh sách bài đăng...</div>
+
   return (
-    <>
-      {!selectedEvent && (
-        <>
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-black tracking-tight text-slate-900">Bảng điều khiển</h1>
-              <p className="text-slate-500 font-medium mt-1">Quản lý các chiến dịch tuyển dụng và sự kiện của bạn.</p>
-            </div>
-            <Button
-              onClick={() => showForm ? resetForm() : setShowForm(true)}
-              className="rounded-2xl bg-slate-900 text-white hover:bg-slate-800 font-bold h-11 px-6 transition-transform active:scale-95 shadow-lg shadow-slate-900/20"
-            >
-              {showForm ? "Đóng Form" : <><Plus className="w-5 h-5 mr-1" /> Tạo sự kiện mới</>}
-            </Button>
+    <div className="space-y-6">
+      <div className="bg-white rounded-[2rem] border-2 border-slate-100 p-6 sm:p-8 shadow-sm">
+        <h3 className="text-lg font-black text-slate-900 mb-6 flex items-center gap-2">
+          📋 Danh sách chiến dịch tuyển dụng của bạn
+        </h3>
+
+        {events.length === 0 ? (
+          <div className="text-center py-16 border-2 border-dashed border-slate-100 rounded-2xl">
+            <Calendar className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+            <p className="text-slate-500 font-bold text-base">Bạn chưa tạo chiến dịch tuyển dụng nào.</p>
+            <p className="text-slate-400 text-sm mt-1">Nhấn nút "Tạo chiến dịch mới" ở góc trên để bắt đầu tìm kiếm nhân sự!</p>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-white rounded-3xl p-6 border-2 border-slate-100 shadow-sm flex items-center gap-4">
-              <div className="h-12 w-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                <Calendar className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Tổng sự kiện</p>
-                <h3 className="text-2xl font-black text-slate-900">{totalEvents}</h3>
-              </div>
-            </div>
-            <div className="bg-white rounded-3xl p-6 border-2 border-slate-100 shadow-sm flex items-center gap-4">
-              <div className="h-12 w-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-                <Activity className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-sm font-bold text-slate-500 uppercase tracking-wider">Đang mở đăng ký</p>
-                <h3 className="text-2xl font-black text-slate-900">{activeEvents}</h3>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-
-      {!selectedEvent ? (
-        <div className="bg-white rounded-[2rem] border-2 border-slate-100 shadow-sm overflow-hidden">
-          <div className="p-6 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between">
-            <h3 className="text-lg font-extrabold text-slate-900">Danh sách sự kiện của bạn</h3>
-          </div>
-          <div className="p-6">
-            {fetching ? (
-              <div className="text-center py-8 text-slate-500 font-medium">Đang tải dữ liệu...</div>
-            ) : events.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-slate-500 font-medium">Bạn chưa tạo sự kiện nào.</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 gap-4">
-                {events.map((ev) => (
-                  <div key={ev.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 rounded-2xl border-2 border-slate-100 hover:border-emerald-200 transition-colors group">
-                    <div className="flex-1 pr-4">
-                      <div className="flex items-center gap-3 mb-2">
-                        <h4 className="text-lg font-bold text-slate-900 group-hover:text-emerald-600 transition-colors">{ev.title}</h4>
-                        <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
-                          {ev.status === 'upcoming' ? 'Đang mở' : 'Đã đóng'}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-slate-500 font-medium line-clamp-1 mb-2">{ev.description}</p>
-
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-bold text-slate-400 mt-2">
-                        <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {ev.location}</span>
-                        <span className="flex items-center gap-1"><Briefcase className="w-3.5 h-3.5" /> {ev.position_type || "Tình nguyện viên"}</span>
-                        <span className="flex items-center gap-1"><Tag className="w-3.5 h-3.5" /> {ev.category || "Lễ hội"}</span>
-                        <span className="flex items-center gap-1"><Award className="w-3.5 h-3.5" /> Tuyển: {ev.slots_needed || 1} người</span>
-                        {ev.application_deadline && (
-                          <span className="flex items-center gap-1 text-rose-500 bg-rose-50/50 px-2 py-0.5 rounded border border-rose-100">
-                            <Clock className="w-3.5 h-3.5" /> Hạn nộp: {new Date(ev.application_deadline).toLocaleDateString('vi-VN')}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="mt-4 sm:mt-0 flex gap-2 shrink-0 flex-wrap items-center">
-                      <Button onClick={() => handleViewApplications(ev)} variant="outline" className="rounded-xl border-slate-200 text-slate-700 font-bold hover:bg-emerald-50 hover:text-emerald-600 transition-colors">
-                        <Users className="w-4 h-4 mr-2" /> Xem đơn nộp
-                      </Button>
-                      <Button onClick={() => handleEditClick(ev)} variant="outline" className="rounded-xl border-slate-200 text-slate-500 font-bold hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors px-3" title="Chỉnh sửa sự kiện">
-                        <Pencil className="w-4 h-4" />
-                      </Button>
-                      <Button onClick={() => handleDeleteEvent(ev.id)} variant="outline" className="rounded-xl border-slate-200 text-slate-500 font-bold hover:bg-rose-50 hover:text-rose-600 hover:border-rose-200 transition-colors px-3" title="Xóa sự kiện">
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {events.map((job) => (
+              <div key={job.id} className="border-2 border-slate-50 rounded-2xl p-5 bg-slate-50/30 hover:bg-white hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-950/5 transition-all duration-300 flex flex-col justify-between gap-4">
+                <div>
+                  <div className="flex items-start justify-between gap-2">
+                    <h4 className="font-extrabold text-slate-900 text-base leading-snug line-clamp-2">{job.title}</h4>
+                    <Badge variant={job.status === 'upcoming' ? 'default' : 'secondary'} className={job.status === 'upcoming' ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-100 border-none font-bold text-[10px]' : 'font-bold text-[10px]'}>
+                      {job.status === 'upcoming' ? 'Đang mở' : 'Đã hoàn thành'}
+                    </Badge>
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className="animate-in slide-in-from-right-8 duration-300">
-          <button onClick={() => setSelectedEvent(null)} className="flex items-center gap-2 text-slate-500 font-bold hover:text-slate-900 mb-6 transition-colors">
-            <ArrowLeft className="w-5 h-5" /> Quay lại danh sách sự kiện
-          </button>
-          <div className="bg-white rounded-[2rem] border-2 border-slate-100 shadow-sm overflow-hidden">
-            <div className="p-6 border-b border-slate-100 bg-emerald-50/50">
-              <h2 className="text-xl font-black text-slate-900">Hồ sơ ứng tuyển</h2>
-              <p className="text-sm font-bold text-emerald-700 mt-1">Sự kiện: {selectedEvent.title}</p>
-            </div>
-            <div className="p-6">
-              {loadingApps ? (
-                <div className="text-center py-8 text-slate-500 font-medium">Đang tải hồ sơ...</div>
-              ) : applications.length === 0 ? (
-                <div className="text-center py-12 border-2 border-dashed border-slate-100 rounded-3xl">
-                  <Users className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                  <p className="text-slate-500 font-medium">Chưa có ứng viên nào nộp đơn vào sự kiện này.</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 gap-4">
-                  {applications.map((app) => {
-                    let statusBadge = null
-                    if (app.status === 'pending') statusBadge = <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 shadow-none">Chờ duyệt</Badge>
-                    else if (app.status === 'approved') statusBadge = <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 shadow-none">Đã duyệt</Badge>
-                    else statusBadge = <Badge className="bg-rose-100 text-rose-700 hover:bg-rose-100 shadow-none">Đã từ chối</Badge>
 
+                  <div className="grid grid-cols-2 gap-x-2 gap-y-1.5 mt-4 text-xs font-bold text-slate-500">
+                    <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" /> {job.location || "Toàn quốc"}</span>
+                    <span className="flex items-center gap-1"><Briefcase className="w-3.5 h-3.5 text-slate-400 shrink-0" /> {job.position_type}</span>
+                    <span className="flex items-center gap-1"><Tag className="w-3.5 h-3.5 text-slate-400 shrink-0" /> {job.category}</span>
+                    <span className="flex items-center gap-1 text-rose-600"><Clock className="w-3.5 h-3.5 text-rose-400 shrink-0" /> Hạn: {job.application_deadline ? new Date(job.application_deadline).toLocaleDateString('vi-VN') : 'Không rõ'}</span>
+                  </div>
+
+                  <div className="mt-3 bg-slate-50 rounded-xl p-3 border border-slate-100/50 text-xs font-bold text-slate-600 flex justify-between">
+                    <span>Cần tuyển: <strong className="text-slate-900">{job.slots_needed} vị trí</strong></span>
+                    <span className="text-emerald-600">Quyền lợi: {job.benefits}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-2 border-t border-slate-100 pt-3 mt-1">
+                  <Button onClick={() => onViewApplications(job)} variant="outline" className="rounded-xl border-indigo-100 text-indigo-600 hover:bg-indigo-50 font-bold text-xs h-9 px-3 flex items-center gap-1">
+                    <Users className="w-4 h-4" /> Xem ứng viên
+                  </Button>
+                  <div className="flex items-center gap-1">
+                    <Button onClick={() => onEditClick(job)} variant="ghost" className="h-9 w-9 p-0 rounded-xl text-slate-500 hover:text-slate-900 hover:bg-slate-100">
+                      <Edit2 className="w-4 h-4" />
+                    </Button>
+                    <Button onClick={() => onDeleteEvent(job.id)} variant="ghost" className="h-9 w-9 p-0 rounded-xl text-rose-500 hover:text-rose-700 hover:bg-rose-50">
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {selectedEvent && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-[2rem] w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] animate-in zoom-in-95 duration-200">
+            <div className="bg-slate-50 p-6 flex items-center justify-between border-b border-slate-100">
+              <div>
+                <h3 className="text-lg font-black text-slate-900">📩 Danh sách ứng viên ứng tuyển</h3>
+                <p className="text-xs font-bold text-indigo-600 mt-0.5">Sự kiện: {selectedEvent.title}</p>
+              </div>
+              <button onClick={onCloseAppsModal} className="p-2 text-slate-400 hover:text-slate-800 bg-white rounded-full border border-slate-200 transition-colors">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto flex-1 space-y-4">
+              {loadingApps ? (
+                <div className="text-center py-10 font-medium text-slate-500">Đang tải hồ sơ ứng viên...</div>
+              ) : applications.length === 0 ? (
+                <div className="text-center py-12 text-slate-400 font-bold">Chưa có ứng viên nào nộp đơn vào sự kiện này.</div>
+              ) : (
+                <div className="space-y-3">
+                  {applications.map((app) => {
+                    const student = app.profiles
                     return (
-                      <div key={app.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 rounded-2xl border-2 border-slate-100 bg-slate-50/50 hover:bg-white hover:border-emerald-200 transition-colors">
-                        <div className="flex items-center gap-4 mb-4 sm:mb-0">
-                          <Avatar className="h-12 w-12 border-2 border-white shadow-sm">
-                            <AvatarImage src={app.profiles?.avatar_url} />
-                            <AvatarFallback className="bg-slate-200 text-slate-600 font-bold">{app.profiles?.full_name?.charAt(0).toUpperCase() || "U"}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <h4 className="text-base font-bold text-slate-900">{app.profiles?.full_name || "Ứng viên ẩn danh"}</h4>
-                            <div className="flex items-center gap-3 mt-1">
-                              <p className="text-xs font-medium text-slate-500">{app.profiles?.email}</p>
-                              {statusBadge}
-                            </div>
+                      <div key={app.id} className="border-2 border-slate-50 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/20">
+                        <div>
+                          <h4 className="font-bold text-slate-900 text-base">{student?.full_name || "Ứng viên ẩn danh"}</h4>
+                          <p className="text-xs text-slate-400 font-bold mt-0.5">{student?.university || "Chưa cập nhật trường học"} • {student?.email}</p>
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {student?.skills ? student.skills.split(',').map((s: string) => (
+                              <Badge key={s} variant="secondary" className="text-[10px] font-bold px-2 py-0.5 bg-slate-100 text-slate-600 border-none">{s.trim()}</Badge>
+                            )) : <span className="text-[10px] font-bold text-slate-400">Chưa bổ sung kỹ năng</span>}
                           </div>
                         </div>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <Button onClick={() => setViewingCV(app.profiles)} variant="secondary" className="rounded-xl font-bold h-10 px-4 hover:bg-slate-200"><FileText className="w-4 h-4 mr-1.5" /> Xem CV</Button>
-                          {app.status === 'pending' && (
+
+                        <div className="flex items-center gap-2 self-end sm:self-center">
+                          <Button onClick={() => setViewingCV(student)} size="sm" variant="outline" className="rounded-xl font-bold text-xs h-9">Xem CV</Button>
+                          {app.status === 'pending' ? (
                             <>
-                              <Button onClick={() => handleUpdateStatus(app.id, 'approved')} className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-none h-10 font-bold px-4"><CheckCircle className="w-4 h-4" /></Button>
-                              <Button onClick={() => handleUpdateStatus(app.id, 'rejected')} variant="outline" className="rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 shadow-none h-10 font-bold px-4"><XCircle className="w-4 h-4" /></Button>
+                              <Button onClick={() => onUpdateStatus(app.id, 'approved')} size="sm" className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs h-9">Duyệt nhận</Button>
+                              <Button onClick={() => onUpdateStatus(app.id, 'rejected')} size="sm" variant="ghost" className="rounded-xl text-rose-500 hover:bg-rose-50 font-bold text-xs h-9">Từ chối</Button>
                             </>
-                          )}
-                          {app.status !== 'pending' && (
-                            <Button onClick={() => handleUpdateStatus(app.id, 'pending')} variant="ghost" className="text-slate-400 hover:text-slate-600 font-medium text-xs underline px-2">Hoàn tác</Button>
+                          ) : (
+                            <Badge className={`font-black text-xs px-3 py-1.5 rounded-xl border ${app.status === 'approved' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-600 border-rose-100'
+                              }`}>
+                              {app.status === 'approved' ? '✓ Đã tiếp nhận' : '✕ Từ chối'}
+                            </Badge>
                           )}
                         </div>
                       </div>
@@ -197,6 +150,9 @@ export default function OrgEventsTab({
           </div>
         </div>
       )}
-    </>
+
+      {/* ĐÃ SỬA: Đổi tên prop từ student thành viewingCV khớp 100% định dạng file gốc */}
+      <CVViewModal viewingCV={viewingCV} onClose={() => setViewingCV(null)} />
+    </div>
   )
 }

@@ -1,4 +1,4 @@
-import { Calendar, Clock, X } from "lucide-react"
+import { Calendar, Clock, X, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
@@ -11,6 +11,9 @@ interface EventFormModalProps {
   setTitle: (val: string) => void
   location: string
   setLocation: (val: string) => void
+  wardId: string               // [MỚI] Nhận ID Phường Xã từ hook
+  setWardId: (val: string) => void
+  wards: any[]                 // [MỚI] Nhận danh sách toàn bộ xã phường Đà Nẵng
   eventDate: string
   setEventDate: (val: string) => void
   applicationDeadline: string
@@ -37,6 +40,9 @@ export default function EventFormModal({
   setTitle,
   location,
   setLocation,
+  wardId,
+  setWardId,
+  wards = [],
   eventDate,
   setEventDate,
   applicationDeadline,
@@ -68,14 +74,30 @@ export default function EventFormModal({
         </div>
 
         <form onSubmit={handleSubmitEvent} className="p-6 sm:p-8 space-y-5 overflow-y-auto flex-1">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <div className="space-y-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            <div className="space-y-2 sm:col-span-1">
+              {/* ĐÃ SỬA: Biến địa điểm tổ chức thành Dropdown danh mục hiển thị toàn bộ xã/phường Đà Nẵng */}
+              <label className="text-sm font-bold text-slate-700 flex items-center gap-1"><MapPin className="w-4 h-4 text-emerald-600" /> Phường / Xã (Đà Nẵng)</label>
+              <select
+                value={wardId}
+                onChange={e => setWardId(e.target.value)}
+                className="h-12 rounded-xl bg-slate-50 border-2 border-slate-100 p-2 text-sm font-bold text-slate-700 w-full focus:outline-none focus:border-emerald-500"
+              >
+                <option value="">-- Chọn Phường/Xã --</option>
+                {wards.map(w => (
+                  <option key={w.id} value={w.id}>{w.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div className="space-y-2 sm:col-span-1">
+              <label className="text-sm font-bold text-slate-700">Số nhà / Tên đường cụ thể</label>
+              <Input placeholder="VD: 54 Nguyễn Lương Bằng..." value={location} onChange={e => setLocation(e.target.value)} className="h-12 rounded-xl bg-slate-50 border-slate-200 text-base font-medium focus-visible:ring-emerald-500" />
+            </div>
+
+            <div className="space-y-2 sm:col-span-1">
               <label className="text-sm font-bold text-slate-700">Tên sự kiện / Vị trí tuyển</label>
               <Input placeholder="VD: Tình nguyện viên Lễ hội âm nhạc..." value={title} onChange={e => setTitle(e.target.value)} className="h-12 rounded-xl bg-slate-50 border-slate-200 text-base font-medium focus-visible:ring-emerald-500" />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700">Địa điểm tổ chức</label>
-              <Input placeholder="VD: Đà Nẵng, Hà Nội..." value={location} onChange={e => setLocation(e.target.value)} className="h-12 rounded-xl bg-slate-50 border-slate-200 text-base font-medium focus-visible:ring-emerald-500" />
             </div>
           </div>
 

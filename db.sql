@@ -310,3 +310,45 @@ DROP TRIGGER IF EXISTS trg_manage_slots_on_approval ON public.applications;
 CREATE TRIGGER trg_manage_slots_on_approval
   AFTER UPDATE OF status OR DELETE ON public.applications
   FOR EACH ROW EXECUTE PROCEDURE public.manage_slots_on_approval();
+
+  -- 1. Tạo bảng danh mục Phường/Xã cố định tại Đà Nẵng
+CREATE TABLE public.danang_wards (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    district TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 2. Đổ dữ liệu mẫu một số Phường/Xã tiêu biểu sau sáp nhập tại Đà Nẵng
+INSERT INTO public.danang_wards (name, district) VALUES
+('Thạch Thang', 'Hải Châu'),
+('Hải Châu I', 'Hải Châu'),
+('Hòa Cường Bắc', 'Hải Châu'),
+('Hòa Cường Nam', 'Hải Châu'),
+('Thọ Quang', 'Sơn Trà'),
+('Phước Mỹ', 'Sơn Trà'),
+('An Hải Bắc', 'Sơn Trà'),
+('Mỹ An', 'Ngũ Hành Sơn'),
+('Khuê Mỹ', 'Ngũ Hành Sơn'),
+('Hòa Khánh Bắc', 'Liên Chiểu'),
+('Hòa Khánh Nam', 'Liên Chiểu'),
+('Chính Gián', 'Thanh Khê'),
+('Hòa Xuân', 'Cẩm Lệ'),
+('Hòa Phong', 'Hòa Vang');
+
+-- 3. Nâng cấp bảng events: Thêm liên kết khóa ngoại với bảng Phường/Xã
+ALTER TABLE public.events ADD COLUMN IF NOT EXISTS ward_id INT REFERENCES public.danang_wards(id);
+
+-- Cập nhật ghi chú bảo mật quyền truy cập (RLS) cho bảng địa điểm mới
+ALTER TABLE public.danang_wards ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Cho phép mọi người xem danh sách Phường Xã" ON public.danang_wards FOR SELECT USING (true);
+
+-- Xóa bỏ cột district khỏi bảng danh mục phường xã
+ALTER TABLE public.danang_wards DROP COLUMN IF EXISTS district;
+
+-- Cấp quyền truy cập SELECT cho cả khách vãng lai và tài khoản hệ thống
+GRANT SELECT ON public.danang_wards TO anon, authenticated;
+
+-- Làm sạch và thiết lập lại Policy đọc công khai 100%
+DROP POLICY IF EXISTS "Cho phép mọi người xem danh sách Phường Xã" ON public.danang_wards;
+CREATE POLICY "Cho phép mọi người xem danh sách Phường Xã" ON public.danang_wards FOR SELECT USING (true);

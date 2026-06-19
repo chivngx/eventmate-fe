@@ -6,16 +6,20 @@ export function useOrgDashboard() {
     const [searchParams, setSearchParams] = useSearchParams()
     const [events, setEvents] = useState<any[]>([])
 
-    // Cấu trúc form dữ liệu nâng cao + Trường ngày tháng mới
+    // Cấu trúc form dữ liệu nâng cao
     const [title, setTitle] = useState("")
     const [desc, setDesc] = useState("")
-    const [location, setLocation] = useState("")
+    const [location, setLocation] = useState("") // Giữ vai trò lưu số nhà / tên đường cụ thể nếu cần
     const [positionType, setPositionType] = useState("Tình nguyện viên")
     const [benefits, setBenefits] = useState("Cấp chứng nhận")
     const [category, setCategory] = useState("Lễ hội Âm nhạc")
     const [slotsNeeded, setSlotsNeeded] = useState("1")
     const [eventDate, setEventDate] = useState("")
     const [applicationDeadline, setApplicationDeadline] = useState("")
+
+    // [MỚI] State lưu trữ danh mục Phường/Xã phục vụ Tạo sự kiện mới
+    const [wards, setWards] = useState<any[]>([])
+    const [wardId, setWardId] = useState("")
 
     const [loading, setLoading] = useState(false)
     const [fetching, setFetching] = useState(true)
@@ -28,12 +32,23 @@ export function useOrgDashboard() {
     const [loadingApps, setLoadingApps] = useState(false)
     const [viewingCV, setViewingCV] = useState<any | null>(null)
 
-    // STATE CHO QUẢN LÝ ỨNG VIÊN CHUYÊN BIỆT
     const [allApplications, setAllApplications] = useState<any[]>([])
     const [loadingAllApps, setLoadingAllApps] = useState(false)
     const [selectedFilterEventId, setSelectedFilterEventId] = useState<string>("all")
 
     const activeTab = searchParams.get("tab") || "events"
+
+    // [MỚI] Nạp toàn bộ danh sách Phường/Xã từ Database lên khi mở trang quản trị
+    useEffect(() => {
+        const fetchWards = async () => {
+            const { data } = await supabase
+                .from("danang_wards")
+                .select("*")
+                .order("name", { ascending: true })
+            if (data) setWards(data)
+        }
+        fetchWards()
+    }, [])
 
     const fetchMyEvents = async () => {
         setFetching(true)
@@ -62,7 +77,7 @@ export function useOrgDashboard() {
         }
         setLoadingAllApps(true)
         const eventIds = eventList.map(e => e.id)
-        
+
         const { data, error } = await supabase
             .from("applications")
             .select(`
@@ -93,6 +108,7 @@ export function useOrgDashboard() {
         setTitle("")
         setDesc("")
         setLocation("")
+        setWardId("") // Reset sạch ID phường xã cũ
         setPositionType("Tình nguyện viên")
         setBenefits("Cấp chứng nhận")
         setCategory("Lễ hội Âm nhạc")
@@ -106,8 +122,9 @@ export function useOrgDashboard() {
 
     const handleSubmitEvent = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!title || !desc || !location || !eventDate || !applicationDeadline) {
-            alert("Vui lòng điền đầy đủ thông tin và chọn thời hạn!")
+        // ĐÃ SỬA: Ép buộc phải chọn Dropdown Phường/Xã (wardId) khi tạo bài đăng mới
+        if (!title || !desc || !wardId || !eventDate || !applicationDeadline) {
+            alert("Vui lòng điền đầy đủ thông tin, chọn Phường/Xã địa điểm và thời hạn!")
             return
         }
         setLoading(true)
@@ -118,6 +135,7 @@ export function useOrgDashboard() {
                 title,
                 description: desc,
                 location,
+                ward_id: Number(wardId), // Ghi nhận ID Phường/Xã chuẩn xác vào Database
                 position_type: positionType,
                 benefits,
                 category,
@@ -127,7 +145,6 @@ export function useOrgDashboard() {
             }
 
             if (editingId) {
-                // UPDATE
                 const { error } = await supabase
                     .from("events")
                     .update(eventPayload)
@@ -142,7 +159,6 @@ export function useOrgDashboard() {
                     alert("Lỗi khi cập nhật: " + error.message)
                 }
             } else {
-                // INSERT
                 const { error } = await supabase.from("events").insert([
                     { organizer_id: user.id, ...eventPayload, status: 'upcoming' }
                 ])
@@ -162,7 +178,8 @@ export function useOrgDashboard() {
         setEditingId(ev.id)
         setTitle(ev.title)
         setDesc(ev.description)
-        setLocation(ev.location)
+        setLocation(ev.location || "")
+        setWardId(ev.ward_id ? String(ev.ward_id) : "") // Nạp dữ liệu Phường/Xã cũ lên form sửa
         setPositionType(ev.position_type || "Tình nguyện viên")
         setBenefits(ev.benefits || "Cấp chứng nhận")
         setCategory(ev.category || "Lễ hội Âm nhạc")
@@ -223,6 +240,9 @@ export function useOrgDashboard() {
         setDesc,
         location,
         setLocation,
+        wardId,        // Trả ra ngoài cho Form Modal đọc ghi nhận
+        setWardId,     // Tràm hàm cập nhật ID Phường Xã
+        wards,         // Trả danh sách toàn bộ xã phường Đà Nẵng
         positionType,
         setPositionType,
         benefits,

@@ -18,14 +18,15 @@ export function useStudentDashboard() {
     const [locationTerm, setLocationTerm] = useState("")
     const [benefitTerm, setBenefitTerm] = useState("")
 
-    const [dateTerm, setDateTerm] = useState("")
+    // Gốc danh mục Phường/Xã Đà Nẵng
+    const [wards, setWards] = useState<any[]>([])
+    const [wardIdTerm, setWardIdTerm] = useState("")
+
+    // [MỚI] State lưu trữ các ID Phường/Xã ĐANG CÓ BÀI ĐĂNG HOẠT ĐỘNG
+    const [activeWardIds, setActiveWardIds] = useState<number[]>([])
 
     const [bookmarkedEvents, setBookmarkedEvents] = useState<Record<string, boolean>>({})
     const [currentPage, setCurrentPage] = useState(1)
-
-    const [totalPages, setTotalPages] = useState(1)
-    const [totalItems, setTotalItems] = useState(0)
-
     const [showSuggestion, setShowSuggestion] = useState(true)
 
     const itemsPerPage = 6
@@ -33,13 +34,25 @@ export function useStudentDashboard() {
     const positionParam = searchParams.get("position") || ""
     const categoryParam = searchParams.get("category") || ""
     const filterParam = searchParams.get("filter") || ""
+
     useEffect(() => {
         setCurrentPage(1)
-    }, [searchTerm, locationTerm, benefitTerm, dateTerm, positionParam, categoryParam, filterParam])
+    }, [searchTerm, locationTerm, benefitTerm, wardIdTerm, positionParam, categoryParam, filterParam])
+
+    // Tải danh mục gốc Phường/Xã
+    useEffect(() => {
+        const fetchWards = async () => {
+            const { data } = await supabase
+                .from("danang_wards")
+                .select("*")
+                .order("name", { ascending: true })
+            if (data) setWards(data)
+        }
+        fetchWards()
+    }, [])
 
     const fetchEventsAndApplications = async () => {
         setLoadingData(true)
-
         const { data: { user } } = await supabase.auth.getUser()
         let bookmarkedIds: string[] = []
 
@@ -85,9 +98,21 @@ export function useStudentDashboard() {
             }
         }
 
+        // [MỚI] BỘ QUÉT DỮ LIỆU ĐỘNG: Lấy ra danh sách các ward_id của bài tuyển dụng đang mở cổng (upcoming)
+        const { data: activeWardsQuery } = await supabase
+            .from("events")
+            .select("ward_id")
+            .eq("status", "upcoming")
+
+        if (activeWardsQuery) {
+            const uniqueIds = Array.from(new Set(activeWardsQuery.map(e => e.ward_id).filter(Boolean))) as number[]
+            setActiveWardIds(uniqueIds)
+        }
+
+        // Khởi tạo truy vấn Server-side chính
         let query = supabase
             .from("events")
-            .select("*, profiles(full_name)", { count: "exact" })
+            .select("*, profiles(full_name), danang_wards(name)", { count: "exact" })
 
         if (searchTerm) {
             query = query.ilike("title", `%${searchTerm}%`)
@@ -104,36 +129,16 @@ export function useStudentDashboard() {
         if (benefitTerm) {
             query = query.eq("benefits", benefitTerm)
         }
+        if (wardIdTerm) {
+            query = query.eq("ward_id", Number(wardIdTerm))
+        }
+
         if (filterParam === "saved") {
             if (bookmarkedIds.length > 0) {
                 query = query.in("id", bookmarkedIds)
             } else {
                 query = query.eq("id", "00000000-0000-0000-0000-000000000000")
             }
-        }
-
-        if (dateTerm === "today") {
-            const start = new Date()
-            start.setHours(0, 0, 0, 0)
-            const end = new Date()
-            end.setHours(23, 59, 59, 999)
-            query = query.gte("event_date", start.toISOString()).lte("event_date", end.toISOString())
-        } else if (dateTerm === "this_week") {
-            const start = new Date()
-            const day = start.getDay()
-            const diff = start.getDate() - day + (day === 0 ? -6 : 1)
-            const monday = new Date(start.setDate(diff))
-            monday.setHours(0, 0, 0, 0)
-
-            const sunday = new Date(monday)
-            sunday.setDate(monday.getDate() + 6)
-            sunday.setHours(23, 59, 59, 999)
-            query = query.gte("event_date", monday.toISOString()).lte("event_date", sunday.toISOString())
-        } else if (dateTerm === "this_month") {
-            const start = new Date()
-            const firstDay = new Date(start.getFullYear(), start.getMonth(), 1)
-            const lastDay = new Date(start.getFullYear(), start.getMonth() + 1, 0, 23, 59, 59, 999)
-            query = query.gte("event_date", firstDay.toISOString()).lte("event_date", lastDay.toISOString())
         }
 
         const from = (currentPage - 1) * itemsPerPage
@@ -158,13 +163,15 @@ export function useStudentDashboard() {
         setLoadingData(false)
     }
 
+    const [totalItems, setTotalItems] = useState(0)
+    const [totalPages, setTotalPages] = useState(1)
+
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
             fetchEventsAndApplications()
         }, 300)
-
         return () => clearTimeout(delayDebounceFn)
-    }, [searchTerm, locationTerm, benefitTerm, dateTerm, searchParams, currentPage])
+    }, [searchTerm, locationTerm, benefitTerm, wardIdTerm, searchParams, currentPage])
 
     const handleApply = async (eventId: string, _organizerId?: string, _eventTitle?: string) => {
         setApplyingId(eventId)
@@ -180,7 +187,6 @@ export function useStudentDashboard() {
         if (targetEvent) {
             const isPastDeadline = targetEvent.application_deadline ? new Date() > new Date(targetEvent.application_deadline) : false;
             const isClosed = targetEvent.status !== 'upcoming';
-
             if (isPastDeadline || isClosed) {
                 alert(isPastDeadline ? "🚨 Rất tiếc, chiến dịch tuyển dụng này đã quá hạn nhận hồ sơ ứng tuyển!" : "🚨 Ban tổ chức sự kiện này đã đóng cổng nhận hồ sơ ứng tuyển!")
                 setApplyingId(null)
@@ -237,6 +243,9 @@ export function useStudentDashboard() {
     const filteredEvents = { length: totalItems }
     const paginatedEvents = events
 
+    // Lọc ra mảng danh sách Phường/Xã có bài đăng phục vụ cho Dropdown trang chủ Sinh viên
+    const activeWards = wards.filter(w => activeWardIds.includes(w.id))
+
     return {
         navigate,
         searchParams,
@@ -255,8 +264,10 @@ export function useStudentDashboard() {
         setLocationTerm,
         benefitTerm,
         setBenefitTerm,
-        dateTerm,
-        setDateTerm,
+        wards,
+        activeWards,    // Trả ra mảng các xã phường đang có bài tuyển dụng thực tế
+        wardIdTerm,
+        setWardIdTerm,
         bookmarkedEvents,
         currentPage,
         setCurrentPage,

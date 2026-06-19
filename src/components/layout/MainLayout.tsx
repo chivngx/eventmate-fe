@@ -64,7 +64,7 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
             // Lấy session từ cache cục bộ (nhanh hơn getUser rất nhiều)
             const { data: { session } } = await supabase.auth.getSession()
             let currentUser = session?.user || null
-            
+
             if (!currentUser) {
                 const { data: { user } } = await supabase.auth.getUser()
                 currentUser = user
@@ -79,7 +79,7 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
                     const updatedAvatarUrl = data.avatar_url || ""
                     setFullName(updatedFullName)
                     setAvatarUrl(updatedAvatarUrl)
-                    
+
                     // Lưu lại cache mới nhất
                     localStorage.setItem("em_user_profile", JSON.stringify({
                         fullName: updatedFullName,
@@ -99,17 +99,16 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
 
                 // 2. [MỚI] Cài đặt kênh kết nối Real-time lắng nghe sự kiện INSERT vào bảng notifications của riêng user này
                 channel = supabase
-                    .channel(`user-realtime-notifications-${currentUser.id}`)
+                    .channel(`user-realtime-notifications-${currentUser.id}-${Math.random().toString(36).substring(7)}`)
                     .on(
                         'postgres_changes',
                         {
                             event: 'INSERT',
                             schema: 'public',
                             table: 'notifications',
-                            filter: `user_id=eq.${currentUser.id}` // Chỉ nhận thông báo gửi đích danh cho mình
+                            filter: `user_id=eq.${currentUser.id}`
                         },
                         (payload) => {
-                            // Khi có dòng dữ liệu thông báo mới được kích hoạt từ DB, tự động đẩy lên đầu mảng state
                             setNotifications(prev => [payload.new, ...prev].slice(0, 10))
                         }
                     )
@@ -133,10 +132,10 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
     const handleLogout = async () => {
         localStorage.removeItem("em_user_profile")
         await supabase.auth.signOut()
-        
+
         const privatePaths = ["/settings", "/my-jobs", "/dashboard"]
         const isPrivate = privatePaths.some(path => window.location.pathname.startsWith(path))
-        
+
         if (isPrivate) {
             navigate("/")
         } else {
@@ -261,7 +260,7 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
             <main className="pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
                 {children}
             </main>
-            
+
             <AuthModal
                 isOpen={authModal.isOpen}
                 initialMode={authModal.mode}
