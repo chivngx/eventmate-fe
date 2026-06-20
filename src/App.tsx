@@ -6,7 +6,8 @@ import Home from "./pages/Home"
 import AccountSettings from "./pages/settings/AccountSettings"
 import CVProfile from "./pages/CVProfile"
 import EventDetail from "./pages/EventDetail"
-import MyJobs from "./pages/MyJobs" // THÊM DÒNG IMPORT NÀY
+import MyJobs from "./pages/MyJobs"
+import CompanyDetail from "./pages/CompanyDetail"
 
 function App() {
   useEffect(() => {
@@ -37,9 +38,8 @@ function App() {
         <Route path="/settings" element={<AccountSettings />} />
         <Route path="/cv" element={<CVProfile />} />
         <Route path="/jobs/:id" element={<EventDetail />} />
-
-        {/* THÊM DÒNG ROUTE NÀY VÀO LÀ CHẠY */}
         <Route path="/my-jobs" element={<MyJobs />} />
+        <Route path="/companies/:id" element={<CompanyDetail />} />
       </Routes>
     </Router>
   )

@@ -1,5 +1,6 @@
 import { Heart, CheckCircle, XCircle, Clock3 } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { useNavigate } from "react-router-dom"
 
 interface EventCardProps {
   job: any
@@ -24,6 +25,7 @@ export default function EventCard({
   onNavigateToJob,
   userSkills
 }: EventCardProps) {
+  const navigate = useNavigate()
   const getMatchScore = () => {
     if (!userSkills) return null
     const skills = userSkills.split(",").map(s => s.trim().toLowerCase()).filter(Boolean)
@@ -94,7 +96,14 @@ export default function EventCard({
           >
             {job.title}
           </h3>
-          <p className="text-[13px] font-bold text-slate-400 mt-1 truncate" title={job.profiles?.full_name}>
+          <p
+            onClick={(e) => {
+              e.stopPropagation()
+              navigate(`/companies/${job.organizer_id}`)
+            }}
+            className="text-[13px] font-bold text-slate-400 mt-1 truncate hover:text-[#00b14f] transition-colors"
+            title={job.profiles?.full_name}
+          >
             {job.profiles?.full_name || "Đơn vị ẩn danh"}
           </p>
 

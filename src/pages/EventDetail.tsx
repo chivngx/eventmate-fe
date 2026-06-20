@@ -182,7 +182,10 @@ export default function EventDetail() {
                             <h1 className="text-xl md:text-2xl font-bold text-[#263a4d] leading-tight mb-2">
                                 {event.title}
                             </h1>
-                            <div className="text-sm font-semibold text-slate-600 hover:text-[#00b14f] cursor-pointer transition-colors mb-5">
+                            <div
+                                onClick={() => navigate(`/companies/${event.organizer_id}`)}
+                                className="text-sm font-semibold text-slate-600 hover:text-[#00b14f] cursor-pointer transition-colors mb-5"
+                            >
                                 {event.profiles?.full_name || "Đơn vị ẩn danh"}
                             </div>
 
@@ -289,14 +292,17 @@ export default function EventDetail() {
                     {/* Right Column (Sidebar, Width: approx 350px on large screen) */}
                     <div className="w-full lg:w-[350px] space-y-6 shrink-0">
                         {/* Company Card */}
-                        <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm flex flex-col items-center text-center">
+                        <div
+                            onClick={() => navigate(`/companies/${event.organizer_id}`)}
+                            className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm flex flex-col items-center text-center cursor-pointer hover:border-[#00b14f] transition-colors group"
+                        >
                             <Avatar className="h-16 w-16 rounded-2xl border border-slate-100 shadow-sm mb-4">
                                 <AvatarImage src={event.profiles?.avatar_url} />
                                 <AvatarFallback className="rounded-2xl bg-emerald-50 text-emerald-600 text-2xl font-black">
                                     {event.profiles?.full_name?.charAt(0).toUpperCase() || "O"}
                                 </AvatarFallback>
                             </Avatar>
-                            <h2 className="text-sm font-bold text-[#212f3f] leading-snug hover:text-[#00b14f] cursor-pointer transition-colors mb-2">
+                            <h2 className="text-sm font-bold text-[#212f3f] leading-snug group-hover:text-[#00b14f] transition-colors mb-2">
                                 {event.profiles?.full_name || "Đơn vị ẩn danh"}
                             </h2>
                             <p className="text-[12px] text-slate-400 font-medium mb-3">Nhà tổ chức sự kiện / Doanh nghiệp đối tác</p>
