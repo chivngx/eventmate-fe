@@ -1,6 +1,5 @@
 import { Heart, CheckCircle, XCircle, Clock3 } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
 
 interface EventCardProps {
   job: any
@@ -20,8 +19,8 @@ export default function EventCard({
   isBookmarked,
   onToggleBookmark,
   myApplicationStatus,
-  onApply,
-  applyingId,
+  onApply: _onApply,       // ĐÃ SỬA: Thêm tiền tố _ để tránh lỗi nghiêm ngặt tsc TS6133 khi không dùng nút ứng tuyển ngoài
+  applyingId: _applyingId, // ĐÃ SỬA: Thêm tiền tố _ để tránh lỗi nghiêm ngặt tsc TS6133 khi không dùng nút ứng tuyển ngoài
   onNavigateToJob,
   userSkills
 }: EventCardProps) {
@@ -47,127 +46,103 @@ export default function EventCard({
 
   const matchScore = getMatchScore()
 
-  const renderActionButton = () => {
+  // Chỉ hiển thị nhãn Trạng thái tĩnh đối với những công việc sinh viên ĐÃ NỘP HỒ SƠ để tăng UX
+  const renderStatusBadge = () => {
     if (myApplicationStatus === "approved") {
       return (
-        <span className="text-[11px] font-extrabold text-[#00b14f] bg-emerald-50 px-2 py-1 rounded border border-emerald-200 flex items-center gap-1">
-          <CheckCircle className="w-3 h-3" /> Trúng tuyển
+        <span className="text-[12px] font-bold text-[#00b14f] bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200 flex items-center gap-1 shrink-0 h-9">
+          <CheckCircle className="w-3.5 h-3.5" /> Trúng tuyển
         </span>
       )
     }
     if (myApplicationStatus === "rejected") {
       return (
-        <span className="text-[11px] font-extrabold text-rose-50 bg-rose-50 px-2 py-1 rounded border border-rose-200 flex items-center gap-1">
-          <XCircle className="w-3 h-3" /> K.phù hợp
+        <span className="text-[12px] font-bold text-rose-600 bg-rose-50 px-3 py-1.5 rounded-xl border border-rose-200 flex items-center gap-1 shrink-0 h-9">
+          <XCircle className="w-3.5 h-3.5" /> K.phù hợp
         </span>
       )
     }
     if (myApplicationStatus === "pending") {
       return (
-        <span className="text-[11px] font-extrabold text-amber-600 bg-amber-50 px-2 py-1 rounded border border-amber-200 flex items-center gap-1">
-          <Clock3 className="w-3 h-3" /> Chờ duyệt
+        <span className="text-[12px] font-bold text-amber-600 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200 flex items-center gap-1 shrink-0 h-9">
+          <Clock3 className="w-3.5 h-3.5" /> Chờ duyệt
         </span>
       )
     }
-
-    return (
-      <Button
-        onClick={(e) => {
-          e.stopPropagation()
-          onApply(job.id, job.organizer_id, job.title)
-        }}
-        disabled={applyingId === job.id}
-        className="rounded-lg bg-[#00b14f] hover:bg-[#009b45] text-white text-[11px] font-extrabold px-3.5 py-1 h-7.5 shadow-sm transition-colors border-0 shrink-0"
-      >
-        {applyingId === job.id ? "..." : "Ứng tuyển"}
-      </Button>
-    )
+    return null // Mặc định ẩn hoàn toàn nút "Ứng tuyển" chủ động ra khỏi danh sách ngoài
   }
 
   return (
     <div
-      className="group relative flex flex-col justify-between rounded-xl border border-slate-100 bg-white p-4 transition-all duration-300 hover:border-[#00b14f] hover:shadow-md hover:shadow-slate-200/50 hover:-translate-y-0.5 animate-in fade-in slide-in-from-bottom-4"
-      style={{ animationDelay: `${idx * 50}ms` }}
+      onClick={() => onNavigateToJob(job.id)}
+      className="group relative flex flex-col justify-between rounded-[1.25rem] border border-slate-100/90 bg-white p-5 transition-all duration-300 hover:border-[#00b14f] hover:shadow-xl hover:shadow-slate-200/60 hover:-translate-y-0.5 cursor-pointer animate-in fade-in slide-in-from-bottom-4"
+      style={{ animationDelay: `${idx * 40}ms` }}
     >
       <div className="flex gap-4 items-start">
-        <Avatar
-          className="h-12 w-12 rounded-lg border border-slate-100 shrink-0 cursor-pointer shadow-sm"
-          onClick={() => onNavigateToJob(job.id)}
-        >
-          <AvatarFallback className="rounded-lg bg-slate-50 text-lg font-bold text-slate-600 group-hover:bg-emerald-50 group-hover:text-[#00b14f] transition-colors">
+        {/* KHỐI TRÁI: AVATAR / LOGO NHÀ TỔ CHỨC */}
+        <Avatar className="h-14 w-14 rounded-2xl border border-slate-100 shrink-0 shadow-sm bg-slate-50/50">
+          <AvatarFallback className="rounded-2xl bg-slate-50 text-xl font-black text-slate-600 group-hover:bg-emerald-50 group-hover:text-[#00b14f] transition-colors duration-200">
             {job.profiles?.full_name ? job.profiles.full_name.charAt(0).toUpperCase() : "O"}
           </AvatarFallback>
         </Avatar>
 
-        <div className="flex-1 min-w-0 pr-1">
+        {/* KHỐI PHẢI: CHI TIẾT NỘI DUNG CHỮ */}
+        <div className="flex-1 min-w-0">
           <h3
-            className="text-[14px] font-semibold text-[#212f3f] leading-snug group-hover:text-[#00b14f] transition-colors cursor-pointer line-clamp-2"
-            onClick={() => onNavigateToJob(job.id)}
+            className="text-[15px] font-bold text-[#212f3f] leading-snug group-hover:text-[#00b14f] transition-colors duration-200 line-clamp-2"
             title={job.title}
           >
             {job.title}
           </h3>
-          <p className="text-[12px] font-medium text-[#6f7882] mt-1 truncate" title={job.profiles?.full_name}>
+          <p className="text-[13px] font-bold text-slate-400 mt-1 truncate" title={job.profiles?.full_name}>
             {job.profiles?.full_name || "Đơn vị ẩn danh"}
           </p>
-          {matchScore !== null ? (
-            <div className="mt-2.5 flex flex-wrap gap-1.5">
-              <span className="bg-emerald-50 hover:bg-emerald-100 text-[#00b14f] text-[10px] font-black px-2.5 py-0.5 rounded-full border border-emerald-200 flex items-center gap-0.5 shadow-sm shadow-emerald-500/5 transition-all cursor-help" title="Toppy AI đánh giá độ tương thích của hồ sơ của bạn với công việc này">
+
+          {/* CỤM BADGES AI & PHẢN HỒI NHANH NGAY DƯỚI TIÊU ĐỀ */}
+          <div className="mt-2.5 flex flex-wrap gap-1.5">
+            {matchScore !== null && (
+              <span className="bg-emerald-50/80 text-[#00b14f] text-[10px] font-black px-2 py-0.5 rounded border border-emerald-100 flex items-center gap-0.5">
                 🔥 Match: {matchScore}%
               </span>
-              {job.organizer_id && (job.organizer_id.charCodeAt(0) % 2 === 0) && (
-                <span className="bg-amber-50 hover:bg-amber-100 text-amber-700 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-amber-200 flex items-center gap-0.5 shadow-sm shadow-amber-500/5 transition-all cursor-help" title="Nhà tổ chức này phản hồi hồ sơ ứng tuyển trung bình dưới 48 giờ">
-                  ⚡ Phản hồi nhanh
-                </span>
-              )}
-            </div>
-          ) : (
-            job.organizer_id && (job.organizer_id.charCodeAt(0) % 2 === 0) && (
-              <div className="mt-2.5 flex">
-                <span className="bg-amber-50 hover:bg-amber-100 text-amber-700 text-[10px] font-black px-2.5 py-0.5 rounded-full border border-amber-200 flex items-center gap-0.5 shadow-sm shadow-amber-500/5 transition-all cursor-help" title="Nhà tổ chức này phản hồi hồ sơ ứng tuyển trung bình dưới 48 giờ">
-                  ⚡ Phản hồi nhanh
-                </span>
-              </div>
-            )
-          )}
+            )}
+            {job.organizer_id && (job.organizer_id.charCodeAt(0) % 2 === 0) && (
+              <span className="bg-amber-50/80 text-amber-700 text-[10px] font-black px-2 py-0.5 rounded border border-amber-100">
+                ⚡ Phản hồi nhanh
+              </span>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+      {/* KHỐI CHÂN THẺ (CARD FOOTER) ĐÃ ĐƯỢC TIN GIẢN BẢN ĐỒ VÀ NÚT ỨNG TUYỂN */}
+      <div className="mt-5 pt-3.5 border-t border-slate-100/70 flex items-center justify-between gap-3">
+        {/* TRÁI: VIÊN THUỐC THÔNG TIN ĐỊA HẠT ĐÀ NẴNG (ĐÃ ẨN BẢN ĐỒ) */}
         <div className="flex flex-wrap items-center gap-1.5 flex-1 min-w-0">
-          {/* ĐÃ SỬA: Hiển thị trực tiếp quyền lợi thực tế từ Database */}
-          <span className="text-[11px] font-medium bg-[#edeff0] text-[#263a4d] px-2.5 py-0.5 rounded-full truncate max-w-[90px]">
+          <span className="text-[11px] font-bold bg-[#f4f5f6] text-[#263a4d] px-2.5 py-1 rounded-full whitespace-nowrap">
             {job.benefits || "Thỏa thuận"}
           </span>
-          {/* ĐÃ SỬA: Loại bỏ chữ "Toàn quốc", ưu tiên hiển thị tên Phường/Xã chuẩn từ Database */}
-          <span className="text-[11px] font-medium bg-[#edeff0] text-[#263a4d] px-2.5 py-0.5 rounded-full truncate max-w-[100px]" title={job.danang_wards?.name || job.location}>
+          <span className="text-[11px] font-bold bg-[#f4f5f6] text-[#263a4d] px-2.5 py-1 rounded-full truncate max-w-[150px]" title={job.danang_wards?.name || job.location}>
             {job.danang_wards?.name ? `P. ${job.danang_wards.name}` : (job.location || "Đà Nẵng")}
           </span>
-
-          {/* [MỚI] LỐI TẮT BẢN ĐỒ TÌM ĐƯỜNG ĐI */}
-          <a
-            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((job.location ? job.location + ', ' : '') + (job.danang_wards?.name ? 'Phường ' + job.danang_wards.name + ', ' : '') + 'Đà Nẵng')}`}
-            target="_blank"
-            rel="noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="text-[10px] font-extrabold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100 flex items-center gap-0.5 hover:bg-emerald-100 transition-colors"
-          >
-            🗺️ Bản đồ
-          </a>
         </div>
 
-        <div className="flex items-center gap-1.5 shrink-0">
+        {/* PHẢI: CỤM NÚT TƯƠNG TÁC TÁCH BIỆT (ĐÃ ẨN NÚT ỨNG TUYỂN CHỦ ĐỘNG) */}
+        <div className="flex items-center gap-2 shrink-0">
           <button
-            onClick={() => onToggleBookmark(job.id)}
-            className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all shrink-0 ${isBookmarked
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleBookmark(job.id);
+            }}
+            className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all shrink-0 active:scale-90 ${isBookmarked
               ? "bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100"
               : "bg-white border-slate-200 text-slate-400 hover:text-[#00b14f] hover:border-[#00b14f]"
               }`}
+            title="Lưu việc làm"
           >
-            <Heart className={`w-3.5 h-3.5 ${isBookmarked ? "fill-current" : ""}`} />
+            <Heart className={`w-4 h-4 ${isBookmarked ? "fill-current" : ""}`} />
           </button>
 
-          {renderActionButton()}
+          {renderStatusBadge()}
         </div>
       </div>
     </div>

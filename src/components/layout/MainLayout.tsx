@@ -2,9 +2,9 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 import { NotchNavbar } from "@/components/layout/notch-navbar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Bell, LogOut, User, Briefcase, Building2 } from "lucide-react"
+import { Bell, LogOut, Briefcase, ChevronDown, ChevronUp, Mail, Shield, Crown, FileText, Building2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import AuthModal from "@/components/auth/AuthModal"
 
@@ -44,6 +44,21 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
     // STATE THÔNG BÁO
     const [notifications, setNotifications] = useState<any[]>([])
     const unreadCount = notifications.filter(n => !n.is_read).length
+
+    const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+        jobSearch: true,
+        cvManage: true,
+        emailConfig: false,
+        personalSecurity: false,
+        upgrade: false,
+    })
+
+    const toggleSection = (section: string) => {
+        setExpandedSections(prev => ({
+            ...prev,
+            [section]: !prev[section]
+        }))
+    }
 
     useEffect(() => {
         const handleOpenAuth = (e: Event) => {
@@ -200,35 +215,336 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
                         </AvatarFallback>
                     </Avatar>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-64 mt-2 rounded-2xl p-2 shadow-xl border-slate-100 bg-white">
-                    <div className="px-3 py-3 mb-1 bg-slate-50/50 rounded-xl overflow-hidden border border-slate-100">
-                        <p className="text-sm font-bold text-slate-900 truncate" title={fullName}>{fullName}</p>
-                        <p className="text-xs text-slate-500 mt-0.5 truncate" title={email}>{email}</p>
+                <DropdownMenuContent align="end" className="w-[320px] max-h-[85vh] overflow-y-auto mt-2 rounded-2xl p-4 shadow-xl border border-slate-100 bg-white space-y-4">
+                    {/* Header */}
+                    <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
+                        <Avatar className="h-12 w-12 rounded-full border border-slate-100 shrink-0">
+                            <AvatarImage src={avatarUrl} />
+                            <AvatarFallback className="bg-emerald-50 text-emerald-600 font-bold text-lg">
+                                {getInitial(fullName)}
+                            </AvatarFallback>
+                        </Avatar>
+                        <div className="min-w-0 flex-1">
+                            <p className="text-sm font-bold text-slate-800 truncate" title={fullName}>{fullName}</p>
+                            <p className="text-[11px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full inline-block mt-0.5">
+                                {role === 'organizer' ? "Nhà tuyển dụng" : "Tài khoản học sinh"}
+                            </p>
+                            <p className="text-[10px] text-slate-400 mt-1 truncate">
+                                {user?.id ? `ID ${user.id.substring(0, 7).toUpperCase()}` : "ID 123456"} <span className="text-slate-300">|</span> {email}
+                            </p>
+                        </div>
                     </div>
 
-                    <DropdownMenuSeparator className="bg-slate-100" />
+                    {/* Accordion Menu */}
+                    {role === 'organizer' ? (
+                        <div className="space-y-3.5">
+                            {/* 1. Quản lý tuyển dụng */}
+                            <div className="space-y-1">
+                                <button
+                                    type="button"
+                                    onClick={() => toggleSection("jobSearch")}
+                                    className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-[#00b14f] transition-colors"
+                                >
+                                    <div className="flex items-center gap-2.5 font-bold text-xs">
+                                        <Briefcase className="w-4 h-4 text-slate-500" />
+                                        <span>Quản lý tuyển dụng</span>
+                                    </div>
+                                    {expandedSections.jobSearch ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
+                                </button>
+                                {expandedSections.jobSearch && (
+                                    <div className="pl-6.5 flex flex-col gap-2 pt-1 pb-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => navigate('/dashboard')}
+                                            className="text-left text-xs font-semibold text-slate-500 hover:text-[#00b14f] transition-colors"
+                                        >
+                                            Danh sách tin tuyển dụng
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => navigate('/dashboard')}
+                                            className="text-left text-xs font-semibold text-slate-500 hover:text-[#00b14f] transition-colors"
+                                        >
+                                            Quản lý hồ sơ ứng viên
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
 
-                    {role === 'student' && (
-                        <DropdownMenuItem className="cursor-pointer rounded-xl py-2.5 font-medium text-slate-700 hover:bg-slate-50" onClick={() => navigate('/my-jobs')}>
-                            <Briefcase className="mr-2 h-4 w-4 text-emerald-500" /> Việc làm đã ứng tuyển
-                        </DropdownMenuItem>
+                            {/* 2. Hồ sơ doanh nghiệp */}
+                            <div className="space-y-1">
+                                <button
+                                    type="button"
+                                    onClick={() => toggleSection("cvManage")}
+                                    className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-[#00b14f] transition-colors"
+                                >
+                                    <div className="flex items-center gap-2.5 font-bold text-xs">
+                                        <Building2 className="w-4 h-4 text-slate-500" />
+                                        <span>Hồ sơ doanh nghiệp</span>
+                                    </div>
+                                    {expandedSections.cvManage ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
+                                </button>
+                                {expandedSections.cvManage && (
+                                    <div className="pl-6.5 flex flex-col gap-2 pt-1 pb-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => navigate('/settings')}
+                                            className="text-left text-xs font-semibold text-slate-500 hover:text-[#00b14f] transition-colors"
+                                        >
+                                            Thông tin doanh nghiệp
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => navigate('/settings')}
+                                            className="text-left text-xs font-semibold text-slate-500 hover:text-[#00b14f] transition-colors"
+                                        >
+                                            Cài đặt tài khoản
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* 3. Cài đặt & Bảo mật */}
+                            <div className="space-y-1">
+                                <button
+                                    type="button"
+                                    onClick={() => toggleSection("personalSecurity")}
+                                    className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-[#00b14f] transition-colors"
+                                >
+                                    <div className="flex items-center gap-2.5 font-bold text-xs">
+                                        <Shield className="w-4 h-4 text-slate-500" />
+                                        <span>Cài đặt & Bảo mật</span>
+                                    </div>
+                                    {expandedSections.personalSecurity ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
+                                </button>
+                                {expandedSections.personalSecurity && (
+                                    <div className="pl-6.5 flex flex-col gap-2 pt-1 pb-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => navigate('/settings')}
+                                            className="text-left text-xs font-semibold text-slate-500 hover:text-[#00b14f] transition-colors"
+                                        >
+                                            Cài đặt cá nhân
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => navigate('/settings')}
+                                            className="text-left text-xs font-semibold text-slate-500 hover:text-[#00b14f] transition-colors"
+                                        >
+                                            Đổi mật khẩu
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* 4. Dịch vụ & Nâng cấp */}
+                            <div className="space-y-1">
+                                <button
+                                    type="button"
+                                    onClick={() => toggleSection("upgrade")}
+                                    className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-[#00b14f] transition-colors"
+                                >
+                                    <div className="flex items-center gap-2.5 font-bold text-xs">
+                                        <Crown className="w-4 h-4 text-slate-500" />
+                                        <span>Dịch vụ & Nâng cấp</span>
+                                    </div>
+                                    {expandedSections.upgrade ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
+                                </button>
+                                {expandedSections.upgrade && (
+                                    <div className="pl-6.5 flex flex-col gap-2 pt-1 pb-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => alert("Chức năng mua gói VIP Tuyển dụng đang được phát triển!")}
+                                            className="text-left text-xs font-semibold text-slate-500 hover:text-[#00b14f] transition-colors"
+                                        >
+                                            Đăng ký gói VIP tuyển dụng
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="space-y-3.5">
+                            {/* 1. Quản lý tìm việc */}
+                            <div className="space-y-1">
+                                <button
+                                    type="button"
+                                    onClick={() => toggleSection("jobSearch")}
+                                    className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-[#00b14f] transition-colors"
+                                >
+                                    <div className="flex items-center gap-2.5 font-bold text-xs">
+                                        <Briefcase className="w-4 h-4 text-slate-500" />
+                                        <span>Quản lý tìm việc</span>
+                                    </div>
+                                    {expandedSections.jobSearch ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
+                                </button>
+                                {expandedSections.jobSearch && (
+                                    <div className="pl-6.5 flex flex-col gap-2 pt-1 pb-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => navigate('/?filter=saved')}
+                                            className="text-left text-xs font-semibold text-slate-500 hover:text-[#00b14f] transition-colors"
+                                        >
+                                            Việc làm đã lưu
+                                        </button>
+                                        {role === 'student' && (
+                                            <button
+                                                type="button"
+                                                onClick={() => navigate('/my-jobs')}
+                                                className="text-left text-xs font-semibold text-slate-500 hover:text-[#00b14f] transition-colors"
+                                            >
+                                                Việc làm đã ứng tuyển
+                                            </button>
+                                        )}
+                                        <button
+                                            type="button"
+                                            onClick={() => navigate('/')}
+                                            className="text-left text-xs font-semibold text-slate-500 hover:text-[#00b14f] transition-colors"
+                                        >
+                                            Việc làm phù hợp với bạn
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* 2. Quản lý CV */}
+                            <div className="space-y-1">
+                                <button
+                                    type="button"
+                                    onClick={() => toggleSection("cvManage")}
+                                    className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-[#00b14f] transition-colors"
+                                >
+                                    <div className="flex items-center gap-2.5 font-bold text-xs">
+                                        <FileText className="w-4 h-4 text-slate-500" />
+                                        <span>Quản lý hồ sơ & CV</span>
+                                    </div>
+                                    {expandedSections.cvManage ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
+                                </button>
+                                {expandedSections.cvManage && (
+                                    <div className="pl-6.5 flex flex-col gap-2 pt-1 pb-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => navigate('/settings')}
+                                            className="text-left text-xs font-semibold text-slate-500 hover:text-[#00b14f] transition-colors"
+                                        >
+                                            Thông tin hồ sơ của tôi
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => navigate('/settings')}
+                                            className="text-left text-xs font-semibold text-slate-500 hover:text-[#00b14f] transition-colors"
+                                        >
+                                            Mẫu CV cá nhân
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* 3. Cài đặt email & thông báo */}
+                            <div className="space-y-1">
+                                <button
+                                    type="button"
+                                    onClick={() => toggleSection("emailConfig")}
+                                    className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-[#00b14f] transition-colors"
+                                >
+                                    <div className="flex items-center gap-2.5 font-bold text-xs">
+                                        <Mail className="w-4 h-4 text-slate-500" />
+                                        <span>Cài đặt email & thông báo</span>
+                                    </div>
+                                    {expandedSections.emailConfig ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
+                                </button>
+                                {expandedSections.emailConfig && (
+                                    <div className="pl-6.5 flex flex-col gap-2 pt-1 pb-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => navigate('/settings')}
+                                            className="text-left text-xs font-semibold text-slate-500 hover:text-[#00b14f] transition-colors"
+                                        >
+                                            Cài đặt thông báo việc làm
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => navigate('/settings')}
+                                            className="text-left text-xs font-semibold text-slate-500 hover:text-[#00b14f] transition-colors"
+                                        >
+                                            Cài đặt nhận email
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* 4. Cá nhân & Bảo mật */}
+                            <div className="space-y-1">
+                                <button
+                                    type="button"
+                                    onClick={() => toggleSection("personalSecurity")}
+                                    className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-[#00b14f] transition-colors"
+                                >
+                                    <div className="flex items-center gap-2.5 font-bold text-xs">
+                                        <Shield className="w-4 h-4 text-slate-500" />
+                                        <span>Cá nhân & Bảo mật</span>
+                                    </div>
+                                    {expandedSections.personalSecurity ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
+                                </button>
+                                {expandedSections.personalSecurity && (
+                                    <div className="pl-6.5 flex flex-col gap-2 pt-1 pb-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => navigate('/settings')}
+                                            className="text-left text-xs font-semibold text-slate-500 hover:text-[#00b14f] transition-colors"
+                                        >
+                                            Cài đặt thông tin cá nhân
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => navigate('/settings')}
+                                            className="text-left text-xs font-semibold text-slate-500 hover:text-[#00b14f] transition-colors"
+                                        >
+                                            Đổi mật khẩu tài khoản
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* 5. Nâng cấp tài khoản */}
+                            <div className="space-y-1">
+                                <button
+                                    type="button"
+                                    onClick={() => toggleSection("upgrade")}
+                                    className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-[#00b14f] transition-colors"
+                                >
+                                    <div className="flex items-center gap-2.5 font-bold text-xs">
+                                        <Crown className="w-4 h-4 text-slate-500" />
+                                        <span>Nâng cấp tài khoản</span>
+                                    </div>
+                                    {expandedSections.upgrade ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
+                                </button>
+                                {expandedSections.upgrade && (
+                                    <div className="pl-6.5 flex flex-col gap-2 pt-1 pb-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => alert("Chức năng nâng cấp tài khoản VIP đang phát triển!")}
+                                            className="text-left text-xs font-semibold text-slate-500 hover:text-[#00b14f] transition-colors"
+                                        >
+                                            Nâng cấp tài khoản VIP
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     )}
 
-                    {role === 'organizer' && (
-                        <DropdownMenuItem className="cursor-pointer rounded-xl py-2.5 font-medium text-slate-700 hover:bg-slate-50" onClick={() => navigate('/dashboard')}>
-                            <Building2 className="mr-2 h-4 w-4 text-blue-500" /> Quản lý sự kiện
-                        </DropdownMenuItem>
-                    )}
-
-                    <DropdownMenuItem className="cursor-pointer rounded-xl py-2.5 font-medium text-slate-700 hover:bg-slate-50" onClick={() => navigate('/settings')}>
-                        <User className="mr-2 h-4 w-4 text-slate-400" /> Cài đặt tài khoản
-                    </DropdownMenuItem>
-
-                    <DropdownMenuSeparator className="bg-slate-100" />
-
-                    <DropdownMenuItem className="cursor-pointer rounded-xl py-2.5 text-rose-600 focus:bg-rose-50 focus:text-rose-600 font-bold" onClick={handleLogout}>
-                        <LogOut className="mr-2 h-4 w-4" /> Đăng xuất
-                    </DropdownMenuItem>
+                    {/* Bottom Logout Button */}
+                    <div className="border-t border-slate-100 pt-3">
+                        <button
+                            type="button"
+                            onClick={handleLogout}
+                            className="w-full py-2.5 rounded-lg bg-slate-50 hover:bg-rose-50 text-slate-700 hover:text-rose-600 font-bold text-xs flex items-center justify-center gap-2 border border-slate-100 hover:border-rose-100 transition-all active:scale-[0.98]"
+                        >
+                            <LogOut className="w-4 h-4" />
+                            Đăng xuất
+                        </button>
+                    </div>
                 </DropdownMenuContent>
             </DropdownMenu>
         </div>
