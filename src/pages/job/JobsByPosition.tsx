@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useSearchParams, useNavigate } from "react-router-dom"
+import { useSearchParams, useNavigate, useParams } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 import MainLayout from "@/components/layout/MainLayout"
 import { Search, MapPin, Briefcase, Tag, Clock, ChevronLeft, ChevronRight, Building2, Heart } from "lucide-react"
@@ -11,7 +11,8 @@ export default function JobsByPosition() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
-  const positionParam = searchParams.get("position") || "Tình nguyện viên"
+  const { position: positionRouteParam } = useParams<{ position: string }>()
+  const positionParam = positionRouteParam || searchParams.get("position") || "Tình nguyện viên"
 
   const [loading, setLoading] = useState(true)
   const [events, setEvents] = useState<any[]>([])
@@ -63,10 +64,20 @@ export default function JobsByPosition() {
 
   const fetchEvents = async () => {
     setLoading(true)
+    let posName = positionParam
+    const { data: posData } = await supabase
+      .from("job_positions")
+      .select("name")
+      .eq("slug", positionParam)
+      .maybeSingle()
+    if (posData) {
+      posName = posData.name
+    }
+
     let query = supabase
       .from("events")
-      .select("*, profiles(id, full_name, avatar_url), danang_wards(name)", { count: "exact" })
-      .eq("position_type", positionParam)
+      .select("*, profiles(id, full_name, avatar_url, slug), danang_wards(name)", { count: "exact" })
+      .eq("position_type", posName)
 
     if (keyword) {
       query = query.ilike("title", `%${keyword}%`)
@@ -271,7 +282,7 @@ export default function JobsByPosition() {
                       <div className="flex-1 min-w-0 space-y-1.5">
                         <div className="flex justify-between items-start gap-2">
                           <h4 
-                            onClick={() => navigate(`/jobs/${job.id}`)}
+                            onClick={() => navigate(`/jobs/${job.slug || job.id}`)}
                             className="font-extrabold text-slate-900 dark:text-slate-100 text-base leading-snug truncate hover:text-emerald-600 dark:hover:text-emerald-400 cursor-pointer"
                           >
                             {job.title}
@@ -315,7 +326,7 @@ export default function JobsByPosition() {
                               <Heart className={`w-4 h-4 ${bookmarkedEvents[job.id] ? "fill-rose-500 text-rose-500" : "text-slate-400"}`} />
                             </Button>
                             <Button 
-                              onClick={() => navigate(`/jobs/${job.id}`)}
+                              onClick={() => navigate(`/jobs/${job.slug || job.id}`)}
                               className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl h-9 px-4 shadow-sm"
                             >
                               Ứng tuyển ngay

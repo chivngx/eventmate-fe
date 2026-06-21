@@ -16,7 +16,7 @@ export default function CompanyDetail() {
     const [role, setRole] = useState<string>("guest")
     const [isFollowed, setIsFollowed] = useState(false)
     const [activeTab, setActiveTab] = useState<"about" | "jobs">("about")
-    
+
     // States for Trang chủ
     const [isIntroExpanded, setIsIntroExpanded] = useState(false)
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
@@ -56,11 +56,14 @@ export default function CompanyDetail() {
             }
 
             // Fetch company profile details
-            const { data: profileData } = await supabase
-                .from("profiles")
-                .select("*")
-                .eq("id", id)
-                .maybeSingle()
+            const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id || "")
+            let profileQuery = supabase.from("profiles").select("*")
+            if (isUuid) {
+                profileQuery = profileQuery.eq("id", id)
+            } else {
+                profileQuery = profileQuery.eq("slug", id)
+            }
+            const { data: profileData } = await profileQuery.maybeSingle()
 
             if (profileData) {
                 setCompany(profileData)
@@ -69,7 +72,7 @@ export default function CompanyDetail() {
                 const { data: eventsData } = await supabase
                     .from("events")
                     .select("*, danang_wards(name)")
-                    .eq("organizer_id", id)
+                    .eq("organizer_id", profileData.id)
                     .order("created_at", { ascending: false })
 
                 if (eventsData) {
@@ -156,81 +159,78 @@ export default function CompanyDetail() {
     return (
         <MainLayout role={role}>
             <div className="max-w-6xl mx-auto py-4 px-4 font-sans text-[#212f3f] selection:bg-emerald-100">
-                {/* Breadcrumbs */}
-                <div className="flex items-center gap-1.5 text-slate-400 text-xs font-semibold mb-5 flex-wrap">
-                    <span className="hover:text-slate-650 cursor-pointer" onClick={() => navigate('/')}>Trang chủ</span>
-                    <span>&gt;</span>
-                    <span className="hover:text-slate-650 cursor-pointer" onClick={() => navigate('/')}>Danh sách công ty</span>
-                    <span>&gt;</span>
-                    <span className="text-slate-600 truncate max-w-[200px]" title={company.full_name}>{company.full_name}</span>
-                    {activeTab === "jobs" && (
-                        <>
-                            <span>&gt;</span>
-                            <span className="text-slate-600 font-bold">Tuyển dụng</span>
-                        </>
-                    )}
-                </div>
-
                 {/* Company Header Box (No Cover Banner) */}
-                <div className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm flex flex-col md:flex-row items-center md:items-start justify-between gap-6 relative">
-                    <div className="flex flex-col md:flex-row items-center md:items-start gap-6 w-full md:w-auto">
+                <div className="wrapper-company-cover bg-white rounded-2xl border border-slate-200 p-6 md:p-8 min-[1440px]:p-[24px_24px_0px] shadow-sm flex flex-col md:flex-row items-center md:items-start justify-between gap-6 relative min-[1440px]:w-[1140px] min-[1440px]:h-[230px] min-[1440px]:rounded-[16px] min-[1440px]:shadow-[0px_0px_14px_0px_rgba(0,0,0,0.03)] min-[1440px]:box-border">
+                    <div className="company-cover-inner_header flex flex-col md:flex-row items-center md:items-start gap-6 w-full md:w-auto min-[1440px]:w-[1092px] min-[1440px]:h-[140px] min-[1440px]:gap-[16px] min-[1440px]:flex-row">
                         {/* Custom Square Box for Logo */}
-                        <div className="border border-slate-200 rounded-2xl p-2 w-28 h-28 md:w-32 md:h-32 flex items-center justify-center bg-white shadow-sm shrink-0">
-                            <Avatar className="h-full w-full rounded-xl">
+                        <div className="company-image-logo border border-slate-200 rounded-2xl p-2 w-28 h-28 md:w-32 md:h-32 flex items-center justify-center bg-white shadow-sm shrink-0 min-[1440px]:w-[140px] min-[1440px]:h-[140px] min-[1440px]:rounded-[12px] min-[1440px]:border min-[1440px]:border-[#ddd] min-[1440px]:p-2 min-[1440px]:box-border">
+                            <Avatar className="h-full w-full rounded-xl min-[1440px]:rounded-[8px]">
                                 <AvatarImage src={company.avatar_url} className="object-contain" />
-                                <AvatarFallback className="rounded-xl bg-emerald-50 text-[#00b14f] text-4xl font-black">
+                                <AvatarFallback className="rounded-xl min-[1440px]:rounded-[8px] bg-emerald-50 text-[#00b14f] text-4xl font-black">
                                     {company.full_name?.charAt(0).toUpperCase() || "O"}
                                 </AvatarFallback>
                             </Avatar>
                         </div>
 
-                        {/* Title & Website */}
-                        <div className="text-center md:text-left pt-2 md:pt-4">
-                            <h1 className="text-lg md:text-xl font-bold text-slate-800 leading-snug">
-                                {company.full_name}
-                            </h1>
-                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2 mt-3.5 text-xs font-bold text-slate-400">
-                                <a href="https://www.pranfoods.net/" target="_blank" rel="noreferrer" className="hover:text-[#00b14f] flex items-center gap-1.5 transition-colors">
-                                    <LinkIcon className="w-3.5 h-3.5" /> https://www.pranfoods.net/
-                                </a>
-                                <span className="text-slate-200">|</span>
-                                <span className="flex items-center gap-1.5">
-                                    <Users className="w-3.5 h-3.5" /> {isFollowed ? "3" : "2"} người theo dõi
-                                </span>
+                        {/* Title & Website & Follow button wrapped in company-detail-overview */}
+                        <div className="company-detail-overview flex-1 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full min-[1440px]:w-[936px] min-[1440px]:h-[140px] min-[1440px]:gap-[16px] min-[1440px]:flex-row min-[1440px]:justify-between min-[1440px]:items-center">
+
+                            <div className="box-detail text-center md:text-left pt-2 md:pt-4 flex flex-col items-center md:items-start gap-2.5 min-[1440px]:w-[748px] min-[1440px]:h-[60px] min-[1440px]:gap-[12px] min-[1440px]:items-start min-[1440px]:pt-0">
+                                <h1 className="box-detail_company-name text-lg md:text-xl font-bold text-slate-800 leading-snug min-[1440px]:text-[20px] min-[1440px]:font-semibold min-[1440px]:leading-[28px] min-[1440px]:text-[#263a4d] min-[1440px]:font-sans min-[1440px]:tracking-[-0.2px]">
+                                    {company.full_name}
+                                </h1>
+                                <div className="box-company-info flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2 mt-1 text-xs font-bold text-slate-400 min-[1440px]:gap-[8px] min-[1440px]:mt-0">
+                                    <div className="box-company-info_item flex items-center gap-1.5 min-[1440px]:gap-[8px]">
+                                        <a href="https://www.pranfoods.net/" target="_blank" rel="noreferrer" className="box-company-info_item hover:text-[#00b14f] flex items-center gap-1.5 transition-colors min-[1440px]:text-[14px] min-[1440px]:text-[#7f878f] min-[1440px]:tracking-[0.14px] min-[1440px]:font-normal">
+                                            <LinkIcon className="w-3.5 h-3.5 shrink-0" /> https://www.pranfoods.net/
+                                        </a>
+                                    </div>
+                                    <span className="text-slate-200 min-[1440px]:hidden">|</span>
+                                    <div className="box-company-info_item flex items-center gap-1.5 min-[1440px]:gap-[8px]">
+                                        <span className="flex items-center gap-1.5 hover:text-[#00b14f] transition-colors min-[1440px]:text-[14px] min-[1440px]:text-[#7f878f] min-[1440px]:tracking-[0.14px] min-[1440px]:font-normal">
+                                            <Users className="w-3.5 h-3.5 shrink-0" /> {isFollowed ? "3" : "2"} người theo dõi
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
+
+                            {/* Follow Button Box */}
+                            <div className="box-follow flex items-center gap-3 pt-2 md:pt-4 shrink-0 min-[1440px]:w-[172px] min-[1440px]:h-[42px] min-[1440px]:pt-0">
+                                <Button
+                                    onClick={() => setIsFollowed(!isFollowed)}
+                                    className={`btn btn-follow btn-follow-js w-full rounded-full font-bold h-10 px-6 border text-xs transition-all min-[1440px]:h-[42px] min-[1440px]:rounded-[1000px] min-[1440px]:text-[14px] min-[1440px]:font-semibold min-[1440px]:py-[10px] min-[1440px]:px-0 min-[1440px]:justify-center min-[1440px]:gap-[8px] min-[1440px]:tracking-[0.175px] min-[1440px]:bg-[#00b14f] min-[1440px]:border-[#00b14f] ${isFollowed
+                                            ? "bg-[#00b14f] hover:bg-[#009a44] text-white border-[#00b14f]"
+                                            : "bg-[#00b14f] hover:bg-[#009a44] text-white border-[#00b14f]"
+                                        }`}
+                                >
+                                    {isFollowed ? (
+                                        <span>✓ Đang theo dõi</span>
+                                    ) : (
+                                        <>
+                                            <i className="fa-regular fa-plus flex items-center justify-center w-5 h-5 min-[1440px]:w-[20px] min-[1440px]:h-[20px] min-[1440px]:p-[2px] min-[1440px]:text-[14px] text-white shrink-0">+</i>
+                                            <span>Theo dõi công ty</span>
+                                        </>
+                                    )}
+                                </Button>
+                            </div>
+
                         </div>
                     </div>
 
-                    {/* Follow Button */}
-                    <div className="flex items-center gap-3 pt-2 md:pt-4 shrink-0">
-                        <Button
-                            onClick={() => setIsFollowed(!isFollowed)}
-                            className={`rounded-full font-bold h-10 px-6 border text-xs transition-all ${
-                                isFollowed
-                                    ? "bg-[#00b14f] hover:bg-[#009a44] text-white border-[#00b14f]"
-                                    : "bg-[#00b14f] hover:bg-[#009a44] text-white border-[#00b14f] flex items-center gap-1"
-                            }`}
-                        >
-                            {isFollowed ? "✓ Đang theo dõi" : "+ Theo dõi công ty"}
-                        </Button>
-                    </div>
-
                     {/* Tabs inside Header Box at bottom left */}
-                    <div className="absolute bottom-0 left-6 md:left-8 flex gap-6">
+                    <div className="box-tab-link absolute bottom-0 left-6 md:left-8 flex gap-6 min-[1440px]:absolute min-[1440px]:bottom-0 min-[1440px]:left-[180px] min-[1440px]:w-[1092px] min-[1440px]:h-[42px] min-[1440px]:gap-[20px]">
                         <button
                             onClick={() => setActiveTab("about")}
-                            className={`pb-3 font-extrabold text-xs relative transition-colors ${
-                                activeTab === "about" ? "text-[#00b14f]" : "text-slate-500 hover:text-[#00b14f]"
-                            }`}
+                            className={`box-tab-link_item pb-3 font-extrabold text-xs relative transition-colors min-[1440px]:text-[14px] min-[1440px]:font-semibold min-[1440px]:py-[7px] min-[1440px]:px-0 min-[1440px]:pb-[13px] min-[1440px]:tracking-[0.175px] ${activeTab === "about" ? "active-link text-[#00b14f]" : "text-slate-500 hover:text-[#00b14f]"
+                                }`}
                         >
                             Trang chủ
                             {activeTab === "about" && <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#00b14f] rounded-t-full" />}
                         </button>
                         <button
                             onClick={() => setActiveTab("jobs")}
-                            className={`pb-3 font-extrabold text-xs relative transition-colors flex items-center gap-1 ${
-                                activeTab === "jobs" ? "text-[#00b14f]" : "text-slate-500 hover:text-[#00b14f]"
-                            }`}
+                            className={`box-tab-link_item pb-3 font-extrabold text-xs relative transition-colors flex items-center gap-1 min-[1440px]:text-[14px] min-[1440px]:font-semibold min-[1440px]:py-[7px] min-[1440px]:px-0 min-[1440px]:pb-[13px] min-[1440px]:tracking-[0.175px] ${activeTab === "jobs" ? "active-link text-[#00b14f]" : "text-slate-500 hover:text-[#00b14f]"
+                                }`}
                         >
                             Tin tuyển dụng ({companyEvents.length})
                             {activeTab === "jobs" && <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#00b14f] rounded-t-full" />}
@@ -254,7 +254,7 @@ export default function CompanyDetail() {
                             <div className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm space-y-4">
                                 <h2 className="text-base font-bold text-slate-800 border-l-[3.5px] border-[#00b14f] pl-3 leading-none">
                                     Giới thiệu công ty
-                               </h2>
+                                </h2>
                                 <div className="relative">
                                     <div className={`text-xs font-semibold text-slate-500 leading-relaxed transition-all duration-300 ${isIntroExpanded ? "" : "line-clamp-4"}`}>
                                         {company.bio || `${company.full_name} is a fast-growing company operating in the FMCG and F&B distribution sector in Vietnam. The company specializes in importing, distributing, and trading high-quality food and beverage products across the Vietnamese market. As a subsidiary of the multinational PRAN-RFL Group, one of the leading food and consumer goods corporations with a global presence, the company leverages international expertise, strong supply chains, and a wide product portfolio to expand its market footprint in Vietnam.`}
@@ -349,7 +349,7 @@ export default function CompanyDetail() {
                                         {filteredJobs.map((job) => (
                                             <div
                                                 key={job.id}
-                                                onClick={() => navigate(`/jobs/${job.id}`)}
+                                                onClick={() => navigate(`/jobs/${job.slug || job.id}`)}
                                                 className="p-4 rounded-xl border border-slate-100 hover:border-[#00b14f] hover:shadow-md transition-all flex items-start justify-between gap-4 cursor-pointer group bg-white"
                                             >
                                                 <div className="flex gap-3">
@@ -377,11 +377,10 @@ export default function CompanyDetail() {
                                                     <span className="text-xs font-bold text-[#00b14f]">{job.benefits || "Thỏa thuận"}</span>
                                                     <button
                                                         onClick={(e) => toggleBookmark(job.id, e)}
-                                                        className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all ${
-                                                            bookmarkedJobs[job.id]
+                                                        className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all ${bookmarkedJobs[job.id]
                                                                 ? "bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100"
                                                                 : "bg-white border-slate-200 text-slate-350 hover:text-rose-500 hover:border-rose-200"
-                                                        }`}
+                                                            }`}
                                                     >
                                                         <Heart className={`w-3.5 h-3.5 ${bookmarkedJobs[job.id] ? "fill-current" : ""}`} />
                                                     </button>
@@ -555,7 +554,7 @@ export default function CompanyDetail() {
                                         {filteredJobs.map((job) => (
                                             <div
                                                 key={job.id}
-                                                onClick={() => navigate(`/jobs/${job.id}`)}
+                                                onClick={() => navigate(`/jobs/${job.slug || job.id}`)}
                                                 className="p-4 rounded-xl border border-slate-100 hover:border-[#00b14f] hover:shadow-md transition-all flex items-start justify-between gap-4 cursor-pointer group bg-white"
                                             >
                                                 <div className="flex gap-3">
@@ -583,11 +582,10 @@ export default function CompanyDetail() {
                                                     <span className="text-xs font-bold text-[#00b14f]">{job.benefits || "Thỏa thuận"}</span>
                                                     <button
                                                         onClick={(e) => toggleBookmark(job.id, e)}
-                                                        className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all ${
-                                                            bookmarkedJobs[job.id]
+                                                        className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all ${bookmarkedJobs[job.id]
                                                                 ? "bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100"
                                                                 : "bg-white border-slate-200 text-slate-350 hover:text-rose-500 hover:border-rose-200"
-                                                        }`}
+                                                            }`}
                                                     >
                                                         <Heart className={`w-3.5 h-3.5 ${bookmarkedJobs[job.id] ? "fill-current" : ""}`} />
                                                     </button>
@@ -620,11 +618,10 @@ export default function CompanyDetail() {
                         </div>
                         <Button
                             onClick={() => setIsFollowed(!isFollowed)}
-                            className={`rounded-lg font-bold h-10 px-5 text-xs transition-all shrink-0 ${
-                                isFollowed
+                            className={`rounded-lg font-bold h-10 px-5 text-xs transition-all shrink-0 ${isFollowed
                                     ? "bg-[#00b14f] hover:bg-[#009a44] text-white border-[#00b14f]"
                                     : "bg-[#00b14f] hover:bg-[#009a44] text-white border-[#00b14f]"
-                            }`}
+                                }`}
                         >
                             {isFollowed ? "✓ Đang theo dõi" : "+ Theo dõi ngay"}
                         </Button>

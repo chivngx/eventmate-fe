@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 import MainLayout from "@/components/layout/MainLayout"
-import { ArrowLeft, MapPin, Calendar, CheckCircle, XCircle, Clock3, Bookmark, Briefcase, Tag, DollarSign, Users, Hourglass, MessageSquare } from "lucide-react"
+import { MapPin, Calendar, CheckCircle, XCircle, Clock3, Bookmark, Briefcase, Tag, DollarSign, Users, Hourglass } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
@@ -19,40 +19,47 @@ export default function EventDetail() {
     useEffect(() => {
         const fetchEventDetails = async () => {
             setLoading(true)
-            const { data: { user } } = await supabase.auth.getUser()
-            if (user) {
-                const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
-                if (profile) setRole(profile.role)
+            const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id || "")
+            let eventQuery = supabase
+                .from("events")
+                .select("*, profiles(id, full_name, avatar_url, slug), danang_wards(name)")
 
-                if (profile?.role === "student") {
-                    const { data: appData } = await supabase
-                        .from("applications")
-                        .select("status")
-                        .eq("event_id", id)
-                        .eq("student_id", user.id)
-                        .maybeSingle()
-
-                    if (appData) setApplyStatus(appData.status)
-
-                    const { data: bookmarkData } = await supabase
-                        .from("event_bookmarks")
-                        .select("id")
-                        .eq("event_id", id)
-                        .eq("student_id", user.id)
-                        .maybeSingle()
-
-                    if (bookmarkData) setIsBookmarked(true)
-                }
+            if (isUuid) {
+                eventQuery = eventQuery.eq("id", id)
+            } else {
+                eventQuery = eventQuery.eq("slug", id)
             }
 
-            const { data: eventData, error } = await supabase
-                .from("events")
-                .select("*, profiles(full_name, avatar_url), danang_wards(name)")
-                .eq("id", id)
-                .maybeSingle()
+            const { data: eventData, error } = await eventQuery.maybeSingle()
 
             if (eventData) {
                 setEvent(eventData)
+
+                const { data: { user } } = await supabase.auth.getUser()
+                if (user) {
+                    const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
+                    if (profile) setRole(profile.role)
+
+                    if (profile?.role === "student") {
+                        const { data: appData } = await supabase
+                            .from("applications")
+                            .select("status")
+                            .eq("event_id", eventData.id)
+                            .eq("student_id", user.id)
+                            .maybeSingle()
+
+                        if (appData) setApplyStatus(appData.status)
+
+                        const { data: bookmarkData } = await supabase
+                            .from("event_bookmarks")
+                            .select("id")
+                            .eq("event_id", eventData.id)
+                            .eq("student_id", user.id)
+                            .maybeSingle()
+
+                        if (bookmarkData) setIsBookmarked(true)
+                    }
+                }
             } else {
                 console.error("Lỗi hoặc không tìm thấy sự kiện", error)
             }
@@ -72,7 +79,7 @@ export default function EventDetail() {
         }
 
         const { error } = await supabase.from("applications").insert([
-            { event_id: id, student_id: user.id }
+            { event_id: event.id, student_id: user.id }
         ])
 
         if (error) {
@@ -96,56 +103,17 @@ export default function EventDetail() {
                 .from("event_bookmarks")
                 .delete()
                 .eq("student_id", user.id)
-                .eq("event_id", id)
+                .eq("event_id", event.id)
 
             if (!error) setIsBookmarked(false)
             else alert("Lỗi khi hủy lưu việc làm: " + error.message)
         } else {
             const { error } = await supabase
                 .from("event_bookmarks")
-                .insert([{ student_id: user.id, event_id: id }])
+                .insert([{ student_id: user.id, event_id: event.id }])
 
             if (!error) setIsBookmarked(true)
             else alert("Lỗi khi lưu việc làm: " + error.message)
-        }
-    }
-
-    const handleStartChat = async () => {
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) {
-            window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { mode: "login" } }))
-            return
-        }
-
-        const { data: existingChat } = await supabase
-            .from("chats")
-            .select("id")
-            .eq("event_id", id)
-            .eq("student_id", user.id)
-            .eq("organizer_id", event.organizer_id)
-            .maybeSingle()
-
-        if (existingChat) {
-            navigate(`/chat/${existingChat.id}`)
-            return
-        }
-
-        const { data: newChat, error: createError } = await supabase
-            .from("chats")
-            .insert([
-                {
-                    event_id: id,
-                    student_id: user.id,
-                    organizer_id: event.organizer_id
-                }
-            ])
-            .select("id")
-            .single()
-
-        if (!createError && newChat) {
-            navigate(`/chat/${newChat.id}`)
-        } else {
-            alert("Lỗi khi tạo phòng chat: " + (createError?.message || "Lỗi không xác định"))
         }
     }
 
@@ -207,58 +175,47 @@ export default function EventDetail() {
     return (
         <MainLayout role={role}>
             <div className="max-w-6xl mx-auto py-6 px-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                {/* Back button */}
-                <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-slate-500 font-bold hover:text-slate-900 mb-6 transition-colors">
-                    <ArrowLeft className="w-5 h-5" /> Quay lại
-                </button>
-
                 {/* Two Column Layout */}
-                <div className="flex flex-col lg:flex-row gap-6 items-start">
+                <div className="job-detail_body flex flex-col lg:flex-row gap-6 items-start min-[1440px]:w-[1140px] min-[1440px]:gap-[28px] min-[1440px]:flex-row">
                     {/* Left Column (Width: approx 760px on large screen) */}
-                    <div className="flex-1 w-full lg:max-w-[760px] space-y-6">
+                    <div className="job-detail_body-left flex-1 w-full lg:max-w-[760px] space-y-6 min-[1440px]:w-[761px] min-[1440px]:gap-[28px] min-[1440px]:flex-col">
                         {/* Box 1: Header / General Summary */}
-                        <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
-                            <h1 className="text-xl md:text-2xl font-bold text-[#263a4d] leading-tight mb-2">
+                        <div id="header-job-info" className="job-detail_box job-detail_info bg-white rounded-lg border border-slate-200 p-6 shadow-sm min-[1440px]:p-[20px_24px] min-[1440px]:rounded-[8px] min-[1440px]:gap-[16px] min-[1440px]:flex-col">
+                            <h1 className="job-detail_info--title text-xl md:text-2xl font-bold text-[#263a4d] leading-tight mb-2 min-[1440px]:w-[713px] min-[1440px]:text-[20px] min-[1440px]:font-bold min-[1440px]:font-sans min-[1440px]:tracking-[-0.2px] min-[1440px]:leading-[28px]">
                                 {event.title}
                             </h1>
-                            <div
-                                onClick={() => navigate(`/companies/${event.organizer_id}`)}
-                                className="text-sm font-semibold text-slate-600 hover:text-[#00b14f] cursor-pointer transition-colors mb-5"
-                            >
-                                {event.profiles?.full_name || "Đơn vị ẩn danh"}
-                            </div>
 
                             {/* Quick Info Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-100 pt-5 pb-6">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-9 h-9 rounded-full bg-[#00b14f]/5 flex items-center justify-center shrink-0">
-                                        <DollarSign className="w-4 h-4 text-[#00b14f]" />
+                            <div className="job-detail_info--sections grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-100 pt-5 pb-6 min-[1440px]:w-[713px] min-[1440px]:h-[46px] min-[1440px]:flex-row min-[1440px]:items-center min-[1440px]:justify-between min-[1440px]:pt-0 min-[1440px]:pb-0 min-[1440px]:border-t-0 min-[1440px]:flex">
+                                <div className="job-detail_info--section section-salary flex items-center gap-3 min-[1440px]:h-[46px] min-[1440px]:flex-row min-[1440px]:items-center min-[1440px]:gap-[16px]">
+                                    <div className="job-detail_info--section-icon w-9 h-9 rounded-full bg-[#00b14f]/5 flex items-center justify-center shrink-0 min-[1440px]:w-[40px] min-[1440px]:h-[40px] min-[1440px]:rounded-[30px] min-[1440px]:p-[10px] min-[1440px]:flex min-[1440px]:flex-col min-[1440px]:justify-center min-[1440px]:items-center min-[1440px]:gap-[10px] min-[1440px]:bg-gradient-to-br min-[1440px]:from-[#00bf5d] min-[1440px]:to-[#00907c]">
+                                        <DollarSign className="w-4 h-4 text-[#00b14f] min-[1440px]:text-white" />
                                     </div>
                                     <div>
-                                        <p className="text-[12px] text-slate-400 font-medium">Quyền lợi / Lương</p>
-                                        <p className="text-[13px] text-[#212f3f] font-semibold truncate max-w-[180px]" title={event.benefits || "Thỏa thuận"}>
+                                        <p className="job-detail_info--section-content-title text-[12px] text-slate-400 font-medium min-[1440px]:h-[22px] min-[1440px]:text-[14px] min-[1440px]:text-[#263a4d] min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.14px]">Quyền lợi / Lương</p>
+                                        <p className="job-detail_info--section-content-value text-[13px] text-[#212f3f] font-semibold truncate max-w-[180px] min-[1440px]:h-[22px] min-[1440px]:text-[14px] min-[1440px]:text-[#212f3f] min-[1440px]:font-semibold min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.175px]" title={event.benefits || "Thỏa thuận"}>
                                             {event.benefits || "Thỏa thuận"}
                                         </p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="w-9 h-9 rounded-full bg-[#00b14f]/5 flex items-center justify-center shrink-0">
-                                        <MapPin className="w-4 h-4 text-[#00b14f]" />
+                                <div className="job-detail_info--section section-location flex items-center gap-3 min-[1440px]:flex-row min-[1440px]:items-center min-[1440px]:gap-[16px] min-[1440px]:flex-basis-0">
+                                    <div className="job-detail_info--section-icon w-9 h-9 rounded-full bg-[#00b14f]/5 flex items-center justify-center shrink-0 min-[1440px]:w-[40px] min-[1440px]:h-[40px] min-[1440px]:rounded-[30px] min-[1440px]:p-[10px] min-[1440px]:flex min-[1440px]:flex-col min-[1440px]:justify-center min-[1440px]:items-center min-[1440px]:gap-[10px] min-[1440px]:bg-gradient-to-br min-[1440px]:from-[#00bf5d] min-[1440px]:to-[#00907c]">
+                                        <MapPin className="w-4 h-4 text-[#00b14f] min-[1440px]:text-white" />
                                     </div>
                                     <div>
-                                        <p className="text-[12px] text-slate-400 font-medium">Khu vực</p>
-                                        <p className="text-[13px] text-[#212f3f] font-semibold truncate" title={event.danang_wards?.name ? `P. ${event.danang_wards.name}` : "Đà Nẵng"}>
+                                        <p className="job-detail_info--section-content-title text-[12px] text-slate-400 font-medium min-[1440px]:h-[22px] min-[1440px]:text-[14px] min-[1440px]:text-[#263a4d] min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.14px]">Khu vực</p>
+                                        <p className="job-detail_info--section-content-value text-[13px] text-[#212f3f] font-semibold truncate min-[1440px]:h-[22px] min-[1440px]:text-[14px] min-[1440px]:text-[#212f3f] min-[1440px]:font-semibold min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.175px]" title={event.danang_wards?.name ? `P. ${event.danang_wards.name}` : "Đà Nẵng"}>
                                             {event.danang_wards?.name ? `P. ${event.danang_wards.name}` : "Đà Nẵng"}
                                         </p>
                                     </div>
                                 </div>
-                                <div className="flex items-center gap-3">
-                                    <div className="w-9 h-9 rounded-full bg-[#00b14f]/5 flex items-center justify-center shrink-0">
-                                        <Calendar className="w-4 h-4 text-[#00b14f]" />
+                                <div className="job-detail_info--section section-eventdate flex items-center gap-3 min-[1440px]:flex-row min-[1440px]:items-center min-[1440px]:gap-[16px]">
+                                    <div className="job-detail_info--section-icon w-9 h-9 rounded-full bg-[#00b14f]/5 flex items-center justify-center shrink-0 min-[1440px]:w-[40px] min-[1440px]:h-[40px] min-[1440px]:rounded-[30px] min-[1440px]:p-[10px] min-[1440px]:flex min-[1440px]:flex-col min-[1440px]:justify-center min-[1440px]:items-center min-[1440px]:gap-[10px] min-[1440px]:bg-gradient-to-br min-[1440px]:from-[#00bf5d] min-[1440px]:to-[#00907c]">
+                                        <Calendar className="w-4 h-4 text-[#00b14f] min-[1440px]:text-white" />
                                     </div>
                                     <div>
-                                        <p className="text-[12px] text-slate-400 font-medium">Ngày diễn ra</p>
-                                        <p className="text-[13px] text-[#212f3f] font-semibold">
+                                        <p className="job-detail_info--section-content-title text-[12px] text-slate-400 font-medium min-[1440px]:h-[22px] min-[1440px]:text-[14px] min-[1440px]:text-[#263a4d] min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.14px]">Ngày diễn ra</p>
+                                        <p className="job-detail_info--section-content-value text-[13px] text-[#212f3f] font-semibold min-[1440px]:h-[22px] min-[1440px]:text-[14px] min-[1440px]:text-[#212f3f] min-[1440px]:font-semibold min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.175px]">
                                             {event.event_date ? new Date(event.event_date).toLocaleDateString('vi-VN') : "Đang cập nhật"}
                                         </p>
                                     </div>
@@ -280,21 +237,12 @@ export default function EventDetail() {
                                 {role === 'student' && (
                                     <>
                                         <Button
-                                            onClick={handleStartChat}
-                                            variant="outline"
-                                            className="rounded-md border-[#00b14f] text-[#00b14f] hover:bg-[#00b14f]/5 font-bold h-11 px-6 transition-all"
-                                        >
-                                            <MessageSquare className="w-4 h-4 mr-2" />
-                                            Nhắn tin BTC
-                                        </Button>
-                                        <Button
                                             onClick={toggleBookmark}
                                             variant="outline"
-                                            className={`rounded-md font-bold h-11 px-6 border transition-all ${
-                                                isBookmarked
-                                                    ? "bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100"
-                                                    : "border-[#99e0b9] text-[#00b14f] hover:bg-[#00b14f]/5 hover:text-[#00b14f]"
-                                            }`}
+                                            className={`rounded-md font-bold h-11 px-6 border transition-all ${isBookmarked
+                                                ? "bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100"
+                                                : "border-[#99e0b9] text-[#00b14f] hover:bg-[#00b14f]/5 hover:text-[#00b14f]"
+                                                }`}
                                         >
                                             <Bookmark className={`w-4 h-4 mr-2 ${isBookmarked ? "fill-current" : ""}`} />
                                             {isBookmarked ? "Đã lưu" : "Lưu tin"}

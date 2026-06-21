@@ -4,7 +4,6 @@ import StudentHero from "@/components/dashboard/StudentHero"
 import EventCard from "@/components/event/EventCard"
 import QuickFilters from "@/components/QuickFilters"
 import Pagination from "@/components/Pagination"
-import FeaturedOrganizers from "@/components/organizer/FeaturedOrganizers"
 import { useStudentDashboard } from "./useStudentDashboard"
 
 export default function StudentDashboard() {
@@ -16,8 +15,9 @@ export default function StudentDashboard() {
         setSearchTerm,
         benefitTerm,
         setBenefitTerm,
-        wards,
         activeWards,
+        activeCategories,
+        activeBenefits,
         wardIdTerm,
         setWardIdTerm,
         bookmarkedEvents,
@@ -28,8 +28,7 @@ export default function StudentDashboard() {
         filteredEvents,
         totalPages,
         itemsPerPage,
-        paginatedEvents,
-        events
+        paginatedEvents
     } = useStudentDashboard()
 
     return (
@@ -53,7 +52,9 @@ export default function StudentDashboard() {
                     benefitTerm={benefitTerm}
                     wardIdTerm={wardIdTerm}
                     setWardIdTerm={setWardIdTerm}
-                    wards={wards}
+                    wards={activeWards}
+                    activeCategories={activeCategories}
+                    activeBenefits={activeBenefits}
                     setBenefitTerm={setBenefitTerm}
                     setCurrentPage={setCurrentPage}
                 />
@@ -90,13 +91,6 @@ export default function StudentDashboard() {
                     setCurrentPage={setCurrentPage}
                     totalItems={filteredEvents.length}
                     itemsPerPage={itemsPerPage}
-                />
-            </div>
-
-            {/* 3. ĐÃ SỬA: Khối Nhà tổ chức tiêu biểu đã được đưa ra khỏi grid ngang, đẩy độc lập xuống đáy trang */}
-            <div className="pt-6 border-t border-slate-100 w-full">
-                <FeaturedOrganizers
-                    events={events}
                 />
             </div>
 

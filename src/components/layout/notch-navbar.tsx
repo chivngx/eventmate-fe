@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react"
 import { Link, useLocation } from "react-router-dom"
-import { Search, FileText, Menu, X, Sun, Moon, ChevronDown, Bookmark, Briefcase, Building2, Users, MessageSquare } from "lucide-react"
+import { Search, FileText, Menu, X, ChevronDown, Bookmark, Briefcase, Building2, Users, MessageSquare } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
+import { supabase } from "@/lib/supabase"
 
 const NavLink = ({ href, icon: Icon, label, onClick }: { href: string; icon: React.ComponentType<{ className?: string }>; label: string; onClick?: (e: React.MouseEvent) => void }) => {
     const location = useLocation()
@@ -30,7 +31,6 @@ const RecruiterMenu = () => (
     <div className="flex items-center gap-1">
         <NavLink href="/?tab=events" icon={Briefcase} label="Bảng điều khiển" />
         <NavLink href="/?tab=applications" icon={Users} label="Quản lý ứng viên" />
-        <NavLink href="/chat" icon={MessageSquare} label="Trò chuyện" />
     </div>
 )
 
@@ -42,10 +42,26 @@ const JobsMegaMenu = ({ role }: { role?: string }) => {
         }
     }
 
+    const [positions, setPositions] = useState<{ name: string; slug: string }[]>([])
+    const [categories, setCategories] = useState<{ name: string; slug: string }[]>([])
+
+    useEffect(() => {
+        const loadDbData = async () => {
+            const { data: posData } = await supabase.from('job_positions').select('name, slug').order('name', { ascending: true })
+            if (posData && posData.length > 0) {
+                setPositions(posData.map(p => ({ name: p.name, slug: p.slug || p.name })))
+            }
+            const { data: catData } = await supabase.from('event_categories').select('name, slug').order('name', { ascending: true })
+            if (catData && catData.length > 0) {
+                setCategories(catData.map(c => ({ name: c.name, slug: c.slug || c.name })))
+            }
+        }
+        loadDbData()
+    }, [])
+
     return (
         <div className="group relative">
             <button className="flex items-center gap-1.5 text-sm transition-all whitespace-nowrap px-3 sm:px-4 py-2 rounded-full font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-50">
-                <Search className="w-4 h-4 text-slate-400 group-hover:text-emerald-600 transition-colors" />
                 <span className="hidden sm:inline-block">Việc làm</span>
                 <ChevronDown className="w-4 h-4 text-slate-400 group-hover:rotate-180 transition-transform duration-300" />
             </button>
@@ -64,10 +80,10 @@ const JobsMegaMenu = ({ role }: { role?: string }) => {
                                     <Search className="w-5 h-5 text-emerald-500 group-hover/item:scale-110 transition-transform" /> Tìm việc sự kiện
                                 </Link>
                                 {/* ĐÃ CẬP NHẬT: Gắn parameter ?filter=saved vào link dưới đây */}
-                                <Link to="/?filter=saved" onClick={handleProtectedLink} className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
+                                <Link to="/saved" onClick={handleProtectedLink} className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
                                     <Bookmark className="w-5 h-5 text-slate-400 group-hover/item:text-emerald-500 group-hover/item:scale-110 transition-all" /> Việc làm đã lưu
                                 </Link>
-                                <Link to="/my-jobs" onClick={handleProtectedLink} className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
+                                <Link to="/my-jobs" onClick={handleProtectedLink} className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-650 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
                                     <Briefcase className="w-5 h-5 text-slate-400 group-hover/item:text-emerald-500 group-hover/item:scale-110 transition-all" /> Việc làm đã ứng tuyển
                                 </Link>
                             </div>
@@ -84,9 +100,9 @@ const JobsMegaMenu = ({ role }: { role?: string }) => {
                     <div className="col-span-4 border-l border-slate-100 pl-6">
                         <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-5">Việc làm theo vị trí</h4>
                         <div className="space-y-4">
-                            {['Tình nguyện viên', 'Điều phối viên (Coordinator)', 'CTV Truyền thông', 'Hậu cần & Setup', 'MC / Hoạt náo viên', 'Hỗ trợ khách mời'].map(item => (
-                                <Link key={item} to={`/jobs-by-position?position=${encodeURIComponent(item)}`} className="block text-sm font-medium text-slate-600 hover:text-emerald-600 hover:translate-x-1 hover:font-bold transition-all">
-                                    {item}
+                            {positions.map(item => (
+                                <Link key={item.slug} to={`/positions/${item.slug}`} className="block text-sm font-medium text-slate-600 hover:text-emerald-600 hover:translate-x-1 hover:font-bold transition-all">
+                                    {item.name}
                                 </Link>
                             ))}
                         </div>
@@ -96,9 +112,9 @@ const JobsMegaMenu = ({ role }: { role?: string }) => {
                     <div className="col-span-4 border-l border-slate-100 pl-6">
                         <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-5">Việc làm theo sự kiện</h4>
                         <div className="space-y-4">
-                            {['Lễ hội Âm nhạc', 'Hội thảo / Workshop', 'Giải đấu Thể thao', 'Giao lưu Văn hóa', 'Triển lãm / Hội chợ', 'Sự kiện Công nghệ'].map(item => (
-                                <Link key={item} to={`/jobs-by-event?category=${encodeURIComponent(item)}`} className="block text-sm font-medium text-slate-600 hover:text-emerald-600 hover:translate-x-1 hover:font-bold transition-all">
-                                    {item}
+                            {categories.map(item => (
+                                <Link key={item.slug} to={`/events/${item.slug}`} className="block text-sm font-medium text-slate-600 hover:text-emerald-600 hover:translate-x-1 hover:font-bold transition-all">
+                                    {item.name}
                                 </Link>
                             ))}
                         </div>
@@ -110,26 +126,6 @@ const JobsMegaMenu = ({ role }: { role?: string }) => {
     )
 }
 
-const MobileThemeToggle = () => {
-    const [isDark, setIsDark] = useState(false)
-
-    useEffect(() => setIsDark(document.documentElement.classList.contains('dark')), [])
-
-    const toggleTheme = () => {
-        document.documentElement.classList.toggle('dark')
-        setIsDark(!isDark)
-    }
-
-    return (
-        <button
-            onClick={toggleTheme}
-            className="flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 shrink-0 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-400 hover:text-emerald-600"
-            aria-label="Toggle theme"
-        >
-            {isDark ? <Sun className="w-4 h-4 sm:w-5 sm:h-5" /> : <Moon className="w-4 h-4 sm:w-5 sm:h-5" />}
-        </button>
-    )
-}
 
 export function NotchNavbar({ className, logo, rightActions, role }: { className?: string, logo?: React.ReactNode, rightActions?: React.ReactNode, role?: string }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -178,17 +174,6 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                                                     }
                                                 }}
                                             />
-                                            <NavLink
-                                                href="/chat"
-                                                icon={MessageSquare}
-                                                label="Trò chuyện"
-                                                onClick={(e) => {
-                                                    if (role === 'guest') {
-                                                        e.preventDefault()
-                                                        window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { mode: "login" } }))
-                                                    }
-                                                }}
-                                            />
                                         </>
                                     )}
                                 </nav>
@@ -206,7 +191,6 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
 
                             <div className="flex-1 flex justify-end items-center pr-1 md:pr-2">
                                 <div className="flex items-center gap-1.5 sm:gap-3">
-                                    <MobileThemeToggle />
                                     {rightActions}
                                 </div>
                             </div>

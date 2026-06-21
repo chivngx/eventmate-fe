@@ -107,7 +107,7 @@ export function useAccountSettings() {
 
             const fileExt = file.name.split('.').pop()
             const fileName = `${userId}-${Math.random().toString(36).substring(7)}.${fileExt}`
-            const filePath = `avatars/${fileName}`
+            const filePath = fileName
 
             // Tải ảnh lên Storage
             const { error: uploadError } = await supabase.storage

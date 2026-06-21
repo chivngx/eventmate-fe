@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { useNavigate, useSearchParams } from "react-router-dom"
+import { useNavigate, useSearchParams, useLocation } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 
 export function useStudentDashboard() {
@@ -24,20 +24,23 @@ export function useStudentDashboard() {
 
     // [MỚI] State lưu trữ các ID Phường/Xã ĐANG CÓ BÀI ĐĂNG HOẠT ĐỘNG
     const [activeWardIds, setActiveWardIds] = useState<number[]>([])
+    const [activeCategories, setActiveCategories] = useState<string[]>([])
+    const [activeBenefits, setActiveBenefits] = useState<string[]>([])
 
     const [bookmarkedEvents, setBookmarkedEvents] = useState<Record<string, boolean>>({})
     const [currentPage, setCurrentPage] = useState(1)
     const [showSuggestion, setShowSuggestion] = useState(true)
 
-    const itemsPerPage = 6
+    const itemsPerPage = 9
 
+    const location = useLocation()
     const positionParam = searchParams.get("position") || ""
     const categoryParam = searchParams.get("category") || ""
-    const filterParam = searchParams.get("filter") || ""
+    const filterParam = location.pathname === "/saved" ? "saved" : (searchParams.get("filter") || "")
 
     useEffect(() => {
         setCurrentPage(1)
-    }, [searchTerm, locationTerm, benefitTerm, wardIdTerm, positionParam, categoryParam, filterParam])
+    }, [searchTerm, locationTerm, benefitTerm, wardIdTerm, positionParam, categoryParam, filterParam, location.pathname])
 
     // Tải danh mục gốc Phường/Xã
     useEffect(() => {
@@ -98,21 +101,30 @@ export function useStudentDashboard() {
             }
         }
 
-        // [MỚI] BỘ QUÉT DỮ LIỆU ĐỘNG: Lấy ra danh sách các ward_id của bài tuyển dụng đang mở cổng (upcoming)
-        const { data: activeWardsQuery } = await supabase
+        // [MỚI] BỘ QUÉT DỮ LIỆU ĐỘNG: Lấy ra danh sách các ward_id, category, benefits của bài tuyển dụng đang mở cổng (upcoming) và còn hiệu lực
+        const { data: activeEventsQuery } = await supabase
             .from("events")
-            .select("ward_id")
+            .select("ward_id, category, benefits, application_deadline")
             .eq("status", "upcoming")
 
-        if (activeWardsQuery) {
-            const uniqueIds = Array.from(new Set(activeWardsQuery.map(e => e.ward_id).filter(Boolean))) as number[]
-            setActiveWardIds(uniqueIds)
+        if (activeEventsQuery) {
+            const validEvents = activeEventsQuery.filter(e => {
+                if (!e.application_deadline) return true;
+                return new Date(e.application_deadline) > new Date();
+            });
+            const uniqueWardIds = Array.from(new Set(validEvents.map(e => e.ward_id).filter(Boolean))) as number[]
+            const uniqueCategories = Array.from(new Set(validEvents.map(e => e.category).filter(Boolean))) as string[]
+            const uniqueBenefits = Array.from(new Set(validEvents.map(e => e.benefits).filter(Boolean))) as string[]
+            
+            setActiveWardIds(uniqueWardIds)
+            setActiveCategories(uniqueCategories)
+            setActiveBenefits(uniqueBenefits)
         }
 
         // Khởi tạo truy vấn Server-side chính
         let query = supabase
             .from("events")
-            .select("*, profiles(full_name), danang_wards(name)", { count: "exact" })
+            .select("*, profiles(full_name, slug, avatar_url), danang_wards(name)", { count: "exact" })
 
         if (searchTerm) {
             query = query.ilike("title", `%${searchTerm}%`)
@@ -171,7 +183,7 @@ export function useStudentDashboard() {
             fetchEventsAndApplications()
         }, 300)
         return () => clearTimeout(delayDebounceFn)
-    }, [searchTerm, locationTerm, benefitTerm, wardIdTerm, searchParams, currentPage])
+    }, [searchTerm, locationTerm, benefitTerm, wardIdTerm, searchParams, currentPage, location.pathname])
 
     const handleApply = async (eventId: string, _organizerId?: string, _eventTitle?: string) => {
         setApplyingId(eventId)
@@ -266,6 +278,8 @@ export function useStudentDashboard() {
         setBenefitTerm,
         wards,
         activeWards,    // Trả ra mảng các xã phường đang có bài tuyển dụng thực tế
+        activeCategories,
+        activeBenefits,
         wardIdTerm,
         setWardIdTerm,
         bookmarkedEvents,

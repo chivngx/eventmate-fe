@@ -11,9 +11,9 @@ export function useOrgDashboard() {
     const [title, setTitle] = useState("")
     const [desc, setDesc] = useState("")
     const [location, setLocation] = useState("") // Giữ vai trò lưu số nhà / tên đường cụ thể nếu cần
-    const [positionType, setPositionType] = useState("Tình nguyện viên")
+    const [positionType, setPositionType] = useState("")
     const [benefits, setBenefits] = useState("Cấp chứng nhận")
-    const [category, setCategory] = useState("Lễ hội Âm nhạc")
+    const [category, setCategory] = useState("")
     const [slotsNeeded, setSlotsNeeded] = useState("1")
     const [eventDate, setEventDate] = useState("")
     const [applicationDeadline, setApplicationDeadline] = useState("")
@@ -40,16 +40,39 @@ export function useOrgDashboard() {
 
     const activeTab = searchParams.get("tab") || "events"
 
-    // [MỚI] Nạp toàn bộ danh sách Phường/Xã từ Database lên khi mở trang quản trị
+    const [dbPositions, setDbPositions] = useState<string[]>([])
+    const [dbCategories, setDbCategories] = useState<string[]>([])
+
+    // [MỚI] Nạp toàn bộ danh sách Phường/Xã, Vị trí và Danh mục từ Database lên khi mở trang quản trị
     useEffect(() => {
-        const fetchWards = async () => {
+        const fetchInitialData = async () => {
             const { data } = await supabase
                 .from("danang_wards")
                 .select("*")
                 .order("name", { ascending: true })
             if (data) setWards(data)
+
+            const { data: posData } = await supabase
+                .from("job_positions")
+                .select("name")
+                .order("name", { ascending: true })
+            if (posData && posData.length > 0) {
+                const names = posData.map(p => p.name)
+                setDbPositions(names)
+                setPositionType(names[0])
+            }
+
+            const { data: catData } = await supabase
+                .from("event_categories")
+                .select("name")
+                .order("name", { ascending: true })
+            if (catData && catData.length > 0) {
+                const names = catData.map(c => c.name)
+                setDbCategories(names)
+                setCategory(names[0])
+            }
         }
-        fetchWards()
+        fetchInitialData()
     }, [])
 
     const fetchMyEvents = async () => {
@@ -112,9 +135,9 @@ export function useOrgDashboard() {
         setDesc("")
         setLocation("")
         setWardId("") // Reset sạch ID phường xã cũ
-        setPositionType("Tình nguyện viên")
+        setPositionType(dbPositions.length > 0 ? dbPositions[0] : "")
         setBenefits("Cấp chứng nhận")
-        setCategory("Lễ hội Âm nhạc")
+        setCategory(dbCategories.length > 0 ? dbCategories[0] : "")
         setSlotsNeeded("1")
         setEventDate("")
         setApplicationDeadline("")

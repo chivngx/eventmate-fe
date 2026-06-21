@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 import { NotchNavbar } from "@/components/layout/notch-navbar"
 import { Button } from "@/components/ui/button"
@@ -7,6 +7,7 @@ import AuthModal from "@/components/auth/AuthModal"
 import { useToast } from "@/components/ui/ToastProvider"
 import NotificationDropdown from "./NotificationDropdown"
 import UserProfileDropdown from "./UserProfileDropdown"
+import { MessageSquare } from "lucide-react"
 
 export default function MainLayout({ children, role }: { children: React.ReactNode, role?: string }) {
     const navigate = useNavigate()
@@ -180,6 +181,13 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
                 unreadCount={unreadCount}
                 markAsRead={markAsRead}
             />
+            <Link
+                to="/chat"
+                className="p-2 sm:p-2.5 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-400 hover:text-emerald-600 relative flex items-center justify-center shrink-0"
+                title="Trò chuyện"
+            >
+                <MessageSquare className="w-5 h-5" />
+            </Link>
             <UserProfileDropdown
                 avatarUrl={avatarUrl}
                 fullName={fullName}

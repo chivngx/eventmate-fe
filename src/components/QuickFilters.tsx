@@ -8,6 +8,8 @@ interface QuickFiltersProps {
   wardIdTerm: string
   setWardIdTerm: (val: string) => void
   wards: any[]
+  activeCategories: string[]
+  activeBenefits: string[]
   setBenefitTerm: (val: string) => void
   setCurrentPage: (page: number) => void
 }
@@ -18,6 +20,8 @@ export default function QuickFilters({
   wardIdTerm,
   setWardIdTerm,
   wards,
+  activeCategories,
+  activeBenefits,
   setBenefitTerm,
   setCurrentPage,
 }: QuickFiltersProps) {
@@ -68,20 +72,12 @@ export default function QuickFilters({
     } else if (filterMode === "benefit") {
       return [
         { label: "Tất cả quyền lợi", value: "" },
-        { label: "Cấp chứng nhận", value: "Cấp chứng nhận" },
-        { label: "Có phụ cấp ăn uống", value: "Có phụ cấp ăn uống" },
-        { label: "Hỗ trợ lương cứng", value: "Hỗ trợ lương cứng" },
-        { label: "Thỏa thuận", value: "Thỏa thuận" }
+        ...activeBenefits.map((b) => ({ label: b, value: b }))
       ]
     } else {
       return [
         { label: "Tất cả ngành nghề", value: "" },
-        { label: "Lễ hội Âm nhạc", value: "Lễ hội Âm nhạc" },
-        { label: "Hội thảo / Workshop", value: "Hội thảo / Workshop" },
-        { label: "Giải đấu Thể thao", value: "Giải đấu Thể thao" },
-        { label: "Giao lưu Văn hóa", value: "Giao lưu Văn hóa" },
-        { label: "Triển lãm / Hội chợ", value: "Triển lãm / Hội chợ" },
-        { label: "Sự kiện Công nghệ", value: "Sự kiện Công nghệ" }
+        ...activeCategories.map((c) => ({ label: c, value: c }))
       ]
     }
   }

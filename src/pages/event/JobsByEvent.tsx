@@ -1,17 +1,23 @@
 import { useEffect, useState } from "react"
-import { useSearchParams, useNavigate } from "react-router-dom"
+import { useSearchParams, useNavigate, useParams } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 import MainLayout from "@/components/layout/MainLayout"
-import { Search, MapPin, Briefcase, Clock, ChevronLeft, ChevronRight, Building2, Heart, Music, Users2, Trophy, Compass, Landmark, Cpu } from "lucide-react"
+import { Search, MapPin, Briefcase, Clock, ChevronLeft, ChevronRight, Building2, Heart } from "lucide-react"
+import * as LucideIcons from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
+const getIconComponent = (iconName: string) => {
+  const Icon = (LucideIcons as any)[iconName] || LucideIcons.HelpCircle
+  return Icon
+}
+
 export default function JobsByEvent() {
   const navigate = useNavigate()
-  const [searchParams, setSearchParams] = useSearchParams()
-
-  const categoryParam = searchParams.get("category") || "Lễ hội Âm nhạc"
+  const [searchParams] = useSearchParams()
+  const { category: categoryRouteParam } = useParams<{ category: string }>()
+  const categoryParam = categoryRouteParam || searchParams.get("category") || "Lễ hội Âm nhạc"
 
   const [loading, setLoading] = useState(true)
   const [events, setEvents] = useState<any[]>([])
@@ -30,14 +36,7 @@ export default function JobsByEvent() {
   const itemsPerPage = 8
 
   // Danh mục sự kiện
-  const categoryOptions = [
-    { name: "Lễ hội Âm nhạc", icon: Music, color: "text-rose-500 bg-rose-50 dark:bg-rose-950/20" },
-    { name: "Hội thảo / Workshop", icon: Users2, color: "text-blue-500 bg-blue-50 dark:bg-blue-950/20" },
-    { name: "Giải đấu Thể thao", icon: Trophy, color: "text-amber-500 bg-amber-50 dark:bg-amber-950/20" },
-    { name: "Giao lưu Văn hóa", icon: Compass, color: "text-emerald-500 bg-emerald-50 dark:bg-emerald-950/20" },
-    { name: "Triển lãm / Hội chợ", icon: Landmark, color: "text-indigo-500 bg-indigo-50 dark:bg-indigo-950/20" },
-    { name: "Sự kiện Công nghệ", icon: Cpu, color: "text-purple-500 bg-purple-50 dark:bg-purple-950/20" }
-  ]
+  const [categoryOptions, setCategoryOptions] = useState<any[]>([])
 
   const benefitOptions = ["Cấp chứng nhận", "Có phụ cấp ăn uống", "Hỗ trợ lương cứng", "Thỏa thuận"]
   const experienceOptions = ["Không yêu cầu kinh nghiệm", "Dưới 1 năm", "1 - 2 năm", "Trên 2 năm"]
@@ -51,7 +50,20 @@ export default function JobsByEvent() {
         .order("name", { ascending: true })
       if (wardsData) setWards(wardsData)
 
-      // 2. Lấy bookmarks nếu đã đăng nhập
+      // 2. Tải danh mục sự kiện từ database
+      const { data: catData } = await supabase
+        .from("event_categories")
+        .select("*")
+        .order("name", { ascending: true })
+      if (catData && catData.length > 0) {
+        setCategoryOptions(catData.map(c => ({
+          name: c.name,
+          iconName: c.icon,
+          color: c.color
+        })))
+      }
+
+      // 3. Lấy bookmarks nếu đã đăng nhập
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         const { data: bookmarks } = await supabase
@@ -72,10 +84,20 @@ export default function JobsByEvent() {
 
   const fetchEvents = async () => {
     setLoading(true)
+    let catName = categoryParam
+    const { data: catData } = await supabase
+      .from("event_categories")
+      .select("name")
+      .eq("slug", categoryParam)
+      .maybeSingle()
+    if (catData) {
+      catName = catData.name
+    }
+
     let query = supabase
       .from("events")
-      .select("*, profiles(id, full_name, avatar_url), danang_wards(name)", { count: "exact" })
-      .eq("category", categoryParam)
+      .select("*, profiles(id, full_name, avatar_url, slug), danang_wards(name)", { count: "exact" })
+      .eq("category", catName)
 
     if (keyword) {
       query = query.ilike("title", `%${keyword}%`)
@@ -157,13 +179,13 @@ export default function JobsByEvent() {
           
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
             {categoryOptions.map(cat => {
-              const CatIcon = cat.icon
-              const isSelected = categoryParam === cat.name
+              const CatIcon = getIconComponent(cat.iconName)
+              const isSelected = categoryParam === cat.name || categoryParam === cat.slug
               return (
                 <button
                   key={cat.name}
                   onClick={() => {
-                    setSearchParams({ category: cat.name })
+                    navigate(`/events/${cat.slug || cat.name}`)
                     setCurrentPage(1)
                   }}
                   className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all text-center gap-2 group ${
@@ -312,7 +334,7 @@ export default function JobsByEvent() {
                       <div className="flex-1 min-w-0 space-y-1.5">
                         <div className="flex justify-between items-start gap-2">
                           <h4 
-                            onClick={() => navigate(`/jobs/${job.id}`)}
+                            onClick={() => navigate(`/jobs/${job.slug || job.id}`)}
                             className="font-extrabold text-slate-900 dark:text-slate-100 text-base leading-snug truncate hover:text-emerald-600 dark:hover:text-emerald-400 cursor-pointer"
                           >
                             {job.title}
@@ -356,7 +378,7 @@ export default function JobsByEvent() {
                               <Heart className={`w-4 h-4 ${bookmarkedEvents[job.id] ? "fill-rose-500 text-rose-500" : "text-slate-400"}`} />
                             </Button>
                             <Button 
-                              onClick={() => navigate(`/jobs/${job.id}`)}
+                              onClick={() => navigate(`/jobs/${job.slug || job.id}`)}
                               className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl h-9 px-4 shadow-sm"
                             >
                               Ứng tuyển ngay

@@ -1,6 +1,8 @@
 import { Calendar, Clock, X, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { useState, useEffect } from "react"
+import { supabase } from "@/lib/supabase"
 
 interface EventFormModalProps {
   showForm: boolean
@@ -59,12 +61,31 @@ export default function EventFormModal({
   setDesc,
   loading
 }: EventFormModalProps) {
+  const [positions, setPositions] = useState<string[]>([])
+  const [categories, setCategories] = useState<string[]>([])
+
+  useEffect(() => {
+    if (showForm) {
+      const loadDbData = async () => {
+        const { data: posData } = await supabase.from('job_positions').select('name').order('name', { ascending: true })
+        if (posData && posData.length > 0) {
+          setPositions(posData.map(p => p.name))
+        }
+        const { data: catData } = await supabase.from('event_categories').select('name').order('name', { ascending: true })
+        if (catData && catData.length > 0) {
+          setCategories(catData.map(c => c.name))
+        }
+      }
+      loadDbData()
+    }
+  }, [showForm])
+
   if (!showForm) return null
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div className="bg-white dark:bg-slate-900 rounded-[2rem] w-full max-w-4xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] border border-slate-100 dark:border-slate-800">
-        <div className="bg-slate-50 dark:bg-slate-950 p-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-850 shrink-0">
+        <div className="bg-slate-50 dark:bg-slate-950 p-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-855 shrink-0">
           <h2 className="text-xl font-extrabold text-slate-900 dark:text-slate-100">
             {editingId ? "✏️ Chỉnh sửa sự kiện" : "✨ Tạo sự kiện & Tuyển dụng mới"}
           </h2>
@@ -115,11 +136,11 @@ export default function EventFormModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Vị trí tuyển dụng</label>
               <select value={positionType} onChange={e => setPositionType(e.target.value)} className="h-12 rounded-xl bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-800 p-2 text-sm font-bold text-slate-700 dark:text-slate-300 w-full focus:outline-none focus:border-emerald-500">
-                {['Tình nguyện viên', 'Điều phối viên (Coordinator)', 'CTV Truyền thông', 'Hậu cần & Setup', 'MC / Hoạt náo viên', 'Hỗ trợ khách mời'].map(t => (
+                {positions.map(t => (
                   <option key={t} value={t}>{t}</option>
                 ))}
               </select>
@@ -127,22 +148,49 @@ export default function EventFormModal({
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Loại hình sự kiện</label>
               <select value={category} onChange={e => setCategory(e.target.value)} className="h-12 rounded-xl bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-800 p-2 text-sm font-bold text-slate-700 dark:text-slate-300 w-full focus:outline-none focus:border-emerald-500">
-                {['Lễ hội Âm nhạc', 'Hội thảo / Workshop', 'Giải đấu Thể thao', 'Giao lưu Văn hóa', 'Triển lãm / Hội chợ', 'Sự kiện Công nghệ'].map(c => (
+                {categories.map(c => (
                   <option key={c} value={c}>{c}</option>
-                ))}
-              </select>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Quyền lợi / Phụ cấp</label>
-              <select value={benefits} onChange={e => setBenefits(e.target.value)} className="h-12 rounded-xl bg-slate-50 dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-800 p-2 text-sm font-bold text-slate-700 dark:text-slate-300 w-full focus:outline-none focus:border-emerald-500">
-                {['Cấp chứng nhận', 'Có phụ cấp ăn uống', 'Hỗ trợ lương cứng', 'Thỏa thuận'].map(b => (
-                  <option key={b} value={b}>{b}</option>
                 ))}
               </select>
             </div>
             <div className="space-y-2">
               <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Số lượng cần tuyển</label>
               <Input type="number" min="1" value={slotsNeeded} onChange={e => setSlotsNeeded(e.target.value)} className="h-12 rounded-xl bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 text-base font-medium focus-visible:ring-emerald-500" />
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <label className="text-sm font-bold text-slate-700 dark:text-slate-300">Quyền lợi / Phụ cấp (Chọn nhiều)</label>
+            <div className="flex flex-wrap gap-2.5">
+              {['Cấp chứng nhận', 'Có phụ cấp ăn uống', 'Hỗ trợ lương cứng', 'Thỏa thuận'].map(b => {
+                const selectedBenefits = benefits ? benefits.split(", ").map(x => x.trim()) : [];
+                const isSelected = selectedBenefits.includes(b);
+
+                const handleToggle = () => {
+                  let newSelected;
+                  if (isSelected) {
+                    newSelected = selectedBenefits.filter(x => x !== b);
+                  } else {
+                    newSelected = [...selectedBenefits, b];
+                  }
+                  setBenefits(newSelected.join(", "));
+                };
+
+                return (
+                  <button
+                    key={b}
+                    type="button"
+                    onClick={handleToggle}
+                    className={`px-4 py-2.5 rounded-xl text-sm font-bold border-2 transition-all cursor-pointer ${
+                      isSelected
+                        ? "bg-emerald-50 border-emerald-500 text-emerald-700 dark:bg-emerald-950/20 dark:border-emerald-600 dark:text-emerald-400"
+                        : "bg-slate-50 border-slate-100 text-slate-600 hover:border-slate-200 dark:bg-slate-800 dark:border-slate-800 dark:text-slate-300"
+                    }`}
+                  >
+                    {b}
+                  </button>
+                );
+              })}
             </div>
           </div>
 

@@ -204,7 +204,7 @@ export default function UserProfileDropdown({
                 <div className="pl-6.5 flex flex-col gap-2 pt-1 pb-2">
                   <button
                     type="button"
-                    onClick={() => navigate('/?filter=saved')}
+                    onClick={() => navigate('/saved')}
                     className="text-left text-xs font-semibold text-slate-500 hover:text-[#00b14f] transition-colors"
                   >
                     Việc làm đã lưu
