@@ -6,12 +6,17 @@ import { Briefcase, MapPin, Building2, CheckCircle, XCircle, Clock3, ArrowRight,
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import ScheduleCalendar from "@/components/dashboard/ScheduleCalendar"
+import ReviewModal from "@/components/dashboard/ReviewModal"
 
 export default function MyJobs() {
     const navigate = useNavigate()
     const [applications, setApplications] = useState<any[]>([])
+    const [interviews, setInterviews] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [role, setRole] = useState("student")
+    const [userId, setUserId] = useState<string | null>(null)
+    const [reviewingEvent, setReviewingEvent] = useState<{ eventId: string; organizerId: string; organizerName: string } | null>(null)
 
     const fetchMyApplications = async () => {
         setLoading(true)
@@ -21,11 +26,11 @@ export default function MyJobs() {
             navigate("/login")
             return
         }
+        setUserId(user.id)
 
         const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
         if (profile) setRole(profile.role)
 
-        // ĐÃ SỬA: Bổ sung danang_wards(name) vào chuỗi truy vấn đa bảng của Supabase
         const { data, error } = await supabase
             .from("applications")
             .select(`
@@ -33,9 +38,9 @@ export default function MyJobs() {
                 status, 
                 applied_at,
                 events (
-                    id, title, location, status, position_type, category, benefits, application_deadline, ward_id,
+                    id, title, location, status, position_type, category, benefits, event_date, application_deadline, ward_id,
                     danang_wards (name),
-                    profiles (full_name, avatar_url)
+                    profiles (id, full_name, avatar_url)
                 )
             `)
             .eq("student_id", user.id)
@@ -46,6 +51,24 @@ export default function MyJobs() {
             alert("Lỗi kết nối Database: " + error.message)
         } else if (data) {
             setApplications(data)
+        }
+
+        // Tải các buổi phỏng vấn đã được chấp nhận
+        const { data: intData, error: intError } = await supabase
+            .from("interviews")
+            .select(`
+                id,
+                title,
+                scheduled_at,
+                meeting_link,
+                status,
+                events (id, title, location)
+            `)
+            .eq("student_id", user.id)
+            .eq("status", "accepted")
+
+        if (!intError && intData) {
+            setInterviews(intData)
         }
 
         setLoading(false)
@@ -96,6 +119,12 @@ export default function MyJobs() {
                         Tổng cộng: {applications.length} đơn
                     </Badge>
                 </div>
+
+                {(applications.length > 0 || interviews.length > 0) && (
+                    <div className="mb-8">
+                        <ScheduleCalendar applications={applications} interviews={interviews} />
+                    </div>
+                )}
 
                 <div className="space-y-4">
                     {applications.length === 0 ? (
@@ -207,6 +236,21 @@ export default function MyJobs() {
                                             <div className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl border-2 font-bold text-xs h-8 ${statusColor}`}>
                                                 {StatusIcon} {StatusBadge}
                                             </div>
+                                            {app.status === 'approved' && event?.status === 'completed' && (
+                                                <Button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setReviewingEvent({
+                                                            eventId: event.id,
+                                                            organizerId: event.profiles?.id,
+                                                            organizerName: event.profiles?.full_name || "Nhà tổ chức"
+                                                        });
+                                                    }}
+                                                    className="rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold h-8 px-2.5 text-xs flex items-center gap-1 shadow-none"
+                                                >
+                                                    ⭐ Đánh giá BTC
+                                                </Button>
+                                            )}
                                             {app.status === "pending" && (
                                                 <Button
                                                     onClick={(e) => {
@@ -231,6 +275,17 @@ export default function MyJobs() {
                 </div>
 
             </div>
+
+            {reviewingEvent && userId && (
+                <ReviewModal
+                    isOpen={!!reviewingEvent}
+                    onClose={() => setReviewingEvent(null)}
+                    eventId={reviewingEvent.eventId}
+                    reviewerId={userId}
+                    revieweeId={reviewingEvent.organizerId}
+                    revieweeName={reviewingEvent.organizerName}
+                />
+            )}
         </MainLayout>
     )
 }

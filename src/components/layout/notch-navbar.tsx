@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { Link, useLocation } from "react-router-dom"
-import { Search, FileText, Menu, X, Sun, Moon, ChevronDown, Bookmark, Briefcase, Building2, Users } from "lucide-react"
+import { Search, FileText, Menu, X, Sun, Moon, ChevronDown, Bookmark, Briefcase, Building2, Users, MessageSquare } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -17,10 +17,10 @@ const NavLink = ({ href, icon: Icon, label, onClick }: { href: string; icon: Rea
             onClick={onClick}
             className={cn(
                 "group flex items-center gap-1.5 text-sm transition-all whitespace-nowrap px-3 sm:px-4 py-2 rounded-full",
-                isActive ? "text-emerald-600 bg-emerald-50/80 font-bold shadow-sm border border-emerald-100/50" : "font-medium text-slate-500 hover:text-slate-900 hover:bg-slate-50"
+                isActive ? "text-emerald-600 bg-emerald-50/80 dark:bg-emerald-950/20 font-bold shadow-sm border border-emerald-100/50 dark:border-emerald-900/30" : "font-medium text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/40"
             )}
         >
-            <Icon className={cn("w-4 h-4", isActive ? "text-emerald-600" : "text-slate-400 group-hover:text-slate-600")} />
+            <Icon className={cn("w-4 h-4", isActive ? "text-emerald-600" : "text-slate-400 group-hover:text-slate-650")} />
             <span className="hidden sm:inline-block">{label}</span>
         </Link>
     )
@@ -30,6 +30,7 @@ const RecruiterMenu = () => (
     <div className="flex items-center gap-1">
         <NavLink href="/?tab=events" icon={Briefcase} label="Bảng điều khiển" />
         <NavLink href="/?tab=applications" icon={Users} label="Quản lý ứng viên" />
+        <NavLink href="/chat" icon={MessageSquare} label="Trò chuyện" />
     </div>
 )
 
@@ -132,12 +133,12 @@ const MobileThemeToggle = () => {
 
 export function NotchNavbar({ className, logo, rightActions, role }: { className?: string, logo?: React.ReactNode, rightActions?: React.ReactNode, role?: string }) {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-    const strokeColor = "stroke-slate-200"
+    const strokeColor = "stroke-slate-200 dark:stroke-slate-800"
 
     return (
         <>
             <header className={cn("fixed top-0 inset-x-0 z-50 h-[72px] flex px-0 drop-shadow-sm", className)}>
-                <div className="flex-1 h-12 bg-white z-20 relative min-w-0 border-b border-slate-100">
+                <div className="flex-1 h-12 bg-white dark:bg-slate-900 z-20 relative min-w-0 border-b border-slate-100 dark:border-slate-800/80">
                     <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
                         <line x1="0" y1="47.5" x2="100%" y2="47.5" className={strokeColor} strokeWidth={1} />
                     </svg>
@@ -145,14 +146,14 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
 
                 <div className="flex h-[72px] relative z-10 w-fit max-w-[95vw] sm:max-w-[90vw] md:max-w-[85vw] lg:max-w-[80vw] shrink-0 -ml-px">
                     <div className="w-[50px] h-full relative shrink-0">
-                        <div className="absolute inset-0 bg-white" style={{ clipPath: "path('M0 0 H50 V72 C25 72 25 48 0 48 Z')" }} />
+                        <div className="absolute inset-0 bg-white dark:bg-slate-900" style={{ clipPath: "path('M0 0 H50 V72 C25 72 25 48 0 48 Z')" }} />
                         <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 50 72">
                             <path d="M0 47.5 C25 47.5 25 71.5 50 71.5" fill="none" className={strokeColor} strokeWidth={1} />
                         </svg>
                     </div>
 
                     <div className="flex-1 h-full relative min-w-0 -ml-px">
-                        <div className="absolute inset-0 bg-white">
+                        <div className="absolute inset-0 bg-white dark:bg-slate-900">
                             <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none">
                                 <line x1="0" y1="71.5" x2="100%" y2="71.5" className={strokeColor} strokeWidth={1} />
                             </svg>
@@ -166,10 +167,21 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                                     ) : (
                                         <>
                                             <JobsMegaMenu role={role} />
-                                            <NavLink 
-                                                href="/cv" 
-                                                icon={FileText} 
-                                                label="Hồ sơ CV" 
+                                            <NavLink
+                                                href="/cv"
+                                                icon={FileText}
+                                                label="Hồ sơ CV"
+                                                onClick={(e) => {
+                                                    if (role === 'guest') {
+                                                        e.preventDefault()
+                                                        window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { mode: "login" } }))
+                                                    }
+                                                }}
+                                            />
+                                            <NavLink
+                                                href="/chat"
+                                                icon={MessageSquare}
+                                                label="Trò chuyện"
                                                 onClick={(e) => {
                                                     if (role === 'guest') {
                                                         e.preventDefault()
@@ -181,7 +193,7 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                                     )}
                                 </nav>
                                 <button
-                                    className="md:hidden p-2 text-slate-500 hover:text-slate-900 transition-colors"
+                                    className="md:hidden p-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors"
                                     onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                                 >
                                     {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -202,14 +214,14 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                     </div>
 
                     <div className="w-[50px] h-full relative shrink-0 -ml-px">
-                        <div className="absolute inset-0 bg-white" style={{ clipPath: "path('M0 0 H50 V48 C25 48 25 72 0 72 Z')" }} />
+                        <div className="absolute inset-0 bg-white dark:bg-slate-900" style={{ clipPath: "path('M0 0 H50 V48 C25 48 25 72 0 72 Z')" }} />
                         <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 50 72">
                             <path d="M0 71.5 C25 71.5 25 47.5 50 47.5" fill="none" className={strokeColor} strokeWidth={1} />
                         </svg>
                     </div>
                 </div>
 
-                <div className="flex-1 h-12 bg-white z-20 relative min-w-0 -ml-px border-b border-slate-100">
+                <div className="flex-1 h-12 bg-white dark:bg-slate-900 z-20 relative min-w-0 -ml-px border-b border-slate-100 dark:border-slate-800/80">
                     <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
                         <line x1="0" y1="47.5" x2="100%" y2="47.5" className={strokeColor} strokeWidth={1} />
                     </svg>
@@ -222,15 +234,15 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="fixed inset-x-0 top-[72px] z-40 bg-white border-b border-slate-100 p-4 md:hidden shadow-md rounded-b-2xl"
+                        className="fixed inset-x-0 top-[72px] z-40 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 p-4 md:hidden shadow-md rounded-b-2xl"
                     >
                         <nav className="flex flex-col gap-1">
-                            <Link to="/" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 font-bold text-slate-800" onClick={() => setIsMobileMenuOpen(false)}>
+                            <Link to="/" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 font-bold text-slate-800 dark:text-slate-200" onClick={() => setIsMobileMenuOpen(false)}>
                                 <Search className="w-5 h-5 text-slate-400" /> Việc làm sự kiện
                             </Link>
-                            <Link 
-                                to="/cv" 
-                                className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 font-bold text-slate-800" 
+                            <Link
+                                to="/cv"
+                                className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 font-bold text-slate-800 dark:text-slate-200"
                                 onClick={(e) => {
                                     setIsMobileMenuOpen(false)
                                     if (role === 'guest') {
@@ -240,6 +252,19 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                                 }}
                             >
                                 <FileText className="w-5 h-5 text-slate-400" /> Hồ sơ CV của tôi
+                            </Link>
+                            <Link
+                                to="/chat"
+                                className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 font-bold text-slate-800 dark:text-slate-200"
+                                onClick={(e) => {
+                                    setIsMobileMenuOpen(false)
+                                    if (role === 'guest') {
+                                        e.preventDefault()
+                                        window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { mode: "login" } }))
+                                    }
+                                }}
+                            >
+                                <MessageSquare className="w-5 h-5 text-slate-400" /> Trò chuyện
                             </Link>
                         </nav>
                     </motion.div>

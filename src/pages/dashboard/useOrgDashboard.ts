@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react"
-import { useSearchParams } from "react-router-dom"
+import { useSearchParams, useNavigate } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 
 export function useOrgDashboard() {
+    const navigate = useNavigate()
     const [searchParams, setSearchParams] = useSearchParams()
     const [events, setEvents] = useState<any[]>([])
 
@@ -35,6 +36,7 @@ export function useOrgDashboard() {
     const [allApplications, setAllApplications] = useState<any[]>([])
     const [loadingAllApps, setLoadingAllApps] = useState(false)
     const [selectedFilterEventId, setSelectedFilterEventId] = useState<string>("all")
+    const [userId, setUserId] = useState<string | null>(null)
 
     const activeTab = searchParams.get("tab") || "events"
 
@@ -54,6 +56,7 @@ export function useOrgDashboard() {
         setFetching(true)
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return
+        setUserId(user.id)
 
         const { data, error } = await supabase
             .from("events")
@@ -82,7 +85,7 @@ export function useOrgDashboard() {
             .from("applications")
             .select(`
                 id, status, applied_at, student_id, event_id,
-                events (id, title),
+                events (id, title, status),
                 profiles!applications_student_id_fkey (id, full_name, email, avatar_url, phone, university, bio, skills)
             `)
             .in("event_id", eventIds)
@@ -229,6 +232,42 @@ export function useOrgDashboard() {
         }
     }
 
+    const handleStartChatWithStudent = async (eventId: string, studentId: string) => {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+
+        const { data: existingChat } = await supabase
+            .from("chats")
+            .select("id")
+            .eq("event_id", eventId)
+            .eq("student_id", studentId)
+            .eq("organizer_id", user.id)
+            .maybeSingle()
+
+        if (existingChat) {
+            navigate(`/chat/${existingChat.id}`)
+            return
+        }
+
+        const { data: newChat, error: createError } = await supabase
+            .from("chats")
+            .insert([
+                {
+                    event_id: eventId,
+                    student_id: studentId,
+                    organizer_id: user.id
+                }
+            ])
+            .select("id")
+            .single()
+
+        if (!createError && newChat) {
+            navigate(`/chat/${newChat.id}`)
+        } else {
+            alert("Lỗi khi tạo phòng chat: " + (createError?.message || "Lỗi không xác định"))
+        }
+    }
+
     const totalEvents = events.length
     const activeEvents = events.filter(e => e.status === 'upcoming').length
 
@@ -276,8 +315,10 @@ export function useOrgDashboard() {
         handleDeleteEvent,
         handleViewApplications,
         handleUpdateStatus,
+        handleStartChatWithStudent,
         resetForm,
         totalEvents,
-        activeEvents
+        activeEvents,
+        userId
     }
 }

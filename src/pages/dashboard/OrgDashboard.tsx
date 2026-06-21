@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { useOrgDashboard } from "./useOrgDashboard"
 import MainLayout from "@/components/layout/MainLayout"
 import { Button } from "@/components/ui/button"
@@ -6,8 +7,10 @@ import { Plus, Calendar, Briefcase } from "lucide-react"
 import OrgEventsTab from "@/components/dashboard/OrgEventsTab"
 import OrgApplicationsTab from "@/components/dashboard/OrgApplicationsTab"
 import EventFormModal from "@/components/dashboard/EventFormModal"
+import ReviewModal from "@/components/dashboard/ReviewModal"
 
 export default function OrgDashboard() {
+    const [reviewingStudent, setReviewingStudent] = useState<{ eventId: string; studentId: string; studentName: string } | null>(null)
     const {
         events, title, setTitle, desc, setDesc, location, setLocation,
         wardId, setWardId, wards,
@@ -19,8 +22,8 @@ export default function OrgDashboard() {
         viewingCV, setViewingCV, allApplications, loadingAllApps,
         selectedFilterEventId, setSelectedFilterEventId, activeTab,
         handleSubmitEvent, handleEditClick, handleDeleteEvent,
-        handleViewApplications, handleUpdateStatus, resetForm,
-        totalEvents, activeEvents
+        handleViewApplications, handleUpdateStatus, handleStartChatWithStudent, resetForm,
+        totalEvents, activeEvents, userId
     } = useOrgDashboard()
 
     return (
@@ -39,27 +42,27 @@ export default function OrgDashboard() {
 
                 {/* KHỐI THÈ SỐ LIỆU NHANH */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="bg-white p-6 rounded-2xl border-2 border-slate-100 flex items-center gap-4 shadow-sm">
-                        <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600"><Briefcase className="w-6 h-6" /></div>
+                    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border-2 border-slate-100 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
+                        <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400"><Briefcase className="w-6 h-6" /></div>
                         <div>
-                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tổng bài đăng</p>
-                            <h3 className="text-2xl font-black text-slate-900 mt-0.5">{totalEvents}</h3>
+                            <p className="text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider">Tổng bài đăng</p>
+                            <h3 className="text-2xl font-black text-slate-900 dark:text-slate-100 mt-0.5">{totalEvents}</h3>
                         </div>
                     </div>
-                    <div className="bg-white p-6 rounded-2xl border-2 border-slate-100 flex items-center gap-4 shadow-sm">
-                        <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600"><Calendar className="w-6 h-6" /></div>
+                    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border-2 border-slate-100 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
+                        <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400"><Calendar className="w-6 h-6" /></div>
                         <div>
-                            <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Chiến dịch đang mở</p>
-                            <h3 className="text-2xl font-black text-slate-900 mt-0.5">{activeEvents}</h3>
+                            <p className="text-xs font-bold text-slate-400 dark:text-slate-550 uppercase tracking-wider">Chiến dịch đang mở</p>
+                            <h3 className="text-2xl font-black text-slate-900 dark:text-slate-100 mt-0.5">{activeEvents}</h3>
                         </div>
                     </div>
                 </div>
 
                 {/* KHỐI TABS PHÂN CHIA QUẢN LÝ */}
                 <Tabs value={activeTab} onValueChange={(val) => window.history.replaceState(null, "", `?tab=${val}`)} className="w-full space-y-6">
-                    <TabsList className="bg-slate-100 p-1 rounded-xl h-12 border border-slate-200/60 max-w-md grid grid-cols-2">
-                        <TabsTrigger value="events" className="rounded-lg font-bold text-sm">📋 Bài đăng tuyển dụng</TabsTrigger>
-                        <TabsTrigger value="applications" className="rounded-lg font-bold text-sm">📩 Danh sách ứng viên</TabsTrigger>
+                    <TabsList className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl h-12 border border-slate-200/60 dark:border-slate-700/80 max-w-md grid grid-cols-2">
+                        <TabsTrigger value="events" className="rounded-lg font-bold text-sm text-slate-600 dark:text-slate-400 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100">📋 Bài đăng tuyển dụng</TabsTrigger>
+                        <TabsTrigger value="applications" className="rounded-lg font-bold text-sm text-slate-600 dark:text-slate-400 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-900 data-[state=active]:text-slate-900 dark:data-[state=active]:text-slate-100">📩 Danh sách ứng viên</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="events" className="mt-0 outline-none">
@@ -73,6 +76,7 @@ export default function OrgDashboard() {
                             loadingApps={loadingApps}
                             applications={applications}
                             onUpdateStatus={handleUpdateStatus}
+                            onStartChatWithStudent={handleStartChatWithStudent}
                             viewingCV={viewingCV}
                             setViewingCV={setViewingCV}
                             onCloseAppsModal={() => setSelectedEvent(null)}
@@ -87,8 +91,9 @@ export default function OrgDashboard() {
                             selectedFilterEventId={selectedFilterEventId}
                             setSelectedFilterEventId={setSelectedFilterEventId}
                             handleUpdateStatus={handleUpdateStatus}
-                            // ĐÃ SỬA: Xóa bỏ hoàn toàn dòng thừa viewingCV={viewingCV} tại đây để vượt qua bài check tsc
+                            onStartChatWithStudent={handleStartChatWithStudent}
                             setViewingCV={setViewingCV}
+                            onRateStudent={(eventId, studentId, studentName) => setReviewingStudent({ eventId, studentId, studentName })}
                         />
                     </TabsContent>
                 </Tabs>
@@ -122,6 +127,17 @@ export default function OrgDashboard() {
                     loading={loading}
                 />
             </div>
+
+            {reviewingStudent && userId && (
+                <ReviewModal
+                    isOpen={!!reviewingStudent}
+                    onClose={() => setReviewingStudent(null)}
+                    eventId={reviewingStudent.eventId}
+                    reviewerId={userId}
+                    revieweeId={reviewingStudent.studentId}
+                    revieweeName={reviewingStudent.studentName}
+                />
+            )}
         </MainLayout>
     )
 }

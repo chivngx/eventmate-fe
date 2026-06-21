@@ -250,6 +250,8 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
           }
           .print\\:static, .print\\:static * {
             visibility: visible;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
           .print\\:static {
             position: absolute;

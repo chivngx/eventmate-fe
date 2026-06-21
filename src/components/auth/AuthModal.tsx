@@ -464,7 +464,7 @@ export default function AuthModal({ isOpen, initialMode = "login", onClose }: Au
 
       {/* Modal Card */}
       <div className="relative w-full max-w-[450px] bg-white rounded-3xl shadow-2xl border border-slate-100 p-8 flex flex-col gap-4 max-h-[95vh] overflow-y-auto z-10 animate-in zoom-in-95 duration-200">
-        
+
         {/* Close Button */}
         <button
           onClick={onClose}

@@ -7,9 +7,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Bell, LogOut, Briefcase, ChevronDown, ChevronUp, Mail, Shield, Crown, FileText, Building2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import AuthModal from "@/components/auth/AuthModal"
+import { useToast } from "@/components/ui/ToastProvider"
 
 export default function MainLayout({ children, role }: { children: React.ReactNode, role?: string }) {
     const navigate = useNavigate()
+    const { showToast } = useToast()
 
     // Khởi tạo trạng thái đồng bộ từ cache để tránh giật lag hay mất avatar khi vừa chuyển tab
     const getCachedProfile = () => {
@@ -124,7 +126,13 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
                             filter: `user_id=eq.${currentUser.id}`
                         },
                         (payload) => {
-                            setNotifications(prev => [payload.new, ...prev].slice(0, 10))
+                            const newNotif = payload.new
+                            setNotifications(prev => [newNotif, ...prev].slice(0, 10))
+                            showToast({
+                                title: newNotif.title || "Thông báo mới",
+                                message: newNotif.message || "",
+                                type: "info"
+                            })
                         }
                     )
                     .subscribe()
@@ -181,23 +189,23 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
                         <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white animate-pulse"></span>
                     )}
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-80 mt-2 rounded-2xl p-0 shadow-xl border-slate-100 bg-white overflow-hidden">
-                    <div className="p-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
-                        <h4 className="font-bold text-slate-900">Thông báo</h4>
-                        {unreadCount > 0 && <span className="text-xs font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">{unreadCount} mới</span>}
+                <DropdownMenuContent align="end" className="w-80 mt-2 rounded-2xl p-0 shadow-xl border-slate-100 dark:border-slate-855 bg-white dark:bg-slate-900 overflow-hidden text-slate-900 dark:text-slate-100">
+                    <div className="p-4 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-100 dark:border-slate-800/60 flex justify-between items-center">
+                        <h4 className="font-bold text-slate-900 dark:text-slate-100">Thông báo</h4>
+                        {unreadCount > 0 && <span className="text-xs font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 px-2 py-0.5 rounded-full">{unreadCount} mới</span>}
                     </div>
                     <div className="max-h-[350px] overflow-y-auto">
                         {notifications.length === 0 ? (
-                            <div className="p-8 text-center text-slate-500 text-sm font-medium">Bạn chưa có thông báo nào.</div>
+                            <div className="p-8 text-center text-slate-500 dark:text-slate-400 text-sm font-medium">Bạn chưa có thông báo nào.</div>
                         ) : (
                             notifications.map(n => (
-                                <div key={n.id} className={`p-4 border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors ${!n.is_read ? 'bg-emerald-50/30' : 'bg-white'}`}>
-                                    <h5 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                                <div key={n.id} className={`p-4 border-b border-slate-50 dark:border-slate-850 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors ${!n.is_read ? 'bg-emerald-50/30 dark:bg-emerald-950/15' : 'bg-white dark:bg-slate-900'}`}>
+                                    <h5 className="text-sm font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                                         {!n.is_read && <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>}
                                         {n.title}
                                     </h5>
-                                    <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">{n.message}</p>
-                                    <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-wider">{new Date(n.created_at).toLocaleString('vi-VN')}</p>
+                                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-1.5 leading-relaxed">{n.message}</p>
+                                    <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 mt-2 uppercase tracking-wider">{new Date(n.created_at).toLocaleString('vi-VN')}</p>
                                 </div>
                             ))
                         )}
@@ -208,16 +216,16 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
             {/* DROPDOWN AVATAR ĐIỀU HƯỚNG CHUYÊN BIỆT */}
             <DropdownMenu>
                 <DropdownMenuTrigger className="rounded-full outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 shrink-0">
-                    <Avatar className="h-9 w-9 sm:h-10 sm:w-10 cursor-pointer border-2 border-white shadow-sm transition-transform hover:scale-105">
+                    <Avatar className="h-9 w-9 sm:h-10 sm:w-10 cursor-pointer border-2 border-white dark:border-slate-800 shadow-sm transition-transform hover:scale-105">
                         <AvatarImage src={avatarUrl} />
                         <AvatarFallback className="bg-emerald-50 text-emerald-600 font-bold text-sm">
                             {getInitial(fullName)}
                         </AvatarFallback>
                     </Avatar>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-[320px] max-h-[85vh] overflow-y-auto mt-2 rounded-2xl p-4 shadow-xl border border-slate-100 bg-white space-y-4">
+                <DropdownMenuContent align="end" className="w-[320px] max-h-[85vh] overflow-y-auto mt-2 rounded-2xl p-4 shadow-xl border border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 space-y-4 text-slate-900 dark:text-slate-100">
                     {/* Header */}
-                    <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
+                    <div className="flex items-center gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
                         <Avatar className="h-12 w-12 rounded-full border border-slate-100 shrink-0">
                             <AvatarImage src={avatarUrl} />
                             <AvatarFallback className="bg-emerald-50 text-emerald-600 font-bold text-lg">
@@ -567,9 +575,9 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
     )
 
     return (
-        <div className="min-h-screen bg-slate-50 font-sans selection:bg-emerald-200">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-emerald-200 text-slate-900 dark:text-slate-100 transition-colors duration-200">
             <NotchNavbar
-                logo={<span className="font-black text-xl tracking-tight text-slate-900 cursor-pointer" onClick={() => navigate('/')}>Event<span className="text-emerald-600">Mate</span></span>}
+                logo={<span className="font-black text-xl tracking-tight text-slate-900 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/')}>Event<span className="text-emerald-600">Mate</span></span>}
                 rightActions={rightActions}
                 role={role}
             />

@@ -8,6 +8,8 @@ import CVProfile from "./pages/CVProfile"
 import EventDetail from "./pages/EventDetail"
 import MyJobs from "./pages/MyJobs"
 import CompanyDetail from "./pages/CompanyDetail"
+import Chat from "./pages/Chat"
+import { ToastProvider } from "./components/ui/ToastProvider"
 
 function App() {
   useEffect(() => {
@@ -23,25 +25,28 @@ function App() {
         }, 300)
       }
     }
-    
     cleanHash()
     window.addEventListener("hashchange", cleanHash)
     return () => window.removeEventListener("hashchange", cleanHash)
   }, [])
 
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/settings" element={<AccountSettings />} />
-        <Route path="/cv" element={<CVProfile />} />
-        <Route path="/jobs/:id" element={<EventDetail />} />
-        <Route path="/my-jobs" element={<MyJobs />} />
-        <Route path="/companies/:id" element={<CompanyDetail />} />
-      </Routes>
-    </Router>
+    <ToastProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/settings" element={<AccountSettings />} />
+          <Route path="/cv" element={<CVProfile />} />
+          <Route path="/jobs/:id" element={<EventDetail />} />
+          <Route path="/my-jobs" element={<MyJobs />} />
+          <Route path="/companies/:id" element={<CompanyDetail />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/chat/:id" element={<Chat />} />
+        </Routes>
+      </Router>
+    </ToastProvider>
   )
 }
 

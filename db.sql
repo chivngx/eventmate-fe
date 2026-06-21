@@ -298,3 +298,54 @@ GRANT ALL ON TABLE public.events TO anon, authenticated, service_role;
 GRANT ALL ON TABLE public.applications TO anon, authenticated, service_role;
 GRANT ALL ON TABLE public.notifications TO anon, authenticated, service_role;
 GRANT ALL ON TABLE public.event_bookmarks TO anon, authenticated, service_role;
+
+-- Tạo bảng chats/conversations nếu chưa có
+CREATE TABLE IF NOT EXISTS public.chats (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_id UUID REFERENCES public.events(id) ON DELETE CASCADE,
+    student_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+    organizer_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
+    CONSTRAINT unique_chat UNIQUE (event_id, student_id, organizer_id)
+);
+
+-- Tạo bảng messages
+CREATE TABLE IF NOT EXISTS public.messages (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    chat_id UUID REFERENCES public.chats(id) ON DELETE CASCADE,
+    sender_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now())
+);
+
+-- Tạo bảng reviews
+CREATE TABLE IF NOT EXISTS public.reviews (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_id UUID REFERENCES public.events(id) ON DELETE CASCADE,
+    reviewer_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+    reviewee_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+    rating INT CHECK (rating >= 1 AND rating <= 5),
+    comment TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
+    CONSTRAINT unique_review UNIQUE (event_id, reviewer_id, reviewee_id)
+);
+
+-- Kích hoạt RLS
+ALTER TABLE public.chats ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
+
+-- Thêm Policies
+CREATE POLICY "Allow select for chat participants" ON public.chats FOR SELECT USING (auth.uid() = student_id OR auth.uid() = organizer_id);
+CREATE POLICY "Allow insert for chat participants" ON public.chats FOR INSERT WITH CHECK (auth.uid() = student_id OR auth.uid() = organizer_id);
+
+CREATE POLICY "Allow select for message participants" ON public.messages FOR SELECT USING (auth.uid() IN (SELECT student_id FROM public.chats WHERE id = chat_id) OR auth.uid() IN (SELECT organizer_id FROM public.chats WHERE id = chat_id));
+CREATE POLICY "Allow insert for message sender" ON public.messages FOR INSERT WITH CHECK (auth.uid() = sender_id);
+
+CREATE POLICY "Allow select for reviews" ON public.reviews FOR SELECT USING (true);
+CREATE POLICY "Allow insert for reviews" ON public.reviews FOR INSERT WITH CHECK (auth.uid() = reviewer_id);
+
+-- Cấp quyền
+GRANT ALL ON TABLE public.chats TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.messages TO anon, authenticated, service_role;
+GRANT ALL ON TABLE public.reviews TO anon, authenticated, service_role;

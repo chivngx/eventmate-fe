@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 import MainLayout from "@/components/layout/MainLayout"
-import { ArrowLeft, MapPin, Calendar, CheckCircle, XCircle, Clock3, Bookmark, Briefcase, Tag, DollarSign, Users, Hourglass } from "lucide-react"
+import { ArrowLeft, MapPin, Calendar, CheckCircle, XCircle, Clock3, Bookmark, Briefcase, Tag, DollarSign, Users, Hourglass, MessageSquare } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
@@ -107,6 +107,45 @@ export default function EventDetail() {
 
             if (!error) setIsBookmarked(true)
             else alert("Lỗi khi lưu việc làm: " + error.message)
+        }
+    }
+
+    const handleStartChat = async () => {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+            window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { mode: "login" } }))
+            return
+        }
+
+        const { data: existingChat } = await supabase
+            .from("chats")
+            .select("id")
+            .eq("event_id", id)
+            .eq("student_id", user.id)
+            .eq("organizer_id", event.organizer_id)
+            .maybeSingle()
+
+        if (existingChat) {
+            navigate(`/chat/${existingChat.id}`)
+            return
+        }
+
+        const { data: newChat, error: createError } = await supabase
+            .from("chats")
+            .insert([
+                {
+                    event_id: id,
+                    student_id: user.id,
+                    organizer_id: event.organizer_id
+                }
+            ])
+            .select("id")
+            .single()
+
+        if (!createError && newChat) {
+            navigate(`/chat/${newChat.id}`)
+        } else {
+            alert("Lỗi khi tạo phòng chat: " + (createError?.message || "Lỗi không xác định"))
         }
     }
 
@@ -239,18 +278,28 @@ export default function EventDetail() {
                             <div className="flex flex-wrap items-center gap-3 border-t border-slate-100 pt-5">
                                 {renderApplyAction()}
                                 {role === 'student' && (
-                                    <Button
-                                        onClick={toggleBookmark}
-                                        variant="outline"
-                                        className={`rounded-md font-bold h-11 px-6 border transition-all ${
-                                            isBookmarked
-                                                ? "bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100"
-                                                : "border-[#99e0b9] text-[#00b14f] hover:bg-[#00b14f]/5 hover:text-[#00b14f]"
-                                        }`}
-                                    >
-                                        <Bookmark className={`w-4 h-4 mr-2 ${isBookmarked ? "fill-current" : ""}`} />
-                                        {isBookmarked ? "Đã lưu" : "Lưu tin"}
-                                    </Button>
+                                    <>
+                                        <Button
+                                            onClick={handleStartChat}
+                                            variant="outline"
+                                            className="rounded-md border-[#00b14f] text-[#00b14f] hover:bg-[#00b14f]/5 font-bold h-11 px-6 transition-all"
+                                        >
+                                            <MessageSquare className="w-4 h-4 mr-2" />
+                                            Nhắn tin BTC
+                                        </Button>
+                                        <Button
+                                            onClick={toggleBookmark}
+                                            variant="outline"
+                                            className={`rounded-md font-bold h-11 px-6 border transition-all ${
+                                                isBookmarked
+                                                    ? "bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100"
+                                                    : "border-[#99e0b9] text-[#00b14f] hover:bg-[#00b14f]/5 hover:text-[#00b14f]"
+                                            }`}
+                                        >
+                                            <Bookmark className={`w-4 h-4 mr-2 ${isBookmarked ? "fill-current" : ""}`} />
+                                            {isBookmarked ? "Đã lưu" : "Lưu tin"}
+                                        </Button>
+                                    </>
                                 )}
                             </div>
                         </div>

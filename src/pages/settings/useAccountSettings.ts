@@ -13,6 +13,8 @@ export function useAccountSettings() {
     const [userId, setUserId] = useState<string>("")
     const [fullName, setFullName] = useState<string>("")
     const [email, setEmail] = useState<string>("")
+    const [avatarUrl, setAvatarUrl] = useState<string>("")
+    const [uploadingAvatar, setUploadingAvatar] = useState(false)
 
     // State quản lý dữ liệu Tab 2 (Đổi mật khẩu)
     const [currentPassword, setCurrentPassword] = useState<string>("")
@@ -37,6 +39,7 @@ export function useAccountSettings() {
             if (profile) {
                 setRole(profile.role)
                 setFullName(profile.full_name || "")
+                setAvatarUrl(profile.avatar_url || "")
             }
             setLoading(false)
         }
@@ -96,6 +99,53 @@ export function useAccountSettings() {
         }
     }
 
+    // Logic tải ảnh đại diện lên Storage
+    const handleUploadAvatar = async (file: File) => {
+        try {
+            setUploadingAvatar(true)
+            setMessage(null)
+
+            const fileExt = file.name.split('.').pop()
+            const fileName = `${userId}-${Math.random().toString(36).substring(7)}.${fileExt}`
+            const filePath = `avatars/${fileName}`
+
+            // Tải ảnh lên Storage
+            const { error: uploadError } = await supabase.storage
+                .from('avatars')
+                .upload(filePath, file, { cacheControl: '3600', upsert: true })
+
+            if (uploadError) throw uploadError
+
+            // Lấy URL công khai
+            const { data: { publicUrl } } = supabase.storage
+                .from('avatars')
+                .getPublicUrl(filePath)
+
+            // Cập nhật đường dẫn avatar vào database profiles
+            const { error: updateError } = await supabase
+                .from('profiles')
+                .update({ avatar_url: publicUrl })
+                .eq('id', userId)
+
+            if (updateError) throw updateError
+
+            setAvatarUrl(publicUrl)
+            setMessage({ type: "success", text: "Tải ảnh đại diện lên thành công!" })
+
+            // Cập nhật local storage cache
+            const cached = localStorage.getItem("em_user_profile")
+            if (cached) {
+                const parsed = JSON.parse(cached)
+                parsed.avatarUrl = publicUrl
+                localStorage.setItem("em_user_profile", JSON.stringify(parsed))
+            }
+        } catch (error: any) {
+            setMessage({ type: "error", text: "Tải ảnh lên thất bại: " + error.message })
+        } finally {
+            setUploadingAvatar(false)
+        }
+    }
+
     return {
         role,
         loading,
@@ -110,6 +160,9 @@ export function useAccountSettings() {
         setNewPassword,
         handleUpdateProfile,
         handleUpdatePassword,
-        hasPassword
+        hasPassword,
+        avatarUrl,
+        uploadingAvatar,
+        handleUploadAvatar
     }
 }
