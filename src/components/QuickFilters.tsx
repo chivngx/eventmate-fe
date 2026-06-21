@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react"
 import { SlidersHorizontal, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react"
-import { useSearchParams } from "react-router-dom"
 
 interface QuickFiltersProps {
-  categoryParam: string
+  categoryTerm: string
+  setCategoryTerm: (val: string) => void
   benefitTerm: string
   wardIdTerm: string
   setWardIdTerm: (val: string) => void
@@ -15,7 +15,8 @@ interface QuickFiltersProps {
 }
 
 export default function QuickFilters({
-  categoryParam,
+  categoryTerm,
+  setCategoryTerm,
   benefitTerm,
   wardIdTerm,
   setWardIdTerm,
@@ -25,13 +26,12 @@ export default function QuickFilters({
   setBenefitTerm,
   setCurrentPage,
 }: QuickFiltersProps) {
-  const [searchParams, setSearchParams] = useSearchParams()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [showLeftArrow, setShowLeftArrow] = useState(false)
   const [showRightArrow, setShowRightArrow] = useState(true)
 
   const [filterMode, setFilterMode] = useState<"location" | "benefit" | "category">(() => {
-    if (categoryParam) return "category"
+    if (categoryTerm) return "category"
     if (benefitTerm) return "benefit"
     return "location"
   })
@@ -87,23 +87,34 @@ export default function QuickFilters({
   const getActiveValue = () => {
     if (filterMode === "location") return wardIdTerm
     if (filterMode === "benefit") return benefitTerm
-    return categoryParam
+    return categoryTerm
   }
   const activeValue = getActiveValue()
+
+  const handleFilterModeChange = (newMode: "location" | "benefit" | "category") => {
+    setFilterMode(newMode)
+    setCurrentPage(1)
+    
+    // Reset all filter states when switching mode
+    setWardIdTerm("")
+    setBenefitTerm("")
+    setCategoryTerm("")
+  }
 
   const handlePillClick = (val: string) => {
     setCurrentPage(1)
     if (filterMode === "location") {
       setWardIdTerm(val)
+      setBenefitTerm("")
+      setCategoryTerm("")
     } else if (filterMode === "benefit") {
+      setWardIdTerm("")
       setBenefitTerm(val)
+      setCategoryTerm("")
     } else if (filterMode === "category") {
-      if (val) {
-        searchParams.set("category", val)
-      } else {
-        searchParams.delete("category")
-      }
-      setSearchParams(searchParams)
+      setWardIdTerm("")
+      setBenefitTerm("")
+      setCategoryTerm(val)
     }
   }
 
@@ -128,7 +139,7 @@ export default function QuickFilters({
           </span>
           <select
             value={filterMode}
-            onChange={(e) => setFilterMode(e.target.value as any)}
+            onChange={(e) => handleFilterModeChange(e.target.value as any)}
             className="bg-transparent text-slate-700 text-sm font-bold focus:outline-none cursor-pointer pr-8 appearance-none w-full min-[1440px]:text-[#444] min-[1440px]:text-[14px] min-[1440px]:pl-[8px] min-[1440px]:pr-[20px] min-[1440px]:leading-[28px] min-[1440px]:font-medium"
           >
             <option value="location">Địa điểm</option>

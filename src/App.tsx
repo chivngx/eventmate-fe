@@ -8,6 +8,7 @@ import CVProfile from "./pages/cv/CVProfile"
 import EventDetail from "./pages/event/EventDetail"
 import MyJobs from "./pages/job/MyJobs"
 import CompanyDetail from "./pages/company/CompanyDetail"
+import CompanyList from "./pages/company/CompanyList"
 import Chat from "./pages/chat/Chat"
 import JobsByPosition from "./pages/job/JobsByPosition"
 import JobsByEvent from "./pages/event/JobsByEvent"
@@ -44,6 +45,7 @@ function App() {
           <Route path="/cv" element={<CVProfile />} />
           <Route path="/jobs/:id" element={<EventDetail />} />
           <Route path="/my-jobs" element={<MyJobs />} />
+          <Route path="/companies" element={<CompanyList />} />
           <Route path="/companies/:id" element={<CompanyDetail />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/chat/:id" element={<Chat />} />

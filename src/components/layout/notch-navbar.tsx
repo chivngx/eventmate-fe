@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { Link, useLocation } from "react-router-dom"
-import { Search, FileText, Menu, X, ChevronDown, Bookmark, Briefcase, Building2, Users, MessageSquare } from "lucide-react"
+import { Search, FileText, Menu, X, ChevronDown, Bookmark, Briefcase, Building2, MessageSquare } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 import { supabase } from "@/lib/supabase"
@@ -29,8 +29,7 @@ const NavLink = ({ href, icon: Icon, label, onClick }: { href: string; icon: Rea
 
 const RecruiterMenu = () => (
     <div className="flex items-center gap-1">
-        <NavLink href="/?tab=events" icon={Briefcase} label="Bảng điều khiển" />
-        <NavLink href="/?tab=applications" icon={Users} label="Quản lý ứng viên" />
+        <NavLink href="/" icon={Briefcase} label="Bảng điều khiển" />
     </div>
 )
 
@@ -90,7 +89,7 @@ const JobsMegaMenu = ({ role }: { role?: string }) => {
                         </div>
                         <div>
                             <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Ban Tổ Chức</h4>
-                            <Link to="/" className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
+                            <Link to="/companies" className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
                                 <Building2 className="w-5 h-5 text-slate-400 group-hover/item:text-emerald-500 group-hover/item:scale-110 transition-all" /> Danh sách Ban tổ chức
                             </Link>
                         </div>

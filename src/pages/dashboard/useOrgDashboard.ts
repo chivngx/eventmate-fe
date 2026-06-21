@@ -28,17 +28,12 @@ export function useOrgDashboard() {
     const [showForm, setShowForm] = useState(false)
     const [editingId, setEditingId] = useState<string | null>(null)
 
-    const [selectedEvent, setSelectedEvent] = useState<any | null>(null)
-    const [applications, setApplications] = useState<any[]>([])
-    const [loadingApps, setLoadingApps] = useState(false)
     const [viewingCV, setViewingCV] = useState<any | null>(null)
 
-    const [allApplications, setAllApplications] = useState<any[]>([])
-    const [loadingAllApps, setLoadingAllApps] = useState(false)
-    const [selectedFilterEventId, setSelectedFilterEventId] = useState<string>("all")
+    const [selectedEventForCandidates, setSelectedEventForCandidates] = useState<any | null>(null)
+    const [applications, setApplications] = useState<any[]>([])
+    const [loadingApps, setLoadingApps] = useState(false)
     const [userId, setUserId] = useState<string | null>(null)
-
-    const activeTab = searchParams.get("tab") || "events"
 
     const [dbPositions, setDbPositions] = useState<string[]>([])
     const [dbCategories, setDbCategories] = useState<string[]>([])
@@ -83,46 +78,19 @@ export function useOrgDashboard() {
 
         const { data, error } = await supabase
             .from("events")
-            .select("*")
+            .select("*, applications(id)")
             .eq("organizer_id", user.id)
             .order("created_at", { ascending: false })
 
         if (!error && data) {
             setEvents(data)
-            if (activeTab === "applications") {
-                fetchAllApplications(data)
-            }
         }
         setFetching(false)
     }
 
-    const fetchAllApplications = async (eventList = events) => {
-        if (eventList.length === 0) {
-            setAllApplications([])
-            return
-        }
-        setLoadingAllApps(true)
-        const eventIds = eventList.map(e => e.id)
-
-        const { data, error } = await supabase
-            .from("applications")
-            .select(`
-                id, status, applied_at, student_id, event_id,
-                events (id, title, status),
-                profiles!applications_student_id_fkey (id, full_name, email, avatar_url, phone, university, bio, skills)
-            `)
-            .in("event_id", eventIds)
-            .order("applied_at", { ascending: false })
-
-        if (!error && data) {
-            setAllApplications(data)
-        }
-        setLoadingAllApps(false)
-    }
-
     useEffect(() => {
         fetchMyEvents()
-    }, [activeTab])
+    }, [])
 
     useEffect(() => {
         if (searchParams.get("action") === "create") {
@@ -229,27 +197,35 @@ export function useOrgDashboard() {
     }
 
     const handleViewApplications = async (event: any) => {
-        setSelectedEvent(event)
+        setSelectedEventForCandidates(event)
         setLoadingApps(true)
         const { data, error } = await supabase
             .from("applications")
             .select(`
-                id, status, applied_at, student_id, 
+                id, status, applied_at, student_id, event_id,
+                events (id, title, status, location, event_date, position_type),
                 profiles!applications_student_id_fkey (id, full_name, email, avatar_url, phone, university, bio, skills)
             `)
             .eq("event_id", event.id)
             .order("applied_at", { ascending: false })
 
-        if (!error && data) setApplications(data)
+        if (!error && data) {
+            setApplications(data)
+        }
         setLoadingApps(false)
+    }
+
+    const handleBackToEvents = () => {
+        setSelectedEventForCandidates(null)
+        setApplications([])
+        fetchMyEvents()
     }
 
     const handleUpdateStatus = async (appId: string, newStatus: string) => {
         const { error } = await supabase.from("applications").update({ status: newStatus }).eq("id", appId)
 
         if (!error) {
-            setApplications(apps => apps.map(app => app.id === appId ? { ...app, status: newStatus } : app))
-            setAllApplications(apps => apps.map(app => app.id === appId ? { ...app, status: newStatus } : app))
+            setApplications((apps: any[]) => apps.map((app: any) => app.id === appId ? { ...app, status: newStatus } : app))
         } else {
             alert("Lỗi khi cập nhật trạng thái: " + error.message)
         }
@@ -322,17 +298,12 @@ export function useOrgDashboard() {
         showForm,
         setShowForm,
         editingId,
-        selectedEvent,
-        setSelectedEvent,
-        applications,
-        loadingApps,
         viewingCV,
         setViewingCV,
-        allApplications,
-        loadingAllApps,
-        selectedFilterEventId,
-        setSelectedFilterEventId,
-        activeTab,
+        applications,
+        loadingApps,
+        selectedEventForCandidates,
+        handleBackToEvents,
         handleSubmitEvent,
         handleEditClick,
         handleDeleteEvent,

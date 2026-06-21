@@ -8,6 +8,8 @@ import { useToast } from "@/components/ui/ToastProvider"
 import NotificationDropdown from "./NotificationDropdown"
 import UserProfileDropdown from "./UserProfileDropdown"
 import { MessageSquare } from "lucide-react"
+import FloatingChat from "@/components/chat/FloatingChat"
+import Footer from "./Footer"
 
 export default function MainLayout({ children, role }: { children: React.ReactNode, role?: string }) {
     const navigate = useNavigate()
@@ -36,6 +38,7 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
     const [fullName, setFullName] = useState(cached?.fullName || "")
     const [email, setEmail] = useState(cached?.email || "")
     const [avatarUrl, setAvatarUrl] = useState(cached?.avatarUrl || "")
+    const [userRole, setUserRole] = useState(role || cached?.role || "student")
 
     const [authModal, setAuthModal] = useState<{ isOpen: boolean; mode: "login" | "register" }>({
         isOpen: false,
@@ -92,14 +95,17 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
                 if (data) {
                     const updatedFullName = data.full_name || ""
                     const updatedAvatarUrl = data.avatar_url || ""
+                    const updatedRole = data.role || "student"
                     setFullName(updatedFullName)
                     setAvatarUrl(updatedAvatarUrl)
+                    setUserRole(updatedRole)
 
                     // Lưu lại cache mới nhất
                     localStorage.setItem("em_user_profile", JSON.stringify({
                         fullName: updatedFullName,
                         avatarUrl: updatedAvatarUrl,
-                        email: currentUser.email || ""
+                        email: currentUser.email || "",
+                        role: updatedRole
                     }))
                 }
 
@@ -219,7 +225,7 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
     )
 
     return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans selection:bg-emerald-200 text-slate-900 dark:text-slate-100 transition-colors duration-200">
+        <div className="min-h-screen bg-[#f4f5f5] dark:bg-slate-950 font-sans selection:bg-emerald-200 text-slate-900 dark:text-slate-100 transition-colors duration-200">
             <NotchNavbar
                 logo={<span className="font-black text-xl tracking-tight text-slate-900 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/')}>Event<span className="text-emerald-600">Mate</span></span>}
                 rightActions={rightActions}
@@ -229,11 +235,15 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
                 {children}
             </main>
 
+            <Footer />
+
             <AuthModal
                 isOpen={authModal.isOpen}
                 initialMode={authModal.mode}
                 onClose={() => setAuthModal(prev => ({ ...prev, isOpen: false }))}
             />
+
+            <FloatingChat user={user} role={userRole} />
         </div>
     )
 }

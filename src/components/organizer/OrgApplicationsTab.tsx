@@ -28,29 +28,33 @@ export default function OrgApplicationsTab({
 }: OrgApplicationsTabProps) {
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-slate-100">Quản lý ứng viên</h1>
-          <p className="text-slate-500 dark:text-slate-400 font-medium mt-1">Duyệt hồ sơ và phản hồi kết quả cho các ứng viên nộp đơn.</p>
-        </div>
-        {/* Dropdown lọc theo sự kiện */}
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="text-sm font-bold text-slate-500 dark:text-slate-400">Lọc sự kiện:</span>
-          <select
-            value={selectedFilterEventId}
-            onChange={e => setSelectedFilterEventId(e.target.value)}
-            className="h-10 rounded-xl bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 px-3 text-sm font-bold text-slate-700 dark:text-slate-300 focus:outline-none focus:border-emerald-500 cursor-pointer"
-          >
-            <option value="all">Tất cả sự kiện</option>
-            {events.map(e => (
-              <option key={e.id} value={e.id}>{e.title}</option>
-            ))}
-          </select>
-        </div>
-      </div>
-
       <div className="bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800/80 shadow-sm overflow-hidden">
-        <div className="p-6">
+        <div className="p-6 sm:p-8 border-b border-slate-100 dark:border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h3 className="text-lg font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              📩 Danh sách hồ sơ ứng tuyển
+            </h3>
+            <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold mt-1">
+              Xem hồ sơ, kiểm tra mức độ phù hợp kỹ năng và duyệt nhận sinh viên.
+            </p>
+          </div>
+          
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-[10px] font-black text-slate-400 dark:text-slate-550 uppercase tracking-widest">Lọc sự kiện:</span>
+            <select
+              value={selectedFilterEventId}
+              onChange={e => setSelectedFilterEventId(e.target.value)}
+              className="h-10 rounded-xl bg-slate-50 dark:bg-slate-855/50 border border-slate-100 dark:border-slate-800 px-3.5 text-xs font-black text-slate-700 dark:text-slate-350 focus:outline-none focus:border-emerald-500 cursor-pointer shadow-sm hover:bg-slate-100/50 transition-all max-w-[240px]"
+            >
+              <option value="all">Tất cả sự kiện</option>
+              {events.map(e => (
+                <option key={e.id} value={e.id}>{e.title}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="p-6 sm:p-8">
           {loadingAllApps ? (
             <div className="text-center py-12 text-slate-500 dark:text-slate-400 font-medium">Đang tải hồ sơ ứng viên...</div>
           ) : (

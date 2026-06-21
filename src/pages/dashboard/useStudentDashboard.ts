@@ -17,6 +17,7 @@ export function useStudentDashboard() {
     const [searchTerm, setSearchTerm] = useState("")
     const [locationTerm, setLocationTerm] = useState("")
     const [benefitTerm, setBenefitTerm] = useState("")
+    const [categoryTerm, setCategoryTerm] = useState("")
 
     // Gốc danh mục Phường/Xã Đà Nẵng
     const [wards, setWards] = useState<any[]>([])
@@ -35,12 +36,11 @@ export function useStudentDashboard() {
 
     const location = useLocation()
     const positionParam = searchParams.get("position") || ""
-    const categoryParam = searchParams.get("category") || ""
     const filterParam = location.pathname === "/saved" ? "saved" : (searchParams.get("filter") || "")
 
     useEffect(() => {
         setCurrentPage(1)
-    }, [searchTerm, locationTerm, benefitTerm, wardIdTerm, positionParam, categoryParam, filterParam, location.pathname])
+    }, [searchTerm, locationTerm, benefitTerm, wardIdTerm, positionParam, categoryTerm, filterParam, location.pathname])
 
     // Tải danh mục gốc Phường/Xã
     useEffect(() => {
@@ -135,8 +135,8 @@ export function useStudentDashboard() {
         if (positionParam) {
             query = query.eq("position_type", positionParam)
         }
-        if (categoryParam) {
-            query = query.eq("category", categoryParam)
+        if (categoryTerm) {
+            query = query.eq("category", categoryTerm)
         }
         if (benefitTerm) {
             query = query.eq("benefits", benefitTerm)
@@ -288,7 +288,8 @@ export function useStudentDashboard() {
         showSuggestion,
         setShowSuggestion,
         positionParam,
-        categoryParam,
+        categoryTerm,
+        setCategoryTerm,
         filterParam,
         handleApply,
         toggleBookmark,

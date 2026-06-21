@@ -2,13 +2,14 @@ import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 import MainLayout from "@/components/layout/MainLayout"
-import { MapPin, Calendar, CheckCircle, XCircle, Clock3, Bookmark, Briefcase, Tag, DollarSign, Users, Hourglass } from "lucide-react"
+import { MapPin, Calendar, CheckCircle, XCircle, Clock3, Bookmark, Briefcase, Tag, DollarSign, Users, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useToast } from "@/components/ui/ToastProvider"
 
 export default function EventDetail() {
     const { id } = useParams<{ id: string }>()
     const navigate = useNavigate()
+    const { showToast } = useToast()
     const [event, setEvent] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const [role, setRole] = useState<string>("guest")
@@ -83,10 +84,10 @@ export default function EventDetail() {
         ])
 
         if (error) {
-            alert("Lỗi: " + error.message)
+            showToast({ title: "Đã xảy ra lỗi", message: error.message, type: "error" })
         } else {
             setApplyStatus('pending')
-            alert("Ứng tuyển thành công! Vui lòng chờ BTC duyệt.")
+            showToast({ title: "Ứng tuyển thành công", message: "Đơn ứng tuyển của bạn đã được gửi. Vui lòng chờ BTC phê duyệt.", type: "success" })
         }
         setIsApplying(false)
     }
@@ -105,15 +106,21 @@ export default function EventDetail() {
                 .eq("student_id", user.id)
                 .eq("event_id", event.id)
 
-            if (!error) setIsBookmarked(false)
-            else alert("Lỗi khi hủy lưu việc làm: " + error.message)
+            if (!error) {
+                setIsBookmarked(false)
+                showToast({ title: "Đã hủy lưu", message: "Đã hủy lưu tin tuyển dụng thành công.", type: "info" })
+            }
+            else showToast({ title: "Đã xảy ra lỗi", message: error.message, type: "error" })
         } else {
             const { error } = await supabase
                 .from("event_bookmarks")
                 .insert([{ student_id: user.id, event_id: event.id }])
 
-            if (!error) setIsBookmarked(true)
-            else alert("Lỗi khi lưu việc làm: " + error.message)
+            if (!error) {
+                setIsBookmarked(true)
+                showToast({ title: "Đã lưu tin", message: "Đã lưu tin tuyển dụng thành công.", type: "success" })
+            }
+            else showToast({ title: "Đã xảy ra lỗi", message: error.message, type: "error" })
         }
     }
 
@@ -141,47 +148,47 @@ export default function EventDetail() {
 
         if (applyStatus === 'approved') {
             return (
-                <Button disabled className="rounded-md bg-emerald-100 text-emerald-700 font-bold h-11 border border-emerald-200 px-6">
+                <button disabled className="job-detail_info--actions-button button-primary btn-apply-job flex items-center justify-center rounded-md font-semibold bg-emerald-100 border border-emerald-200 text-emerald-700 h-[40px] px-6 min-[1440px]:w-[569px] min-[1440px]:h-[40px] min-[1440px]:rounded-[6px] min-[1440px]:text-[14px] min-[1440px]:gap-[6px] min-[1440px]:leading-[22px] min-[1440px]:p-[8px_16px_8px_12px]">
                     <CheckCircle className="w-4 h-4 mr-2" /> Trúng tuyển
-                </Button>
+                </button>
             )
         }
         if (applyStatus === 'rejected') {
             return (
-                <Button disabled className="rounded-md bg-rose-50 text-rose-500 font-bold h-11 border border-rose-100 px-6">
+                <button disabled className="job-detail_info--actions-button button-primary btn-apply-job flex items-center justify-center rounded-md font-semibold bg-rose-50 border border-rose-100 text-rose-500 h-[40px] px-6 min-[1440px]:w-[569px] min-[1440px]:h-[40px] min-[1440px]:rounded-[6px] min-[1440px]:text-[14px] min-[1440px]:gap-[6px] min-[1440px]:leading-[22px] min-[1440px]:p-[8px_16px_8px_12px]">
                     <XCircle className="w-4 h-4 mr-2" /> Chưa phù hợp
-                </Button>
+                </button>
             )
         }
         if (applyStatus === 'pending') {
             return (
-                <Button disabled className="rounded-md bg-amber-50 text-amber-600 font-bold h-11 border border-amber-100 px-6">
+                <button disabled className="job-detail_info--actions-button button-primary btn-apply-job flex items-center justify-center rounded-md font-semibold bg-amber-50 border border-amber-100 text-amber-600 h-[40px] px-6 min-[1440px]:w-[569px] min-[1440px]:h-[40px] min-[1440px]:rounded-[6px] min-[1440px]:text-[14px] min-[1440px]:gap-[6px] min-[1440px]:leading-[22px] min-[1440px]:p-[8px_16px_8px_12px]">
                     <Clock3 className="w-4 h-4 mr-2" /> Đang chờ duyệt
-                </Button>
+                </button>
             )
         }
 
         return (
-            <Button
+            <button
                 onClick={handleApply}
                 disabled={disabledApply || isPastDeadline}
-                className="rounded-md bg-[#00b14f] hover:bg-[#009a44] text-white font-bold h-11 px-8 transition-transform active:scale-95 shadow-sm disabled:opacity-50"
+                className="job-detail_info--actions-button button-primary open-apply-modal btn-apply-job flex items-center justify-center bg-[#00b14f] hover:bg-[#009a44] text-white font-semibold font-sans rounded-md transition-all active:scale-95 disabled:opacity-50 h-[40px] px-6 text-sm flex-1 cursor-pointer min-[1440px]:w-[569px] min-[1440px]:h-[40px] min-[1440px]:rounded-[6px] min-[1440px]:text-[14px] min-[1440px]:font-semibold min-[1440px]:gap-[6px] min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.175px] min-[1440px]:p-[8px_16px_8px_12px]"
             >
                 {isApplying ? "Đang xử lý..." : isPastDeadline ? "Đã hết hạn nộp đơn" : event.status !== 'upcoming' ? "Đã đóng đăng ký" : "Ứng tuyển ngay"}
-            </Button>
+            </button>
         )
     }
 
     return (
         <MainLayout role={role}>
-            <div className="max-w-6xl mx-auto py-6 px-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="max-w-6xl mx-auto pt-1 pb-6 px-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {/* Two Column Layout */}
                 <div className="job-detail_body flex flex-col lg:flex-row gap-6 items-start min-[1440px]:w-[1140px] min-[1440px]:gap-[28px] min-[1440px]:flex-row">
                     {/* Left Column (Width: approx 760px on large screen) */}
                     <div className="job-detail_body-left flex-1 w-full lg:max-w-[760px] space-y-6 min-[1440px]:w-[761px] min-[1440px]:gap-[28px] min-[1440px]:flex-col">
                         {/* Box 1: Header / General Summary */}
                         <div id="header-job-info" className="job-detail_box job-detail_info bg-white rounded-lg border border-slate-200 p-6 shadow-sm min-[1440px]:p-[20px_24px] min-[1440px]:rounded-[8px] min-[1440px]:gap-[16px] min-[1440px]:flex-col">
-                            <h1 className="job-detail_info--title text-xl md:text-2xl font-bold text-[#263a4d] leading-tight mb-2 min-[1440px]:w-[713px] min-[1440px]:text-[20px] min-[1440px]:font-bold min-[1440px]:font-sans min-[1440px]:tracking-[-0.2px] min-[1440px]:leading-[28px]">
+                            <h1 className="job-detail_info--title text-xl md:text-2xl font-bold text-[#263a4d] leading-tight mb-4 min-[1440px]:mb-[16px] min-[1440px]:w-[713px] min-[1440px]:text-[20px] min-[1440px]:font-bold min-[1440px]:font-sans min-[1440px]:tracking-[-0.2px] min-[1440px]:leading-[28px]">
                                 {event.title}
                             </h1>
 
@@ -205,7 +212,7 @@ export default function EventDetail() {
                                     <div>
                                         <p className="job-detail_info--section-content-title text-[12px] text-slate-400 font-medium min-[1440px]:h-[22px] min-[1440px]:text-[14px] min-[1440px]:text-[#263a4d] min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.14px]">Khu vực</p>
                                         <p className="job-detail_info--section-content-value text-[13px] text-[#212f3f] font-semibold truncate min-[1440px]:h-[22px] min-[1440px]:text-[14px] min-[1440px]:text-[#212f3f] min-[1440px]:font-semibold min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.175px]" title={event.danang_wards?.name ? `P. ${event.danang_wards.name}` : "Đà Nẵng"}>
-                                            {event.danang_wards?.name ? `P. ${event.danang_wards.name}` : "Đà Nẵng"}
+                                            {event.danang_wards?.name ? `${event.danang_wards.name}` : "Đà Nẵng"}
                                         </p>
                                     </div>
                                 </div>
@@ -223,31 +230,39 @@ export default function EventDetail() {
                             </div>
 
                             {/* Hạn chót nộp hồ sơ */}
-                            <div className="flex items-center gap-2 bg-slate-50 px-4 py-2.5 rounded-lg border border-slate-100 text-xs font-semibold text-slate-500 mb-6">
-                                <Hourglass className="w-4 h-4 text-slate-400" />
-                                <span>Hạn chót nộp hồ sơ: </span>
-                                <span className={`font-bold ${isPastDeadline ? 'text-rose-500' : 'text-[#212f3f]'}`}>
+                            <div className="job-detail_info--flex flex items-center text-sm text-[#333] gap-2 mt-4 mb-6 min-[1440px]:w-[713px] min-[1440px]:h-[26px] min-[1440px]:flex min-[1440px]:items-center min-[1440px]:gap-[4px] min-[1440px]:text-[14px] min-[1440px]:leading-[20px] min-[1440px]:text-[#333] min-[1440px]:mt-[16px] min-[1440px]:mb-6">
+                                <div className="job-detail_info--deadline flex items-center gap-1 text-sm text-[#7f878f] bg-slate-50 px-2.5 py-1.5 md:p-[2px_8px_2px_4px] rounded min-[1440px]:rounded-[4px] min-[1440px]:gap-[4px] min-[1440px]:text-[14px] min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.14px] min-[1440px]:text-[#7f878f]">
+                                    <span>Hạn nộp hồ sơ</span>
+                                </div>
+                                <div className="job-detail_info--deadline-date text-sm font-semibold text-[#263a4d] min-[1440px]:text-[14px] min-[1440px]:font-semibold min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.175px] min-[1440px]:text-[#263a4d]">
                                     {event.application_deadline ? new Date(event.application_deadline).toLocaleDateString('vi-VN') : "Không giới hạn"}
-                                </span>
+                                </div>
+                                {event.application_deadline && (
+                                    <span className="deadline text-sm font-semibold text-[#263a4d] min-[1440px]:text-[14px] min-[1440px]:font-semibold min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.175px] min-[1440px]:text-[#263a4d]">
+                                        {(() => {
+                                            const diff = new Date(event.application_deadline).getTime() - new Date().getTime();
+                                            const diffDays = Math.ceil(diff / (1000 * 60 * 60 * 24));
+                                            return diffDays > 0 ? `(Còn ${diffDays} ngày)` : "(Đã hết hạn)";
+                                        })()}
+                                    </span>
+                                )}
                             </div>
 
                             {/* Action Buttons Row */}
-                            <div className="flex flex-wrap items-center gap-3 border-t border-slate-100 pt-5">
+                            <div className="job-detail_info--actions box-apply-current flex flex-wrap items-center gap-3 border-t border-slate-100 pt-5 min-[1440px]:w-[713px] min-[1440px]:h-[40px] min-[1440px]:flex min-[1440px]:items-center min-[1440px]:flex-wrap min-[1440px]:text-[14px] min-[1440px]:gap-[12px] min-[1440px]:leading-[20px] min-[1440px]:m-[4px_0px_0px] min-[1440px]:border-t-0 min-[1440px]:pt-0">
                                 {renderApplyAction()}
                                 {role === 'student' && (
-                                    <>
-                                        <Button
-                                            onClick={toggleBookmark}
-                                            variant="outline"
-                                            className={`rounded-md font-bold h-11 px-6 border transition-all ${isBookmarked
-                                                ? "bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100"
-                                                : "border-[#99e0b9] text-[#00b14f] hover:bg-[#00b14f]/5 hover:text-[#00b14f]"
-                                                }`}
-                                        >
-                                            <Bookmark className={`w-4 h-4 mr-2 ${isBookmarked ? "fill-current" : ""}`} />
-                                            {isBookmarked ? "Đã lưu" : "Lưu tin"}
-                                        </Button>
-                                    </>
+                                    <button
+                                        id="save-job"
+                                        onClick={toggleBookmark}
+                                        className={`job-detail_info--actions-button button-white btn-save-job flex items-center justify-center rounded-md font-semibold font-sans h-[40px] px-6 border transition-all cursor-pointer min-[1440px]:w-[130px] min-[1440px]:h-[40px] min-[1440px]:border-[0.8px] min-[1440px]:rounded-[6px] min-[1440px]:text-[14px] min-[1440px]:font-semibold min-[1440px]:gap-[6px] min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.175px] min-[1440px]:p-[8px_16px_8px_12px] ${isBookmarked
+                                            ? "bg-[#00b14f] border-[#00b14f] text-white hover:bg-[#009e47]"
+                                            : "bg-white border-[#00b14f] text-[#00b14f] hover:bg-[#00b14f]/5"
+                                            }`}
+                                    >
+                                        <Bookmark className={`w-4 h-4 mr-1.5 ${isBookmarked ? "fill-current" : ""}`} />
+                                        {isBookmarked ? "Đã lưu" : "Lưu tin"}
+                                    </button>
                                 )}
                             </div>
                         </div>
@@ -269,76 +284,139 @@ export default function EventDetail() {
                             {/* Specific Location Details */}
                             <div className="border-t border-slate-100 pt-5 space-y-3">
                                 <h3 className="text-[15px] font-bold text-[#212f3f]">Địa điểm làm việc cụ thể</h3>
-                                <div className="text-sm text-slate-700 font-medium">
-                                    {event.location ? `${event.location}, ` : ""}
-                                    {event.danang_wards?.name ? `Phường ${event.danang_wards.name}, ` : ""}
-                                    Đà Nẵng
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
+                                    <div className="text-sm text-slate-700 font-medium flex items-center gap-2">
+                                        <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+                                        <span>
+                                            {event.location ? `${event.location}, ` : ""}
+                                            {event.danang_wards?.name ? `Phường ${event.danang_wards.name}, ` : ""}
+                                            Đà Nẵng
+                                        </span>
+                                    </div>
+                                    <a
+                                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((event.location ? event.location + ', ' : '') + (event.danang_wards?.name ? 'Phường ' + event.danang_wards.name + ', ' : '') + 'Đà Nẵng')}`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="text-xs font-bold text-[#00b14f] bg-[#00b14f]/5 px-3 py-2 rounded-lg border border-[#00b14f]/20 inline-flex items-center gap-1.5 hover:bg-[#00b14f]/10 transition-all hover:border-[#00b14f]/30 shrink-0"
+                                    >
+                                        <MapPin className="w-3.5 h-3.5" />
+                                        Xem vị trí trên Google Maps
+                                    </a>
                                 </div>
-                                <a
-                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((event.location ? event.location + ', ' : '') + (event.danang_wards?.name ? 'Phường ' + event.danang_wards.name + ', ' : '') + 'Đà Nẵng')}`}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="text-xs font-bold text-[#00b14f] bg-[#00b14f]/5 px-3 py-1.5 rounded border border-[#99e0b9] inline-flex items-center gap-1.5 hover:bg-[#00b14f]/10 transition-colors"
-                                >
-                                    🗺️ Xem vị trí trên Google Maps
-                                </a>
                             </div>
                         </div>
                     </div>
 
                     {/* Right Column (Sidebar, Width: approx 350px on large screen) */}
-                    <div className="w-full lg:w-[350px] space-y-6 shrink-0">
+                    <div className="job-detail_body-right w-full lg:w-[350px] shrink-0 flex flex-col gap-6 items-center text-[#333] text-[14px] leading-[20px] min-[1440px]:w-[352px] min-[1440px]:gap-[24px] min-[1440px]:bg-[#f4f5f5]">
                         {/* Company Card */}
                         <div
-                            onClick={() => navigate(`/companies/${event.organizer_id}`)}
-                            className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm flex flex-col items-center text-center cursor-pointer hover:border-[#00b14f] transition-colors group"
+                            className="job-detail_box right job-detail_company bg-white rounded-lg border border-slate-200 p-5 shadow-sm flex flex-col gap-4 items-start text-[#333] text-[14px] leading-[20px] min-[1440px]:w-[352px] min-[1440px]:rounded-[8px] min-[1440px]:gap-[16px] min-[1440px]:p-[20px]"
                         >
-                            <Avatar className="h-16 w-16 rounded-2xl border border-slate-100 shadow-sm mb-4">
-                                <AvatarImage src={event.profiles?.avatar_url} />
-                                <AvatarFallback className="rounded-2xl bg-emerald-50 text-emerald-600 text-2xl font-black">
-                                    {event.profiles?.full_name?.charAt(0).toUpperCase() || "O"}
-                                </AvatarFallback>
-                            </Avatar>
-                            <h2 className="text-sm font-bold text-[#212f3f] leading-snug group-hover:text-[#00b14f] transition-colors mb-2">
-                                {event.profiles?.full_name || "Đơn vị ẩn danh"}
-                            </h2>
-                            <p className="text-[12px] text-slate-400 font-medium mb-3">Nhà tổ chức sự kiện / Doanh nghiệp đối tác</p>
+                            <div className="job-detail_company--information w-full flex flex-col gap-3 min-[1440px]:w-[312px]">
+                                <div className="job-detail_company--information-item company-name flex items-start text-[#333] text-[14px] gap-[16px] leading-[20px] mb-3 min-[1440px]:mb-[12px]">
+                                    <div
+                                        onClick={() => navigate(`/companies/${event.organizer_id}`)}
+                                        className="company-logo flex items-center justify-center bg-white border border-[#e9eaec] rounded-[8px] border-[0.8px] text-[#23527c] text-[14px] leading-[20px] p-[7.04px] w-[88px] h-[88px] shrink-0 cursor-pointer"
+                                    >
+                                        <img
+                                            src={event.profiles?.avatar_url || "https://images.unsplash.com/photo-1542744094-3a31f103e35f?auto=format&fit=crop&w=88&h=88&q=80"}
+                                            alt={event.profiles?.full_name}
+                                            className="w-full h-full object-contain rounded"
+                                            onError={(e: any) => {
+                                                e.target.onerror = null;
+                                                e.target.src = "https://images.unsplash.com/photo-1542744094-3a31f103e35f?auto=format&fit=crop&w=88&h=88&q=80";
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="company-name-label flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full min-[1440px]:w-[206px] min-[1440px]:gap-[4px]">
+                                        <a
+                                            onClick={() => navigate(`/companies/${event.organizer_id}`)}
+                                            className="name text-[14px] font-semibold text-[#212f3f] font-sans tracking-[-0.16px] leading-[24px] cursor-pointer hover:text-[#00b14f] transition-colors"
+                                        >
+                                            {event.profiles?.full_name || "Đơn vị ẩn danh"}
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <div className="job-detail_company--information-item company-scale flex items-start text-[#333] text-[14px] gap-[16px] leading-[20px] mb-2 min-[1440px]:mb-[8px]">
+                                    <div className="company-title flex items-center gap-[8px] text-[#7f878f] text-[14px] leading-[22px] tracking-[0.14px] w-[88px] shrink-0">
+                                        <Users className="w-4 h-4 text-[#7f878f] fill-none text-[14px] leading-[22px] tracking-[0.14px]" />
+                                        <span>Quy mô:</span>
+                                    </div>
+                                    <div className="company-value text-[#212f3f] text-[14px] font-medium leading-[22px] tracking-[0.14px] w-full min-[1440px]:w-[208px]">
+                                        100 - 150 nhân sự
+                                    </div>
+                                </div>
+
+                                <div className="job-detail_company--information-item company-address flex items-start text-[#333] text-[14px] gap-[16px] leading-[20px] mb-2 min-[1440px]:mb-[8px]">
+                                    <div className="company-title flex items-center gap-[8px] text-[#7f878f] text-[14px] leading-[22px] tracking-[0.14px] w-[88px] shrink-0">
+                                        <MapPin className="w-4 h-4 text-[#7f878f] fill-none text-[14px] leading-[22px] tracking-[0.14px]" />
+                                        <span>Địa điểm:</span>
+                                    </div>
+                                    <div className="company-value text-[#212f3f] text-[14px] font-medium leading-[22px] tracking-[0.14px] w-full min-[1440px]:w-[208px]">
+                                        {event.location ? `${event.location}, Đà Nẵng` : "Đà Nẵng, Việt Nam"}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="job-detail_company--link w-full flex justify-center text-[#333] text-[14px] leading-[20px] min-[1440px]:w-[312px] mt-1">
+                                <a
+                                    onClick={() => navigate(`/companies/${event.organizer_id}`)}
+                                    className="flex items-center justify-center gap-[10px] text-[#00b14f] text-[14px] font-semibold leading-[22px] tracking-[0.175px] font-sans hover:underline cursor-pointer"
+                                >
+                                    Xem trang công ty
+                                    <ExternalLink className="text-[15px] text-[#00b14f] w-4 h-4 flex items-center justify-center leading-[20px] text-center shrink-0" />
+                                </a>
+                            </div>
                         </div>
 
                         {/* General Info Box */}
-                        <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm space-y-5">
-                            <h3 className="text-sm font-bold text-[#212f3f] border-b border-slate-100 pb-3">
+                        <div className="job-detail_body-right--box-general bg-white rounded-lg border border-slate-200 p-5 shadow-sm text-[#333] text-[14px] leading-[20px] w-full min-[1440px]:w-[351px] min-[1440px]:rounded-[8px] min-[1440px]:p-[20px]">
+                            <div className="box-title text-lg font-bold text-[#212f3f] mb-4 min-[1440px]:w-[311px] min-[1440px]:text-[20px] min-[1440px]:font-bold min-[1440px]:tracking-[-0.2px] min-[1440px]:leading-[28px] min-[1440px]:m-[0px_0px_16px]">
                                 Thông tin chung
-                            </h3>
+                            </div>
 
-                            <div className="space-y-4">
-                                <div className="flex items-start gap-3">
-                                    <Briefcase className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                                    <div>
-                                        <p className="text-xs text-slate-400 font-medium">Vị trí công việc</p>
-                                        <p className="text-sm text-[#212f3f] font-semibold mt-0.5">
+                            <div className="box-general-content flex flex-col gap-4 text-[#333] text-[14px] leading-[20px] w-full min-[1440px]:w-[311px] min-[1440px]:gap-[20px]">
+                                <div className="box-general-group flex items-center gap-4 text-[#333] text-[14px] leading-[20px] w-full min-[1440px]:w-[311px] min-[1440px]:gap-[16px]">
+                                    <div className="box-general-group-icon flex items-center justify-center bg-[#f2f4f5] rounded-[30px] p-2 text-[#333] text-[14px] leading-[20px] w-[40px] h-[40px] shrink-0">
+                                        <Briefcase className="w-5 h-5 text-[#333] fill-none text-[14px] leading-[20px]" />
+                                    </div>
+                                    <div className="box-general-group-info flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full min-[1440px]:w-[70px] min-[1440px]:gap-[4px]">
+                                        <div className="box-general-group-info-title text-[#4d5965] text-[14px] tracking-[0.14px] leading-[22px] min-[1440px]:w-[70px] whitespace-nowrap">
+                                            Vị trí tuyển
+                                        </div>
+                                        <div className="box-general-group-info-value text-[#212f3f] text-[14px] font-semibold tracking-[0.175px] leading-[22px] min-[1440px]:w-[70px] whitespace-nowrap">
                                             {event.position_type || "Tình nguyện viên"}
-                                        </p>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="flex items-start gap-3">
-                                    <Tag className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                                    <div>
-                                        <p className="text-xs text-slate-400 font-medium">Loại hình sự kiện</p>
-                                        <p className="text-sm text-[#212f3f] font-semibold mt-0.5">
+                                <div className="box-general-group flex items-center gap-4 text-[#333] text-[14px] leading-[20px] w-full min-[1440px]:w-[311px] min-[1440px]:gap-[16px]">
+                                    <div className="box-general-group-icon flex items-center justify-center bg-[#f2f4f5] rounded-[30px] p-2 text-[#333] text-[14px] leading-[20px] w-[40px] h-[40px] shrink-0">
+                                        <Tag className="w-5 h-5 text-[#333] fill-none text-[14px] leading-[20px]" />
+                                    </div>
+                                    <div className="box-general-group-info flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full min-[1440px]:w-[70px] min-[1440px]:gap-[4px]">
+                                        <div className="box-general-group-info-title text-[#4d5965] text-[14px] tracking-[0.14px] leading-[22px] min-[1440px]:w-[70px] whitespace-nowrap">
+                                            Loại hình
+                                        </div>
+                                        <div className="box-general-group-info-value text-[#212f3f] text-[14px] font-semibold tracking-[0.175px] leading-[22px] min-[1440px]:w-[70px] whitespace-nowrap">
                                             {event.category || "Chưa phân loại"}
-                                        </p>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="flex items-start gap-3">
-                                    <Users className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
-                                    <div>
-                                        <p className="text-xs text-slate-400 font-medium">Số lượng cần tuyển</p>
-                                        <p className="text-sm text-[#212f3f] font-semibold mt-0.5">
+                                <div className="box-general-group flex items-center gap-4 text-[#333] text-[14px] leading-[20px] w-full min-[1440px]:w-[311px] min-[1440px]:gap-[16px]">
+                                    <div className="box-general-group-icon flex items-center justify-center bg-[#f2f4f5] rounded-[30px] p-2 text-[#333] text-[14px] leading-[20px] w-[40px] h-[40px] shrink-0">
+                                        <Users className="w-5 h-5 text-[#333] fill-none text-[14px] leading-[20px]" />
+                                    </div>
+                                    <div className="box-general-group-info flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full min-[1440px]:w-[70px] min-[1440px]:gap-[4px]">
+                                        <div className="box-general-group-info-title text-[#4d5965] text-[14px] tracking-[0.14px] leading-[22px] min-[1440px]:w-[70px] whitespace-nowrap">
+                                            Số lượng tuyển
+                                        </div>
+                                        <div className="box-general-group-info-value text-[#212f3f] text-[14px] font-semibold tracking-[0.175px] leading-[22px] min-[1440px]:w-[70px] whitespace-nowrap">
                                             {event.slots_needed || 1} nhân sự
-                                        </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

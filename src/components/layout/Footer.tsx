@@ -1,105 +1,112 @@
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Mail, Phone, MapPin } from "lucide-react"
 
 export default function Footer() {
-    const navigate = useNavigate()
+  const navigate = useNavigate()
 
-    return (
-        <footer className="bg-slate-900 text-slate-400 border-t border-slate-800 pt-16 pb-8 z-10 mt-20">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
-                    {/* Cột 1: Giới thiệu thương hiệu */}
-                    <div className="flex flex-col gap-4">
-                        <span className="font-black text-2xl tracking-tight text-white cursor-pointer" onClick={() => navigate('/')}>
-                            Event<span className="text-emerald-500">Mate</span>
-                        </span>
-                        <p className="text-sm text-slate-400 leading-relaxed font-medium">
-                            Nền tảng kết nối cơ hội việc làm, sự kiện và phát triển bản thân dành cho sinh viên và nhà tuyển dụng hàng đầu.
-                        </p>
-                        <div className="flex gap-3 mt-2">
-                            <a href="#" className="w-10 h-10 rounded-full bg-slate-800 hover:bg-emerald-600 hover:text-white flex items-center justify-center text-slate-400 transition-all duration-300">
-                                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                                </svg>
-                            </a>
-                            <a href="#" className="w-10 h-10 rounded-full bg-slate-800 hover:bg-emerald-600 hover:text-white flex items-center justify-center text-slate-400 transition-all duration-300">
-                                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                                </svg>
-                            </a>
-                            <a href="#" className="w-10 h-10 rounded-full bg-slate-800 hover:bg-emerald-600 hover:text-white flex items-center justify-center text-slate-400 transition-all duration-300">
-                                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-                                </svg>
-                            </a>
-                            <a href="#" className="w-10 h-10 rounded-full bg-slate-800 hover:bg-emerald-600 hover:text-white flex items-center justify-center text-slate-400 transition-all duration-300">
-                                <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0z" />
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
+  return (
+    <footer className="bg-[#0f172a] text-slate-400 font-sans border-t-[3px] border-[#00b14f] mt-16 shadow-[0_-8px_30px_rgb(0,0,0,0.12)]">
+      {/* Upper Footer: Links & Info */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 md:py-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12">
 
-                    {/* Cột 2: Khám phá */}
-                    <div>
-                        <h4 className="text-xs font-bold uppercase tracking-widest text-slate-200 mb-6">Khám phá</h4>
-                        <ul className="space-y-3.5 text-sm font-semibold">
-                            <li>
-                                <a href="/" className="hover:text-emerald-400 transition-colors">Tìm việc làm</a>
-                            </li>
-                            <li>
-                                <a href="/" className="hover:text-emerald-400 transition-colors">Sự kiện nổi bật</a>
-                            </li>
-                            <li>
-                                <a href="/login" className="hover:text-emerald-400 transition-colors">Nhà tuyển dụng</a>
-                            </li>
-                            <li>
-                                <a href="/" className="hover:text-emerald-400 transition-colors">Cẩm nang nghề nghiệp</a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    {/* Cột 3: Hỗ trợ & Chính sách */}
-                    <div>
-                        <h4 className="text-xs font-bold uppercase tracking-widest text-slate-200 mb-6">Hỗ trợ</h4>
-                        <ul className="space-y-3.5 text-sm font-semibold">
-                            <li>
-                                <a href="#" className="hover:text-emerald-400 transition-colors">Trung tâm trợ giúp</a>
-                            </li>
-                            <li>
-                                <a href="#" className="hover:text-emerald-400 transition-colors">Điều khoản dịch vụ</a>
-                            </li>
-                            <li>
-                                <a href="#" className="hover:text-emerald-400 transition-colors">Chính sách bảo mật</a>
-                            </li>
-                            <li>
-                                <a href="#" className="hover:text-emerald-400 transition-colors">Liên hệ hợp tác</a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    {/* Cột 4: Liên hệ */}
-                    <div>
-                        <h4 className="text-xs font-bold uppercase tracking-widest text-slate-200 mb-6">Liên hệ</h4>
-                        <ul className="space-y-4 text-sm font-semibold">
-                            <li className="flex gap-3">
-                                <MapPin className="w-5 h-5 text-emerald-500 shrink-0" />
-                                <span>Khu đô thị FPT, Phường Ngũ Hành Sơn TP. Đà Nẵng</span>
-                            </li>
-                            <li className="flex items-center gap-3">
-                                <Phone className="w-5 h-5 text-emerald-500 shrink-0" />
-                                <span>+84 1234 56789</span>
-                            </li>
-                            <li className="flex items-center gap-3">
-                                <Mail className="w-5 h-5 text-emerald-500 shrink-0" />
-                                <span>support@eventmate.vn</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+          {/* Column 1: Brand & Bio */}
+          <div className="space-y-5">
+            <div
+              onClick={() => navigate("/")}
+              className="font-black text-3xl tracking-tight text-white cursor-pointer select-none transition-transform active:scale-95 duration-150"
+            >
+              Event<span className="text-[#00b14f]">Mate</span>
             </div>
-        </footer>
-    )
+            <p className="text-[13px] leading-relaxed text-slate-400 font-medium max-w-[280px]">
+              Nền tảng công nghệ tiên phong kết nối sinh viên năng động với các cơ hội tình nguyện, vị trí CTV bán thời gian và ban tổ chức sự kiện chuyên nghiệp tại Đà Nẵng.
+            </p>
+            <div className="flex items-center gap-3 pt-1">
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noreferrer"
+                className="w-9 h-9 rounded-xl bg-slate-800/60 hover:bg-[#00b14f] text-slate-300 hover:text-white flex items-center justify-center transition-all duration-300 hover:scale-105 border border-slate-700/50 shadow-sm"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M9 8H7v3h2v9h3v-9h2.72l.42-3H12V6c0-.55.45-1 1-1h1.72V1H12C9.79 1 8 2.79 8 5v3H9z" /></svg>
+              </a>
+              <a
+                href="https://linkedin.com"
+                target="_blank"
+                rel="noreferrer"
+                className="w-9 h-9 rounded-xl bg-slate-800/60 hover:bg-[#00b14f] text-slate-300 hover:text-white flex items-center justify-center transition-all duration-300 hover:scale-105 border border-slate-700/50 shadow-sm"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg>
+              </a>
+              <a
+                href="https://youtube.com"
+                target="_blank"
+                rel="noreferrer"
+                className="w-9 h-9 rounded-xl bg-slate-800/60 hover:bg-[#00b14f] text-slate-300 hover:text-white flex items-center justify-center transition-all duration-300 hover:scale-105 border border-slate-700/50 shadow-sm"
+              >
+                <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.163c-.272-1.022-1.074-1.826-2.099-2.099C19.55 3.5 12 3.5 12 3.5s-7.55 0-9.4.564c-1.025.273-1.827 1.077-2.099 2.099C0 8.013 0 12 0 12s0 3.987.502 5.837c.272 1.022 1.074 1.826 2.099 2.099C4.45 20.5 12 20.5 12 20.5s7.55 0 9.4-.564c1.025-.273 1.827-1.077 2.099-2.099C24 15.987 24 12 24 12s0-3.987-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
+              </a>
+            </div>
+          </div>
+
+          {/* Column 2: For Students */}
+          <div>
+            <h3 className="text-[13px] font-bold text-white uppercase tracking-widest mb-5 border-l-3 border-[#00b14f] pl-3">
+              Dành cho sinh viên
+            </h3>
+            <ul className="space-y-3.5 text-sm font-medium">
+              <li className="transform hover:translate-x-1.5 transition-all duration-300">
+                <Link to="/" className="text-slate-400 hover:text-[#00b14f] transition-colors flex items-center gap-1.5 group">
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-[#00b14f] transition-colors" />
+                  Tìm kiếm sự kiện
+                </Link>
+              </li>
+              <li className="transform hover:translate-x-1.5 transition-all duration-300">
+                <Link to="/my-jobs" className="text-slate-400 hover:text-[#00b14f] transition-colors flex items-center gap-1.5 group">
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-[#00b14f] transition-colors" />
+                  Sự kiện đã ứng tuyển
+                </Link>
+              </li>
+              <li className="transform hover:translate-x-1.5 transition-all duration-300">
+                <Link to="/my-jobs" className="text-slate-400 hover:text-[#00b14f] transition-colors flex items-center gap-1.5 group">
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-[#00b14f] transition-colors" />
+                  Việc làm đã lưu
+                </Link>
+              </li>
+              <li className="transform hover:translate-x-1.5 transition-all duration-300">
+                <Link to="/settings" className="text-slate-400 hover:text-[#00b14f] transition-colors flex items-center gap-1.5 group">
+                  <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-[#00b14f] transition-colors" />
+                  Quản lý hồ sơ CV
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Column 3: Contact Info */}
+          <div>
+            <h3 className="text-[13px] font-bold text-white uppercase tracking-widest mb-5 border-l-3 border-[#00b14f] pl-3">
+              Liên hệ với chúng tôi
+            </h3>
+            <div className="space-y-3.5 text-[13px] font-medium text-slate-350">
+              <div className="bg-slate-800/30 p-3.5 rounded-2xl border border-slate-700/20 flex items-start gap-3 hover:bg-slate-800/40 transition-all duration-300">
+                <MapPin className="w-5 h-5 text-[#00b14f] shrink-0 mt-0.5" />
+                <span className="leading-relaxed">Đường Ngũ Hành Sơn, Quận Ngũ Hành Sơn, TP. Đà Nẵng, Việt Nam</span>
+              </div>
+
+              <div className="bg-slate-800/30 p-3.5 rounded-2xl border border-slate-700/20 flex items-center gap-3 hover:bg-slate-800/40 transition-all duration-300">
+                <Phone className="w-5 h-5 text-[#00b14f] shrink-0" />
+                <span>+84 236 395 1234</span>
+              </div>
+
+              <div className="bg-slate-800/30 p-3.5 rounded-2xl border border-slate-700/20 flex items-center gap-3 hover:bg-slate-800/40 transition-all duration-300">
+                <Mail className="w-5 h-5 text-[#00b14f] shrink-0" />
+                <a href="mailto:support@eventmate.vn" className="hover:text-[#00b14f] transition-colors">support@eventmate.vn</a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </footer>
+  )
 }

@@ -491,3 +491,43 @@ ON storage.objects FOR DELETE
 TO authenticated
 USING (bucket_id = 'avatars');
 
+
+-- =========================================================================
+-- PHẦN 7: CẤU HÌNH BẢO MẬT HÀNG (RLS POLICIES) CHO CÁC BẢNG DỮ LIỆU
+-- =========================================================================
+
+-- 1. Bảng APPLICATIONS
+ALTER TABLE public.applications ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow public read on applications" ON public.applications;
+CREATE POLICY "Allow public read on applications" ON public.applications
+FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Allow students to insert their own applications" ON public.applications;
+CREATE POLICY "Allow students to insert their own applications" ON public.applications
+FOR INSERT TO authenticated WITH CHECK (auth.uid() = student_id);
+
+DROP POLICY IF EXISTS "Allow students to delete their own applications" ON public.applications;
+CREATE POLICY "Allow students to delete their own applications" ON public.applications
+FOR DELETE TO authenticated USING (auth.uid() = student_id);
+
+DROP POLICY IF EXISTS "Allow update on applications" ON public.applications;
+CREATE POLICY "Allow update on applications" ON public.applications
+FOR UPDATE USING (true);
+
+-- 2. Bảng EVENT_BOOKMARKS
+ALTER TABLE public.event_bookmarks ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow users to select their own bookmarks" ON public.event_bookmarks;
+CREATE POLICY "Allow users to select their own bookmarks" ON public.event_bookmarks
+FOR SELECT TO authenticated USING (auth.uid() = student_id);
+
+DROP POLICY IF EXISTS "Allow users to insert their own bookmarks" ON public.event_bookmarks;
+CREATE POLICY "Allow users to insert their own bookmarks" ON public.event_bookmarks
+FOR INSERT TO authenticated WITH CHECK (auth.uid() = student_id);
+
+DROP POLICY IF EXISTS "Allow users to delete their own bookmarks" ON public.event_bookmarks;
+CREATE POLICY "Allow users to delete their own bookmarks" ON public.event_bookmarks
+FOR DELETE TO authenticated USING (auth.uid() = student_id);
+
+

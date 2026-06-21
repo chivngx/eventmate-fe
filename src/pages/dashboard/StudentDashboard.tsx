@@ -23,7 +23,8 @@ export default function StudentDashboard() {
         bookmarkedEvents,
         currentPage,
         setCurrentPage,
-        categoryParam,
+        categoryTerm,
+        setCategoryTerm,
         toggleBookmark,
         filteredEvents,
         totalPages,
@@ -48,7 +49,8 @@ export default function StudentDashboard() {
             <div className="space-y-6 max-w-[1140px] mx-auto w-full">
                 {/* BỘ LỌC RIÊNG BIỆT KHÔNG CÓ KHUNG VIỀN */}
                 <QuickFilters
-                    categoryParam={categoryParam}
+                    categoryTerm={categoryTerm}
+                    setCategoryTerm={setCategoryTerm}
                     benefitTerm={benefitTerm}
                     wardIdTerm={wardIdTerm}
                     setWardIdTerm={setWardIdTerm}
