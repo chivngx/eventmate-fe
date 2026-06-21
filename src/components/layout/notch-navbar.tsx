@@ -85,7 +85,7 @@ const JobsMegaMenu = ({ role }: { role?: string }) => {
                         <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-5">Việc làm theo vị trí</h4>
                         <div className="space-y-4">
                             {['Tình nguyện viên', 'Điều phối viên (Coordinator)', 'CTV Truyền thông', 'Hậu cần & Setup', 'MC / Hoạt náo viên', 'Hỗ trợ khách mời'].map(item => (
-                                <Link key={item} to={`/?position=${encodeURIComponent(item)}`} className="block text-sm font-medium text-slate-600 hover:text-emerald-600 hover:translate-x-1 hover:font-bold transition-all">
+                                <Link key={item} to={`/jobs-by-position?position=${encodeURIComponent(item)}`} className="block text-sm font-medium text-slate-600 hover:text-emerald-600 hover:translate-x-1 hover:font-bold transition-all">
                                     {item}
                                 </Link>
                             ))}
@@ -97,7 +97,7 @@ const JobsMegaMenu = ({ role }: { role?: string }) => {
                         <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-5">Việc làm theo sự kiện</h4>
                         <div className="space-y-4">
                             {['Lễ hội Âm nhạc', 'Hội thảo / Workshop', 'Giải đấu Thể thao', 'Giao lưu Văn hóa', 'Triển lãm / Hội chợ', 'Sự kiện Công nghệ'].map(item => (
-                                <Link key={item} to={`/?category=${encodeURIComponent(item)}`} className="block text-sm font-medium text-slate-600 hover:text-emerald-600 hover:translate-x-1 hover:font-bold transition-all">
+                                <Link key={item} to={`/jobs-by-event?category=${encodeURIComponent(item)}`} className="block text-sm font-medium text-slate-600 hover:text-emerald-600 hover:translate-x-1 hover:font-bold transition-all">
                                     {item}
                                 </Link>
                             ))}

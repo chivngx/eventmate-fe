@@ -4,11 +4,13 @@ import Register from "./pages/auth/Register"
 import Login from "./pages/auth/Login"
 import Home from "./pages/Home"
 import AccountSettings from "./pages/settings/AccountSettings"
-import CVProfile from "./pages/CVProfile"
-import EventDetail from "./pages/EventDetail"
-import MyJobs from "./pages/MyJobs"
-import CompanyDetail from "./pages/CompanyDetail"
-import Chat from "./pages/Chat"
+import CVProfile from "./pages/cv/CVProfile"
+import EventDetail from "./pages/event/EventDetail"
+import MyJobs from "./pages/job/MyJobs"
+import CompanyDetail from "./pages/company/CompanyDetail"
+import Chat from "./pages/chat/Chat"
+import JobsByPosition from "./pages/job/JobsByPosition"
+import JobsByEvent from "./pages/event/JobsByEvent"
 import { ToastProvider } from "./components/ui/ToastProvider"
 
 function App() {
@@ -44,6 +46,8 @@ function App() {
           <Route path="/companies/:id" element={<CompanyDetail />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/chat/:id" element={<Chat />} />
+          <Route path="/jobs-by-position" element={<JobsByPosition />} />
+          <Route path="/jobs-by-event" element={<JobsByEvent />} />
         </Routes>
       </Router>
     </ToastProvider>

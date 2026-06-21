@@ -11,7 +11,7 @@ import {
   UserIcon,
   EyeIcon,
   GoogleSignInButton
-} from "@/components/auth-components"
+} from "@/components/auth/AuthComponents"
 
 interface AuthModalProps {
   isOpen: boolean

@@ -4,10 +4,10 @@ import MainLayout from "@/components/layout/MainLayout"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Plus, Calendar, Briefcase } from "lucide-react"
-import OrgEventsTab from "@/components/dashboard/OrgEventsTab"
-import OrgApplicationsTab from "@/components/dashboard/OrgApplicationsTab"
-import EventFormModal from "@/components/dashboard/EventFormModal"
-import ReviewModal from "@/components/dashboard/ReviewModal"
+import OrgEventsTab from "@/components/event/OrgEventsTab"
+import OrgApplicationsTab from "@/components/organizer/OrgApplicationsTab"
+import EventFormModal from "@/components/event/EventFormModal"
+import ReviewModal from "@/components/ReviewModal"
 
 export default function OrgDashboard() {
     const [reviewingStudent, setReviewingStudent] = useState<{ eventId: string; studentId: string; studentName: string } | null>(null)

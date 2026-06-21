@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { GraduationCap, Phone, Sparkles, Save, FileText, User, Eye } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import CVPreviewModal from "@/components/dashboard/CVPreviewModal"
+import CVPreviewModal from "@/components/cv/CVPreviewModal"
 
 export default function CVProfile() {
     const navigate = useNavigate()

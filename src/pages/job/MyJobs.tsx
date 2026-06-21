@@ -6,8 +6,8 @@ import { Briefcase, MapPin, Building2, CheckCircle, XCircle, Clock3, ArrowRight,
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import ScheduleCalendar from "@/components/dashboard/ScheduleCalendar"
-import ReviewModal from "@/components/dashboard/ReviewModal"
+import ScheduleCalendar from "@/components/ScheduleCalendar"
+import ReviewModal from "@/components/ReviewModal"
 
 export default function MyJobs() {
     const navigate = useNavigate()

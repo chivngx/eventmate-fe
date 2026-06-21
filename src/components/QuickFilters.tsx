@@ -1,36 +1,25 @@
 import { useState, useEffect, useRef } from "react"
-import { X, SlidersHorizontal, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { SlidersHorizontal, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react"
 import { useSearchParams } from "react-router-dom"
 
 interface QuickFiltersProps {
-  filterParam: string
-  positionParam: string
   categoryParam: string
   benefitTerm: string
   wardIdTerm: string
   setWardIdTerm: (val: string) => void
   wards: any[]
   setBenefitTerm: (val: string) => void
-  clearParamFilter: (paramName: string) => void
   setCurrentPage: (page: number) => void
-  showSuggestion: boolean
-  setShowSuggestion: (val: boolean) => void
 }
 
 export default function QuickFilters({
-  filterParam,
-  positionParam,
   categoryParam,
   benefitTerm,
   wardIdTerm,
   setWardIdTerm,
   wards,
   setBenefitTerm,
-  clearParamFilter,
   setCurrentPage,
-  showSuggestion,
-  setShowSuggestion
 }: QuickFiltersProps) {
   const [searchParams, setSearchParams] = useSearchParams()
   const scrollContainerRef = useRef<HTMLDivElement>(null)
@@ -56,12 +45,12 @@ export default function QuickFilters({
     if (el) {
       el.addEventListener("scroll", checkScroll)
       checkScroll()
-      
+
       const resizeObserver = new ResizeObserver(() => checkScroll())
       resizeObserver.observe(el)
-      
+
       const timeout = setTimeout(checkScroll, 100)
-      
+
       return () => {
         el.removeEventListener("scroll", checkScroll)
         resizeObserver.disconnect()
@@ -135,78 +124,40 @@ export default function QuickFilters({
 
   return (
     <div className="space-y-4">
-      {(positionParam || categoryParam || filterParam === "saved" || benefitTerm || wardIdTerm) && (
-        <div className="flex flex-wrap items-center gap-2 bg-slate-50 p-3 rounded-xl border border-slate-100 animate-in fade-in duration-200">
-          <span className="text-xs font-bold text-slate-500">Bộ lọc đang bật:</span>
-          {filterParam === "saved" && (
-            <Badge className="bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200 font-bold px-2 py-1 flex items-center gap-1 text-xs">
-              Mục: Việc làm đã lưu
-              <X onClick={() => clearParamFilter("filter")} className="w-3.5 h-3.5 ml-1 cursor-pointer hover:text-rose-500" />
-            </Badge>
-          )}
-          {positionParam && (
-            <Badge className="bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 font-bold px-2 py-1 flex items-center gap-1 text-xs">
-              Vị trí: {positionParam}
-              <X onClick={() => clearParamFilter("position")} className="w-3.5 h-3.5 ml-1 cursor-pointer hover:text-rose-500" />
-            </Badge>
-          )}
-          {categoryParam && (
-            <Badge className="bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 font-bold px-2 py-1 flex items-center gap-1 text-xs">
-              Nhóm: {categoryParam}
-              <X onClick={() => {
-                searchParams.delete("category")
-                setSearchParams(searchParams)
-                setCurrentPage(1)
-              }} className="w-3.5 h-3.5 ml-1 cursor-pointer hover:text-rose-500" />
-            </Badge>
-          )}
-          {benefitTerm && (
-            <Badge className="bg-amber-50 text-amber-850 hover:bg-amber-100 border border-amber-200 font-bold px-2 py-1 flex items-center gap-1 text-xs">
-              Quyền lợi: {benefitTerm}
-              <X onClick={() => setBenefitTerm("")} className="w-3.5 h-3.5 ml-1 cursor-pointer hover:text-rose-500" />
-            </Badge>
-          )}
-          {wardIdTerm && (
-            <Badge className="bg-teal-50 text-teal-800 hover:bg-teal-100 border border-teal-200 font-bold px-2 py-1 flex items-center gap-1 text-xs">
-              Phường/Xã: {wards.find(w => String(w.id) === wardIdTerm)?.name}
-              <X onClick={() => setWardIdTerm("")} className="w-3.5 h-3.5 ml-1 cursor-pointer hover:text-rose-500" />
-            </Badge>
-          )}
-        </div>
-      )}
-
-      <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 overflow-hidden py-1">
-        <div className="relative flex items-center bg-white border border-slate-200 hover:border-slate-300 rounded-lg px-3 py-2 shrink-0 transition-colors md:w-[220px]">
-          <SlidersHorizontal className="w-4 h-4 text-slate-400 mr-2" />
+      <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 overflow-hidden py-1 min-[1440px]:w-[1140px] min-[1440px]:h-[40px] min-[1440px]:flex-row min-[1440px]:justify-between min-[1440px]:items-start min-[1440px]:gap-0 min-[1440px]:py-0">
+        <div className="relative flex items-center bg-white border border-slate-200 hover:border-slate-300 rounded-lg px-3 py-2 shrink-0 transition-colors md:w-[220px] min-[1440px]:w-[277px] min-[1440px]:h-[40px] min-[1440px]:grid min-[1440px]:grid-cols-[84.56px_169.12px] min-[1440px]:gap-[5px] min-[1440px]:bg-white min-[1440px]:border-[0.8px] min-[1440px]:border-[#dee0e2] min-[1440px]:rounded-[6px] min-[1440px]:pl-[10px] min-[1440px]:pr-[7px] min-[1440px]:py-0 items-center">
+          <span className="flex items-center text-slate-400 gap-2 min-[1440px]:w-[85px] min-[1440px]:h-[20px] min-[1440px]:text-[#a6acb2] min-[1440px]:font-medium min-[1440px]:gap-[10px] min-[1440px]:text-[14px]">
+            <SlidersHorizontal className="w-4 h-4 text-slate-400 shrink-0 min-[1440px]:w-[12px] min-[1440px]:h-[14px] min-[1440px]:text-[#a6acb2]" />
+            <span className="text-sm font-bold min-[1440px]:text-[14px] min-[1440px]:font-medium">Lọc theo</span>
+          </span>
           <select
             value={filterMode}
             onChange={(e) => setFilterMode(e.target.value as any)}
-            className="bg-transparent text-slate-700 text-sm font-bold focus:outline-none cursor-pointer pr-8 appearance-none w-full"
+            className="bg-transparent text-slate-700 text-sm font-bold focus:outline-none cursor-pointer pr-8 appearance-none w-full min-[1440px]:text-[#444] min-[1440px]:text-[14px] min-[1440px]:pl-[8px] min-[1440px]:pr-[20px] min-[1440px]:leading-[28px] min-[1440px]:font-medium"
           >
-            <option value="location">Lọc theo: Địa điểm</option>
-            <option value="benefit">Lọc theo: Quyền lợi</option>
-            <option value="category">Lọc theo: Ngành nghề</option>
+            <option value="location">Địa điểm</option>
+            <option value="benefit">Quyền lợi</option>
+            <option value="category">Ngành nghề</option>
           </select>
-          <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 pointer-events-none" />
+          <ChevronDown className="w-4 h-4 text-slate-400 absolute right-3 pointer-events-none min-[1440px]:w-[20px] min-[1440px]:h-[25px] min-[1440px]:text-[#000000de] min-[1440px]:right-[7px]" />
         </div>
 
-        <div className="flex-1 flex items-center relative overflow-hidden">
+        <div className="flex-1 flex items-center relative overflow-hidden min-[1440px]:flex-initial min-[1440px]:w-[732px] min-[1440px]:h-[40px] min-[1440px]:flex min-[1440px]:items-center">
           <button
             type="button"
             onClick={() => scroll("left")}
             disabled={!showLeftArrow}
-            className={`w-8 h-8 rounded-full border flex items-center justify-center shrink-0 transition-all ${
-              showLeftArrow
+            className={`w-8 h-8 rounded-full border flex items-center justify-center shrink-0 transition-all ${showLeftArrow
                 ? "text-[#00b14f] border-[#00b14f] hover:bg-[#00b14f]/5 cursor-pointer"
                 : "text-slate-300 border-slate-100 cursor-not-allowed opacity-40"
-            }`}
+              } min-[1440px]:w-[32px] min-[1440px]:h-[32px] min-[1440px]:rounded-full min-[1440px]:border-[0.8px] min-[1440px]:mr-[15px] min-[1440px]:bg-white min-[1440px]:text-[#a6acb2] min-[1440px]:border-[#dee0e2] hover:min-[1440px]:bg-[#00b14f] hover:min-[1440px]:text-white hover:min-[1440px]:border-[#00b14f]`}
           >
-            <ChevronLeft className="w-4 h-4" />
+            <ChevronLeft className="w-4 h-4 min-[1440px]:w-5 min-[1440px]:h-5" strokeWidth={1.5} />
           </button>
 
           <div
             ref={scrollContainerRef}
-            className="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth flex-1 mx-2 py-1"
+            className="flex items-center gap-2 overflow-x-auto no-scrollbar scroll-smooth flex-1 mx-2 py-1 min-[1440px]:w-[638px] min-[1440px]:h-[40px] min-[1440px]:flex-initial min-[1440px]:mx-0 min-[1440px]:py-0"
           >
             {pills.map((pill) => {
               const isActive = activeValue === pill.value
@@ -215,11 +166,13 @@ export default function QuickFilters({
                   key={pill.label}
                   type="button"
                   onClick={() => handlePillClick(pill.value)}
-                  className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${
-                    isActive
+                  className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${isActive
                       ? "bg-[#00b14f] border-[#00b14f] text-white shadow-sm"
                       : "bg-[#f2f4f5] border-transparent text-[#212f3f] hover:border-[#00b14f] hover:text-[#00b14f] hover:bg-white"
-                  }`}
+                    } min-[1440px]:h-[40px] min-[1440px]:rounded-[20px] min-[1440px]:border-[0.8px] min-[1440px]:mr-[12px] min-[1440px]:py-[9px] min-[1440px]:px-[12px] min-[1440px]:text-[14px] min-[1440px]:font-medium min-[1440px]:leading-[20px] ${isActive
+                      ? "min-[1440px]:bg-[#00b14f] min-[1440px]:border-[#00b14f] min-[1440px]:text-white"
+                      : "min-[1440px]:bg-[#e9eaec] min-[1440px]:border-transparent min-[1440px]:text-[#333]"
+                    }`}
                 >
                   {pill.label}
                 </button>
@@ -231,28 +184,15 @@ export default function QuickFilters({
             type="button"
             onClick={() => scroll("right")}
             disabled={!showRightArrow}
-            className={`w-8 h-8 rounded-full border flex items-center justify-center shrink-0 transition-all ${
-              showRightArrow
+            className={`w-8 h-8 rounded-full border flex items-center justify-center shrink-0 transition-all ${showRightArrow
                 ? "text-[#00b14f] border-[#00b14f] hover:bg-[#00b14f]/5 cursor-pointer"
                 : "text-slate-300 border-slate-100 cursor-not-allowed opacity-40"
-            }`}
+              } min-[1440px]:w-[32px] min-[1440px]:h-[32px] min-[1440px]:rounded-full min-[1440px]:border-[0.8px] min-[1440px]:bg-white min-[1440px]:text-[#a6acb2] min-[1440px]:border-[#dee0e2] hover:min-[1440px]:bg-[#00b14f] hover:min-[1440px]:text-white hover:min-[1440px]:border-[#00b14f] min-[1440px]:ml-auto`}
           >
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="w-4 h-4 min-[1440px]:w-5 min-[1440px]:h-5" strokeWidth={1.5} />
           </button>
         </div>
       </div>
-
-      {showSuggestion && (
-        <div className="bg-emerald-50/50 border border-emerald-100 rounded-xl px-4 py-2.5 flex items-center justify-between text-xs text-emerald-800 font-medium animate-in fade-in duration-300">
-          <div className="flex items-center gap-2 pr-4">
-            <span className="text-base shrink-0">💡</span>
-            <span>Gợi ý: Hệ thống đã tối ưu chuyên biệt cho thị trường Đà Nẵng sau sáp nhập địa giới hành chính mới nhất!</span>
-          </div>
-          <button onClick={() => setShowSuggestion(false)} className="text-emerald-600 hover:text-emerald-800 transition-colors shrink-0">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
     </div>
   )
 }
