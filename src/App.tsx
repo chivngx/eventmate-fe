@@ -15,6 +15,7 @@ import JobsByEvent from "./pages/event/JobsByEvent"
 import SavedJobs from "./pages/job/SavedJobs"
 import AdminDashboard from "./pages/dashboard/AdminDashboard"
 import { ToastProvider } from "./components/ui/ToastProvider"
+import OnboardingOverlay from "./components/ui/OnboardingOverlay"
 
 function App() {
   useEffect(() => {
@@ -38,6 +39,7 @@ function App() {
   return (
     <ToastProvider>
       <Router>
+        <OnboardingOverlay />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
