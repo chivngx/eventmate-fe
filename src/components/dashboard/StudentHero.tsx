@@ -69,7 +69,7 @@ export default function StudentHero({
               onChange={(e) => setWardIdTerm(e.target.value)}
               className="border-0 bg-transparent shadow-none focus-visible:ring-0 text-slate-800 font-bold text-base h-11 w-full focus:outline-none cursor-pointer pl-2 bg-white"
             >
-              <option value="">Tất cả khu vực có bài đăng</option>
+              <option value="">Địa điểm</option>
               {activeWards.map(w => (
                 <option key={w.id} value={w.id}>{w.name}</option>
               ))}

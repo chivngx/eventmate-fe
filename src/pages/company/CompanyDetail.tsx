@@ -2,7 +2,7 @@ import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 import MainLayout from "@/components/layout/MainLayout"
-import { Link as LinkIcon, Users, MapPin, Search, ChevronDown, ChevronUp, Copy, Heart, FileText } from "lucide-react"
+import { Link as LinkIcon, Users, MapPin, Search, ChevronDown, ChevronUp, Copy, Bookmark, FileText, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { SkeletonCompanyDetail } from "@/components/ui/Skeleton"
@@ -29,8 +29,6 @@ export default function CompanyDetail() {
 
     // Bookmarks state for job cards inside company details
     const [bookmarkedJobs, setBookmarkedJobs] = useState<Record<string, boolean>>({})
-
-
 
     useEffect(() => {
         const fetchCompanyDetails = async () => {
@@ -69,7 +67,6 @@ export default function CompanyDetail() {
                 if (isUuid && profileData.slug) {
                     navigate(`/companies/${profileData.slug}`, { replace: true })
                 }
-
 
                 // Fetch events/jobs posted by this company
                 const { data: eventsData } = await supabase
@@ -165,25 +162,24 @@ export default function CompanyDetail() {
 
     return (
         <MainLayout role={role}>
-            <div className="max-w-6xl mx-auto py-4 px-4 font-sans text-[#212f3f] selection:bg-emerald-100">
-                {/* Company Header Box (No Cover Banner) */}
-                <div className="wrapper-company-cover bg-white rounded-2xl border border-slate-200 p-6 md:p-8 min-[1440px]:p-[24px_24px_0px] shadow-sm flex flex-col md:flex-row items-center md:items-start justify-between gap-6 relative min-[1440px]:w-[1140px] min-[1440px]:h-[230px] min-[1440px]:rounded-[16px] min-[1440px]:shadow-[0px_0px_14px_0px_rgba(0,0,0,0.03)] min-[1440px]:box-border">
+            <div className="max-w-6xl mx-auto pt-1 pb-6 px-4 font-sans text-[#212f3f] selection:bg-emerald-100 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                {/* Company Header Box (Matching EventDetail header style) */}
+                <div className="wrapper-company-cover bg-white rounded-lg border border-slate-200 p-6 md:p-8 min-[1440px]:p-[24px_24px_0px] shadow-sm flex flex-col md:flex-row items-center md:items-start justify-between gap-6 relative min-[1440px]:w-[1140px] min-[1440px]:h-[230px] min-[1440px]:rounded-[8px] min-[1440px]:shadow-[0px_0px_14px_0px_rgba(0,0,0,0.03)] min-[1440px]:box-border">
                     <div className="company-cover-inner_header flex flex-col md:flex-row items-center md:items-start gap-6 w-full md:w-auto min-[1440px]:w-[1092px] min-[1440px]:h-[140px] min-[1440px]:gap-[16px] min-[1440px]:flex-row">
-                        {/* Custom Square Box for Logo */}
-                        <div className="company-image-logo border border-slate-200 rounded-2xl p-2 w-28 h-28 md:w-32 md:h-32 flex items-center justify-center bg-white shadow-sm shrink-0 min-[1440px]:w-[140px] min-[1440px]:h-[140px] min-[1440px]:rounded-[12px] min-[1440px]:border min-[1440px]:border-[#ddd] min-[1440px]:p-2 min-[1440px]:box-border">
-                            <Avatar className="h-full w-full rounded-xl min-[1440px]:rounded-[8px]">
+                        {/* Company Logo wrapper matching event details page */}
+                        <div className="company-logo flex items-center justify-center bg-white border border-[#e9eaec] rounded-[8px] border-[0.8px] p-2 w-[110px] h-[110px] shrink-0 min-[1440px]:w-[120px] min-[1440px]:h-[120px]">
+                            <Avatar className="h-full w-full rounded-md">
                                 <AvatarImage src={company.avatar_url} className="object-contain" />
-                                <AvatarFallback className="rounded-xl min-[1440px]:rounded-[8px] bg-emerald-50 text-[#00b14f] text-4xl font-black">
+                                <AvatarFallback className="rounded-md bg-emerald-50 text-[#00b14f] text-4xl font-black">
                                     {company.full_name?.charAt(0).toUpperCase() || "O"}
                                 </AvatarFallback>
                             </Avatar>
                         </div>
 
-                        {/* Title & Website & Follow button wrapped in company-detail-overview */}
-                        <div className="company-detail-overview flex-1 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full min-[1440px]:w-[936px] min-[1440px]:h-[140px] min-[1440px]:gap-[16px] min-[1440px]:flex-row min-[1440px]:justify-between min-[1440px]:items-center">
-
-                            <div className="box-detail text-center md:text-left pt-2 md:pt-4 flex flex-col items-center md:items-start gap-2.5 min-[1440px]:w-[748px] min-[1440px]:h-[60px] min-[1440px]:gap-[12px] min-[1440px]:items-start min-[1440px]:pt-0">
-                                <h1 className="box-detail_company-name text-lg md:text-xl font-bold text-slate-800 leading-snug min-[1440px]:text-[20px] min-[1440px]:font-semibold min-[1440px]:leading-[28px] min-[1440px]:text-[#263a4d] min-[1440px]:font-sans min-[1440px]:tracking-[-0.2px]">
+                        {/* Title, website link, followers count */}
+                        <div className="company-detail-overview flex-1 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full min-[1440px]:w-[936px] min-[1440px]:h-[120px] min-[1440px]:gap-[16px] min-[1440px]:flex-row min-[1440px]:justify-between min-[1440px]:items-center">
+                            <div className="box-detail text-center md:text-left pt-2 flex flex-col items-center md:items-start gap-2.5 min-[1440px]:w-[748px] min-[1440px]:gap-[12px] min-[1440px]:items-start min-[1440px]:pt-0">
+                                <h1 className="box-detail_company-name text-xl md:text-2xl font-bold text-[#263a4d] leading-tight min-[1440px]:text-[20px] min-[1440px]:font-bold min-[1440px]:font-sans min-[1440px]:tracking-[-0.2px] min-[1440px]:leading-[28px]">
                                     {company.full_name}
                                 </h1>
                                 <div className="box-company-info flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2 mt-1 text-xs font-bold text-slate-400 min-[1440px]:gap-[8px] min-[1440px]:mt-0">
@@ -192,7 +188,7 @@ export default function CompanyDetail() {
                                             <LinkIcon className="w-3.5 h-3.5 shrink-0" /> {company.website || "Chưa cập nhật website"}
                                         </a>
                                     </div>
-                                    <span className="text-slate-200 min-[1440px]:hidden">|</span>
+                                    <span className="text-slate-200">|</span>
                                     <div className="box-company-info_item flex items-center gap-1.5 min-[1440px]:gap-[8px]">
                                         <span className="flex items-center gap-1.5 hover:text-[#00b14f] transition-colors min-[1440px]:text-[14px] min-[1440px]:text-[#7f878f] min-[1440px]:tracking-[0.14px] min-[1440px]:font-normal">
                                             <Users className="w-3.5 h-3.5 shrink-0" /> {isFollowed ? "3" : "2"} người theo dõi
@@ -201,31 +197,27 @@ export default function CompanyDetail() {
                                 </div>
                             </div>
 
-                            {/* Follow Button Box */}
-                            <div className="box-follow flex items-center gap-3 pt-2 md:pt-4 shrink-0 min-[1440px]:w-[172px] min-[1440px]:h-[42px] min-[1440px]:pt-0">
+                            {/* Follow Button styled like EventDetail apply buttons */}
+                            <div className="box-follow flex items-center gap-3 pt-2 md:pt-0 shrink-0 min-[1440px]:h-[40px]">
                                 <Button
                                     onClick={() => setIsFollowed(!isFollowed)}
-                                    className={`btn btn-follow btn-follow-js w-full rounded-full font-bold h-10 px-6 border text-xs transition-all min-[1440px]:h-[42px] min-[1440px]:rounded-[1000px] min-[1440px]:text-[14px] min-[1440px]:font-semibold min-[1440px]:py-[10px] min-[1440px]:px-0 min-[1440px]:justify-center min-[1440px]:gap-[8px] min-[1440px]:tracking-[0.175px] min-[1440px]:bg-[#00b14f] min-[1440px]:border-[#00b14f] ${isFollowed
-                                        ? "bg-[#00b14f] hover:bg-[#009a44] text-white border-[#00b14f]"
-                                        : "bg-[#00b14f] hover:bg-[#009a44] text-white border-[#00b14f]"
+                                    className={`w-full md:w-auto h-[40px] px-6 rounded-md font-semibold transition-all active:scale-95 border cursor-pointer min-[1440px]:w-[172px] min-[1440px]:h-[40px] min-[1440px]:rounded-[6px] min-[1440px]:text-[14px] ${isFollowed
+                                        ? "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200"
+                                        : "bg-[#00b14f] hover:bg-[#009a44] border-[#00b14f] text-white"
                                         }`}
                                 >
                                     {isFollowed ? (
-                                        <span>✓ Đang theo dõi</span>
+                                        <span className="flex items-center justify-center gap-1.5"><CheckCircle className="w-4 h-4 shrink-0" /> Đang theo dõi</span>
                                     ) : (
-                                        <>
-                                            <i className="fa-regular fa-plus flex items-center justify-center w-5 h-5 min-[1440px]:w-[20px] min-[1440px]:h-[20px] min-[1440px]:p-[2px] min-[1440px]:text-[14px] text-white shrink-0">+</i>
-                                            <span>Theo dõi công ty</span>
-                                        </>
+                                        <span>+ Theo dõi công ty</span>
                                     )}
                                 </Button>
                             </div>
-
                         </div>
                     </div>
 
                     {/* Tabs inside Header Box at bottom left */}
-                    <div className="box-tab-link absolute bottom-0 left-6 md:left-8 flex gap-6 min-[1440px]:absolute min-[1440px]:bottom-0 min-[1440px]:left-[180px] min-[1440px]:w-[1092px] min-[1440px]:h-[42px] min-[1440px]:gap-[20px]">
+                    <div className="box-tab-link absolute bottom-0 left-6 md:left-8 flex gap-6 min-[1440px]:absolute min-[1440px]:bottom-0 min-[1440px]:left-[160px] min-[1440px]:w-[1092px] min-[1440px]:h-[42px] min-[1440px]:gap-[20px]">
                         <button
                             onClick={() => setActiveTab("about")}
                             className={`box-tab-link_item pb-3 font-extrabold text-xs relative transition-colors min-[1440px]:text-[14px] min-[1440px]:font-semibold min-[1440px]:py-[7px] min-[1440px]:px-0 min-[1440px]:pb-[13px] min-[1440px]:tracking-[0.175px] ${activeTab === "about" ? "active-link text-[#00b14f]" : "text-slate-500 hover:text-[#00b14f]"
@@ -254,17 +246,19 @@ export default function CompanyDetail() {
 
                 {/* Tab Contents */}
                 {activeTab === "about" ? (
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
-                        {/* Left Side (Giới thiệu, Hình ảnh, Tin tuyển dụng) */}
-                        <div className="lg:col-span-2 space-y-6">
-                            {/* Giới thiệu */}
-                            <div className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm space-y-4">
-                                <h2 className="text-base font-bold text-slate-800 border-l-[3.5px] border-[#00b14f] pl-3 leading-none">
+                    <div className="company-detail_body flex flex-col lg:flex-row gap-6 items-start min-[1440px]:w-[1140px] min-[1440px]:gap-[28px] mt-6 w-full">
+                        
+                        {/* Left Column ( Giới thiệu, Hình ảnh, Tin tuyển dụng ) */}
+                        <div className="company-detail_body-left flex-1 w-full lg:max-w-[760px] space-y-6 min-[1440px]:w-[761px]">
+                            
+                            {/* Giới thiệu công ty */}
+                            <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm space-y-6">
+                                <h2 className="text-lg font-bold text-[#212f3f] border-l-[4px] border-[#00b14f] pl-3 leading-none flex items-center">
                                     Giới thiệu công ty
                                 </h2>
                                 <div className="relative">
-                                    <div className={`text-xs font-semibold text-slate-500 leading-relaxed transition-all duration-300 ${isIntroExpanded ? "" : "line-clamp-4"}`}>
-                                        {company.bio || `${company.full_name} is a fast-growing company operating in the FMCG and F&B distribution sector in Vietnam. The company specializes in importing, distributing, and trading high-quality food and beverage products across the Vietnamese market. As a subsidiary of the multinational PRAN-RFL Group, one of the leading food and consumer goods corporations with a global presence, the company leverages international expertise, strong supply chains, and a wide product portfolio to expand its market footprint in Vietnam.`}
+                                    <div className={`text-sm text-slate-700 leading-relaxed font-medium whitespace-pre-wrap transition-all duration-300 ${isIntroExpanded ? "" : "line-clamp-4"}`}>
+                                        {company.bio || `${company.full_name} là đối tác chiến dịch tuyển dụng và quản lý nhân sự tình nguyện chuyên biệt, hỗ trợ tổ chức và vận hành các sự kiện cộng đồng chất lượng cao tại khu vực miền Trung nói chung và thành phố Đà Nẵng nói riêng. Chúng tôi liên kết chặt chẽ với các câu lạc bộ sinh viên, các tổ chức giáo dục để mang đến lực lượng tình nguyện viên trẻ trung, năng động và giàu kinh nghiệm nhất.`}
                                     </div>
                                     <button
                                         onClick={() => setIsIntroExpanded(!isIntroExpanded)}
@@ -279,24 +273,24 @@ export default function CompanyDetail() {
                                 </div>
                             </div>
 
-                            {/* Hình ảnh công ty (Gallery slider) */}
-                            <div className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm space-y-4">
+                            {/* Hình ảnh công ty */}
+                            <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm space-y-6">
                                 <div className="flex items-center justify-between">
-                                    <h2 className="text-base font-bold text-slate-800 border-l-[3.5px] border-[#00b14f] pl-3 leading-none">
-                                        Hình ảnh công ty
+                                    <h2 className="text-lg font-bold text-[#212f3f] border-l-[4px] border-[#00b14f] pl-3 leading-none flex items-center">
+                                        Hình ảnh hoạt động
                                     </h2>
                                     <div className="flex items-center gap-2">
                                         <button
                                             onClick={() => setCurrentImageIndex(prev => Math.max(0, prev - 1))}
                                             disabled={currentImageIndex === 0}
-                                            className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-[#00b14f] hover:border-[#00b14f] disabled:opacity-30 disabled:hover:text-slate-400 disabled:hover:border-slate-200 transition-colors"
+                                            className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-[#00b14f] hover:border-[#00b14f] disabled:opacity-30 disabled:hover:text-slate-400 disabled:hover:border-slate-200 transition-all cursor-pointer"
                                         >
                                             &lt;
                                         </button>
                                         <button
                                             onClick={() => setCurrentImageIndex(prev => Math.min(galleryImages.length - 1, prev + 1))}
                                             disabled={currentImageIndex === galleryImages.length - 1}
-                                            className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-[#00b14f] hover:border-[#00b14f] disabled:opacity-30 disabled:hover:text-slate-400 disabled:hover:border-slate-200 transition-colors"
+                                            className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-[#00b14f] hover:border-[#00b14f] disabled:opacity-30 disabled:hover:text-slate-400 disabled:hover:border-slate-200 transition-all cursor-pointer"
                                         >
                                             &gt;
                                         </button>
@@ -304,7 +298,7 @@ export default function CompanyDetail() {
                                 </div>
                                 <div className="grid grid-cols-3 gap-3 overflow-hidden rounded-xl">
                                     {galleryImages.map((imgUrl: string, idx: number) => (
-                                        <div key={imgUrl} className="relative aspect-[4/3] rounded-lg overflow-hidden group">
+                                        <div key={imgUrl} className="relative aspect-[4/3] rounded-lg overflow-hidden group border border-slate-100">
                                             <img
                                                 src={imgUrl}
                                                 alt={`Company Gallery ${idx + 1}`}
@@ -315,13 +309,13 @@ export default function CompanyDetail() {
                                 </div>
                             </div>
 
-                            {/* Tin tuyển dụng */}
-                            <div className="bg-white rounded-2xl border border-slate-200 p-6 md:p-8 shadow-sm space-y-5">
-                                <h2 className="text-base font-bold text-slate-800 border-l-[3.5px] border-[#00b14f] pl-3 leading-none">
-                                    Tin tuyển dụng
+                            {/* Tuyển dụng tại công ty */}
+                            <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm space-y-6">
+                                <h2 className="text-lg font-bold text-[#212f3f] border-l-[4px] border-[#00b14f] pl-3 leading-none flex items-center">
+                                    Tuyển dụng mới nhất
                                 </h2>
 
-                                {/* Dynamic search filters */}
+                                {/* Search filter */}
                                 <div className="flex flex-col md:flex-row gap-3 pt-1">
                                     <div className="flex-1 flex items-center gap-2 border border-slate-200 rounded-xl px-4 py-2 bg-slate-50/50">
                                         <Search className="w-4 h-4 text-slate-400" />
@@ -338,7 +332,7 @@ export default function CompanyDetail() {
                                         onChange={(e) => setSelectedLocation(e.target.value)}
                                         className="border border-slate-200 rounded-xl px-4 py-2 bg-white text-xs font-bold text-slate-600 focus:outline-none focus:border-[#00b14f] max-w-full md:max-w-[200px]"
                                     >
-                                        <option value="">Tất cả tỉnh/thành phố</option>
+                                        <option value="">Tất cả khu vực</option>
                                         {locationsList.map(loc => (
                                             <option key={loc} value={loc}>{loc}</option>
                                         ))}
@@ -350,7 +344,7 @@ export default function CompanyDetail() {
 
                                 {/* Openings lists */}
                                 {filteredJobs.length === 0 ? (
-                                    <div className="py-8 text-center text-slate-400 font-semibold text-xs">Hiện tại không tìm thấy tin tuyển dụng nào phù hợp.</div>
+                                    <div className="py-8 text-center text-slate-450 font-semibold text-xs">Hiện tại không tìm thấy tin tuyển dụng nào phù hợp.</div>
                                 ) : (
                                     <div className="space-y-4">
                                         {filteredJobs.map((job) => (
@@ -360,78 +354,94 @@ export default function CompanyDetail() {
                                                 className="p-4 rounded-xl border border-slate-100 hover:border-[#00b14f] hover:shadow-md transition-all flex items-start justify-between gap-4 cursor-pointer group bg-white"
                                             >
                                                 <div className="flex gap-3">
-                                                    <div className="border border-slate-200 rounded-xl p-1.5 w-16 h-16 flex items-center justify-center bg-white shadow-sm shrink-0">
-                                                        <Avatar className="h-full w-full rounded-lg">
+                                                    <div className="company-logo flex items-center justify-center bg-white border border-[#e9eaec] rounded-[8px] border-[0.8px] p-1.5 w-[72px] h-[72px] shrink-0 cursor-pointer">
+                                                        <Avatar className="h-full w-full rounded-md">
                                                             <AvatarImage src={company.avatar_url} className="object-contain" />
-                                                            <AvatarFallback className="rounded-lg bg-emerald-50 text-[#00b14f] text-xl font-black">
+                                                            <AvatarFallback className="rounded-md bg-emerald-50 text-[#00b14f] text-xl font-black">
                                                                 {company.full_name?.charAt(0).toUpperCase() || "O"}
                                                             </AvatarFallback>
                                                         </Avatar>
                                                     </div>
-                                                    <div>
-                                                        <h3 className="text-sm font-bold text-slate-800 group-hover:text-[#00b14f] transition-colors leading-tight line-clamp-2">
+                                                    <div className="space-y-1">
+                                                        <h3 className="text-sm md:text-base font-bold text-[#212f3f] group-hover:text-[#00b14f] transition-colors leading-snug cursor-pointer font-sans tracking-[-0.16px]">
                                                             {job.title}
                                                         </h3>
-                                                        <p className="text-[11px] text-slate-400 font-bold mt-1.5">{company.full_name}</p>
-                                                        <div className="flex items-center gap-1.5 flex-wrap mt-2">
-                                                            <span className="text-[10px] font-bold bg-[#f4f5f6] text-slate-600 px-2 py-0.5 rounded">
+                                                        <p className="text-xs text-slate-400 font-bold mt-1">{company.full_name}</p>
+                                                        <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                                                            <span className="text-[10px] md:text-xs font-bold bg-[#f4f5f6] text-slate-500 px-2 py-0.5 rounded">
                                                                 {job.danang_wards?.name ? `P. ${job.danang_wards.name}` : (job.location || "Đà Nẵng")}
                                                             </span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div className="flex flex-col items-end justify-between h-16 shrink-0">
-                                                    <span className="text-xs font-bold text-[#00b14f]">{job.benefits || "Thỏa thuận"}</span>
+                                                <div className="flex flex-col items-end justify-between h-[72px] shrink-0">
+                                                    <span className="text-xs md:text-sm font-bold text-[#00b14f]">{job.benefits || "Thỏa thuận"}</span>
                                                     <button
                                                         onClick={(e) => toggleBookmark(job.id, e)}
-                                                        className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all ${bookmarkedJobs[job.id]
-                                                            ? "bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100"
-                                                            : "bg-white border-slate-200 text-slate-350 hover:text-rose-500 hover:border-rose-200"
+                                                        className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all ${bookmarkedJobs[job.id]
+                                                            ? "bg-emerald-50 border-emerald-200 text-[#00b14f]"
+                                                            : "bg-white border-slate-200 text-slate-350 hover:text-[#00b14f] hover:border-emerald-200"
                                                             }`}
                                                     >
-                                                        <Heart className={`w-3.5 h-3.5 ${bookmarkedJobs[job.id] ? "fill-current" : ""}`} />
+                                                        <Bookmark className={`w-4 h-4 ${bookmarkedJobs[job.id] ? "fill-current text-[#00b14f]" : "text-slate-400"}`} />
                                                     </button>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 )}
-                            </div>
+							</div>
                         </div>
 
-                        {/* Right Side (Thông tin chung, Địa điểm, Chia sẻ) */}
-                        <div className="lg:col-span-1 space-y-6">
-                            {/* Thông tin chung */}
-                            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
-                                <h3 className="text-base font-bold text-slate-800">Thông tin chung</h3>
-                                <div className="space-y-4 pt-1">
-                                    <div className="flex items-start gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center shrink-0">
-                                            <FileText className="w-4 h-4 text-slate-400" />
+                        {/* Right Column ( Thông tin chung, Địa điểm, Chia sẻ ) */}
+                        <div className="company-detail_body-right w-full lg:w-[350px] shrink-0 flex flex-col gap-6 items-center text-[#333] text-[14px] leading-[20px] min-[1440px]:w-[352px]">
+                            
+                            {/* Thông tin chung matching EventDetail styles */}
+                            <div className="job-detail_body-right--box-general bg-white rounded-lg border border-slate-200 p-5 shadow-sm text-[#333] text-[14px] leading-[20px] w-full min-[1440px]:w-[352px]">
+                                <div className="box-title text-lg font-bold text-[#212f3f] mb-4">
+                                    Thông tin chung
+                                </div>
+                                <div className="box-general-content flex flex-col gap-4 text-[#333] text-[14px] leading-[20px] w-full">
+                                    
+                                    <div className="box-general-group flex items-center gap-4 text-[#333] text-[14px] leading-[20px] w-full">
+                                        <div className="box-general-group-icon flex items-center justify-center bg-[#f2f4f5] rounded-[30px] p-2 text-[#333] text-[14px] leading-[20px] w-[40px] h-[40px] shrink-0">
+                                            <FileText className="w-5 h-5 text-[#333] fill-none" />
                                         </div>
-                                        <div>
-                                            <p className="text-[10px] text-slate-400 font-medium">Mã số thuế</p>
-                                            <p className="text-xs text-slate-800 font-bold mt-0.5">{company.mst || "Chưa cập nhật"}</p>
+                                        <div className="box-general-group-info flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full">
+                                            <div className="box-general-group-info-title text-[#4d5965] text-[14px] tracking-[0.14px] leading-[22px] whitespace-nowrap">
+                                                Mã số thuế
+                                            </div>
+                                            <div className="box-general-group-info-value text-[#212f3f] text-[14px] font-semibold tracking-[0.175px] leading-[22px] whitespace-nowrap">
+                                                {company.mst || "Chưa cập nhật"}
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="flex items-start gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center shrink-0">
-                                            <Users className="w-4 h-4 text-slate-400" />
+
+                                    <div className="box-general-group flex items-center gap-4 text-[#333] text-[14px] leading-[20px] w-full">
+                                        <div className="box-general-group-icon flex items-center justify-center bg-[#f2f4f5] rounded-[30px] p-2 text-[#333] text-[14px] leading-[20px] w-[40px] h-[40px] shrink-0">
+                                            <Users className="w-5 h-5 text-[#333] fill-none" />
                                         </div>
-                                        <div>
-                                            <p className="text-[10px] text-slate-400 font-medium">Quy mô</p>
-                                            <p className="text-xs text-slate-800 font-bold mt-0.5">{company.scale || "Chưa cập nhật"}</p>
+                                        <div className="box-general-group-info flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full">
+                                            <div className="box-general-group-info-title text-[#4d5965] text-[14px] tracking-[0.14px] leading-[22px] whitespace-nowrap">
+                                                Quy mô
+                                            </div>
+                                            <div className="box-general-group-info-value text-[#212f3f] text-[14px] font-semibold tracking-[0.175px] leading-[22px] whitespace-nowrap">
+                                                {company.scale || "Chưa cập nhật"}
+                                            </div>
                                         </div>
                                     </div>
+
                                 </div>
                             </div>
 
                             {/* Địa điểm công ty */}
-                            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
-                                <h3 className="text-base font-bold text-slate-800">Địa điểm công ty</h3>
+                            <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm space-y-4 w-full min-[1440px]:w-[352px]">
+                                <div className="text-lg font-bold text-[#212f3f]">
+                                    Địa điểm công ty
+                                </div>
                                 <div className="space-y-3">
-                                    <div className="flex items-start gap-2 text-xs font-semibold text-slate-500 leading-snug">
-                                        <MapPin className="w-4 h-4 text-slate-450 shrink-0 mt-0.5" />
+                                    <div className="flex items-start gap-2 text-sm font-semibold text-slate-700 leading-snug">
+                                        <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                                         <span>{company.address || "Chưa cập nhật địa chỉ"}</span>
                                     </div>
                                     {/* Mock Google Maps block */}
@@ -454,11 +464,13 @@ export default function CompanyDetail() {
                             </div>
 
                             {/* Chia sẻ công ty */}
-                            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
-                                <h3 className="text-base font-bold text-slate-800">Chia sẻ công ty</h3>
+                            <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm space-y-4 w-full min-[1440px]:w-[352px]">
+                                <div className="text-lg font-bold text-[#212f3f]">
+                                    Chia sẻ công ty
+                                </div>
                                 <div className="space-y-4">
                                     <div>
-                                        <p className="text-[10px] text-slate-400 font-bold mb-1.5">Sao chép đường dẫn</p>
+                                        <p className="text-[10px] text-slate-400 font-bold mb-1.5 uppercase">Sao chép đường dẫn</p>
                                         <div className="flex items-center gap-2 border border-slate-200 rounded-lg p-2 bg-slate-50/50">
                                             <input
                                                 type="text"
@@ -475,17 +487,17 @@ export default function CompanyDetail() {
                                         </div>
                                     </div>
                                     <div>
-                                        <p className="text-[10px] text-slate-400 font-bold mb-2">Chia sẻ qua mạng xã hội</p>
+                                        <p className="text-[10px] text-slate-400 font-bold mb-2 uppercase">Chia sẻ qua mạng xã hội</p>
                                         <div className="flex items-center gap-2.5">
-                                            <button className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:text-blue-600 hover:bg-blue-50 transition-colors">
+                                            <button className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:text-blue-650 hover:bg-blue-50 transition-colors cursor-pointer">
                                                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                     <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
                                                 </svg>
                                             </button>
-                                            <button className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:text-black hover:bg-slate-50 transition-colors">
+                                            <button className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:text-black hover:bg-slate-50 transition-colors cursor-pointer">
                                                 <span className="font-bold text-sm">𝕏</span>
                                             </button>
-                                            <button className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:text-blue-700 hover:bg-blue-50 transition-colors">
+                                            <button className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:text-blue-700 hover:bg-blue-50 transition-colors cursor-pointer">
                                                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                                     <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
                                                     <rect x="2" y="9" width="4" height="12" />
@@ -496,17 +508,21 @@ export default function CompanyDetail() {
                                     </div>
                                 </div>
                             </div>
+
                         </div>
                     </div>
                 ) : (
-                    /* Tin tuyển dụng Tab Content */
-                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mt-6">
-                        {/* Sidebar filters (left side) */}
-                        <div className="lg:col-span-1 bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5 h-fit">
-                            <h3 className="text-sm font-bold text-slate-800 border-b border-slate-100 pb-3">Danh mục nghề</h3>
-                            <div className="space-y-4 pt-1">
-                                <div className="space-y-2">
-                                    <label className="flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-[#00b14f] cursor-pointer">
+                    /* Tin tuyển dụng Tab Content matching EventDetail structures */
+                    <div className="company-detail_body flex flex-col lg:flex-row gap-6 items-start min-[1440px]:w-[1140px] min-[1440px]:gap-[28px] mt-6 w-full animate-in fade-in">
+                        
+                        {/* Left Side ( Filters Sidebar ) - width 350px */}
+                        <div className="w-full lg:w-[350px] shrink-0 space-y-6 min-[1440px]:w-[352px]">
+                            <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm space-y-4">
+                                <h3 className="text-lg font-bold text-[#212f3f] border-b border-slate-100 pb-3">
+                                    Danh mục vị trí
+                                </h3>
+                                <div className="space-y-2 pt-1">
+                                    <label className="flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-[#00b14f] cursor-pointer">
                                         <input type="checkbox" defaultChecked className="rounded border-slate-300 text-[#00b14f] focus:ring-[#00b14f]" />
                                         <span>Tất cả vị trí ({companyEvents.length})</span>
                                     </label>
@@ -514,9 +530,10 @@ export default function CompanyDetail() {
                             </div>
                         </div>
 
-                        {/* Search & Listings (right side) */}
-                        <div className="lg:col-span-3 space-y-4">
-                            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-5">
+                        {/* Right Side ( Search & Listings ) - width max-w-[760px] */}
+                        <div className="flex-1 w-full lg:max-w-[760px] space-y-6 min-[1440px]:w-[761px]">
+                            <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm space-y-6">
+                                
                                 {/* Search bar */}
                                 <div className="flex flex-col md:flex-row gap-3 pt-1">
                                     <div className="flex-1 flex items-center gap-2 border border-slate-200 rounded-xl px-4 py-2 bg-slate-50/50">
@@ -546,7 +563,7 @@ export default function CompanyDetail() {
 
                                 {/* Full list */}
                                 {filteredJobs.length === 0 ? (
-                                    <div className="py-16 text-center text-slate-400 font-semibold text-xs">Không tìm thấy tin tuyển dụng nào phù hợp.</div>
+                                    <div className="py-16 text-center text-slate-450 font-semibold text-xs">Không tìm thấy tin tuyển dụng nào phù hợp.</div>
                                 ) : (
                                     <div className="space-y-4">
                                         {filteredJobs.map((job) => (
@@ -556,36 +573,36 @@ export default function CompanyDetail() {
                                                 className="p-4 rounded-xl border border-slate-100 hover:border-[#00b14f] hover:shadow-md transition-all flex items-start justify-between gap-4 cursor-pointer group bg-white"
                                             >
                                                 <div className="flex gap-3">
-                                                    <div className="border border-slate-200 rounded-xl p-1.5 w-16 h-16 flex items-center justify-center bg-white shadow-sm shrink-0">
-                                                        <Avatar className="h-full w-full rounded-lg">
+                                                    <div className="company-logo flex items-center justify-center bg-white border border-[#e9eaec] rounded-[8px] border-[0.8px] p-1.5 w-[72px] h-[72px] shrink-0 cursor-pointer">
+                                                        <Avatar className="h-full w-full rounded-md">
                                                             <AvatarImage src={company.avatar_url} className="object-contain" />
-                                                            <AvatarFallback className="rounded-lg bg-emerald-50 text-[#00b14f] text-xl font-black">
+                                                            <AvatarFallback className="rounded-md bg-emerald-50 text-[#00b14f] text-xl font-black">
                                                                 {company.full_name?.charAt(0).toUpperCase() || "O"}
                                                             </AvatarFallback>
                                                         </Avatar>
                                                     </div>
-                                                    <div>
-                                                        <h3 className="text-sm font-bold text-slate-800 group-hover:text-[#00b14f] transition-colors leading-tight line-clamp-2">
+                                                    <div className="space-y-1">
+                                                        <h3 className="text-sm md:text-base font-bold text-[#212f3f] group-hover:text-[#00b14f] transition-colors leading-snug cursor-pointer font-sans tracking-[-0.16px]">
                                                             {job.title}
                                                         </h3>
-                                                        <p className="text-[11px] text-slate-400 font-bold mt-1.5">{company.full_name}</p>
-                                                        <div className="flex items-center gap-1.5 flex-wrap mt-2">
-                                                            <span className="text-[10px] font-bold bg-[#f4f5f6] text-slate-600 px-2 py-0.5 rounded">
+                                                        <p className="text-xs text-slate-400 font-bold mt-1">{company.full_name}</p>
+                                                        <div className="flex items-center gap-1.5 flex-wrap pt-1">
+                                                            <span className="text-[10px] md:text-xs font-bold bg-[#f4f5f6] text-slate-500 px-2 py-0.5 rounded">
                                                                 {job.danang_wards?.name ? `P. ${job.danang_wards.name}` : (job.location || "Đà Nẵng")}
                                                             </span>
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div className="flex flex-col items-end justify-between h-16 shrink-0">
-                                                    <span className="text-xs font-bold text-[#00b14f]">{job.benefits || "Thỏa thuận"}</span>
+                                                <div className="flex flex-col items-end justify-between h-[72px] shrink-0">
+                                                    <span className="text-xs md:text-sm font-bold text-[#00b14f]">{job.benefits || "Thỏa thuận"}</span>
                                                     <button
                                                         onClick={(e) => toggleBookmark(job.id, e)}
-                                                        className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all ${bookmarkedJobs[job.id]
-                                                            ? "bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100"
-                                                            : "bg-white border-slate-200 text-slate-350 hover:text-rose-500 hover:border-rose-200"
+                                                        className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all ${bookmarkedJobs[job.id]
+                                                            ? "bg-emerald-50 border-emerald-200 text-[#00b14f]"
+                                                            : "bg-white border-slate-200 text-slate-350 hover:text-[#00b14f] hover:border-emerald-200"
                                                             }`}
                                                     >
-                                                        <Heart className={`w-3.5 h-3.5 ${bookmarkedJobs[job.id] ? "fill-current" : ""}`} />
+                                                        <Bookmark className={`w-4 h-4 ${bookmarkedJobs[job.id] ? "fill-current text-[#00b14f]" : "text-slate-400"}`} />
                                                     </button>
                                                 </div>
                                             </div>
@@ -594,6 +611,7 @@ export default function CompanyDetail() {
                                 )}
                             </div>
                         </div>
+
                     </div>
                 )}
 
