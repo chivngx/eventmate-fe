@@ -36,18 +36,13 @@ export default function Home() {
         </div>
     )
 
-    // SỬA ĐỔI TẠI ĐÂY:
-    // Nếu chưa đăng nhập, vẫn render MainLayout và StudentDashboard (hoặc PublicDashboard)
-    // Lưu ý: Đảm bảo bên trong StudentDashboard không có đoạn chặn "if (!user) return..."
+    if (isLoggedIn && role === "organizer") {
+        return <OrgDashboard />
+    }
+
     return (
         <MainLayout role={isLoggedIn ? (role || "student") : "guest"}>
-            {isLoggedIn ? (
-                // Nếu đã đăng nhập thì hiện Dashboard đúng role
-                role === "organizer" ? <OrgDashboard /> : <StudentDashboard />
-            ) : (
-                // Nếu chưa đăng nhập, vẫn hiện StudentDashboard (hoặc trang xem công khai)
-                <StudentDashboard />
-            )}
+            <StudentDashboard />
         </MainLayout>
     )
 }

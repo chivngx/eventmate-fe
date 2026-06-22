@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 import MainLayout from "@/components/layout/MainLayout"
+import OrgLayout from "@/components/layout/OrgLayout"
 import { Send, MessageSquare, User, ArrowLeft, Calendar, Video, Clock, Check, X } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -28,21 +29,21 @@ interface Message {
 export default function Chat() {
   const { id: routeChatId } = useParams<{ id: string }>()
   const navigate = useNavigate()
-  
+
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [role, setRole] = useState("student")
   const [loading, setLoading] = useState(true)
-  
+
   const [chats, setChats] = useState<ChatItem[]>([])
   const [activeChat, setActiveChat] = useState<ChatItem | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState("")
   const [sending, setSending] = useState(false)
-  
+
   // Phân trang
   const [messagesLimit, setMessagesLimit] = useState(20)
   const [hasMoreMessages, setHasMoreMessages] = useState(true)
-  
+
   // Hẹn phỏng vấn
   const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false)
   const [interviewTitle, setInterviewTitle] = useState("")
@@ -50,7 +51,7 @@ export default function Chat() {
   const [interviewLink, setInterviewLink] = useState("")
   const [interviews, setInterviews] = useState<Record<string, any>>({})
   const [creatingInterview, setCreatingInterview] = useState(false)
-  
+
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // 1. Lấy thông tin User hiện tại
@@ -62,10 +63,10 @@ export default function Chat() {
         return
       }
       setCurrentUser(user)
-      
+
       const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
       if (profile) setRole(profile.role)
-      
+
       setLoading(false)
     }
     fetchUser()
@@ -199,12 +200,12 @@ export default function Chat() {
                 if (prev.some((m) => m.id === newMsg.id)) return prev
                 return [...prev, newMsg]
               })
-              
+
               // Nếu là tin nhắn lịch hẹn mới, tải lại danh sách lịch hẹn
               if (newMsg.content.startsWith("__INTERVIEW_REQUEST__:")) {
                 fetchInterviews(activeChat)
               }
-              
+
               scrollToBottom()
             }
           }
@@ -317,7 +318,7 @@ export default function Chat() {
       if (messageData) {
         setMessages(prev => [...prev, messageData as Message])
       }
-      
+
       // Reset form
       setInterviewTitle("")
       setInterviewDate("")
@@ -368,11 +369,9 @@ export default function Chat() {
 
   if (loading) {
     return (
-      <MainLayout role={role}>
-        <div className="flex h-[calc(100vh-120px)] items-center justify-center bg-slate-50 dark:bg-slate-950">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent"></div>
-        </div>
-      </MainLayout>
+      <div className="flex h-screen w-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent"></div>
+      </div>
     )
   }
 
@@ -380,8 +379,8 @@ export default function Chat() {
     return role === "organizer" ? chat.student_profile : chat.organizer_profile
   }
 
-  return (
-    <MainLayout role={role}>
+  const chatUI = (
+    <>
       <div className="max-w-6xl mx-auto h-[calc(100vh-120px)] flex bg-white dark:bg-slate-900 rounded-[2.5rem] border-2 border-slate-100 dark:border-slate-800/80 shadow-2xl overflow-hidden">
         {/* Left Side: Danh sách Chats */}
         <div className={`w-full md:w-80 border-r-2 border-slate-100 dark:border-slate-850 flex flex-col ${activeChat ? "hidden md:flex" : "flex"}`}>
@@ -407,11 +406,10 @@ export default function Chat() {
                       setActiveChat(chat)
                       navigate(`/chat/${chat.id}`)
                     }}
-                    className={`w-full flex items-center gap-3 p-3.5 rounded-2xl transition-all text-left ${
-                      isActive
+                    className={`w-full flex items-center gap-3 p-3.5 rounded-2xl transition-all text-left ${isActive
                         ? "bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100/50 dark:border-emerald-900/30"
                         : "hover:bg-slate-50 dark:hover:bg-slate-800/40 border border-transparent"
-                    }`}
+                      }`}
                   >
                     <Avatar className="h-10 w-10 border border-white dark:border-slate-800 shadow-sm shrink-0">
                       <AvatarImage src={partner.avatar_url} />
@@ -497,7 +495,7 @@ export default function Chat() {
 
                 {messages.map((msg) => {
                   const isMe = msg.sender_id === currentUser.id
-                  
+
                   // Kiểm tra xem tin nhắn có phải là lời mời phỏng vấn không
                   if (msg.content.startsWith("__INTERVIEW_REQUEST__:")) {
                     const interviewId = msg.content.substring("__INTERVIEW_REQUEST__:".length)
@@ -548,9 +546,9 @@ export default function Chat() {
                             {interview.meeting_link && (
                               <div>
                                 <span className="font-bold text-slate-400 block mb-0.5">Link phòng họp:</span>
-                                <a 
+                                <a
                                   href={interview.meeting_link.startsWith("http") ? interview.meeting_link : `https://${interview.meeting_link}`}
-                                  target="_blank" 
+                                  target="_blank"
                                   rel="noopener noreferrer"
                                   className="flex items-center gap-1.5 font-black text-emerald-600 dark:text-emerald-400 hover:underline"
                                 >
@@ -609,11 +607,10 @@ export default function Chat() {
                       className={`flex ${isMe ? "justify-end" : "justify-start"} animate-in fade-in duration-150`}
                     >
                       <div
-                        className={`max-w-[70%] rounded-2xl px-4 py-2.5 text-sm font-medium leading-relaxed shadow-sm ${
-                          isMe
+                        className={`max-w-[70%] rounded-2xl px-4 py-2.5 text-sm font-medium leading-relaxed shadow-sm ${isMe
                             ? "bg-emerald-600 text-white rounded-tr-none"
                             : "bg-white dark:bg-slate-850 text-slate-800 dark:text-slate-200 rounded-tl-none border border-slate-100 dark:border-slate-800"
-                        }`}
+                          }`}
                       >
                         <p className="break-words">{msg.content}</p>
                         <span className={`block text-[9px] text-right mt-1.5 font-bold ${isMe ? "text-emerald-200" : "text-slate-400"}`}>
@@ -673,14 +670,14 @@ export default function Chat() {
                 <Calendar className="w-5 h-5 text-emerald-500" />
                 Hẹn phỏng vấn
               </h3>
-              <button 
-                onClick={() => setIsInterviewModalOpen(false)} 
+              <button
+                onClick={() => setIsInterviewModalOpen(false)}
                 className="text-xs font-black text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
               >
                 Đóng
               </button>
             </div>
-            
+
             <form onSubmit={handleCreateInterview} className="p-6 space-y-4">
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Chủ đề phỏng vấn *</label>
@@ -729,6 +726,36 @@ export default function Chat() {
           </div>
         </div>
       )}
+    </>
+  )
+
+  if (role === "organizer") {
+    return (
+      <OrgLayout
+        activeTab="chat"
+        setActiveTab={(tab) => navigate(`/?tab=${tab}`)}
+        isPremium={localStorage.getItem("em_premium_recruiter") === "true"}
+        userProfile={{
+          fullName: currentUser?.raw_user_meta_data?.full_name || "Nhà tuyển dụng",
+          avatarUrl: currentUser?.raw_user_meta_data?.avatar_url || "",
+          email: currentUser?.email || ""
+        }}
+        onLogout={async () => {
+          localStorage.removeItem("em_user_profile")
+          await supabase.auth.signOut()
+          navigate("/")
+        }}
+      >
+        <div className="py-2">
+          {chatUI}
+        </div>
+      </OrgLayout>
+    )
+  }
+
+  return (
+    <MainLayout role={role}>
+      {chatUI}
     </MainLayout>
   )
 }

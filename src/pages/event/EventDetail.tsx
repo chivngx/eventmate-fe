@@ -5,6 +5,7 @@ import MainLayout from "@/components/layout/MainLayout"
 import { MapPin, Calendar, CheckCircle, XCircle, Clock3, Bookmark, Briefcase, Tag, DollarSign, Users, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/ToastProvider"
+import { SkeletonEventDetail } from "@/components/ui/Skeleton"
 
 export default function EventDetail() {
     const { id } = useParams<{ id: string }>()
@@ -23,7 +24,7 @@ export default function EventDetail() {
             const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id || "")
             let eventQuery = supabase
                 .from("events")
-                .select("*, profiles(id, full_name, avatar_url, slug), danang_wards(name)")
+                .select("*, profiles(id, full_name, avatar_url, slug, scale, address), danang_wards(name)")
 
             if (isUuid) {
                 eventQuery = eventQuery.eq("id", id)
@@ -36,7 +37,13 @@ export default function EventDetail() {
             if (eventData) {
                 setEvent(eventData)
 
+                // Tự động chuyển hướng URL từ ID dạng UUID sang dạng Slug SEO thân thiện
+                if (isUuid && eventData.slug) {
+                    navigate(`/jobs/${eventData.slug}`, { replace: true })
+                }
+
                 const { data: { user } } = await supabase.auth.getUser()
+
                 if (user) {
                     const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
                     if (profile) setRole(profile.role)
@@ -124,11 +131,7 @@ export default function EventDetail() {
         }
     }
 
-    if (loading) return (
-        <MainLayout role="guest">
-            <div className="flex justify-center items-center py-20 text-slate-500 font-medium">Đang tải chi tiết sự kiện...</div>
-        </MainLayout>
-    )
+    if (loading) return <SkeletonEventDetail />
 
     if (!event) return (
         <MainLayout role="guest">
@@ -316,7 +319,7 @@ export default function EventDetail() {
                             <div className="job-detail_company--information w-full flex flex-col gap-3 min-[1440px]:w-[312px]">
                                 <div className="job-detail_company--information-item company-name flex items-start text-[#333] text-[14px] gap-[16px] leading-[20px] mb-3 min-[1440px]:mb-[12px]">
                                     <div
-                                        onClick={() => navigate(`/companies/${event.organizer_id}`)}
+                                        onClick={() => navigate(`/companies/${event.profiles?.slug || event.organizer_id}`)}
                                         className="company-logo flex items-center justify-center bg-white border border-[#e9eaec] rounded-[8px] border-[0.8px] text-[#23527c] text-[14px] leading-[20px] p-[7.04px] w-[88px] h-[88px] shrink-0 cursor-pointer"
                                     >
                                         <img
@@ -331,7 +334,7 @@ export default function EventDetail() {
                                     </div>
                                     <div className="company-name-label flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full min-[1440px]:w-[206px] min-[1440px]:gap-[4px]">
                                         <a
-                                            onClick={() => navigate(`/companies/${event.organizer_id}`)}
+                                            onClick={() => navigate(`/companies/${event.profiles?.slug || event.organizer_id}`)}
                                             className="name text-[14px] font-semibold text-[#212f3f] font-sans tracking-[-0.16px] leading-[24px] cursor-pointer hover:text-[#00b14f] transition-colors"
                                         >
                                             {event.profiles?.full_name || "Đơn vị ẩn danh"}
@@ -345,7 +348,7 @@ export default function EventDetail() {
                                         <span>Quy mô:</span>
                                     </div>
                                     <div className="company-value text-[#212f3f] text-[14px] font-medium leading-[22px] tracking-[0.14px] w-full min-[1440px]:w-[208px]">
-                                        100 - 150 nhân sự
+                                        {event.profiles?.scale || "Chưa cập nhật"}
                                     </div>
                                 </div>
 
@@ -355,14 +358,14 @@ export default function EventDetail() {
                                         <span>Địa điểm:</span>
                                     </div>
                                     <div className="company-value text-[#212f3f] text-[14px] font-medium leading-[22px] tracking-[0.14px] w-full min-[1440px]:w-[208px]">
-                                        {event.location ? `${event.location}, Đà Nẵng` : "Đà Nẵng, Việt Nam"}
+                                        {event.profiles?.address || "Chưa cập nhật"}
                                     </div>
                                 </div>
                             </div>
 
                             <div className="job-detail_company--link w-full flex justify-center text-[#333] text-[14px] leading-[20px] min-[1440px]:w-[312px] mt-1">
                                 <a
-                                    onClick={() => navigate(`/companies/${event.organizer_id}`)}
+                                    onClick={() => navigate(`/companies/${event.profiles?.slug || event.organizer_id}`)}
                                     className="flex items-center justify-center gap-[10px] text-[#00b14f] text-[14px] font-semibold leading-[22px] tracking-[0.175px] font-sans hover:underline cursor-pointer"
                                 >
                                     Xem trang công ty
@@ -370,6 +373,7 @@ export default function EventDetail() {
                                 </a>
                             </div>
                         </div>
+
 
                         {/* General Info Box */}
                         <div className="job-detail_body-right--box-general bg-white rounded-lg border border-slate-200 p-5 shadow-sm text-[#333] text-[14px] leading-[20px] w-full min-[1440px]:w-[351px] min-[1440px]:rounded-[8px] min-[1440px]:p-[20px]">

@@ -23,7 +23,12 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     bio TEXT,
     skills TEXT,
     slug TEXT UNIQUE,
-    cv_completion_percent INT DEFAULT 0 -- Tự động tính toán bằng Trigger
+    cv_completion_percent INT DEFAULT 0, -- Tự động tính toán bằng Trigger
+    mst TEXT,
+    website TEXT,
+    scale TEXT,
+    address TEXT,
+    company_images TEXT
 );
 
 -- 3. Bảng EVENTS (Sự kiện & Vị trí tuyển dụng)
@@ -369,7 +374,7 @@ CREATE OR REPLACE FUNCTION public.generate_profile_slug()
 RETURNS TRIGGER AS $$
 BEGIN
   IF NEW.role = 'organizer' AND (TG_OP = 'INSERT' OR (TG_OP = 'UPDATE' AND NEW.full_name IS DISTINCT FROM OLD.full_name)) THEN
-    NEW.slug := public.slugify(NEW.full_name) || '-' || substring(md5(random()::text) from 1 for 4);
+    NEW.slug := public.slugify(NEW.full_name);
   END IF;
   RETURN NEW;
 END;
@@ -380,7 +385,7 @@ CREATE OR REPLACE FUNCTION public.generate_event_slug()
 RETURNS TRIGGER AS $$
 BEGIN
   IF TG_OP = 'INSERT' OR (TG_OP = 'UPDATE' AND NEW.title IS DISTINCT FROM OLD.title) THEN
-    NEW.slug := public.slugify(NEW.title) || '-' || substring(md5(random()::text) from 1 for 6);
+    NEW.slug := public.slugify(NEW.title);
   END IF;
   RETURN NEW;
 END;
@@ -529,5 +534,17 @@ FOR INSERT TO authenticated WITH CHECK (auth.uid() = student_id);
 DROP POLICY IF EXISTS "Allow users to delete their own bookmarks" ON public.event_bookmarks;
 CREATE POLICY "Allow users to delete their own bookmarks" ON public.event_bookmarks
 FOR DELETE TO authenticated USING (auth.uid() = student_id);
+
+
+-- =========================================================================
+-- DI CƯ DỮ LIỆU / CẬP NHẬT TRƯỜNG MỚI (MIGRATIONS)
+-- Chạy các lệnh dưới đây trong Supabase SQL Editor nếu đã có sẵn bảng profiles
+-- =========================================================================
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS mst TEXT;
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS website TEXT;
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS scale TEXT;
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS address TEXT;
+-- ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS company_images TEXT;
+
 
 

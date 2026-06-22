@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react"
 import { Navigate } from "react-router-dom"
 import { cn } from "@/lib/utils"
+import MainLayout from "@/components/layout/MainLayout"
+import { SkeletonGenericPage } from "@/components/ui/Skeleton"
 import { Button } from "@/components/ui/button"
 import {
     Card,
@@ -13,7 +15,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import MainLayout from "@/components/layout/MainLayout"
 import { useAccountSettings } from "@/pages/settings/useAccountSettings"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { User, Upload } from "lucide-react"
@@ -48,7 +49,7 @@ export default function AccountSettings() {
         handleUploadAvatar
     } = useAccountSettings()
 
-    if (loading) return null
+    if (loading) return <SkeletonGenericPage />
     if (!role) return <Navigate to="/login" replace />
 
     return (

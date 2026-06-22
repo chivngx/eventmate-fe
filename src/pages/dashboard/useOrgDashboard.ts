@@ -35,6 +35,30 @@ export function useOrgDashboard() {
     const [loadingApps, setLoadingApps] = useState(false)
     const [userId, setUserId] = useState<string | null>(null)
 
+    const [activeTab, setActiveTabState] = useState<string>(() => {
+        return searchParams.get("tab") || "feed"
+    })
+    const [isPremium, setIsPremium] = useState<boolean>(() => {
+        return localStorage.getItem("em_premium_recruiter") === "true"
+    })
+
+    const setActiveTab = (tab: string) => {
+        setActiveTabState(tab)
+        setSearchParams({ tab })
+    }
+
+    const handleBuyPremium = () => {
+        setIsPremium(true)
+        localStorage.setItem("em_premium_recruiter", "true")
+    }
+
+    const togglePremium = () => {
+        const newVal = !isPremium
+        setIsPremium(newVal)
+        localStorage.setItem("em_premium_recruiter", String(newVal))
+    }
+
+
     const [dbPositions, setDbPositions] = useState<string[]>([])
     const [dbCategories, setDbCategories] = useState<string[]>([])
 
@@ -197,6 +221,7 @@ export function useOrgDashboard() {
     }
 
     const handleViewApplications = async (event: any) => {
+        setActiveTab("candidates")
         setSelectedEventForCandidates(event)
         setLoadingApps(true)
         const { data, error } = await supabase
@@ -313,6 +338,11 @@ export function useOrgDashboard() {
         resetForm,
         totalEvents,
         activeEvents,
-        userId
+        userId,
+        activeTab,
+        setActiveTab,
+        isPremium,
+        handleBuyPremium,
+        togglePremium
     }
 }

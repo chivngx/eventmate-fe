@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { GraduationCap, Phone, Sparkles, Save, FileText, User, Eye } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import CVPreviewModal from "@/components/cv/CVPreviewModal"
+import { SkeletonGenericPage } from "@/components/ui/Skeleton"
 
 export default function CVProfile() {
     const navigate = useNavigate()
@@ -82,11 +83,7 @@ export default function CVProfile() {
         setSaving(false)
     }
 
-    if (loading) return (
-        <MainLayout role="student">
-            <div className="flex justify-center items-center py-20 text-slate-500 font-medium">Đang tải hồ sơ CV...</div>
-        </MainLayout>
-    )
+    if (loading) return <SkeletonGenericPage />
 
     return (
         <MainLayout role={role}>
@@ -195,7 +192,7 @@ export default function CVProfile() {
                 </div>
 
             </div>
-            
+
             <CVPreviewModal
                 isOpen={cvPreviewOpen}
                 onClose={() => setCvPreviewOpen(false)}

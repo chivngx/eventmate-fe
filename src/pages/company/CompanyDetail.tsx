@@ -2,9 +2,10 @@ import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { supabase } from "@/lib/supabase"
 import MainLayout from "@/components/layout/MainLayout"
-import { Link as LinkIcon, Users, MapPin, Search, ChevronDown, ChevronUp, Copy, Heart, FileText, Briefcase } from "lucide-react"
+import { Link as LinkIcon, Users, MapPin, Search, ChevronDown, ChevronUp, Copy, Heart, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { SkeletonCompanyDetail } from "@/components/ui/Skeleton"
 
 export default function CompanyDetail() {
     const { id } = useParams<{ id: string }>()
@@ -29,11 +30,7 @@ export default function CompanyDetail() {
     // Bookmarks state for job cards inside company details
     const [bookmarkedJobs, setBookmarkedJobs] = useState<Record<string, boolean>>({})
 
-    const galleryImages = [
-        "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600&h=350&q=80",
-        "https://images.unsplash.com/photo-1542744094-3a31f103e35f?auto=format&fit=crop&w=600&h=350&q=80",
-        "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=600&h=350&q=80"
-    ]
+
 
     useEffect(() => {
         const fetchCompanyDetails = async () => {
@@ -68,6 +65,12 @@ export default function CompanyDetail() {
             if (profileData) {
                 setCompany(profileData)
 
+                // Tự động chuyển hướng URL từ ID dạng UUID sang dạng Slug SEO thân thiện
+                if (isUuid && profileData.slug) {
+                    navigate(`/companies/${profileData.slug}`, { replace: true })
+                }
+
+
                 // Fetch events/jobs posted by this company
                 const { data: eventsData } = await supabase
                     .from("events")
@@ -100,11 +103,7 @@ export default function CompanyDetail() {
     }, [])
 
     if (loading) {
-        return (
-            <MainLayout role="guest">
-                <div className="flex justify-center items-center py-20 text-slate-500 font-medium font-sans">Đang tải thông tin công ty...</div>
-            </MainLayout>
-        )
+        return <SkeletonCompanyDetail />
     }
 
     if (!company) {
@@ -118,6 +117,14 @@ export default function CompanyDetail() {
             </MainLayout>
         )
     }
+
+    const galleryImages = company.company_images
+        ? company.company_images.split(',').filter(Boolean)
+        : [
+            "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600&h=350&q=80",
+            "https://images.unsplash.com/photo-1542744094-3a31f103e35f?auto=format&fit=crop&w=600&h=350&q=80",
+            "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=600&h=350&q=80"
+        ]
 
     const toggleBookmark = async (eventId: string, e: React.MouseEvent) => {
         e.stopPropagation()
@@ -181,8 +188,8 @@ export default function CompanyDetail() {
                                 </h1>
                                 <div className="box-company-info flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2 mt-1 text-xs font-bold text-slate-400 min-[1440px]:gap-[8px] min-[1440px]:mt-0">
                                     <div className="box-company-info_item flex items-center gap-1.5 min-[1440px]:gap-[8px]">
-                                        <a href="https://www.pranfoods.net/" target="_blank" rel="noreferrer" className="box-company-info_item hover:text-[#00b14f] flex items-center gap-1.5 transition-colors min-[1440px]:text-[14px] min-[1440px]:text-[#7f878f] min-[1440px]:tracking-[0.14px] min-[1440px]:font-normal">
-                                            <LinkIcon className="w-3.5 h-3.5 shrink-0" /> https://www.pranfoods.net/
+                                        <a href={company.website || "#"} target="_blank" rel="noreferrer" className="box-company-info_item hover:text-[#00b14f] flex items-center gap-1.5 transition-colors min-[1440px]:text-[14px] min-[1440px]:text-[#7f878f] min-[1440px]:tracking-[0.14px] min-[1440px]:font-normal">
+                                            <LinkIcon className="w-3.5 h-3.5 shrink-0" /> {company.website || "Chưa cập nhật website"}
                                         </a>
                                     </div>
                                     <span className="text-slate-200 min-[1440px]:hidden">|</span>
@@ -199,8 +206,8 @@ export default function CompanyDetail() {
                                 <Button
                                     onClick={() => setIsFollowed(!isFollowed)}
                                     className={`btn btn-follow btn-follow-js w-full rounded-full font-bold h-10 px-6 border text-xs transition-all min-[1440px]:h-[42px] min-[1440px]:rounded-[1000px] min-[1440px]:text-[14px] min-[1440px]:font-semibold min-[1440px]:py-[10px] min-[1440px]:px-0 min-[1440px]:justify-center min-[1440px]:gap-[8px] min-[1440px]:tracking-[0.175px] min-[1440px]:bg-[#00b14f] min-[1440px]:border-[#00b14f] ${isFollowed
-                                            ? "bg-[#00b14f] hover:bg-[#009a44] text-white border-[#00b14f]"
-                                            : "bg-[#00b14f] hover:bg-[#009a44] text-white border-[#00b14f]"
+                                        ? "bg-[#00b14f] hover:bg-[#009a44] text-white border-[#00b14f]"
+                                        : "bg-[#00b14f] hover:bg-[#009a44] text-white border-[#00b14f]"
                                         }`}
                                 >
                                     {isFollowed ? (
@@ -296,7 +303,7 @@ export default function CompanyDetail() {
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-3 gap-3 overflow-hidden rounded-xl">
-                                    {galleryImages.map((imgUrl, idx) => (
+                                    {galleryImages.map((imgUrl: string, idx: number) => (
                                         <div key={imgUrl} className="relative aspect-[4/3] rounded-lg overflow-hidden group">
                                             <img
                                                 src={imgUrl}
@@ -378,8 +385,8 @@ export default function CompanyDetail() {
                                                     <button
                                                         onClick={(e) => toggleBookmark(job.id, e)}
                                                         className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all ${bookmarkedJobs[job.id]
-                                                                ? "bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100"
-                                                                : "bg-white border-slate-200 text-slate-350 hover:text-rose-500 hover:border-rose-200"
+                                                            ? "bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100"
+                                                            : "bg-white border-slate-200 text-slate-350 hover:text-rose-500 hover:border-rose-200"
                                                             }`}
                                                     >
                                                         <Heart className={`w-3.5 h-3.5 ${bookmarkedJobs[job.id] ? "fill-current" : ""}`} />
@@ -404,7 +411,7 @@ export default function CompanyDetail() {
                                         </div>
                                         <div>
                                             <p className="text-[10px] text-slate-400 font-medium">Mã số thuế</p>
-                                            <p className="text-xs text-slate-800 font-bold mt-0.5">0317906869</p>
+                                            <p className="text-xs text-slate-800 font-bold mt-0.5">{company.mst || "Chưa cập nhật"}</p>
                                         </div>
                                     </div>
                                     <div className="flex items-start gap-3">
@@ -413,16 +420,7 @@ export default function CompanyDetail() {
                                         </div>
                                         <div>
                                             <p className="text-[10px] text-slate-400 font-medium">Quy mô</p>
-                                            <p className="text-xs text-slate-800 font-bold mt-0.5">100-499 nhân viên</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-start gap-3">
-                                        <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center shrink-0">
-                                            <Briefcase className="w-4 h-4 text-slate-400" />
-                                        </div>
-                                        <div>
-                                            <p className="text-[10px] text-slate-400 font-medium">Lĩnh vực hoạt động</p>
-                                            <p className="text-xs text-slate-800 font-bold mt-0.5">Bán lẻ - Hàng tiêu dùng - FMCG</p>
+                                            <p className="text-xs text-slate-800 font-bold mt-0.5">{company.scale || "Chưa cập nhật"}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -434,7 +432,7 @@ export default function CompanyDetail() {
                                 <div className="space-y-3">
                                     <div className="flex items-start gap-2 text-xs font-semibold text-slate-500 leading-snug">
                                         <MapPin className="w-4 h-4 text-slate-450 shrink-0 mt-0.5" />
-                                        <span>31, Vo Van Van Street, Vinh Loc B, Binh Chanh</span>
+                                        <span>{company.address || "Chưa cập nhật địa chỉ"}</span>
                                     </div>
                                     {/* Mock Google Maps block */}
                                     <div className="border border-slate-100 rounded-xl overflow-hidden shadow-inner aspect-[4/3] bg-slate-50 relative flex items-center justify-center">
@@ -444,7 +442,7 @@ export default function CompanyDetail() {
                                             className="w-full h-full object-cover opacity-80"
                                         />
                                         <a
-                                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("31, Vo Van Van Street, Vinh Loc B, Binh Chanh")}`}
+                                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(company.address || company.full_name)}`}
                                             target="_blank"
                                             rel="noreferrer"
                                             className="absolute bg-white/95 text-[10px] font-bold text-[#00b14f] px-3 py-1.5 rounded-lg shadow border border-slate-200 hover:bg-white transition-colors"
@@ -583,8 +581,8 @@ export default function CompanyDetail() {
                                                     <button
                                                         onClick={(e) => toggleBookmark(job.id, e)}
                                                         className={`w-7 h-7 rounded-full border flex items-center justify-center transition-all ${bookmarkedJobs[job.id]
-                                                                ? "bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100"
-                                                                : "bg-white border-slate-200 text-slate-350 hover:text-rose-500 hover:border-rose-200"
+                                                            ? "bg-rose-50 border-rose-200 text-rose-500 hover:bg-rose-100"
+                                                            : "bg-white border-slate-200 text-slate-350 hover:text-rose-500 hover:border-rose-200"
                                                             }`}
                                                     >
                                                         <Heart className={`w-3.5 h-3.5 ${bookmarkedJobs[job.id] ? "fill-current" : ""}`} />
@@ -619,8 +617,8 @@ export default function CompanyDetail() {
                         <Button
                             onClick={() => setIsFollowed(!isFollowed)}
                             className={`rounded-lg font-bold h-10 px-5 text-xs transition-all shrink-0 ${isFollowed
-                                    ? "bg-[#00b14f] hover:bg-[#009a44] text-white border-[#00b14f]"
-                                    : "bg-[#00b14f] hover:bg-[#009a44] text-white border-[#00b14f]"
+                                ? "bg-[#00b14f] hover:bg-[#009a44] text-white border-[#00b14f]"
+                                : "bg-[#00b14f] hover:bg-[#009a44] text-white border-[#00b14f]"
                                 }`}
                         >
                             {isFollowed ? "✓ Đang theo dõi" : "+ Theo dõi ngay"}

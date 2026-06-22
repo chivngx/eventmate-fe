@@ -6,6 +6,7 @@ import { Bookmark, MapPin, Building2, Briefcase, Tag, Trash2, ArrowRight } from 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { SkeletonGenericPage } from "@/components/ui/Skeleton"
 
 export default function SavedJobs() {
     const navigate = useNavigate()
@@ -64,11 +65,7 @@ export default function SavedJobs() {
         }
     }
 
-    if (loading) return (
-        <MainLayout role="student">
-            <div className="flex justify-center items-center py-20 text-slate-500 font-medium">Đang tải việc làm đã lưu...</div>
-        </MainLayout>
-    )
+    if (loading) return <SkeletonGenericPage />
 
     return (
         <MainLayout role={role}>

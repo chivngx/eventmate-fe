@@ -73,6 +73,7 @@
 }
 
 @theme inline {
+
   --font-heading: var(--font-sans);
   --font-sans: 'Inter', sans-serif;
   --color-sidebar-ring: var(--sidebar-ring);
@@ -127,3 +128,10 @@
     @apply font-sans;
   }
 }
+
+/* Tự động giảm tỉ lệ hiển thị (scale/zoom) cho màn hình dưới 1440px down to 1024px để giữ nguyên layout và tỷ lệ chuẩn */
+@media (min-width: 1024px) and (max-width: 1439.98px) {
+  body {
+    zoom: calc(100vw / 1440);
+  }
+}

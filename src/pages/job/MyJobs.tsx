@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import ScheduleCalendar from "@/components/ScheduleCalendar"
 import ReviewModal from "@/components/ReviewModal"
+import { SkeletonGenericPage } from "@/components/ui/Skeleton"
 import CertificateModal from "@/components/CertificateModal"
 import { useToast } from "@/components/ui/ToastProvider"
 
@@ -46,9 +47,9 @@ export default function MyJobs() {
                 status, 
                 applied_at,
                 events (
-                    id, title, location, status, position_type, category, benefits, event_date, application_deadline, ward_id,
+                    id, title, location, status, position_type, category, benefits, event_date, application_deadline, ward_id, slug,
                     danang_wards (name),
-                    profiles (id, full_name, avatar_url)
+                    profiles (id, full_name, avatar_url, slug)
                 )
             `)
             .eq("student_id", user.id)
@@ -103,11 +104,7 @@ export default function MyJobs() {
         }
     }
 
-    if (loading) return (
-        <MainLayout role="student">
-            <div className="flex justify-center items-center py-20 text-slate-500 font-medium">Đang tải lịch sử ứng tuyển...</div>
-        </MainLayout>
-    )
+    if (loading) return <SkeletonGenericPage />
 
     return (
         <MainLayout role={role}>
@@ -165,7 +162,7 @@ export default function MyJobs() {
                                 return (
                                     <div key={app.id} className="bg-white rounded-[1.5rem] border-2 border-slate-100 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-950/5 transition-all duration-300 animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${idx * 50}ms` }}>
 
-                                        <div className="flex gap-5 items-start flex-1 cursor-pointer min-w-0" onClick={() => navigate(`/jobs/${event?.id}`)}>
+                                        <div className="flex gap-5 items-start flex-1 cursor-pointer min-w-0" onClick={() => navigate(`/jobs/${event?.slug || event?.id}`)}>
                                             <Avatar className="h-16 w-16 rounded-2xl border-2 border-slate-50 mt-1 shrink-0">
                                                 <AvatarImage src={organizer?.avatar_url} />
                                                 <AvatarFallback className="rounded-2xl bg-slate-100 text-2xl font-black text-slate-700">

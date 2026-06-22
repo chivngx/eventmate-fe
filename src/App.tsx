@@ -13,6 +13,7 @@ import Chat from "./pages/chat/Chat"
 import JobsByPosition from "./pages/job/JobsByPosition"
 import JobsByEvent from "./pages/event/JobsByEvent"
 import SavedJobs from "./pages/job/SavedJobs"
+import AdminDashboard from "./pages/dashboard/AdminDashboard"
 import { ToastProvider } from "./components/ui/ToastProvider"
 
 function App() {
@@ -52,6 +53,7 @@ function App() {
           <Route path="/positions/:position" element={<JobsByPosition />} />
           <Route path="/events/:category" element={<JobsByEvent />} />
           <Route path="/saved" element={<SavedJobs />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           {/* Backwards compatibility */}
           <Route path="/jobs-by-position" element={<JobsByPosition />} />
           <Route path="/jobs-by-event" element={<JobsByEvent />} />
