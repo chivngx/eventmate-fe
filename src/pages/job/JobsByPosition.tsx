@@ -4,6 +4,7 @@ import { useEffect, useState } from"react"
 import { useSearchParams, useNavigate, useParams } from"@/lib/router"
 import { supabase } from"@/lib/supabase"
 import { useUser } from"@/components/providers/AuthProvider"
+import { slugify } from"@/lib/slugify"
 import MainLayout from"@/components/layout/MainLayout"
 import { Search, MapPin, Briefcase, Tag, Clock, ChevronLeft, ChevronRight, Building2, Heart } from"lucide-react"
 import { Button } from"@/components/ui/button"
@@ -71,13 +72,13 @@ export default function JobsByPosition() {
  const fetchEvents = async () => {
  setLoading(true)
  let posName = positionParam
- const { data: posData } = await supabase
- .from("job_positions")
- .select("name")
- .eq("slug", positionParam)
- .maybeSingle()
- if (posData) {
- posName = posData.name
+ // 🔧 Fix: slug có thể null trong DB (trigger chưa chạy) — fetch all + match client-side
+ const { data: allPositions } = await supabase.from("job_positions").select("name, slug")
+ const match = (allPositions || []).find((p: any) =>
+ p.slug === positionParam || (p.slug === null && slugify(p.name) === positionParam)
+ )
+ if (match) {
+ posName = match.name
  }
 
  let query = supabase

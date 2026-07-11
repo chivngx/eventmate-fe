@@ -443,3 +443,21 @@ Work Log:
 
 Stage Summary:
 - UI/UX redesign HOÀN TẤT. Bỏ phong cách TopCV (notch navbar, zoom 1440, fixed sizes). Bỏ toàn bộ gradient. Design system flat (emerald brand + slate neutral). Responsive đầy đủ (sm/md/lg breakpoints, container max-w-7xl, mobile drawer). Giao diện sạch, người thật, không AI.
+
+---
+Task ID: fix-duplicate-key
+Agent: main (Z.ai Code)
+Task: Fix lỗi "two children with same key null" + slug null trong DB
+
+Work Log:
+- Audit: dev.log + Agent Browser console cho thấy lỗi "Encountered two children with the same key `null`" lặp liên tục trên home.
+- Root cause: DB `job_positions.slug` + `event_categories.slug` đều NULL (trigger generate_*_slug chưa chạy vì migration chưa apply). Navbar dùng `key={item.slug}` → tất cả key = null → React duplicate key error.
+- Fix 1: tạo src/lib/slugify.ts — `slugify(text)` (mirror server Postgres slugify) + `resolveSlug(row)` (prefer DB slug, fallback slugify(name)). Navbar dùng `key={slug || item.name}` + `href={/positions/${slug}}`.
+- Fix 2: JobsByPosition + JobsByEvent query `.eq("slug", param)` fail khi slug null → refactor fetch all + match client-side (slug === param HOẶC slugify(name) === param).
+- Fix 3: tạo supabase/migrations/0003_backfill_slugs.sql — UPDATE tất cả row có slug NULL/empty: job_positions, event_categories, events, profiles(organizer). Idempotent.
+- Fix 4: audit toàn bộ .map với key={item.slug} → không còn nguy cơ null nào khác.
+- Verify: lint 0 errors. Routes / 200, /positions/tinh-nguyen-vien 200 (slug fallback hoạt động), /events/le-hoi-am-nhac 200, /companies 200. Agent Browser: clear localStorage → skip onboarding → 0 "same key" error, 9 event cards render, /positions page render đúng "Tìm việc làm tinh-nguyen-vien tại Đà Nẵng".
+
+Stage Summary:
+- Lỗi "same key null" đã fix triệt để. Slug null trong DB được handle bằng client-side slugify fallback + migration backfill. App chạy sạch, 0 console error (chỉ còn Vercel Analytics ad-blocker warning — không nghiêm trọng).
+- CẦN USER: chạy migration 0003_backfill_slugs.sql trong Supabase Dashboard để fill slug cho DB (frontend đã fallback nên work ngay cả khi chưa chạy).

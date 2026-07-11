@@ -4,6 +4,7 @@ import { useEffect, useState } from"react"
 import { useSearchParams, useNavigate, useParams } from"@/lib/router"
 import { supabase } from"@/lib/supabase"
 import { useUser } from"@/components/providers/AuthProvider"
+import { slugify } from"@/lib/slugify"
 import MainLayout from"@/components/layout/MainLayout"
 import { Search, MapPin, Briefcase, Clock, ChevronLeft, ChevronRight, Building2, Heart } from"lucide-react"
 import * as LucideIcons from"lucide-react"
@@ -91,13 +92,13 @@ export default function JobsByEvent() {
  const fetchEvents = async () => {
  setLoading(true)
  let catName = categoryParam
- const { data: catData } = await supabase
- .from("event_categories")
- .select("name")
- .eq("slug", categoryParam)
- .maybeSingle()
- if (catData) {
- catName = catData.name
+ // 🔧 Fix: slug có thể null trong DB — fetch all + match client-side
+ const { data: allCats } = await supabase.from("event_categories").select("name, slug")
+ const match = (allCats || []).find((c: any) =>
+ c.slug === categoryParam || (c.slug === null && slugify(c.name) === categoryParam)
+ )
+ if (match) {
+ catName = match.name
  }
 
  let query = supabase

@@ -6,7 +6,8 @@ import { usePathname } from"next/navigation"
 import { Search, FileText, Menu, X, ChevronDown, Bookmark, Briefcase, Building2, MessageSquare } from"lucide-react"
 import { cn } from"@/lib/utils"
 import { motion, AnimatePresence } from"framer-motion"
-import { useJobPositions, useEventCategories } from"@/hooks/use-lookups"
+import { useJobPositions, useEventCategories } from "@/hooks/use-lookups"
+import { resolveSlug } from "@/lib/slugify"
 
 const NavLink = ({ href, icon: Icon, label, onClick }: { href: string; icon: React.ComponentType<{ className?: string }>; label: string; onClick?: (e: React.MouseEvent) => void }) => {
  const pathname = usePathname()
@@ -79,11 +80,14 @@ const JobsMegaMenu = ({ role }: { role?: string }) => {
  <div className="space-y-3 sm:border-l sm:border-slate-100 sm:pl-5">
  <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Theo vị trí</h4>
  <div className="space-y-1">
- {positions.map(item => (
- <Link key={item.slug} href={`/positions/${item.slug}`} className="block text-sm text-slate-600 hover:text-primary rounded-lg p-1.5 hover:bg-accent transition-colors">
+ {positions.map(item => {
+ const slug = resolveSlug(item)
+ return (
+ <Link key={slug || item.name} href={`/positions/${slug}`} className="block text-sm text-slate-600 hover:text-primary rounded-lg p-1.5 hover:bg-accent transition-colors">
  {item.name}
  </Link>
- ))}
+ )
+ })}
  </div>
  </div>
 
@@ -91,11 +95,14 @@ const JobsMegaMenu = ({ role }: { role?: string }) => {
  <div className="space-y-3 sm:border-l sm:border-slate-100 sm:pl-5 hidden lg:block">
  <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Theo sự kiện</h4>
  <div className="space-y-1">
- {categories.map(item => (
- <Link key={item.slug} href={`/events/${item.slug}`} className="block text-sm text-slate-600 hover:text-primary rounded-lg p-1.5 hover:bg-accent transition-colors">
+ {categories.map(item => {
+ const slug = resolveSlug(item)
+ return (
+ <Link key={slug || item.name} href={`/events/${slug}`} className="block text-sm text-slate-600 hover:text-primary rounded-lg p-1.5 hover:bg-accent transition-colors">
  {item.name}
  </Link>
- ))}
+ )
+ })}
  </div>
  </div>
  </div>
