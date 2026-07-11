@@ -103,7 +103,7 @@ export default function CVProfile() {
 
  <div className="bg-white rounded-[2rem] border-2 border-slate-100 shadow-xl shadow-emerald-900/5 overflow-hidden">
  {/* BANNER NỀN TRÊN CỦA THẺ PROFILE */}
- <div className="h-32 bg-gradient-to-r from-emerald-500 to-teal-500 relative">
+ <div className="h-32 relative">
  <div className="absolute -bottom-10 left-8">
  <div className="w-24 h-24 bg-white rounded-2xl p-1.5 shadow-md flex items-center justify-center">
  {/* ĐÃ NÂNG CẤP: Hiển thị Avatar thực tế đồng bộ động từ tài khoản Google/DB */}

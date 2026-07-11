@@ -54,7 +54,7 @@ export default function OrgEventsTab({
  className="bg-white border-2 border-slate-100 rounded-[2rem] p-6 hover:border-emerald-300 hover:shadow-xl transition-all duration-300 flex flex-col justify-between gap-6 shadow-sm relative group overflow-hidden"
  >
  {/* Top Indicator Gradient Line */}
- <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-indigo-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+ <div className="absolute top-0 left-0 right-0 h-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
  <div className="space-y-4">
  {/* Header: Title and Status Badge */}

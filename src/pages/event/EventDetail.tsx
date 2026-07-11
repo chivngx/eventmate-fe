@@ -150,21 +150,21 @@ export default function EventDetail() {
 
  if (applyStatus === 'approved') {
  return (
- <button disabled className="job-detail_info--actions-button button-primary btn-apply-job flex items-center justify-center rounded-md font-semibold bg-emerald-100 border border-emerald-200 text-emerald-700 h-[40px] px-6 min-[1440px]:w-[569px] min-[1440px]:h-[40px] min-[1440px]:rounded-[6px] min-[1440px]:text-[14px] min-[1440px]:gap-[6px] min-[1440px]:leading-[22px] min-[1440px]:p-[8px_16px_8px_12px]">
+ <button disabled className="job-detail_info--actions-button button-primary btn-apply-job flex items-center justify-center rounded-md font-semibold bg-emerald-100 border border-emerald-200 text-emerald-700 h-[40px] px-6">
  <CheckCircle className="w-4 h-4 mr-2" /> Trúng tuyển
  </button>
  )
  }
  if (applyStatus === 'rejected') {
  return (
- <button disabled className="job-detail_info--actions-button button-primary btn-apply-job flex items-center justify-center rounded-md font-semibold bg-rose-50 border border-rose-100 text-rose-500 h-[40px] px-6 min-[1440px]:w-[569px] min-[1440px]:h-[40px] min-[1440px]:rounded-[6px] min-[1440px]:text-[14px] min-[1440px]:gap-[6px] min-[1440px]:leading-[22px] min-[1440px]:p-[8px_16px_8px_12px]">
+ <button disabled className="job-detail_info--actions-button button-primary btn-apply-job flex items-center justify-center rounded-md font-semibold bg-rose-50 border border-rose-100 text-rose-500 h-[40px] px-6">
  <XCircle className="w-4 h-4 mr-2" /> Chưa phù hợp
  </button>
  )
  }
  if (applyStatus === 'pending') {
  return (
- <button disabled className="job-detail_info--actions-button button-primary btn-apply-job flex items-center justify-center rounded-md font-semibold bg-amber-50 border border-amber-100 text-amber-600 h-[40px] px-6 min-[1440px]:w-[569px] min-[1440px]:h-[40px] min-[1440px]:rounded-[6px] min-[1440px]:text-[14px] min-[1440px]:gap-[6px] min-[1440px]:leading-[22px] min-[1440px]:p-[8px_16px_8px_12px]">
+ <button disabled className="job-detail_info--actions-button button-primary btn-apply-job flex items-center justify-center rounded-md font-semibold bg-amber-50 border border-amber-100 text-amber-600 h-[40px] px-6">
  <Clock3 className="w-4 h-4 mr-2" /> Đang chờ duyệt
  </button>
  )
@@ -174,7 +174,7 @@ export default function EventDetail() {
  <button
  onClick={handleApply}
  disabled={disabledApply || isPastDeadline}
- className="job-detail_info--actions-button button-primary open-apply-modal btn-apply-job flex items-center justify-center bg-[#00b14f] hover:bg-[#009a44] text-white font-semibold font-sans rounded-md transition-all active:scale-95 disabled:opacity-50 h-[40px] px-6 text-sm flex-1 cursor-pointer min-[1440px]:w-[569px] min-[1440px]:h-[40px] min-[1440px]:rounded-[6px] min-[1440px]:text-[14px] min-[1440px]:font-semibold min-[1440px]:gap-[6px] min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.175px] min-[1440px]:p-[8px_16px_8px_12px]"
+ className="job-detail_info--actions-button button-primary open-apply-modal btn-apply-job flex items-center justify-center bg-[#00b14f] hover:bg-[#009a44] text-white font-semibold font-sans rounded-md transition-all active:scale-95 disabled:opacity-50 h-[40px] px-6 text-sm flex-1 cursor-pointer"
  >
  {isApplying ?"Đang xử lý..." : isPastDeadline ?"Đã hết hạn nộp đơn" : event.status !== 'upcoming' ?"Đã đóng đăng ký" :"Ứng tuyển ngay"}
  </button>
@@ -185,46 +185,46 @@ export default function EventDetail() {
  <MainLayout role={role ||"guest"}>
  <div className="max-w-6xl mx-auto pt-1 pb-6 px-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
  {/* Two Column Layout */}
- <div className="job-detail_body flex flex-col lg:flex-row gap-6 items-start min-[1440px]:w-[1140px] min-[1440px]:gap-[28px] min-[1440px]:flex-row">
+ <div className="job-detail_body flex flex-col lg:flex-row gap-6 items-start">
  {/* Left Column (Width: approx 760px on large screen) */}
- <div className="job-detail_body-left flex-1 w-full lg:max-w-[760px] space-y-6 min-[1440px]:w-[761px] min-[1440px]:gap-[28px] min-[1440px]:flex-col">
+ <div className="job-detail_body-left flex-1 w-full lg:max-w-[760px] space-y-6">
  {/* Box 1: Header / General Summary */}
- <div id="header-job-info" className="job-detail_box job-detail_info bg-white rounded-lg border border-slate-200 p-6 shadow-sm min-[1440px]:p-[20px_24px] min-[1440px]:rounded-[8px] min-[1440px]:gap-[16px] min-[1440px]:flex-col">
- <h1 className="job-detail_info--title text-xl md:text-2xl font-bold text-[#263a4d] leading-tight mb-4 min-[1440px]:mb-[16px] min-[1440px]:w-[713px] min-[1440px]:text-[20px] min-[1440px]:font-bold min-[1440px]:font-sans min-[1440px]:tracking-[-0.2px] min-[1440px]:leading-[28px]">
+ <div id="header-job-info" className="job-detail_box job-detail_info bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
+ <h1 className="job-detail_info--title text-xl md:text-2xl font-bold text-[#263a4d] leading-tight mb-4">
  {event.title}
  </h1>
 
  {/* Quick Info Grid */}
- <div className="job-detail_info--sections grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-100 pt-5 pb-6 min-[1440px]:w-[713px] min-[1440px]:h-[46px] min-[1440px]:flex-row min-[1440px]:items-center min-[1440px]:justify-between min-[1440px]:pt-0 min-[1440px]:pb-0 min-[1440px]:border-t-0 min-[1440px]:flex">
- <div className="job-detail_info--section section-salary flex items-center gap-3 min-[1440px]:h-[46px] min-[1440px]:flex-row min-[1440px]:items-center min-[1440px]:gap-[16px]">
- <div className="job-detail_info--section-icon w-9 h-9 rounded-full bg-[#00b14f]/5 flex items-center justify-center shrink-0 min-[1440px]:w-[40px] min-[1440px]:h-[40px] min-[1440px]:rounded-[30px] min-[1440px]:p-[10px] min-[1440px]:flex min-[1440px]:flex-col min-[1440px]:justify-center min-[1440px]:items-center min-[1440px]:gap-[10px] min-[1440px]:bg-gradient-to-br min-[1440px]:from-[#00bf5d] min-[1440px]:to-[#00907c]">
- <DollarSign className="w-4 h-4 text-[#00b14f] min-[1440px]:text-white" />
+ <div className="job-detail_info--sections grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-100 pt-5 pb-6">
+ <div className="job-detail_info--section section-salary flex items-center gap-3">
+ <div className="job-detail_info--section-icon w-9 h-9 rounded-full bg-[#00b14f]/5 flex items-center justify-center shrink-0">
+ <DollarSign className="w-4 h-4 text-[#00b14f]" />
  </div>
  <div>
- <p className="job-detail_info--section-content-title text-[12px] text-slate-400 font-medium min-[1440px]:h-[22px] min-[1440px]:text-[14px] min-[1440px]:text-[#263a4d] min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.14px]">Quyền lợi / Lương</p>
- <p className="job-detail_info--section-content-value text-[13px] text-[#212f3f] font-semibold truncate max-w-[180px] min-[1440px]:h-[22px] min-[1440px]:text-[14px] min-[1440px]:text-[#212f3f] min-[1440px]:font-semibold min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.175px]" title={event.benefits ||"Thỏa thuận"}>
+ <p className="job-detail_info--section-content-title text-[12px] text-slate-400 font-medium">Quyền lợi / Lương</p>
+ <p className="job-detail_info--section-content-value text-[13px] text-[#212f3f] font-semibold truncate max-w-[180px]" title={event.benefits ||"Thỏa thuận"}>
  {event.benefits ||"Thỏa thuận"}
  </p>
  </div>
  </div>
- <div className="job-detail_info--section section-location flex items-center gap-3 min-[1440px]:flex-row min-[1440px]:items-center min-[1440px]:gap-[16px] min-[1440px]:flex-basis-0">
- <div className="job-detail_info--section-icon w-9 h-9 rounded-full bg-[#00b14f]/5 flex items-center justify-center shrink-0 min-[1440px]:w-[40px] min-[1440px]:h-[40px] min-[1440px]:rounded-[30px] min-[1440px]:p-[10px] min-[1440px]:flex min-[1440px]:flex-col min-[1440px]:justify-center min-[1440px]:items-center min-[1440px]:gap-[10px] min-[1440px]:bg-gradient-to-br min-[1440px]:from-[#00bf5d] min-[1440px]:to-[#00907c]">
- <MapPin className="w-4 h-4 text-[#00b14f] min-[1440px]:text-white" />
+ <div className="job-detail_info--section section-location flex items-center gap-3">
+ <div className="job-detail_info--section-icon w-9 h-9 rounded-full bg-[#00b14f]/5 flex items-center justify-center shrink-0">
+ <MapPin className="w-4 h-4 text-[#00b14f]" />
  </div>
  <div>
- <p className="job-detail_info--section-content-title text-[12px] text-slate-400 font-medium min-[1440px]:h-[22px] min-[1440px]:text-[14px] min-[1440px]:text-[#263a4d] min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.14px]">Khu vực</p>
- <p className="job-detail_info--section-content-value text-[13px] text-[#212f3f] font-semibold truncate min-[1440px]:h-[22px] min-[1440px]:text-[14px] min-[1440px]:text-[#212f3f] min-[1440px]:font-semibold min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.175px]" title={event.danang_wards?.name ? `P. ${event.danang_wards.name}` :"Đà Nẵng"}>
+ <p className="job-detail_info--section-content-title text-[12px] text-slate-400 font-medium">Khu vực</p>
+ <p className="job-detail_info--section-content-value text-[13px] text-[#212f3f] font-semibold truncate" title={event.danang_wards?.name ? `P. ${event.danang_wards.name}` :"Đà Nẵng"}>
  {event.danang_wards?.name ? `${event.danang_wards.name}` :"Đà Nẵng"}
  </p>
  </div>
  </div>
- <div className="job-detail_info--section section-eventdate flex items-center gap-3 min-[1440px]:flex-row min-[1440px]:items-center min-[1440px]:gap-[16px]">
- <div className="job-detail_info--section-icon w-9 h-9 rounded-full bg-[#00b14f]/5 flex items-center justify-center shrink-0 min-[1440px]:w-[40px] min-[1440px]:h-[40px] min-[1440px]:rounded-[30px] min-[1440px]:p-[10px] min-[1440px]:flex min-[1440px]:flex-col min-[1440px]:justify-center min-[1440px]:items-center min-[1440px]:gap-[10px] min-[1440px]:bg-gradient-to-br min-[1440px]:from-[#00bf5d] min-[1440px]:to-[#00907c]">
- <Calendar className="w-4 h-4 text-[#00b14f] min-[1440px]:text-white" />
+ <div className="job-detail_info--section section-eventdate flex items-center gap-3">
+ <div className="job-detail_info--section-icon w-9 h-9 rounded-full bg-[#00b14f]/5 flex items-center justify-center shrink-0">
+ <Calendar className="w-4 h-4 text-[#00b14f]" />
  </div>
  <div>
- <p className="job-detail_info--section-content-title text-[12px] text-slate-400 font-medium min-[1440px]:h-[22px] min-[1440px]:text-[14px] min-[1440px]:text-[#263a4d] min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.14px]">Ngày diễn ra</p>
- <p className="job-detail_info--section-content-value text-[13px] text-[#212f3f] font-semibold min-[1440px]:h-[22px] min-[1440px]:text-[14px] min-[1440px]:text-[#212f3f] min-[1440px]:font-semibold min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.175px]">
+ <p className="job-detail_info--section-content-title text-[12px] text-slate-400 font-medium">Ngày diễn ra</p>
+ <p className="job-detail_info--section-content-value text-[13px] text-[#212f3f] font-semibold">
  {event.event_date ? new Date(event.event_date).toLocaleDateString('vi-VN') :"Đang cập nhật"}
  </p>
  </div>
@@ -232,15 +232,15 @@ export default function EventDetail() {
  </div>
 
  {/* Hạn chót nộp hồ sơ */}
- <div className="job-detail_info--flex flex items-center text-sm text-[#333] gap-2 mt-4 mb-6 min-[1440px]:w-[713px] min-[1440px]:h-[26px] min-[1440px]:flex min-[1440px]:items-center min-[1440px]:gap-[4px] min-[1440px]:text-[14px] min-[1440px]:leading-[20px] min-[1440px]:text-[#333] min-[1440px]:mt-[16px] min-[1440px]:mb-6">
- <div className="job-detail_info--deadline flex items-center gap-1 text-sm text-[#7f878f] bg-slate-50 px-2.5 py-1.5 md:p-[2px_8px_2px_4px] rounded min-[1440px]:rounded-[4px] min-[1440px]:gap-[4px] min-[1440px]:text-[14px] min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.14px] min-[1440px]:text-[#7f878f]">
+ <div className="job-detail_info--flex flex items-center text-sm text-[#333] gap-2 mt-4 mb-6">
+ <div className="job-detail_info--deadline flex items-center gap-1 text-sm text-[#7f878f] bg-slate-50 px-2.5 py-1.5 md:p-[2px_8px_2px_4px] rounded">
  <span>Hạn nộp hồ sơ</span>
  </div>
- <div className="job-detail_info--deadline-date text-sm font-semibold text-[#263a4d] min-[1440px]:text-[14px] min-[1440px]:font-semibold min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.175px] min-[1440px]:text-[#263a4d]">
+ <div className="job-detail_info--deadline-date text-sm font-semibold text-[#263a4d]">
  {event.application_deadline ? new Date(event.application_deadline).toLocaleDateString('vi-VN') :"Không giới hạn"}
  </div>
  {event.application_deadline && (
- <span className="deadline text-sm font-semibold text-[#263a4d] min-[1440px]:text-[14px] min-[1440px]:font-semibold min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.175px] min-[1440px]:text-[#263a4d]">
+ <span className="deadline text-sm font-semibold text-[#263a4d]">
  {(() => {
  const diff = new Date(event.application_deadline).getTime() - new Date().getTime();
  const diffDays = Math.ceil(diff / (1000 * 60 * 60 * 24));
@@ -251,13 +251,13 @@ export default function EventDetail() {
  </div>
 
  {/* Action Buttons Row */}
- <div className="job-detail_info--actions box-apply-current flex flex-wrap items-center gap-3 border-t border-slate-100 pt-5 min-[1440px]:w-[713px] min-[1440px]:h-[40px] min-[1440px]:flex min-[1440px]:items-center min-[1440px]:flex-wrap min-[1440px]:text-[14px] min-[1440px]:gap-[12px] min-[1440px]:leading-[20px] min-[1440px]:m-[4px_0px_0px] min-[1440px]:border-t-0 min-[1440px]:pt-0">
+ <div className="job-detail_info--actions box-apply-current flex flex-wrap items-center gap-3 border-t border-slate-100 pt-5">
  {renderApplyAction()}
  {role === 'student' && (
  <button
  id="save-job"
  onClick={toggleBookmark}
- className={`job-detail_info--actions-button button-white btn-save-job flex items-center justify-center rounded-md font-semibold font-sans h-[40px] px-6 border transition-all cursor-pointer min-[1440px]:w-[130px] min-[1440px]:h-[40px] min-[1440px]:border-[0.8px] min-[1440px]:rounded-[6px] min-[1440px]:text-[14px] min-[1440px]:font-semibold min-[1440px]:gap-[6px] min-[1440px]:leading-[22px] min-[1440px]:tracking-[0.175px] min-[1440px]:p-[8px_16px_8px_12px] ${isBookmarked
+ className={`job-detail_info--actions-button button-white btn-save-job flex items-center justify-center rounded-md font-semibold font-sans h-[40px] px-6 border transition-all cursor-pointer ${isBookmarked
  ?"bg-[#00b14f] border-[#00b14f] text-white hover:bg-[#009e47]"
  :"bg-white border-[#00b14f] text-[#00b14f] hover:bg-[#00b14f]/5"
  }`}
@@ -310,13 +310,13 @@ export default function EventDetail() {
  </div>
 
  {/* Right Column (Sidebar, Width: approx 350px on large screen) */}
- <div className="job-detail_body-right w-full lg:w-[350px] shrink-0 flex flex-col gap-6 items-center text-[#333] text-[14px] leading-[20px] min-[1440px]:w-[352px] min-[1440px]:gap-[24px] min-[1440px]:bg-[#f4f5f5]">
+ <div className="job-detail_body-right w-full lg:w-[350px] shrink-0 flex flex-col gap-6 items-center text-[#333] text-[14px] leading-[20px]">
  {/* Company Card */}
  <div
- className="job-detail_box right job-detail_company bg-white rounded-lg border border-slate-200 p-5 shadow-sm flex flex-col gap-4 items-start text-[#333] text-[14px] leading-[20px] min-[1440px]:w-[352px] min-[1440px]:rounded-[8px] min-[1440px]:gap-[16px] min-[1440px]:p-[20px]"
+ className="job-detail_box right job-detail_company bg-white rounded-lg border border-slate-200 p-5 shadow-sm flex flex-col gap-4 items-start text-[#333] text-[14px] leading-[20px]"
  >
- <div className="job-detail_company--information w-full flex flex-col gap-3 min-[1440px]:w-[312px]">
- <div className="job-detail_company--information-item company-name flex items-start text-[#333] text-[14px] gap-[16px] leading-[20px] mb-3 min-[1440px]:mb-[12px]">
+ <div className="job-detail_company--information w-full flex flex-col gap-3">
+ <div className="job-detail_company--information-item company-name flex items-start text-[#333] text-[14px] gap-[16px] leading-[20px] mb-3">
  <div
  onClick={() => navigate(`/companies/${event.profiles?.slug || event.organizer_id}`)}
  className="company-logo flex items-center justify-center bg-white border border-[#e9eaec] rounded-[8px] border-[0.8px] text-[#23527c] text-[14px] leading-[20px] p-[7.04px] w-[88px] h-[88px] shrink-0 cursor-pointer"
@@ -331,7 +331,7 @@ export default function EventDetail() {
  }}
  />
  </div>
- <div className="company-name-label flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full min-[1440px]:w-[206px] min-[1440px]:gap-[4px]">
+ <div className="company-name-label flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full">
  <a
  onClick={() => navigate(`/companies/${event.profiles?.slug || event.organizer_id}`)}
  className="name text-[14px] font-semibold text-[#212f3f] font-sans tracking-[-0.16px] leading-[24px] cursor-pointer hover:text-[#00b14f] transition-colors"
@@ -341,28 +341,28 @@ export default function EventDetail() {
  </div>
  </div>
 
- <div className="job-detail_company--information-item company-scale flex items-start text-[#333] text-[14px] gap-[16px] leading-[20px] mb-2 min-[1440px]:mb-[8px]">
+ <div className="job-detail_company--information-item company-scale flex items-start text-[#333] text-[14px] gap-[16px] leading-[20px] mb-2">
  <div className="company-title flex items-center gap-[8px] text-[#7f878f] text-[14px] leading-[22px] tracking-[0.14px] w-[88px] shrink-0">
  <Users className="w-4 h-4 text-[#7f878f] fill-none text-[14px] leading-[22px] tracking-[0.14px]" />
  <span>Quy mô:</span>
  </div>
- <div className="company-value text-[#212f3f] text-[14px] font-medium leading-[22px] tracking-[0.14px] w-full min-[1440px]:w-[208px]">
+ <div className="company-value text-[#212f3f] text-[14px] font-medium leading-[22px] tracking-[0.14px] w-full">
  {event.profiles?.scale ||"Chưa cập nhật"}
  </div>
  </div>
 
- <div className="job-detail_company--information-item company-address flex items-start text-[#333] text-[14px] gap-[16px] leading-[20px] mb-2 min-[1440px]:mb-[8px]">
+ <div className="job-detail_company--information-item company-address flex items-start text-[#333] text-[14px] gap-[16px] leading-[20px] mb-2">
  <div className="company-title flex items-center gap-[8px] text-[#7f878f] text-[14px] leading-[22px] tracking-[0.14px] w-[88px] shrink-0">
  <MapPin className="w-4 h-4 text-[#7f878f] fill-none text-[14px] leading-[22px] tracking-[0.14px]" />
  <span>Địa điểm:</span>
  </div>
- <div className="company-value text-[#212f3f] text-[14px] font-medium leading-[22px] tracking-[0.14px] w-full min-[1440px]:w-[208px]">
+ <div className="company-value text-[#212f3f] text-[14px] font-medium leading-[22px] tracking-[0.14px] w-full">
  {event.profiles?.address ||"Chưa cập nhật"}
  </div>
  </div>
  </div>
 
- <div className="job-detail_company--link w-full flex justify-center text-[#333] text-[14px] leading-[20px] min-[1440px]:w-[312px] mt-1">
+ <div className="job-detail_company--link w-full flex justify-center text-[#333] text-[14px] leading-[20px] mt-1">
  <a
  onClick={() => navigate(`/companies/${event.profiles?.slug || event.organizer_id}`)}
  className="flex items-center justify-center gap-[10px] text-[#00b14f] text-[14px] font-semibold leading-[22px] tracking-[0.175px] font-sans hover:underline cursor-pointer"
@@ -375,49 +375,49 @@ export default function EventDetail() {
 
 
  {/* General Info Box */}
- <div className="job-detail_body-right--box-general bg-white rounded-lg border border-slate-200 p-5 shadow-sm text-[#333] text-[14px] leading-[20px] w-full min-[1440px]:w-[351px] min-[1440px]:rounded-[8px] min-[1440px]:p-[20px]">
- <div className="box-title text-lg font-bold text-[#212f3f] mb-4 min-[1440px]:w-[311px] min-[1440px]:text-[20px] min-[1440px]:font-bold min-[1440px]:tracking-[-0.2px] min-[1440px]:leading-[28px] min-[1440px]:m-[0px_0px_16px]">
+ <div className="job-detail_body-right--box-general bg-white rounded-lg border border-slate-200 p-5 shadow-sm text-[#333] text-[14px] leading-[20px] w-full">
+ <div className="box-title text-lg font-bold text-[#212f3f] mb-4">
  Thông tin chung
  </div>
 
- <div className="box-general-content flex flex-col gap-4 text-[#333] text-[14px] leading-[20px] w-full min-[1440px]:w-[311px] min-[1440px]:gap-[20px]">
- <div className="box-general-group flex items-center gap-4 text-[#333] text-[14px] leading-[20px] w-full min-[1440px]:w-[311px] min-[1440px]:gap-[16px]">
+ <div className="box-general-content flex flex-col gap-4 text-[#333] text-[14px] leading-[20px] w-full">
+ <div className="box-general-group flex items-center gap-4 text-[#333] text-[14px] leading-[20px] w-full">
  <div className="box-general-group-icon flex items-center justify-center bg-[#f2f4f5] rounded-[30px] p-2 text-[#333] text-[14px] leading-[20px] w-[40px] h-[40px] shrink-0">
  <Briefcase className="w-5 h-5 text-[#333] fill-none text-[14px] leading-[20px]" />
  </div>
- <div className="box-general-group-info flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full min-[1440px]:w-[70px] min-[1440px]:gap-[4px]">
- <div className="box-general-group-info-title text-[#4d5965] text-[14px] tracking-[0.14px] leading-[22px] min-[1440px]:w-[70px] whitespace-nowrap">
+ <div className="box-general-group-info flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full">
+ <div className="box-general-group-info-title text-[#4d5965] text-[14px] tracking-[0.14px] leading-[22px] whitespace-nowrap">
  Vị trí tuyển
  </div>
- <div className="box-general-group-info-value text-[#212f3f] text-[14px] font-semibold tracking-[0.175px] leading-[22px] min-[1440px]:w-[70px] whitespace-nowrap">
+ <div className="box-general-group-info-value text-[#212f3f] text-[14px] font-semibold tracking-[0.175px] leading-[22px] whitespace-nowrap">
  {event.position_type ||"Tình nguyện viên"}
  </div>
  </div>
  </div>
 
- <div className="box-general-group flex items-center gap-4 text-[#333] text-[14px] leading-[20px] w-full min-[1440px]:w-[311px] min-[1440px]:gap-[16px]">
+ <div className="box-general-group flex items-center gap-4 text-[#333] text-[14px] leading-[20px] w-full">
  <div className="box-general-group-icon flex items-center justify-center bg-[#f2f4f5] rounded-[30px] p-2 text-[#333] text-[14px] leading-[20px] w-[40px] h-[40px] shrink-0">
  <Tag className="w-5 h-5 text-[#333] fill-none text-[14px] leading-[20px]" />
  </div>
- <div className="box-general-group-info flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full min-[1440px]:w-[70px] min-[1440px]:gap-[4px]">
- <div className="box-general-group-info-title text-[#4d5965] text-[14px] tracking-[0.14px] leading-[22px] min-[1440px]:w-[70px] whitespace-nowrap">
+ <div className="box-general-group-info flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full">
+ <div className="box-general-group-info-title text-[#4d5965] text-[14px] tracking-[0.14px] leading-[22px] whitespace-nowrap">
  Loại hình
  </div>
- <div className="box-general-group-info-value text-[#212f3f] text-[14px] font-semibold tracking-[0.175px] leading-[22px] min-[1440px]:w-[70px] whitespace-nowrap">
+ <div className="box-general-group-info-value text-[#212f3f] text-[14px] font-semibold tracking-[0.175px] leading-[22px] whitespace-nowrap">
  {event.category ||"Chưa phân loại"}
  </div>
  </div>
  </div>
 
- <div className="box-general-group flex items-center gap-4 text-[#333] text-[14px] leading-[20px] w-full min-[1440px]:w-[311px] min-[1440px]:gap-[16px]">
+ <div className="box-general-group flex items-center gap-4 text-[#333] text-[14px] leading-[20px] w-full">
  <div className="box-general-group-icon flex items-center justify-center bg-[#f2f4f5] rounded-[30px] p-2 text-[#333] text-[14px] leading-[20px] w-[40px] h-[40px] shrink-0">
  <Users className="w-5 h-5 text-[#333] fill-none text-[14px] leading-[20px]" />
  </div>
- <div className="box-general-group-info flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full min-[1440px]:w-[70px] min-[1440px]:gap-[4px]">
- <div className="box-general-group-info-title text-[#4d5965] text-[14px] tracking-[0.14px] leading-[22px] min-[1440px]:w-[70px] whitespace-nowrap">
+ <div className="box-general-group-info flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full">
+ <div className="box-general-group-info-title text-[#4d5965] text-[14px] tracking-[0.14px] leading-[22px] whitespace-nowrap">
  Số lượng tuyển
  </div>
- <div className="box-general-group-info-value text-[#212f3f] text-[14px] font-semibold tracking-[0.175px] leading-[22px] min-[1440px]:w-[70px] whitespace-nowrap">
+ <div className="box-general-group-info-value text-[#212f3f] text-[14px] font-semibold tracking-[0.175px] leading-[22px] whitespace-nowrap">
  {event.slots_needed || 1} nhân sự
  </div>
  </div>

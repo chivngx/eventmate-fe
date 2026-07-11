@@ -62,7 +62,7 @@ export default function CompanyList() {
  <MainLayout role={userRole}>
  <div className="max-w-6xl mx-auto px-4 py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
  {/* Header Section */}
- <div className="mb-10 text-center md:text-left bg-gradient-to-r from-emerald-500/5 via-teal-500/5 to-transparent p-8 md:p-12 rounded-[2rem] border-2 border-emerald-500/5 relative overflow-hidden">
+ <div className="mb-10 text-center md:text-left to-transparent p-8 md:p-12 rounded-[2rem] border-2 border-emerald-500/5 relative overflow-hidden">
  <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-100 rounded-full blur-3xl -z-10 translate-x-1/3 -translate-y-1/3 opacity-55"></div>
  
  <h1 className="text-3xl md:text-4xl font-black text-slate-900 flex items-center justify-center md:justify-start gap-3">

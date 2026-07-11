@@ -322,45 +322,45 @@ export default function OrgDashboard() {
  // 🔒 P2.8: CV recommendations — fetch applicants thật (thay mock 4 fake students)
  const [recommendedCVs, setRecommendedCVs] = useState<any[]>([])
  useEffect(() => {
-   if (activeTab !== "recommended" || !isPremium || !userId) return
-   const fetchRecommended = async () => {
-     // Lấy applicants mới nhất join profiles + events (lấy skills từ profile + position_type từ event để match)
-     const { data } = await supabase
-       .from("applications")
-       .select(`
-         id,
-         status,
-         applied_at,
-         student_id,
-         event_id,
-         events (title, position_type, benefits),
-         profiles!applications_student_id_fkey (id, full_name, avatar_url, university, skills, cv_completion_percent)
-       `)
-       .eq("events.organizer_id", userId)
-       .order("applied_at", { ascending: false })
-       .limit(8)
-     if (data) {
-       // Compute match score đơn giản: cv_completion_percent + bonus nếu skills chứa position_type keyword
-       const scored = data.map((app: any) => {
-         const skills = (app.profiles?.skills || "").toLowerCase()
-         const position = (app.events?.position_type || "").toLowerCase()
-         let match = app.profiles?.cv_completion_percent || 50
-         if (position && skills.includes(position.split(" ")[0])) match = Math.min(99, match + 10)
-         return {
-           name: app.profiles?.full_name || "Sinh viên",
-           university: app.profiles?.university || "Chưa cập nhật",
-           skills: app.profiles?.skills || "Chưa cập nhật kỹ năng",
-           match,
-           completion: app.profiles?.cv_completion_percent || 0,
-           avatar: app.profiles?.avatar_url || "",
-           studentId: app.profiles?.id,
-           eventId: app.event_id,
-         }
-       })
-       setRecommendedCVs(scored)
-     }
-   }
-   fetchRecommended()
+ if (activeTab !=="recommended" || !isPremium || !userId) return
+ const fetchRecommended = async () => {
+ // Lấy applicants mới nhất join profiles + events (lấy skills từ profile + position_type từ event để match)
+ const { data } = await supabase
+ .from("applications")
+ .select(`
+ id,
+ status,
+ applied_at,
+ student_id,
+ event_id,
+ events (title, position_type, benefits),
+ profiles!applications_student_id_fkey (id, full_name, avatar_url, university, skills, cv_completion_percent)
+ `)
+ .eq("events.organizer_id", userId)
+ .order("applied_at", { ascending: false })
+ .limit(8)
+ if (data) {
+ // Compute match score đơn giản: cv_completion_percent + bonus nếu skills chứa position_type keyword
+ const scored = data.map((app: any) => {
+ const skills = (app.profiles?.skills ||"").toLowerCase()
+ const position = (app.events?.position_type ||"").toLowerCase()
+ let match = app.profiles?.cv_completion_percent || 50
+ if (position && skills.includes(position.split("")[0])) match = Math.min(99, match + 10)
+ return {
+ name: app.profiles?.full_name ||"Sinh viên",
+ university: app.profiles?.university ||"Chưa cập nhật",
+ skills: app.profiles?.skills ||"Chưa cập nhật kỹ năng",
+ match,
+ completion: app.profiles?.cv_completion_percent || 0,
+ avatar: app.profiles?.avatar_url ||"",
+ studentId: app.profiles?.id,
+ eventId: app.event_id,
+ }
+ })
+ setRecommendedCVs(scored)
+ }
+ }
+ fetchRecommended()
  }, [activeTab, isPremium, userId])
 
  useEffect(() => {
@@ -389,29 +389,29 @@ export default function OrgDashboard() {
  // 🔒 P2.8: feed stats — approval rate + weekly applications (thay 85% / 142 lượt / chart mock)
  const [feedStats, setFeedStats] = useState<{ approvalRate: number; weeklyApps: number[] }>({ approvalRate: 0, weeklyApps: [0, 0, 0, 0] })
  useEffect(() => {
-   if (activeTab !== "feed" || !userId) return
-   const fetchStats = async () => {
-     // Approval rate: approved / total applications cho events của organizer
-     const { data: apps } = await supabase
-       .from("applications")
-       .select("status, applied_at")
-       .in("event_id", (await supabase.from("events").select("id").eq("organizer_id", userId)).data?.map((e: any) => e.id) || [])
-     if (apps && apps.length > 0) {
-       const approved = apps.filter((a: any) => a.status === "approved").length
-       const rate = Math.round((approved / apps.length) * 100)
-       // Weekly applications (4 tuần gần nhất)
-       const now = Date.now()
-       const weekMs = 7 * 24 * 60 * 60 * 1000
-       const weekly = [0, 0, 0, 0]
-       apps.forEach((a: any) => {
-         const applied = new Date(a.applied_at).getTime()
-         const weeksAgo = Math.floor((now - applied) / weekMs)
-         if (weeksAgo >= 0 && weeksAgo < 4) weekly[3 - weeksAgo]++
-       })
-       setFeedStats({ approvalRate: rate, weeklyApps: weekly })
-     }
-   }
-   fetchStats()
+ if (activeTab !=="feed" || !userId) return
+ const fetchStats = async () => {
+ // Approval rate: approved / total applications cho events của organizer
+ const { data: apps } = await supabase
+ .from("applications")
+ .select("status, applied_at")
+ .in("event_id", (await supabase.from("events").select("id").eq("organizer_id", userId)).data?.map((e: any) => e.id) || [])
+ if (apps && apps.length > 0) {
+ const approved = apps.filter((a: any) => a.status ==="approved").length
+ const rate = Math.round((approved / apps.length) * 100)
+ // Weekly applications (4 tuần gần nhất)
+ const now = Date.now()
+ const weekMs = 7 * 24 * 60 * 60 * 1000
+ const weekly = [0, 0, 0, 0]
+ apps.forEach((a: any) => {
+ const applied = new Date(a.applied_at).getTime()
+ const weeksAgo = Math.floor((now - applied) / weekMs)
+ if (weeksAgo >= 0 && weeksAgo < 4) weekly[3 - weeksAgo]++
+ })
+ setFeedStats({ approvalRate: rate, weeklyApps: weekly })
+ }
+ }
+ fetchStats()
  }, [activeTab, userId])
 
  return (
@@ -429,7 +429,7 @@ export default function OrgDashboard() {
  {/* 1. TAB: FEED (BẢNG TIN THỐNG KÊ CHI TIẾT) */}
  {activeTab ==="feed" && (
  <div className="space-y-8 animate-in fade-in duration-300">
- <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-100 p-8 rounded-[2rem] text-slate-800 border-2 border-emerald-100/50 shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+ <div className="p-8 rounded-[2rem] text-slate-800 border-2 border-emerald-100/50 shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
  <div>
  <h1 className="text-3xl font-black tracking-tight text-slate-900">Xin chào, {profileData.fullName ||"Nhà tuyển dụng"}!</h1>
  <p className="text-slate-600 font-medium mt-1">Dưới đây là tổng quan hiệu suất các chiến dịch tuyển dụng tình nguyện viên của bạn.</p>
@@ -496,7 +496,7 @@ export default function OrgDashboard() {
  </div>
 
  {/* Premium quick promo */}
- <div className="bg-gradient-to-b from-emerald-50 to-white p-6 rounded-[2rem] text-slate-800 flex flex-col justify-between shadow-md border-2 border-emerald-100/40 relative overflow-hidden">
+ <div className="to-white p-6 rounded-[2rem] text-slate-800 flex flex-col justify-between shadow-md border-2 border-emerald-100/40 relative overflow-hidden">
  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
  <div className="space-y-4">
  <Crown className="w-10 h-10 text-emerald-600 fill-current" />

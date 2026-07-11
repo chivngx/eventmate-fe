@@ -142,7 +142,7 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
  <Link
  href="/chat"
  aria-label="Trò chuyện"
- className="p-2 sm:p-2.5 rounded-full hover:bg-slate-50 transition-colors text-slate-400 hover:text-emerald-600 relative flex items-center justify-center shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
+ className="p-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-500 hover:text-primary relative flex items-center justify-center shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
  title="Trò chuyện"
  >
  <MessageSquare className="w-5 h-5" />
@@ -163,13 +163,13 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
  <div className="flex items-center gap-1 sm:gap-2">
  <Button
  variant="ghost"
- className="text-xs sm:text-sm font-bold text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-full px-3 py-1.5 h-8 sm:h-9 whitespace-nowrap"
+ className="text-sm font-medium text-slate-600 hover:text-primary hover:bg-accent rounded-lg px-3 py-2 whitespace-nowrap"
  onClick={() => setAuthModal({ isOpen: true, mode:"login" })}
  >
  Đăng nhập
  </Button>
  <Button
- className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-4 h-8 sm:h-9 text-xs sm:text-sm font-bold shadow-sm transition-all whitespace-nowrap shrink-0"
+ className="bg-primary hover:bg-primary/90 text-white rounded-lg px-4 py-2 text-sm font-semibold whitespace-nowrap shrink-0"
  onClick={() => setAuthModal({ isOpen: true, mode:"register" })}
  >
  Đăng ký
@@ -178,13 +178,13 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
  )
 
  return (
- <div className="min-h-screen bg-[#f4f5f5] font-sans selection:bg-emerald-200 text-slate-900 transition-colors duration-200">
+ <div className="min-h-screen flex flex-col bg-background text-foreground">
  <NotchNavbar
- logo={<span className="font-black text-xl tracking-tight text-slate-900 cursor-pointer" onClick={() => navigate('/')}>Event<span className="text-emerald-600">Mate</span></span>}
+ logo={<span className="text-xl font-extrabold tracking-tight text-slate-900 cursor-pointer" onClick={() => navigate('/')}>Event<span className="text-primary">Mate</span></span>}
  rightActions={rightActions}
  role={role || profile?.role ||"guest"}
  />
- <main className="pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+ <main className="flex-1 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
  {children}
  </main>
 

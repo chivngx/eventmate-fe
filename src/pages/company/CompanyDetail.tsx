@@ -162,10 +162,10 @@ export default function CompanyDetail() {
  <MainLayout role={role ||"guest"}>
  <div className="max-w-6xl mx-auto pt-1 pb-6 px-4 font-sans text-[#212f3f] selection:bg-emerald-100 animate-in fade-in slide-in-from-bottom-4 duration-500">
  {/* Company Header Box (Matching EventDetail header style) */}
- <div className="wrapper-company-cover bg-white rounded-lg border border-slate-200 p-6 md:p-8 min-[1440px]:p-[24px_24px_0px] shadow-sm flex flex-col md:flex-row items-center md:items-start justify-between gap-6 relative min-[1440px]:w-[1140px] min-[1440px]:h-[230px] min-[1440px]:rounded-[8px] min-[1440px]:shadow-[0px_0px_14px_0px_rgba(0,0,0,0.03)] min-[1440px]:box-border">
- <div className="company-cover-inner_header flex flex-col md:flex-row items-center md:items-start gap-6 w-full md:w-auto min-[1440px]:w-[1092px] min-[1440px]:h-[140px] min-[1440px]:gap-[16px] min-[1440px]:flex-row">
+ <div className="wrapper-company-cover bg-white rounded-lg border border-slate-200 p-6 md:p-8 shadow-sm flex flex-col md:flex-row items-center md:items-start justify-between gap-6 relative">
+ <div className="company-cover-inner_header flex flex-col md:flex-row items-center md:items-start gap-6 w-full md:w-auto">
  {/* Company Logo wrapper matching event details page */}
- <div className="company-logo flex items-center justify-center bg-white border border-[#e9eaec] rounded-[8px] border-[0.8px] p-2 w-[110px] h-[110px] shrink-0 min-[1440px]:w-[120px] min-[1440px]:h-[120px]">
+ <div className="company-logo flex items-center justify-center bg-white border border-[#e9eaec] rounded-[8px] border-[0.8px] p-2 w-[110px] h-[110px] shrink-0">
  <Avatar className="h-full w-full rounded-md">
  <AvatarImage src={company.avatar_url} className="object-contain" />
  <AvatarFallback className="rounded-md bg-emerald-50 text-[#00b14f] text-4xl font-black">
@@ -175,20 +175,20 @@ export default function CompanyDetail() {
  </div>
 
  {/* Title, website link, followers count */}
- <div className="company-detail-overview flex-1 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full min-[1440px]:w-[936px] min-[1440px]:h-[120px] min-[1440px]:gap-[16px] min-[1440px]:flex-row min-[1440px]:justify-between min-[1440px]:items-center">
- <div className="box-detail text-center md:text-left pt-2 flex flex-col items-center md:items-start gap-2.5 min-[1440px]:w-[748px] min-[1440px]:gap-[12px] min-[1440px]:items-start min-[1440px]:pt-0">
- <h1 className="box-detail_company-name text-xl md:text-2xl font-bold text-[#263a4d] leading-tight min-[1440px]:text-[20px] min-[1440px]:font-bold min-[1440px]:font-sans min-[1440px]:tracking-[-0.2px] min-[1440px]:leading-[28px]">
+ <div className="company-detail-overview flex-1 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full">
+ <div className="box-detail text-center md:text-left pt-2 flex flex-col items-center md:items-start gap-2.5">
+ <h1 className="box-detail_company-name text-xl md:text-2xl font-bold text-[#263a4d] leading-tight">
  {company.full_name}
  </h1>
- <div className="box-company-info flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2 mt-1 text-xs font-bold text-slate-400 min-[1440px]:gap-[8px] min-[1440px]:mt-0">
- <div className="box-company-info_item flex items-center gap-1.5 min-[1440px]:gap-[8px]">
- <a href={company.website ||"#"} target="_blank" rel="noreferrer" className="box-company-info_item hover:text-[#00b14f] flex items-center gap-1.5 transition-colors min-[1440px]:text-[14px] min-[1440px]:text-[#7f878f] min-[1440px]:tracking-[0.14px] min-[1440px]:font-normal">
+ <div className="box-company-info flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2 mt-1 text-xs font-bold text-slate-400">
+ <div className="box-company-info_item flex items-center gap-1.5">
+ <a href={company.website ||"#"} target="_blank" rel="noreferrer" className="box-company-info_item hover:text-[#00b14f] flex items-center gap-1.5 transition-colors">
  <LinkIcon className="w-3.5 h-3.5 shrink-0" /> {company.website ||"Chưa cập nhật website"}
  </a>
  </div>
  <span className="text-slate-200">|</span>
- <div className="box-company-info_item flex items-center gap-1.5 min-[1440px]:gap-[8px]">
- <span className="flex items-center gap-1.5 hover:text-[#00b14f] transition-colors min-[1440px]:text-[14px] min-[1440px]:text-[#7f878f] min-[1440px]:tracking-[0.14px] min-[1440px]:font-normal">
+ <div className="box-company-info_item flex items-center gap-1.5">
+ <span className="flex items-center gap-1.5 hover:text-[#00b14f] transition-colors">
  <Users className="w-3.5 h-3.5 shrink-0" /> {isFollowed ?"3" :"2"} người theo dõi
  </span>
  </div>
@@ -196,10 +196,10 @@ export default function CompanyDetail() {
  </div>
 
  {/* Follow Button styled like EventDetail apply buttons */}
- <div className="box-follow flex items-center gap-3 pt-2 md:pt-0 shrink-0 min-[1440px]:h-[40px]">
+ <div className="box-follow flex items-center gap-3 pt-2 md:pt-0 shrink-0">
  <Button
  onClick={() => setIsFollowed(!isFollowed)}
- className={`w-full md:w-auto h-[40px] px-6 rounded-md font-semibold transition-all active:scale-95 border cursor-pointer min-[1440px]:w-[172px] min-[1440px]:h-[40px] min-[1440px]:rounded-[6px] min-[1440px]:text-[14px] ${isFollowed
+ className={`w-full md:w-auto h-[40px] px-6 rounded-md font-semibold transition-all active:scale-95 border cursor-pointer ${isFollowed
  ?"bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200"
  :"bg-[#00b14f] hover:bg-[#009a44] border-[#00b14f] text-white"
  }`}
@@ -215,10 +215,10 @@ export default function CompanyDetail() {
  </div>
 
  {/* Tabs inside Header Box at bottom left */}
- <div className="box-tab-link absolute bottom-0 left-6 md:left-8 flex gap-6 min-[1440px]:absolute min-[1440px]:bottom-0 min-[1440px]:left-[160px] min-[1440px]:w-[1092px] min-[1440px]:h-[42px] min-[1440px]:gap-[20px]">
+ <div className="box-tab-link absolute bottom-0 left-6 md:left-8 flex gap-6">
  <button
  onClick={() => setActiveTab("about")}
- className={`box-tab-link_item pb-3 font-extrabold text-xs relative transition-colors min-[1440px]:text-[14px] min-[1440px]:font-semibold min-[1440px]:py-[7px] min-[1440px]:px-0 min-[1440px]:pb-[13px] min-[1440px]:tracking-[0.175px] ${activeTab ==="about" ?"active-link text-[#00b14f]" :"text-slate-500 hover:text-[#00b14f]"
+ className={`box-tab-link_item pb-3 font-extrabold text-xs relative transition-colors ${activeTab ==="about" ?"active-link text-[#00b14f]" :"text-slate-500 hover:text-[#00b14f]"
  }`}
  >
  Trang chủ
@@ -226,7 +226,7 @@ export default function CompanyDetail() {
  </button>
  <button
  onClick={() => setActiveTab("jobs")}
- className={`box-tab-link_item pb-3 font-extrabold text-xs relative transition-colors flex items-center gap-1 min-[1440px]:text-[14px] min-[1440px]:font-semibold min-[1440px]:py-[7px] min-[1440px]:px-0 min-[1440px]:pb-[13px] min-[1440px]:tracking-[0.175px] ${activeTab ==="jobs" ?"active-link text-[#00b14f]" :"text-slate-500 hover:text-[#00b14f]"
+ className={`box-tab-link_item pb-3 font-extrabold text-xs relative transition-colors flex items-center gap-1 ${activeTab ==="jobs" ?"active-link text-[#00b14f]" :"text-slate-500 hover:text-[#00b14f]"
  }`}
  >
  Tin tuyển dụng ({companyEvents.length})
@@ -244,10 +244,10 @@ export default function CompanyDetail() {
 
  {/* Tab Contents */}
  {activeTab ==="about" ? (
- <div className="company-detail_body flex flex-col lg:flex-row gap-6 items-start min-[1440px]:w-[1140px] min-[1440px]:gap-[28px] mt-6 w-full">
+ <div className="company-detail_body flex flex-col lg:flex-row gap-6 items-start mt-6 w-full">
  
  {/* Left Column ( Giới thiệu, Hình ảnh, Tin tuyển dụng ) */}
- <div className="company-detail_body-left flex-1 w-full lg:max-w-[760px] space-y-6 min-[1440px]:w-[761px]">
+ <div className="company-detail_body-left flex-1 w-full lg:max-w-[760px] space-y-6">
  
  {/* Giới thiệu công ty */}
  <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm space-y-6">
@@ -394,10 +394,10 @@ export default function CompanyDetail() {
  </div>
 
  {/* Right Column ( Thông tin chung, Địa điểm, Chia sẻ ) */}
- <div className="company-detail_body-right w-full lg:w-[350px] shrink-0 flex flex-col gap-6 items-center text-[#333] text-[14px] leading-[20px] min-[1440px]:w-[352px]">
+ <div className="company-detail_body-right w-full lg:w-[350px] shrink-0 flex flex-col gap-6 items-center text-[#333] text-[14px] leading-[20px]">
  
  {/* Thông tin chung matching EventDetail styles */}
- <div className="job-detail_body-right--box-general bg-white rounded-lg border border-slate-200 p-5 shadow-sm text-[#333] text-[14px] leading-[20px] w-full min-[1440px]:w-[352px]">
+ <div className="job-detail_body-right--box-general bg-white rounded-lg border border-slate-200 p-5 shadow-sm text-[#333] text-[14px] leading-[20px] w-full">
  <div className="box-title text-lg font-bold text-[#212f3f] mb-4">
  Thông tin chung
  </div>
@@ -435,7 +435,7 @@ export default function CompanyDetail() {
  </div>
 
  {/* Địa điểm công ty */}
- <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm space-y-4 w-full min-[1440px]:w-[352px]">
+ <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm space-y-4 w-full">
  <div className="text-lg font-bold text-[#212f3f]">
  Địa điểm công ty
  </div>
@@ -464,7 +464,7 @@ export default function CompanyDetail() {
  </div>
 
  {/* Chia sẻ công ty */}
- <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm space-y-4 w-full min-[1440px]:w-[352px]">
+ <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm space-y-4 w-full">
  <div className="text-lg font-bold text-[#212f3f]">
  Chia sẻ công ty
  </div>
@@ -514,10 +514,10 @@ export default function CompanyDetail() {
  </div>
  ) : (
  /* Tin tuyển dụng Tab Content matching EventDetail structures */
- <div className="company-detail_body flex flex-col lg:flex-row gap-6 items-start min-[1440px]:w-[1140px] min-[1440px]:gap-[28px] mt-6 w-full animate-in fade-in">
+ <div className="company-detail_body flex flex-col lg:flex-row gap-6 items-start mt-6 w-full animate-in fade-in">
  
  {/* Left Side ( Filters Sidebar ) - width 350px */}
- <div className="w-full lg:w-[350px] shrink-0 space-y-6 min-[1440px]:w-[352px]">
+ <div className="w-full lg:w-[350px] shrink-0 space-y-6">
  <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm space-y-4">
  <h3 className="text-lg font-bold text-[#212f3f] border-b border-slate-100 pb-3">
  Danh mục vị trí
@@ -532,7 +532,7 @@ export default function CompanyDetail() {
  </div>
 
  {/* Right Side ( Search & Listings ) - width max-w-[760px] */}
- <div className="flex-1 w-full lg:max-w-[760px] space-y-6 min-[1440px]:w-[761px]">
+ <div className="flex-1 w-full lg:max-w-[760px] space-y-6">
  <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm space-y-6">
  
  {/* Search bar */}

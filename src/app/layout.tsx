@@ -1,9 +1,9 @@
-import type { Metadata } from "next"
-import { Analytics } from "@vercel/analytics/next"
-import { Providers } from "./providers"
-import "./globals.css"
+import type { Metadata } from"next"
+import { Analytics } from"@vercel/analytics/next"
+import { Providers } from"./providers"
+import"./globals.css"
 // 🔒 P2.9: Sentry error tracking (no-op if NEXT_PUBLIC_SENTRY_DSN empty)
-import "../../sentry.client.config"
+import"../../sentry.client.config"
 
 export const metadata: Metadata = {
  title: {

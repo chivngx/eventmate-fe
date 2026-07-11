@@ -75,7 +75,7 @@ export default function AdminDashboard() {
  // 4. Fetch applications count + premium organizers (real stats)
  const { count: appCount } = await supabase
  .from("applications")
- .select("*", { count: "exact", head: true })
+ .select("*", { count:"exact", head: true })
  const premiumOrgs = (orgs || []).filter((o: any) => o.is_premium && (!o.premium_until || new Date(o.premium_until) > new Date()))
 
  // Calculate count stats — 🔒 P2.8: real revenue from premium organizers (990000đ/gói)

@@ -74,7 +74,7 @@ export default function OnboardingOverlay() {
  {
  title: (
  <>
- Chào mừng bạn đến với <span className="bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">EventMate</span>
+ Chào mừng bạn đến với <span className="bg-clip-text text-transparent">EventMate</span>
  </>
  ),
  subtitle:"Nền tảng kết nối nhân sự và cơ hội việc làm sự kiện hàng đầu dành cho sinh viên và ban tổ chức.",
@@ -82,8 +82,8 @@ export default function OnboardingOverlay() {
  <div className="relative w-48 h-48 mx-auto flex items-center justify-center">
  {/* Decorative glowing circles */}
  <div className="absolute inset-0 bg-emerald-500/10 rounded-full blur-3xl animate-pulse" />
- <div className="absolute w-36 h-36 bg-gradient-to-tr from-emerald-500 to-teal-400 rounded-3xl opacity-20 rotate-12 animate-spin-[spin_20s_linear_infinite]" />
- <div className="absolute w-36 h-36 bg-gradient-to-bl from-teal-500 to-emerald-400 rounded-3xl opacity-20 -rotate-12 animate-spin-[spin_15s_linear_infinite]" />
+ <div className="absolute w-36 h-36 rounded-3xl opacity-20 rotate-12 animate-spin-[spin_20s_linear_infinite]" />
+ <div className="absolute w-36 h-36 rounded-3xl opacity-20 -rotate-12 animate-spin-[spin_15s_linear_infinite]" />
  
  <motion.div 
  initial={{ scale: 0.8, opacity: 0 }}
@@ -301,7 +301,7 @@ export default function OnboardingOverlay() {
  animate={{ opacity: 1, scale: 1 }}
  exit={{ opacity: 0, scale: 0.95 }}
  transition={{ type:"spring", duration: 0.5 }}
- className="relative w-full max-w-lg bg-gradient-to-b from-white to-slate-50/95 border border-slate-200/50 rounded-[2.25rem] shadow-2xl p-6 md:p-8 flex flex-col items-stretch overflow-hidden"
+ className="relative w-full max-w-lg from-white border border-slate-200/50 rounded-[2.25rem] shadow-2xl p-6 md:p-8 flex flex-col items-stretch overflow-hidden"
  >
  {/* Skip button */}
  <button

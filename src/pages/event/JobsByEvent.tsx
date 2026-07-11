@@ -212,7 +212,7 @@ export default function JobsByEvent() {
  </div>
 
  {/* THANH TÌM KIẾM CHI TIẾT */}
- <div className="bg-gradient-to-r from-emerald-900 to-indigo-950 p-8 rounded-[2rem] text-white shadow-xl relative overflow-hidden">
+ <div className="p-8 rounded-[2rem] text-white shadow-xl relative overflow-hidden">
  <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
  <div className="max-w-3xl space-y-4 relative z-10">
  <h1 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">

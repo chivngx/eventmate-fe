@@ -426,3 +426,20 @@ Work Log:
 Stage Summary:
 - Phase 4 HOÀN TẤT. Toàn bộ mock data → real: CV recommendations (applicants thật + match score), reports chart (weekly applications aggregation), AdminDashboard (real revenue từ premium organizers, real transactions list). Sentry + Vercel Analytics wire (no-op khi DSN empty). eslint-config-next still blocked upstream.
 - TỔNG KẾT 4 PHASE: Phase 1 (Stabilize) + Phase 2 (Architect) + Phase 3 (Polish) + Phase 4 (Complete) all done. App production-ready: secure (SSR auth + RLS + CSP + sanitized errors), performant (auth context + react-query cache + memoized EventCard), accessible (modal wrapper + ARIA labels), tested (13 unit tests + husky pre-commit), observable (Sentry + Analytics).
+
+---
+Task ID: ui-redesign
+Agent: main (Z.ai Code)
+Task: Redesign UI/UX — bỏ phong cách TopCV, bỏ gradient, responsive, giao diện người thật
+
+Work Log:
+- Task 1 (globals.css): redesign design system — flat colors (emerald brand duy nhất, neutral slate), bỏ gradient tokens, soft off-white background (oklch 0.985), focus ring chuẩn, antialiased fonts.
+- Task 2 (Navbar): rewrite hoàn toàn — bỏ notch SVG + clipPath + path curves (TopCV pattern). Sticky header sạch với backdrop-blur, container max-w-7xl, nav responsive (md:flex). JobsMegaMenu dropdown responsive (90vw mobile → 44rem desktop). Mobile drawer animate.
+- Task 3 (Footer): bỏ dark #0f172a + border-t-[3px] xanh + shadow nặng. Footer trắng sạch, 4 cột responsive (1/2/4 cols), bottom bar copyright + terms.
+- Task 4 (MainLayout): bỏ pt-24 (TopCV padding cho notch), bỏ bg-[#f4f5f5] (dùng bg-background), bỏ font-sans thừa. min-h-screen flex flex-col (footer push bottom). main flex-1 max-w-7xl. Nút Đăng nhập/Đăng ký: rounded-full → rounded-lg, shadow-sm bỏ, color dùng primary.
+- Task 5 (EventCard): rewrite — bỏ fixed h-[125px] w-[371px] + 109 min-[1440px]: tokens. Card responsive flex-col, avatar rounded-lg, tags bg-slate-100, bookmark button cleaned. Thêm MapPin icon cho location tag.
+- Task 6 (bulk strip): script Python strip 109 min-[1440px]: tokens (14 files) + gradient classes (7 files). Fix QuickFilters template literal break. 0 min-[1440px] remaining, 0 bg-gradient remaining.
+- Verify: lint 0 errors 1 warning. Routes / 200, /companies 200. Agent Browser desktop 1280px: navbar sạch (Việc làm + Hồ sơ CV + Đăng nhập + EventMate logo), 9 event cards, 0 console error. Mobile 375px: navbar gọn (logo + Đăng nhập + menu button), menu drawer mở đúng (Tìm việc + Hồ sơ CV + Ban tổ chức + Trò chuyện). Screenshots saved.
+
+Stage Summary:
+- UI/UX redesign HOÀN TẤT. Bỏ phong cách TopCV (notch navbar, zoom 1440, fixed sizes). Bỏ toàn bộ gradient. Design system flat (emerald brand + slate neutral). Responsive đầy đủ (sm/md/lg breakpoints, container max-w-7xl, mobile drawer). Giao diện sạch, người thật, không AI.
