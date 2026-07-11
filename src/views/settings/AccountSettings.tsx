@@ -168,7 +168,7 @@ export default function AccountSettings() {
                   <Button
                     type="submit"
                     disabled={updating}
-                    className="rounded-lg bg-primary text-slate-600-foreground font-medium hover:bg-primary/90 h-10 px-5 text-sm transition-colors shadow-sm"
+                    className="rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 h-10 px-5 text-sm transition-colors shadow-sm"
                   >
                     {updating ? "Đang lưu..." : "Lưu thay đổi"}
                   </Button>

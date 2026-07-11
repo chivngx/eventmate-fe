@@ -441,7 +441,7 @@ export default function OrgDashboard() {
             </div>
             <Button
               onClick={() => { setActiveTab("events"); setShowForm(true); }}
-              className="h-10 shrink-0 rounded-lg bg-primary px-5 text-sm font-medium text-slate-600-foreground hover:bg-primary/90"
+              className="h-10 shrink-0 rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
               Tạo chiến dịch mới
             </Button>
@@ -494,7 +494,7 @@ export default function OrgDashboard() {
               </div>
               <Button
                 onClick={() => setActiveTab("services")}
-                className="mt-5 h-10 w-full rounded-lg bg-primary text-sm font-medium text-slate-600-foreground hover:bg-primary/90"
+                className="mt-5 h-10 w-full rounded-lg bg-primary text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
                 Xem bảng giá gói
               </Button>
@@ -510,7 +510,7 @@ export default function OrgDashboard() {
             <h1 className="text-xl font-semibold text-foreground sm:text-2xl">Các chiến dịch của tôi</h1>
             <Button
               onClick={() => setShowForm(true)}
-              className="h-10 rounded-lg bg-primary px-4 text-sm font-medium text-slate-600-foreground hover:bg-primary/90"
+              className="h-10 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
             >
               Tạo chiến dịch mới
             </Button>
@@ -619,7 +619,7 @@ export default function OrgDashboard() {
                 </div>
                 <Button
                   onClick={() => setActiveTab("services")}
-                  className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary text-sm font-medium text-slate-600-foreground hover:bg-primary/90"
+                  className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary text-sm font-medium text-primary-foreground hover:bg-primary/90"
                 >
                   <Crown className="h-4 w-4" /> Xem gói dịch vụ VIP
                 </Button>
@@ -711,7 +711,7 @@ export default function OrgDashboard() {
                 </div>
                 <Button
                   onClick={() => setActiveTab("services")}
-                  className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary text-sm font-medium text-slate-600-foreground hover:bg-primary/90"
+                  className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary text-sm font-medium text-primary-foreground hover:bg-primary/90"
                 >
                   <Crown className="h-4 w-4" /> Xem gói dịch vụ VIP
                 </Button>
@@ -735,7 +735,7 @@ export default function OrgDashboard() {
             {/* VIP Plan */}
             <div className="relative flex flex-col justify-between rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8">
               {isPremium && (
-                <span className="absolute right-4 top-4 rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-slate-600-foreground">
+                <span className="absolute right-4 top-4 rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-foreground">
                   Đang sử dụng
                 </span>
               )}
@@ -772,7 +772,7 @@ export default function OrgDashboard() {
                 className={`mt-6 h-11 w-full rounded-lg text-sm font-medium ${
                   isPremium
                     ? "bg-muted text-muted-foreground"
-                    : "bg-primary text-slate-600-foreground hover:bg-primary/90"
+                    : "bg-primary text-primary-foreground hover:bg-primary/90"
                 }`}
               >
                 {isPremium ? "Đã được kích hoạt" : "Kích hoạt ngay"}

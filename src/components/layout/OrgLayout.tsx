@@ -106,8 +106,8 @@ export default function OrgLayout({
               className="w-10 h-10 rounded-lg object-cover border border-border"
             />
             {isPremium && (
-              <span className="absolute -top-1 -right-1 bg-primary text-slate-600-foreground p-0.5 rounded-full border border-card shadow-sm">
-                <Crown className="w-3 h-3 fill-current text-slate-600-foreground" />
+              <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground p-0.5 rounded-full border border-card shadow-sm">
+                <Crown className="w-3 h-3 fill-current text-primary-foreground" />
               </span>
             )}
           </div>
@@ -149,19 +149,19 @@ export default function OrgLayout({
                 aria-current={isActive ? "page" : undefined}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors group
                 ${isActive
-                  ? "bg-primary text-slate-600-foreground shadow-sm"
+                  ? "bg-primary text-primary-foreground shadow-sm"
                   : "text-muted-foreground hover:bg-slate-100 hover:text-foreground"
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <Icon
-                    className={`w-5 h-5 shrink-0 ${isActive ? "text-slate-600-foreground" : "text-muted-foreground group-hover:text-foreground"}`}
+                    className={`w-5 h-5 shrink-0 ${isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground"}`}
                   />
                   {isSidebarOpen && <span className="truncate">{item.name}</span>}
                 </div>
                 {item.isPremiumLocked && isSidebarOpen && (
                   <Lock
-                    className={`w-3.5 h-3.5 shrink-0 ${isActive ? "text-slate-600-foreground/80" : "text-muted-foreground group-hover:text-foreground"}`}
+                    className={`w-3.5 h-3.5 shrink-0 ${isActive ? "text-primary-foreground/80" : "text-muted-foreground group-hover:text-foreground"}`}
                   />
                 )}
               </button>

@@ -206,7 +206,7 @@ export default function CVProfile() {
                 <Button
                   type="submit"
                   disabled={saving}
-                  className="rounded-lg bg-primary hover:bg-primary/90 text-slate-600-foreground font-medium h-11 px-6 transition-colors shadow-sm w-full sm:w-auto"
+                  className="rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-medium h-11 px-6 transition-colors shadow-sm w-full sm:w-auto"
                 >
                   {saving ? "Đang lưu..." : (<><Save className="w-4 h-4 mr-2" /> Lưu Hồ sơ năng lực</>)}
                 </Button>

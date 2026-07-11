@@ -148,7 +148,7 @@ export default function MyJobs() {
             </p>
             <Button
               onClick={() => navigate("/")}
-              className="mt-6 h-10 rounded-lg bg-primary px-6 text-sm font-semibold text-slate-600-foreground hover:bg-primary/90"
+              className="mt-6 h-10 rounded-lg bg-primary px-6 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
             >
               Tìm sự kiện ngay
               <ArrowRight className="ml-2 h-4 w-4" />

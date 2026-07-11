@@ -175,7 +175,7 @@ export default function AdminDashboard() {
                     if (window.innerWidth < 1024) setIsSidebarOpen(false)
                   }}
                   className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${isActive
-                    ? "bg-primary text-slate-600-foreground"
+                    ? "bg-primary text-primary-foreground"
                     : "text-background/70 hover:bg-background/10 hover:text-background"
                     }`}
                 >
@@ -420,7 +420,7 @@ export default function AdminDashboard() {
                         <h3 className="text-base font-semibold text-foreground">Lịch sử giao dịch VIP</h3>
                         <p className="mt-0.5 text-xs text-muted-foreground">Các giao dịch mua gói VIP Recruiter</p>
                       </div>
-                      <Badge className="bg-primary font-medium text-slate-600-foreground">
+                      <Badge className="bg-primary font-medium text-primary-foreground">
                         Doanh thu: {stats.totalRevenue.toLocaleString("vi-VN")}đ
                       </Badge>
                     </div>

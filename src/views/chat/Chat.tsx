@@ -438,7 +438,7 @@ export default function Chat() {
               {role === "organizer" && (
                 <Button
                   onClick={() => setIsInterviewModalOpen(true)}
-                  className="shrink-0 rounded-lg bg-primary px-3 text-xs font-medium text-slate-600-foreground hover:bg-primary/90"
+                  className="shrink-0 rounded-lg bg-primary px-3 text-xs font-medium text-primary-foreground hover:bg-primary/90"
                 >
                   <Calendar className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">Hẹn phỏng vấn</span>
@@ -533,7 +533,7 @@ export default function Chat() {
                               <div className="flex gap-2">
                                 <Button
                                   onClick={() => handleUpdateInterviewStatus(interview.id, "accepted")}
-                                  className="flex-1 rounded-lg bg-primary py-2 text-xs font-medium text-slate-600-foreground hover:bg-primary/90"
+                                  className="flex-1 rounded-lg bg-primary py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90"
                                 >
                                   <Check className="h-3.5 w-3.5" />
                                   Đồng ý
@@ -577,12 +577,12 @@ export default function Chat() {
                   >
                     <div
                       className={`max-w-[75%] rounded-xl px-3 py-2 text-sm leading-relaxed sm:max-w-[70%] ${isMe
-                        ? "rounded-tr-sm bg-primary text-slate-600-foreground"
+                        ? "rounded-tr-sm bg-primary text-primary-foreground"
                         : "rounded-tl-sm bg-muted text-foreground"
                         }`}
                     >
                       <p className="break-words">{msg.content}</p>
-                      <span className={`mt-1 block text-right text-xs ${isMe ? "text-slate-600-foreground/70" : "text-muted-foreground"}`}>
+                      <span className={`mt-1 block text-right text-xs ${isMe ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
                         {new Date(msg.created_at).toLocaleTimeString("vi-VN", {
                           hour: "2-digit",
                           minute: "2-digit"
@@ -611,7 +611,7 @@ export default function Chat() {
                 type="submit"
                 disabled={sending}
                 aria-label="Gửi tin nhắn"
-                className="h-10 w-10 shrink-0 rounded-lg bg-primary p-0 text-slate-600-foreground hover:bg-primary/90 disabled:opacity-50 sm:h-11 sm:w-11"
+                className="h-10 w-10 shrink-0 rounded-lg bg-primary p-0 text-primary-foreground hover:bg-primary/90 disabled:opacity-50 sm:h-11 sm:w-11"
               >
                 <Send className="h-4 w-4" />
               </Button>
