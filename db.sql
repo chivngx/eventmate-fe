@@ -634,3 +634,5 @@ FOR DELETE TO authenticated USING (auth.uid() = student_id);
 
 
 
+
+
