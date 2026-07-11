@@ -4,10 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 3000 --host 2>&1 | tee dev.log",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "db:push": "echo '[db:push] No database setup needed for this Vite + Supabase frontend.'",
+    "db:generate": "echo '[db:generate] No database setup needed for this Vite + Supabase frontend.'"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
