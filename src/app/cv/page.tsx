@@ -1,1 +1,1 @@
-export { default } from "@/pages/cv/CVProfile"
+export { default } from"@/pages/cv/CVProfile"

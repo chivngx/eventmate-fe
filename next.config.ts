@@ -1,4 +1,5 @@
 import type { NextConfig } from "next"
+import { withSentryConfig } from "@sentry/nextjs"
 
 /**
  * Next.js configuration.
@@ -11,6 +12,9 @@ import type { NextConfig } from "next"
  *
  * Images: remote patterns for next/image — Supabase storage + Unsplash
  * (used as default avatar fallback in OrgLayout/OrgDashboard).
+ *
+ * Sentry: wrapped with withSentryConfig — no-op when NEXT_PUBLIC_SENTRY_DSN
+ * is empty (tree-shaken out of the bundle).
  */
 const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
@@ -60,4 +64,12 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default nextConfig
+// 🔒 P2.9: Sentry wrapper — no-op tree-shakes when DSN empty.
+export default withSentryConfig(nextConfig, {
+  // Only relevant in production builds; dev is unaffected.
+  silent: true,
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  // Disable telemetry upload in dev.
+  disableLogger: true,
+})

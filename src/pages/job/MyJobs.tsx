@@ -1,314 +1,314 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useNavigate } from "@/lib/router"
-import { supabase } from "@/lib/supabase"
-import { getUserFacingMessage } from "@/lib/error"
-import { useUser } from "@/components/providers/AuthProvider"
-import MainLayout from "@/components/layout/MainLayout"
-import { Briefcase, MapPin, Building2, CheckCircle, XCircle, Clock3, ArrowRight, CalendarDays, Tag, Trash2, Award } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import ScheduleCalendar from "@/components/ScheduleCalendar"
-import ReviewModal from "@/components/ReviewModal"
-import { SkeletonGenericPage } from "@/components/ui/Skeleton"
-import CertificateModal from "@/components/CertificateModal"
-import { useToast } from "@/components/ui/ToastProvider"
+import { useState, useEffect } from"react"
+import { useNavigate } from"@/lib/router"
+import { supabase } from"@/lib/supabase"
+import { getUserFacingMessage } from"@/lib/error"
+import { useUser } from"@/components/providers/AuthProvider"
+import MainLayout from"@/components/layout/MainLayout"
+import { Briefcase, MapPin, Building2, CheckCircle, XCircle, Clock3, ArrowRight, CalendarDays, Tag, Trash2, Award } from"lucide-react"
+import { Button } from"@/components/ui/button"
+import { Badge } from"@/components/ui/badge"
+import { Avatar, AvatarFallback, AvatarImage } from"@/components/ui/avatar"
+import ScheduleCalendar from"@/components/ScheduleCalendar"
+import ReviewModal from"@/components/ReviewModal"
+import { SkeletonGenericPage } from"@/components/ui/Skeleton"
+import CertificateModal from"@/components/CertificateModal"
+import { useToast } from"@/components/ui/ToastProvider"
 
 export default function MyJobs() {
-    const navigate = useNavigate()
-    const { showToast } = useToast()
-    // 🔒 P1.1: user + role từ context (thay getUser() + profiles.select lặp)
-    const { user, role, profile, loading: authLoading } = useUser()
-    const [applications, setApplications] = useState<any[]>([])
-    const [interviews, setInterviews] = useState<any[]>([])
-    const [loading, setLoading] = useState(true)
-    const [reviewingEvent, setReviewingEvent] = useState<{ eventId: string; organizerId: string; organizerName: string } | null>(null)
-    const [studentName, setStudentName] = useState("Sinh viên")
-    const [viewingCertificate, setViewingCertificate] = useState<{ studentName: string; eventTitle: string; position: string; eventDate: string; organizerName: string } | null>(null)
+ const navigate = useNavigate()
+ const { showToast } = useToast()
+ // 🔒 P1.1: user + role từ context (thay getUser() + profiles.select lặp)
+ const { user, role, profile, loading: authLoading } = useUser()
+ const [applications, setApplications] = useState<any[]>([])
+ const [interviews, setInterviews] = useState<any[]>([])
+ const [loading, setLoading] = useState(true)
+ const [reviewingEvent, setReviewingEvent] = useState<{ eventId: string; organizerId: string; organizerName: string } | null>(null)
+ const [studentName, setStudentName] = useState("Sinh viên")
+ const [viewingCertificate, setViewingCertificate] = useState<{ studentName: string; eventTitle: string; position: string; eventDate: string; organizerName: string } | null>(null)
 
-    useEffect(() => {
-        if (authLoading) return
-        if (!user) {
-            navigate("/login")
-            return
-        }
-        const fetchMyApplications = async () => {
-            setLoading(true)
+ useEffect(() => {
+ if (authLoading) return
+ if (!user) {
+ navigate("/login")
+ return
+ }
+ const fetchMyApplications = async () => {
+ setLoading(true)
 
-            const { data, error } = await supabase
-                .from("applications")
-                .select(`
-                    id, 
-                    status, 
-                    applied_at,
-                    events (
-                        id, title, location, status, position_type, category, benefits, event_date, application_deadline, ward_id, slug,
-                        danang_wards (name),
-                        profiles (id, full_name, avatar_url, slug)
-                    )
-                `)
-                .eq("student_id", user.id)
-                .order("applied_at", { ascending: false })
+ const { data, error } = await supabase
+ .from("applications")
+ .select(`
+ id, 
+ status, 
+ applied_at,
+ events (
+ id, title, location, status, position_type, category, benefits, event_date, application_deadline, ward_id, slug,
+ danang_wards (name),
+ profiles (id, full_name, avatar_url, slug)
+ )
+ `)
+ .eq("student_id", user.id)
+ .order("applied_at", { ascending: false })
 
-            if (error) {
-                console.error("🚨 Lỗi truy vấn đơn ứng tuyển:", error)
-                showToast({ title: "Lỗi kết nối Database", message: getUserFacingMessage(error, "Đã xảy ra lỗi kết nối. Vui lòng thử lại."), type: "error" })
-            } else if (data) {
-                setApplications(data)
-            }
+ if (error) {
+ console.error("🚨 Lỗi truy vấn đơn ứng tuyển:", error)
+ showToast({ title:"Lỗi kết nối Database", message: getUserFacingMessage(error,"Đã xảy ra lỗi kết nối. Vui lòng thử lại."), type:"error" })
+ } else if (data) {
+ setApplications(data)
+ }
 
-            // Tải các buổi phỏng vấn đã được chấp nhận
-            const { data: intData, error: intError } = await supabase
-                .from("interviews")
-                .select(`
-                    id,
-                    title,
-                    scheduled_at,
-                    meeting_link,
-                    status,
-                    events (id, title, location)
-                `)
-                .eq("student_id", user.id)
-                .eq("status", "accepted")
+ // Tải các buổi phỏng vấn đã được chấp nhận
+ const { data: intData, error: intError } = await supabase
+ .from("interviews")
+ .select(`
+ id,
+ title,
+ scheduled_at,
+ meeting_link,
+ status,
+ events (id, title, location)
+ `)
+ .eq("student_id", user.id)
+ .eq("status","accepted")
 
-            if (!intError && intData) {
-                setInterviews(intData)
-            }
+ if (!intError && intData) {
+ setInterviews(intData)
+ }
 
-            setLoading(false)
-        }
-        fetchMyApplications()
-    }, [user, authLoading, navigate])
+ setLoading(false)
+ }
+ fetchMyApplications()
+ }, [user, authLoading, navigate])
 
-    // 🔒 P1.1: đồng bộ studentName từ profile context
-    useEffect(() => {
-        if (profile?.full_name) setStudentName(profile.full_name)
-    }, [profile])
+ // 🔒 P1.1: đồng bộ studentName từ profile context
+ useEffect(() => {
+ if (profile?.full_name) setStudentName(profile.full_name)
+ }, [profile])
 
-    const handleWithdraw = async (appId: string) => {
-        const isConfirmed = window.confirm("⚠️ Bạn có chắc chắn muốn rút đơn ứng tuyển sự kiện này không?\nHành động này không thể hoàn tác.")
-        if (!isConfirmed) return
+ const handleWithdraw = async (appId: string) => {
+ const isConfirmed = window.confirm("⚠️ Bạn có chắc chắn muốn rút đơn ứng tuyển sự kiện này không?\nHành động này không thể hoàn tác.")
+ if (!isConfirmed) return
 
-        const { error } = await supabase
-            .from("applications")
-            .delete()
-            .eq("id", appId)
+ const { error } = await supabase
+ .from("applications")
+ .delete()
+ .eq("id", appId)
 
-        if (!error) {
-            showToast({ title: "Thành công", message: "Đã rút đơn ứng tuyển thành công.", type: "success" })
-            setApplications(prev => prev.filter(app => app.id !== appId))
-        } else {
-            showToast({ title: "Lỗi khi hủy ứng tuyển", message: getUserFacingMessage(error, "Không thể hủy ứng tuyển. Vui lòng thử lại."), type: "error" })
-        }
-    }
+ if (!error) {
+ showToast({ title:"Thành công", message:"Đã rút đơn ứng tuyển thành công.", type:"success" })
+ setApplications(prev => prev.filter(app => app.id !== appId))
+ } else {
+ showToast({ title:"Lỗi khi hủy ứng tuyển", message: getUserFacingMessage(error,"Không thể hủy ứng tuyển. Vui lòng thử lại."), type:"error" })
+ }
+ }
 
-    if (loading) return <SkeletonGenericPage />
+ if (loading) return <SkeletonGenericPage />
 
-    return (
-        <MainLayout role={role || "student"}>
-            <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+ return (
+ <MainLayout role={role ||"student"}>
+ <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
 
-                <div className="mb-8 bg-white p-8 rounded-[2rem] border-2 border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                        <h1 className="text-3xl font-black tracking-tight text-slate-900 flex items-center gap-3">
-                            <Briefcase className="w-8 h-8 text-emerald-500" />
-                            Việc làm đã nộp
-                        </h1>
-                        <p className="text-slate-500 font-medium mt-2">
-                            Theo dõi trạng thái các đơn ứng tuyển và sự kiện bạn đã tham gia.
-                        </p>
-                    </div>
-                    <Badge className="bg-slate-100 text-slate-700 hover:bg-slate-200 border-none px-4 py-2 text-sm font-bold">
-                        Tổng cộng: {applications.length} đơn
-                    </Badge>
-                </div>
+ <div className="mb-8 bg-white p-8 rounded-[2rem] border-2 border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+ <div>
+ <h1 className="text-3xl font-black tracking-tight text-slate-900 flex items-center gap-3">
+ <Briefcase className="w-8 h-8 text-emerald-500" />
+ Việc làm đã nộp
+ </h1>
+ <p className="text-slate-500 font-medium mt-2">
+ Theo dõi trạng thái các đơn ứng tuyển và sự kiện bạn đã tham gia.
+ </p>
+ </div>
+ <Badge className="bg-slate-100 text-slate-700 hover:bg-slate-200 border-none px-4 py-2 text-sm font-bold">
+ Tổng cộng: {applications.length} đơn
+ </Badge>
+ </div>
 
-                {applications.length === 0 ? (
-                    <div className="text-center py-16 bg-white rounded-[2rem] border-2 border-dashed border-slate-200">
-                        <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Briefcase className="w-10 h-10 text-slate-300" />
-                        </div>
-                        <h2 className="text-xl font-bold text-slate-900 mb-2">Bạn chưa ứng tuyển sự kiện nào</h2>
-                        <p className="text-slate-500 font-medium mb-6">Hàng ngàn cơ hội đang chờ đón bạn ngoài kia. Hãy bắt đầu khám phá ngay!</p>
-                        <Button onClick={() => navigate("/")} className="rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-12 px-8">
-                            Tìm việc ngay <ArrowRight className="w-5 h-5 ml-2" />
-                        </Button>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                        {/* Cột trái: Danh sách việc làm */}
-                        <div className="lg:col-span-2 space-y-4">
-                            {applications.map((app, idx) => {
-                                const event = app.events
-                                const organizer = event?.profiles
+ {applications.length === 0 ? (
+ <div className="text-center py-16 bg-white rounded-[2rem] border-2 border-dashed border-slate-200">
+ <div className="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+ <Briefcase className="w-10 h-10 text-slate-300" />
+ </div>
+ <h2 className="text-xl font-bold text-slate-900 mb-2">Bạn chưa ứng tuyển sự kiện nào</h2>
+ <p className="text-slate-500 font-medium mb-6">Hàng ngàn cơ hội đang chờ đón bạn ngoài kia. Hãy bắt đầu khám phá ngay!</p>
+ <Button onClick={() => navigate("/")} className="rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-12 px-8">
+ Tìm việc ngay <ArrowRight className="w-5 h-5 ml-2" />
+ </Button>
+ </div>
+ ) : (
+ <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+ {/* Cột trái: Danh sách việc làm */}
+ <div className="lg:col-span-2 space-y-4">
+ {applications.map((app, idx) => {
+ const event = app.events
+ const organizer = event?.profiles
 
-                                let StatusBadge, StatusIcon, statusColor
-                                if (app.status === 'approved') {
-                                    StatusBadge = "Trúng tuyển"
-                                    StatusIcon = <CheckCircle className="w-5 h-5" />
-                                    statusColor = "bg-emerald-50 text-emerald-600 border-emerald-200"
-                                } else if (app.status === 'rejected') {
-                                    StatusBadge = "Chưa phù hợp"
-                                    StatusIcon = <XCircle className="w-5 h-5" />
-                                    statusColor = "bg-rose-50 text-rose-600 border-rose-105"
-                                } else {
-                                    StatusBadge = "Đang chờ duyệt"
-                                    StatusIcon = <Clock3 className="w-5 h-5" />
-                                    statusColor = "bg-amber-50 text-amber-600 border-amber-200"
-                                }
+ let StatusBadge, StatusIcon, statusColor
+ if (app.status === 'approved') {
+ StatusBadge ="Trúng tuyển"
+ StatusIcon = <CheckCircle className="w-5 h-5" />
+ statusColor ="bg-emerald-50 text-emerald-600 border-emerald-200"
+ } else if (app.status === 'rejected') {
+ StatusBadge ="Chưa phù hợp"
+ StatusIcon = <XCircle className="w-5 h-5" />
+ statusColor ="bg-rose-50 text-rose-600 border-rose-105"
+ } else {
+ StatusBadge ="Đang chờ duyệt"
+ StatusIcon = <Clock3 className="w-5 h-5" />
+ statusColor ="bg-amber-50 text-amber-600 border-amber-200"
+ }
 
-                                return (
-                                    <div key={app.id} className="bg-white rounded-[1.5rem] border-2 border-slate-100 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-950/5 transition-all duration-300 animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${idx * 50}ms` }}>
+ return (
+ <div key={app.id} className="bg-white rounded-[1.5rem] border-2 border-slate-100 p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-6 hover:border-emerald-200 hover:shadow-xl hover:shadow-emerald-950/5 transition-all duration-300 animate-in fade-in slide-in-from-bottom-4" style={{ animationDelay: `${idx * 50}ms` }}>
 
-                                        <div className="flex gap-5 items-start flex-1 cursor-pointer min-w-0" onClick={() => navigate(`/jobs/${event?.slug || event?.id}`)}>
-                                            <Avatar className="h-16 w-16 rounded-2xl border-2 border-slate-50 mt-1 shrink-0">
-                                                <AvatarImage src={organizer?.avatar_url} />
-                                                <AvatarFallback className="rounded-2xl bg-slate-100 text-2xl font-black text-slate-700">
-                                                    {organizer?.full_name ? organizer.full_name.charAt(0).toUpperCase() : "O"}
-                                                </AvatarFallback>
-                                            </Avatar>
+ <div className="flex gap-5 items-start flex-1 cursor-pointer min-w-0" onClick={() => navigate(`/jobs/${event?.slug || event?.id}`)}>
+ <Avatar className="h-16 w-16 rounded-2xl border-2 border-slate-50 mt-1 shrink-0">
+ <AvatarImage src={organizer?.avatar_url} />
+ <AvatarFallback className="rounded-2xl bg-slate-100 text-2xl font-black text-slate-700">
+ {organizer?.full_name ? organizer.full_name.charAt(0).toUpperCase() :"O"}
+ </AvatarFallback>
+ </Avatar>
 
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-3 mb-1.5 flex-wrap">
-                                                    <h3 className="text-lg font-bold text-slate-900 leading-tight hover:text-emerald-600 transition-colors truncate">
-                                                        {event?.title || "Sự kiện đã bị xóa"}
-                                                    </h3>
-                                                    {event?.status === 'upcoming' ? (
-                                                        <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 text-[10px] px-2 py-0.5 font-bold">Đang mở</Badge>
-                                                    ) : (
-                                                        <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[10px] px-2 py-0.5 font-bold">Đã đóng</Badge>
-                                                    )}
-                                                </div>
+ <div className="flex-1 min-w-0">
+ <div className="flex items-center gap-3 mb-1.5 flex-wrap">
+ <h3 className="text-lg font-bold text-slate-900 leading-tight hover:text-emerald-600 transition-colors truncate">
+ {event?.title ||"Sự kiện đã bị xóa"}
+ </h3>
+ {event?.status === 'upcoming' ? (
+ <Badge variant="secondary" className="bg-emerald-100 text-emerald-700 text-[10px] px-2 py-0.5 font-bold">Đang mở</Badge>
+ ) : (
+ <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[10px] px-2 py-0.5 font-bold">Đã đóng</Badge>
+ )}
+ </div>
 
-                                                <p className="text-sm font-bold text-slate-500 flex items-center gap-2 mb-3">
-                                                    <Building2 className="w-4 h-4" /> {organizer?.full_name || "Đơn vị ẩn danh"}
-                                                </p>
+ <p className="text-sm font-bold text-slate-500 flex items-center gap-2 mb-3">
+ <Building2 className="w-4 h-4" /> {organizer?.full_name ||"Đơn vị ẩn danh"}
+ </p>
 
-                                                <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs font-bold text-slate-400">
-                                                    <span className="flex items-center gap-1 rounded bg-slate-50 px-2 py-0.5 text-slate-600 max-w-[180px] truncate" title={event?.location}>
-                                                        <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                                                        {event?.danang_wards?.name ? `P. ${event.danang_wards.name}` : (event?.location || "Đà Nẵng")}
-                                                    </span>
-                                                    {event?.position_type && (
-                                                        <span className="flex items-center gap-1 rounded bg-slate-50 px-2 py-0.5 text-slate-600">
-                                                            <Briefcase className="w-3.5 h-3.5 text-slate-400" /> {event.position_type}
-                                                        </span>
-                                                    )}
-                                                    {event?.category && (
-                                                        <span className="flex items-center gap-1 rounded bg-slate-50 px-2 py-0.5 text-slate-600">
-                                                            <Tag className="w-3.5 h-3.5 text-slate-400" /> {event.category}
-                                                        </span>
-                                                    )}
-                                                    <span className="flex items-center gap-1.5 text-slate-400 px-1">
-                                                        <CalendarDays className="w-3.5 h-3.5 text-slate-400" /> Đã nộp: {new Date(app.applied_at).toLocaleDateString('vi-VN')}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
+ <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs font-bold text-slate-400">
+ <span className="flex items-center gap-1 rounded bg-slate-50 px-2 py-0.5 text-slate-600 max-w-[180px] truncate" title={event?.location}>
+ <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+ {event?.danang_wards?.name ? `P. ${event.danang_wards.name}` : (event?.location ||"Đà Nẵng")}
+ </span>
+ {event?.position_type && (
+ <span className="flex items-center gap-1 rounded bg-slate-50 px-2 py-0.5 text-slate-600">
+ <Briefcase className="w-3.5 h-3.5 text-slate-400" /> {event.position_type}
+ </span>
+ )}
+ {event?.category && (
+ <span className="flex items-center gap-1 rounded bg-slate-50 px-2 py-0.5 text-slate-600">
+ <Tag className="w-3.5 h-3.5 text-slate-400" /> {event.category}
+ </span>
+ )}
+ <span className="flex items-center gap-1.5 text-slate-400 px-1">
+ <CalendarDays className="w-3.5 h-3.5 text-slate-400" /> Đã nộp: {new Date(app.applied_at).toLocaleDateString('vi-VN')}
+ </span>
+ </div>
+ </div>
+ </div>
 
-                                        <div className="flex flex-col items-end gap-3 shrink-0 w-full sm:w-auto">
+ <div className="flex flex-col items-end gap-3 shrink-0 w-full sm:w-auto">
 
-                                            <div className="flex items-center gap-2 w-full justify-end">
-                                                <a
-                                                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((event?.location ? event.location + ', ' : '') + (event?.danang_wards?.name ? 'Phường ' + event.danang_wards.name + ', ' : '') + 'Đà Nẵng')}`}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    onClick={(e) => e.stopPropagation()}
-                                                    className="flex items-center gap-0.5 rounded-xl bg-emerald-50 border border-emerald-100 px-2.5 py-1.5 text-xs font-bold text-emerald-600 hover:bg-emerald-100 transition-colors h-8"
-                                                >
-                                                    🗺️ Bản đồ
-                                                </a>
-                                                {app.status === 'approved' && event?.status === 'completed' && (
-                                                    <div className="flex gap-2">
-                                                        <Button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                setViewingCertificate({
-                                                                    studentName: studentName,
-                                                                    eventTitle: event.title,
-                                                                    position: event.position_type || "Thành viên tham gia",
-                                                                    eventDate: event.event_date,
-                                                                    organizerName: event.profiles?.full_name || "Ban tổ chức"
-                                                                });
-                                                            }}
-                                                            className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-8 px-2.5 text-xs flex items-center gap-1 shadow-none"
-                                                        >
-                                                            <Award className="w-3.5 h-3.5" />
-                                                            Nhận chứng nhận
-                                                        </Button>
-                                                        <Button
-                                                            onClick={(e) => {
-                                                                e.stopPropagation();
-                                                                setReviewingEvent({
-                                                                    eventId: event.id,
-                                                                    organizerId: event.profiles?.id,
-                                                                    organizerName: event.profiles?.full_name || "Nhà tổ chức"
-                                                                });
-                                                            }}
-                                                            className="rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold h-8 px-2.5 text-xs flex items-center gap-1 shadow-none"
-                                                        >
-                                                            ⭐ Đánh giá BTC
-                                                        </Button>
-                                                    </div>
-                                                )}
-                                                <div className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl border-2 font-bold text-xs h-8 ${statusColor}`}>
-                                                    {StatusIcon} {StatusBadge}
-                                                </div>
-                                                {app.status === "pending" && (
-                                                    <Button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleWithdraw(app.id);
-                                                        }}
-                                                        variant="outline"
-                                                        className="rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 font-bold h-8 px-2.5 shadow-none flex items-center gap-1 text-xs"
-                                                        title="Hủy ứng tuyển sự kiện này"
-                                                    >
-                                                        <Trash2 className="w-3.5 h-3.5" />
-                                                        <span className="hidden md:inline">Hủy</span>
-                                                    </Button>
-                                                )}
-                                            </div>
-                                        </div>
+ <div className="flex items-center gap-2 w-full justify-end">
+ <a
+ href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((event?.location ? event.location + ', ' : '') + (event?.danang_wards?.name ? 'Phường ' + event.danang_wards.name + ', ' : '') + 'Đà Nẵng')}`}
+ target="_blank"
+ rel="noreferrer"
+ onClick={(e) => e.stopPropagation()}
+ className="flex items-center gap-0.5 rounded-xl bg-emerald-50 border border-emerald-100 px-2.5 py-1.5 text-xs font-bold text-emerald-600 hover:bg-emerald-100 transition-colors h-8"
+ >
+ 🗺️ Bản đồ
+ </a>
+ {app.status === 'approved' && event?.status === 'completed' && (
+ <div className="flex gap-2">
+ <Button
+ onClick={(e) => {
+ e.stopPropagation();
+ setViewingCertificate({
+ studentName: studentName,
+ eventTitle: event.title,
+ position: event.position_type ||"Thành viên tham gia",
+ eventDate: event.event_date,
+ organizerName: event.profiles?.full_name ||"Ban tổ chức"
+ });
+ }}
+ className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-8 px-2.5 text-xs flex items-center gap-1 shadow-none"
+ >
+ <Award className="w-3.5 h-3.5" />
+ Nhận chứng nhận
+ </Button>
+ <Button
+ onClick={(e) => {
+ e.stopPropagation();
+ setReviewingEvent({
+ eventId: event.id,
+ organizerId: event.profiles?.id,
+ organizerName: event.profiles?.full_name ||"Nhà tổ chức"
+ });
+ }}
+ className="rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold h-8 px-2.5 text-xs flex items-center gap-1 shadow-none"
+ >
+ ⭐ Đánh giá BTC
+ </Button>
+ </div>
+ )}
+ <div className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl border-2 font-bold text-xs h-8 ${statusColor}`}>
+ {StatusIcon} {StatusBadge}
+ </div>
+ {app.status ==="pending" && (
+ <Button
+ onClick={(e) => {
+ e.stopPropagation();
+ handleWithdraw(app.id);
+ }}
+ variant="outline"
+ className="rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 font-bold h-8 px-2.5 shadow-none flex items-center gap-1 text-xs"
+ title="Hủy ứng tuyển sự kiện này"
+ >
+ <Trash2 className="w-3.5 h-3.5" />
+ <span className="hidden md:inline">Hủy</span>
+ </Button>
+ )}
+ </div>
+ </div>
 
-                                    </div>
-                                )
-                            })}
-                        </div>
+ </div>
+ )
+ })}
+ </div>
 
-                        {/* Cột phải: Lịch trình */}
-                        <div className="lg:col-span-1 lg:sticky lg:top-8 w-full">
-                            <ScheduleCalendar applications={applications} interviews={interviews} />
-                        </div>
-                    </div>
-                )}
+ {/* Cột phải: Lịch trình */}
+ <div className="lg:col-span-1 lg:sticky lg:top-8 w-full">
+ <ScheduleCalendar applications={applications} interviews={interviews} />
+ </div>
+ </div>
+ )}
 
-            </div>
+ </div>
 
-            {reviewingEvent && user && (
-                <ReviewModal
-                    isOpen={!!reviewingEvent}
-                    onClose={() => setReviewingEvent(null)}
-                    eventId={reviewingEvent.eventId}
-                    reviewerId={user.id}
-                    revieweeId={reviewingEvent.organizerId}
-                    revieweeName={reviewingEvent.organizerName}
-                />
-            )}
+ {reviewingEvent && user && (
+ <ReviewModal
+ isOpen={!!reviewingEvent}
+ onClose={() => setReviewingEvent(null)}
+ eventId={reviewingEvent.eventId}
+ reviewerId={user.id}
+ revieweeId={reviewingEvent.organizerId}
+ revieweeName={reviewingEvent.organizerName}
+ />
+ )}
 
-            {viewingCertificate && (
-                <CertificateModal
-                    isOpen={!!viewingCertificate}
-                    onClose={() => setViewingCertificate(null)}
-                    studentName={viewingCertificate.studentName}
-                    eventTitle={viewingCertificate.eventTitle}
-                    position={viewingCertificate.position}
-                    eventDate={viewingCertificate.eventDate}
-                    organizerName={viewingCertificate.organizerName}
-                />
-            )}
-        </MainLayout>
-    )
+ {viewingCertificate && (
+ <CertificateModal
+ isOpen={!!viewingCertificate}
+ onClose={() => setViewingCertificate(null)}
+ studentName={viewingCertificate.studentName}
+ eventTitle={viewingCertificate.eventTitle}
+ position={viewingCertificate.position}
+ eventDate={viewingCertificate.eventDate}
+ organizerName={viewingCertificate.organizerName}
+ />
+ )}
+ </MainLayout>
+ )
 }

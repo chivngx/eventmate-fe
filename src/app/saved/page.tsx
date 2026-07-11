@@ -1,1 +1,1 @@
-export { default } from "@/pages/job/SavedJobs"
+export { default } from"@/pages/job/SavedJobs"

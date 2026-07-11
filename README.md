@@ -1,73 +1,76 @@
-# React + TypeScript + Vite
+# EventMate
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Nền tảng kết nối nhân sự và cơ hội việc làm sự kiện hàng đầu dành cho sinh viên và ban tổ chức tại Đà Nẵng.
 
-Currently, two official plugins are available:
+## Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **Framework**: Next.js 16 (App Router) + React 19 + TypeScript 6
+- **Styling**: Tailwind CSS 4 + shadcn/ui (base-nova style trên `@base-ui/react`)
+- **Backend**: Supabase (Auth + Postgres + Realtime + Storage) qua `@supabase/ssr` (httpOnly cookie session)
+- **State**: React Context (auth) + TanStack Query (server state) + react-hook-form + zod (forms)
+- **Animation**: framer-motion + motion/react
 
-## React Compiler
+## Getting Started
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+# Install dependencies
+bun install
 
-## Expanding the ESLint configuration
+# Start dev server (port 3000)
+bun run dev
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+# Lint
+bun run lint
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Build for production
+bun run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Environment
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Create `.env` with:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+NEXT_PUBLIC_SUPABASE_URL=https://<project>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-key>
+```
+
+## Database
+
+Supabase migrations live in `supabase/migrations/`. Run them in the Supabase Dashboard → SQL Editor (the app only has the anon key, so DDL can't run via REST).
+
+See `supabase/migrations/README.md` for instructions.
+
+## Project Structure
+
+```
+src/
+├── app/              # Next.js App Router (routes + layout + providers)
+│   ├── layout.tsx    # Root layout + metadata
+│   ├── providers.tsx # AuthProvider + ReactQueryProvider + ToastProvider
+│   ├── loading.tsx   # Route loading state
+│   ├── error.tsx     # Error boundary
+│   ├── not-found.tsx # 404 page
+│   └── */page.tsx    # Route re-exports (17 routes)
+├── components/
+│   ├── providers/    # AuthProvider, ReactQueryProvider
+│   ├── layout/       # MainLayout, NotchNavbar, Footer, OrgLayout
+│   ├── auth/         # AuthModal, AuthComponents
+│   ├── ui/           # shadcn primitives + Modal wrapper + Toast + Skeleton
+│   ├── event/        # EventCard, EventFormModal, OrgEventsTab
+│   ├── organizer/tabs/ # OrgDashboard tab components (AccountTab, ...)
+│   ├── chat/         # FloatingChat, InterviewModal
+│   └── cv/           # CVPreviewModal, CVViewModal
+├── hooks/            # use-lookups (wards, positions, categories via react-query)
+├── lib/              # supabase (browser), supabase-server, supabase-middleware, error, schemas, utils, router (compat)
+└── pages/            # Page components (16) + co-located hooks (3)
+```
+
+## Standards
+
+Development follows 3 standards (see `.standards/`):
+- **Performance.md** (Bolt ⚡) — memoization, lazy loading, cache
+- **Design.md** (Palette 🎨) — ARIA labels, focus states, accessibility
+- **Security.md** (Sentinel 🛡️) — input validation, error sanitization, RLS
+
+See `.standards/UPGRADE_PROPOSAL.md` for the full upgrade roadmap (Phase 1-4).

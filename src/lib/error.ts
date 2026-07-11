@@ -11,27 +11,27 @@
  * forwarded to `console.error` so developers keep full diagnostics, but users
  * only ever see `fallback` (or a small set of recognized friendly messages).
  *
- * @param error  The caught value (Error / Supabase error / unknown).
- * @param fallback  Default message shown to the user (Vietnamese).
+ * @param error The caught value (Error / Supabase error / unknown).
+ * @param fallback Default message shown to the user (Vietnamese).
  */
 export function getUserFacingMessage(
-  error: unknown,
-  fallback = "Đã xảy ra lỗi. Vui lòng thử lại sau."
+ error: unknown,
+ fallback ="Đã xảy ra lỗi. Vui lòng thử lại sau."
 ): string {
-  // Keep the full error for developer diagnostics — never shown to users.
-  console.error("[EventMate] operation failed:", error)
+ // Keep the full error for developer diagnostics — never shown to users.
+ console.error("[EventMate] operation failed:", error)
 
-  // Recognize a handful of well-known Supabase error codes and map them to
-  // actionable, non-leaky messages. Everything else falls back to `fallback`.
-  if (error && typeof error === "object") {
-    const code = (error as { code?: string }).code
-    if (code === "23505") return "Bản ghi đã tồn tại, không thể trùng lặp."
-    if (code === "23503") return "Dữ liệu liên quan không tồn tại."
-    if (code === "42501") return "Bạn không có quyền thực hiện thao tác này."
-    if (code === "PGRST116") return "Không tìm thấy dữ liệu phù hợp."
-  }
+ // Recognize a handful of well-known Supabase error codes and map them to
+ // actionable, non-leaky messages. Everything else falls back to `fallback`.
+ if (error && typeof error ==="object") {
+ const code = (error as { code?: string }).code
+ if (code ==="23505") return"Bản ghi đã tồn tại, không thể trùng lặp."
+ if (code ==="23503") return"Dữ liệu liên quan không tồn tại."
+ if (code ==="42501") return"Bạn không có quyền thực hiện thao tác này."
+ if (code ==="PGRST116") return"Không tìm thấy dữ liệu phù hợp."
+ }
 
-  return fallback
+ return fallback
 }
 
 /**
@@ -40,20 +40,20 @@ export function getUserFacingMessage(
  * value originates from user/organizer input stored in the database.
  */
 export function escapeHtml(value: string): string {
-  return String(value ?? "").replace(/[&<>"']/g, (ch) => {
-    switch (ch) {
-      case "&":
-        return "&amp;"
-      case "<":
-        return "&lt;"
-      case ">":
-        return "&gt;"
-      case '"':
-        return "&quot;"
-      case "'":
-        return "&#39;"
-      default:
-        return ch
-    }
-  })
+ return String(value ??"").replace(/[&<>"']/g, (ch) => {
+ switch (ch) {
+ case"&":
+ return"&amp;"
+ case"<":
+ return"&lt;"
+ case">":
+ return"&gt;"
+ case '"':
+ return"&quot;"
+ case"'":
+ return"&#39;"
+ default:
+ return ch
+ }
+ })
 }

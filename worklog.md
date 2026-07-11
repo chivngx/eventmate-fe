@@ -390,3 +390,39 @@ Stage Summary:
 - SEO: metadata đầy đủ (title/description/OG/keywords/lang=vi), loading/error/not-found boundaries.
 - Performance: 2 polling intervals removed (Chat + FloatingChat), 2x→1x traffic.
 - Lint: 0 errors, 1 warning (style). App chạy ổn định, 0 console error.
+
+---
+Task ID: phase3-complete
+Agent: main (Z.ai Code)
+Task: Phase 3 (Polish) — 6 tasks tuần tự
+
+Work Log:
+- Task 1 (Bỏ dark mode): strip 504 `dark:` classes (script Python regex), xóa `.dark` CSS block + `@custom-variant dark` line, xóa 3 deps (next-themes, @fontsource-variable/geist, autoprefixer). 93 files modified.
+- Task 2 (Bỏ zoom hack): xóa `@media (min-width:1024px) body { zoom: calc(100vw/1440) }` trong globals.css (non-standard, break position:fixed).
+- Task 3 (Modal accessible): tạo src/components/ui/modal.tsx (role=dialog, aria-modal, focus trap Tab/Shift+Tab, Escape close, backdrop click, body scroll lock, restore focus). Refactor ReviewModal + InterviewModal dùng wrapper.
+- Task 4 (Cleanup): xóa 3 orphan components (OrgApplicationsTab, FeaturedOrganizers, CVSuggestionCard). Fix components.json (rsc:true, config:"", css:src/app/globals.css). Move shadcn từ dependencies→devDependencies. Viết README mới (thay Vite boilerplate).
+- Task 5 (Test setup): cài vitest+@testing-library/react+jsdom+husky+lint-staged. Tạo vitest.config.ts + vitest.setup.ts (matchMedia + IntersectionObserver stubs). 2 test files (utils.test.ts 4 tests, error.test.ts 9 tests) — 13 tests pass. Husky pre-commit hook chạy lint-staged (eslint --fix trên *.ts/tsx staged).
+- Task 6 (Verify): phát hiện .env bị reset về DATABASE_URL (do db:push script ghi đè). Restore Supabase env. Restart dev server. Verify: / 200, /login 200, /companies 200, /nonexistent 404 (custom page "404 - Không tìm thấy trang"). Agent Browser: 9 event cards render, title "EventMate — Việc làm sự kiện cho sinh viên", 0 console error.
+
+Stage Summary:
+- Phase 3 HOÀN TẤT. Dark mode dead code gỡ sạch (504 class + CSS + 3 deps). Zoom hack bỏ. Modal wrapper accessible (focus trap + Escape + aria-modal). 3 orphan component xóa. Config fix (components.json + README). Test setup: 13 tests pass, husky pre-commit. Lint 0 errors.
+- Lưu ý: .env dễ bị db:push script reset — cần guard (todo Phase 4 hoặc fix .zscripts/dev.sh bỏ db:push cho project Supabase).
+
+---
+Task ID: phase4-complete
+Agent: main (Z.ai Code)
+Task: Phase 4 (Complete features) — 6 tasks tuần tự
+
+Work Log:
+- Task 1 (.env): tạo .env.example (template cho user mới), thêm NEXT_PUBLIC_SENTRY_DSN placeholder vào .env.
+- Task 2 (CV recommendations mock → real): xóa 4 mock students (Nguyễn Văn A/B/C/D với Unsplash avatar). Fetch applicants thật từ applications join profiles+events, compute match score (cv_completion_percent + bonus nếu skills chứa position_type keyword). Empty state "Chưa có ứng viên".
+- Task 3 (Reports chart + stats mock → real): thay "85%" → feedStats.approvalRate (approved/total ratio). Thay "142 lượt" → tổng đơn ứng tuyển (weeklyApps sum). Thay mock SVG chart 4 cột hardcoded → real chart từ feedStats.weeklyApps (4 tuần gần nhất, height proportional).
+- Task 4 (AdminDashboard mock → real): thay totalRevenue mock (2470000 + orgs*990000) → real (premiumOrgs*990000). Fetch applications count + filter premium organizers. Transactions table: thay tất cả organizers với fake TXN IDs → chỉ premium organizers thật + empty state "Chưa có giao dịch VIP".
+- Task 5 (Observability): cài @sentry/nextjs + @vercel/analytics. Tạo sentry.client.config.ts + sentry.server.config.ts (no-op khi DSN empty — tree-shake). instrumentation.ts load server config. next.config.ts wrap withSentryConfig. layout.tsx import sentry.client.config + <Analytics />.
+- Task 6 (eslint-config-next): thử re-enable eslint-config-next 16 — bug upstream @eslint/eslintrc FlatCompat circular JSON vẫn còn. Revert về typescript-eslint (work). eslint-config-next removed, @eslint/eslintrc removed.
+- Fix: sentry.client.config import path sai (../ → ../../). Sau fix: routes / 200, /companies 200, /admin 200, /nonexistent 404.
+- Verify: lint 0 errors 1 warning, 13 tests pass, Agent Browser 9 event cards render, title đúng, 0 console error.
+
+Stage Summary:
+- Phase 4 HOÀN TẤT. Toàn bộ mock data → real: CV recommendations (applicants thật + match score), reports chart (weekly applications aggregation), AdminDashboard (real revenue từ premium organizers, real transactions list). Sentry + Vercel Analytics wire (no-op khi DSN empty). eslint-config-next still blocked upstream.
+- TỔNG KẾT 4 PHASE: Phase 1 (Stabilize) + Phase 2 (Architect) + Phase 3 (Polish) + Phase 4 (Complete) all done. App production-ready: secure (SSR auth + RLS + CSP + sanitized errors), performant (auth context + react-query cache + memoized EventCard), accessible (modal wrapper + ARIA labels), tested (13 unit tests + husky pre-commit), observable (Sentry + Analytics).
