@@ -7,17 +7,7 @@ import EventCard from "@/components/event/EventCard"
 import QuickFilters from "@/components/QuickFilters"
 import Pagination from "@/components/Pagination"
 import { useStudentDashboard } from "@/hooks/useStudentDashboard"
-import { useEventCategories } from "@/hooks/use-lookups"
-import { Calendar, Music, Trophy, Compass, Landmark, Cpu, Users2 } from "lucide-react"
-
-const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
-  "Lễ hội Âm nhạc": Music,
-  "Hội thảo / Workshop": Users2,
-  "Giải đấu Thể thao": Trophy,
-  "Giao lưu Văn hóa": Compass,
-  "Triển lãm / Hội chợ": Landmark,
-  "Sự kiện Công nghệ": Cpu,
-}
+import { useEffect } from "react"
 
 export default function StudentDashboard() {
   const {
@@ -46,11 +36,20 @@ export default function StudentDashboard() {
     totalItems,
   } = useStudentDashboard()
 
-  const { data: categories = [] } = useEventCategories()
+  // Listen for category card clicks from StudentHero
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const cat = (e as CustomEvent).detail
+      setCategoryTerm(cat)
+      setCurrentPage(1)
+    }
+    window.addEventListener("category-select", handler)
+    return () => window.removeEventListener("category-select", handler)
+  }, [setCategoryTerm, setCurrentPage])
 
   return (
     <div className="space-y-8 pb-12 animate-in fade-in duration-300">
-      {/* 1. HERO + STATS + SEARCH */}
+      {/* HERO + CATEGORIES */}
       <StudentHero
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -60,39 +59,11 @@ export default function StudentDashboard() {
         totalEvents={totalItems}
       />
 
-      {/* 2. CATEGORY CARDS — event discovery feel */}
-      {!searchTerm && !wardIdTerm && !categoryTerm && (
-        <div>
-          <h2 className="text-sm font-bold text-slate-900 mb-3">Khám phá theo loại sự kiện</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            {categories.map((cat: any) => {
-              const Icon = CATEGORY_ICONS[cat.name] || Calendar
-              const slug = cat.slug || cat.name
-              return (
-                <button
-                  key={slug}
-                  onClick={() => {
-                    setCategoryTerm(cat.name)
-                    setCurrentPage(1)
-                  }}
-                  className="flex flex-col items-center gap-2 p-4 bg-white border border-slate-200 rounded-xl hover:border-slate-300 hover:shadow-sm transition-all cursor-pointer group"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-slate-100 group-hover:bg-slate-200 flex items-center justify-center transition-colors">
-                    <Icon className="w-5 h-5 text-slate-600" />
-                  </div>
-                  <span className="text-xs font-medium text-slate-600 text-center leading-tight">{cat.name}</span>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* 3. FILTERS + EVENT GRID */}
+      {/* EVENT LIST */}
       <div className="space-y-6">
         <div className="flex items-center justify-between gap-4 flex-wrap">
-          <h2 className="text-sm font-bold text-slate-900">
-            {categoryTerm ? `Sự kiện: ${categoryTerm}` : "Tất cả sự kiện"}
+          <h2 className="text-base font-bold text-slate-900">
+            {categoryTerm ? `Sự kiện: ${categoryTerm}` : searchTerm || wardIdTerm ? "Kết quả tìm kiếm" : "Sự kiện nổi bật"}
           </h2>
           <QuickFilters
             categoryTerm={categoryTerm}

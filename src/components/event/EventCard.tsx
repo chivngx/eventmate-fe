@@ -1,7 +1,7 @@
 "use client"
 
 import { memo } from "react"
-import { Heart, MapPin, Calendar, Clock, Users } from "lucide-react"
+import { Heart, MapPin, Calendar, Clock, Users, ChevronRight } from "lucide-react"
 import { useNavigate } from "@/lib/router"
 import { cn } from "@/lib/utils"
 
@@ -13,13 +13,15 @@ interface EventCardProps {
   onNavigateToJob: (jobId: string) => void
 }
 
-function formatDay(dateStr?: string): { day: string; month: string } | null {
+function formatDay(dateStr?: string): { day: string; month: string; weekday: string } | null {
   if (!dateStr) return null
   const d = new Date(dateStr)
   if (isNaN(d.getTime())) return null
+  const weekdays = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"]
   return {
     day: String(d.getDate()).padStart(2, "0"),
     month: `Th${d.getMonth() + 1}`,
+    weekday: weekdays[d.getDay()],
   }
 }
 
@@ -28,6 +30,16 @@ function getDaysLeft(deadlineStr?: string): number | null {
   const diff = new Date(deadlineStr).getTime() - Date.now()
   const days = Math.ceil(diff / 86400000)
   return days > 0 ? days : 0
+}
+
+// Category accent colors — each event type has its own visual identity
+const CATEGORY_ACCENTS: Record<string, { bar: string; bg: string; text: string }> = {
+  "Lễ hội Âm nhạc": { bar: "bg-rose-500", bg: "bg-rose-50", text: "text-rose-600" },
+  "Hội thảo / Workshop": { bar: "bg-blue-500", bg: "bg-blue-50", text: "text-blue-600" },
+  "Giải đấu Thể thao": { bar: "bg-amber-500", bg: "bg-amber-50", text: "text-amber-600" },
+  "Giao lưu Văn hóa": { bar: "bg-emerald-500", bg: "bg-emerald-50", text: "text-emerald-600" },
+  "Triển lãm / Hội chợ": { bar: "bg-indigo-500", bg: "bg-indigo-50", text: "text-indigo-600" },
+  "Sự kiện Công nghệ": { bar: "bg-purple-500", bg: "bg-purple-50", text: "text-purple-600" },
 }
 
 function EventCard({
@@ -43,46 +55,57 @@ function EventCard({
   const slotsLeft = job.slots_needed ?? 0
   const isUrgent = daysLeft !== null && daysLeft <= 3 && daysLeft > 0
   const isClosed = daysLeft === 0 || job.status !== "upcoming"
+  const accent = job.category ? CATEGORY_ACCENTS[job.category] : null
 
   return (
     <article
       onClick={() => onNavigateToJob(job.id)}
-      className="group relative flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden transition-all duration-200 hover:border-slate-300 hover:shadow-md cursor-pointer animate-in fade-in slide-in-from-bottom-3"
+      className="group relative flex flex-col bg-white border border-slate-200 rounded-2xl overflow-hidden transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer animate-in fade-in slide-in-from-bottom-3"
       style={{ animationDelay: `${idx * 40}ms` }}
     >
-      {/* Status ribbon — event feel */}
+      {/* Category color bar — event visual identity */}
+      <div className={cn("h-1.5 w-full", accent?.bar || "bg-slate-300")} />
+
+      {/* Urgent / closed badge */}
       {isClosed ? (
-        <div className="bg-slate-200 text-slate-500 text-xs font-semibold py-1 px-4 text-center">
-          Đã đóng đăng ký
+        <div className="absolute top-3 right-3 bg-slate-200 text-slate-500 text-[10px] font-bold px-2 py-0.5 rounded-full z-10">
+          Đã đóng
         </div>
       ) : isUrgent ? (
-        <div className="bg-primary text-white text-xs font-bold py-1 px-4 text-center flex items-center justify-center gap-1.5">
-          <Clock className="w-3 h-3" />
-          Sắp hết hạn — chỉ còn {daysLeft} ngày
+        <div className="absolute top-3 right-3 bg-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full z-10 flex items-center gap-1">
+          <Clock className="w-2.5 h-2.5" />
+          {daysLeft} ngày
         </div>
       ) : null}
 
-      {/* Top: date block + title + bookmark */}
+      {/* Date block + content */}
       <div className="flex items-stretch gap-3 p-4 pb-3">
-        {/* Date block — event ticket */}
-        <div className="flex flex-col items-center justify-center w-14 shrink-0 bg-primary rounded-lg">
+        {/* Date — large, prominent, ticket-style */}
+        <div className="flex flex-col items-center justify-center w-16 shrink-0 bg-slate-900 rounded-xl py-2.5">
           {eventDate ? (
             <>
-              <span className="text-lg font-extrabold leading-none text-white mt-1">
+              <span className="text-[10px] font-bold text-white/50 uppercase">{eventDate.weekday}</span>
+              <span className="text-xl font-bold leading-none text-white mt-0.5">
                 {eventDate.day}
               </span>
-              <span className="text-[10px] font-bold text-white/70 uppercase mb-1">
+              <span className="text-[10px] font-bold text-white/50 uppercase mt-0.5">
                 {eventDate.month}
               </span>
             </>
           ) : (
-            <Calendar className="w-5 h-5 text-white/60 my-2" />
+            <Calendar className="w-5 h-5 text-white/40 my-2" />
           )}
         </div>
 
         <div className="flex-1 min-w-0">
+          {/* Category badge with color */}
+          {job.category && accent && (
+            <span className={cn("inline-block text-[10px] font-bold px-2 py-0.5 rounded mb-1.5", accent.bg, accent.text)}>
+              {job.category}
+            </span>
+          )}
           <h3
-            className="text-sm font-semibold text-slate-900 leading-snug line-clamp-2 group-hover:text-slate-900 transition-colors"
+            className="text-sm font-semibold text-slate-900 leading-snug line-clamp-2 group-hover:text-slate-700 transition-colors"
             title={job.title}
           >
             {job.title}
@@ -97,19 +120,6 @@ function EventCard({
           >
             {job.profiles?.full_name || "Đơn vị ẩn danh"}
           </button>
-          {/* Tags */}
-          <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-            {job.category && (
-              <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
-                {job.category}
-              </span>
-            )}
-            {job.position_type && (
-              <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded truncate max-w-[120px]">
-                {job.position_type}
-              </span>
-            )}
-          </div>
         </div>
 
         {/* Bookmark */}
@@ -131,7 +141,7 @@ function EventCard({
         </button>
       </div>
 
-      {/* Bottom: location + slots + countdown */}
+      {/* Footer: location + slots */}
       <div className="flex items-center gap-3 px-4 py-2.5 border-t border-slate-100 text-xs text-slate-500 bg-slate-50/50">
         <span className="flex items-center gap-1 min-w-0 truncate">
           <MapPin className="w-3.5 h-3.5 shrink-0 text-slate-400" />
@@ -143,11 +153,8 @@ function EventCard({
             <span>{slotsLeft} vị trí</span>
           </span>
         )}
-        {daysLeft !== null && daysLeft > 3 && !isClosed && (
-          <span className="flex items-center gap-1 shrink-0 ml-auto text-slate-500">
-            <Clock className="w-3.5 h-3.5" />
-            <span>{daysLeft} ngày</span>
-          </span>
+        {job.position_type && (
+          <span className="shrink-0 ml-auto text-slate-400 truncate max-w-[100px]">{job.position_type}</span>
         )}
       </div>
     </article>
