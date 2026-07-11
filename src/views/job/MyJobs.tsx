@@ -106,7 +106,7 @@ export default function MyJobs() {
   // Status meta: token-only color classes
   const getStatusMeta = (status: string) => {
     if (status === "approved") {
-      return { label: "Trúng tuyển", icon: <CheckCircle className="h-3.5 w-3.5" />, className: "bg-accent text-primary" }
+      return { label: "Trúng tuyển", icon: <CheckCircle className="h-3.5 w-3.5" />, className: "bg-slate-100 text-slate-600" }
     }
     if (status === "rejected") {
       return { label: "Chưa phù hợp", icon: <XCircle className="h-3.5 w-3.5" />, className: "bg-muted text-muted-foreground" }
@@ -123,7 +123,7 @@ export default function MyJobs() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="min-w-0">
               <h1 className="flex items-center gap-2 text-xl font-bold text-foreground sm:text-2xl">
-                <Briefcase className="h-5 w-5 text-primary sm:h-6 sm:w-6" />
+                <Briefcase className="h-5 w-5 text-slate-600 sm:h-6 sm:w-6" />
                 Sự kiện đã nộp
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -148,7 +148,7 @@ export default function MyJobs() {
             </p>
             <Button
               onClick={() => navigate("/")}
-              className="mt-6 h-10 rounded-lg bg-primary px-6 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+              className="mt-6 h-10 rounded-lg bg-primary px-6 text-sm font-semibold text-slate-600-foreground hover:bg-primary/90"
             >
               Tìm sự kiện ngay
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -168,7 +168,7 @@ export default function MyJobs() {
                 return (
                   <article
                     key={app.id}
-                    className="group rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/40 hover:shadow-sm sm:p-5 animate-in fade-in slide-in-from-bottom-3"
+                    className="group rounded-xl border border-border bg-card p-4 transition-colors hover:border-slate-300 hover:shadow-sm sm:p-5 animate-in fade-in slide-in-from-bottom-3"
                     style={{ animationDelay: `${idx * 40}ms` }}
                   >
                     {/* Top row: organizer avatar + title/status */}
@@ -191,7 +191,7 @@ export default function MyJobs() {
                             onClick={() => navigate(`/jobs/${event?.slug || event?.id}`)}
                             className="min-w-0 text-left"
                           >
-                            <h3 className="line-clamp-2 text-sm font-semibold text-foreground group-hover:text-primary sm:text-base">
+                            <h3 className="line-clamp-2 text-sm font-semibold text-foreground group-hover:text-slate-900 sm:text-base">
                               {event?.title || "Sự kiện đã bị xóa"}
                             </h3>
                             <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
@@ -201,7 +201,7 @@ export default function MyJobs() {
                           </button>
                           <div className="flex shrink-0 items-center gap-1.5">
                             {isOpen ? (
-                              <Badge className="bg-accent text-xs font-semibold text-primary">Đang mở</Badge>
+                              <Badge className="bg-slate-100 text-xs font-semibold text-slate-600">Đang mở</Badge>
                             ) : (
                               <Badge className="bg-muted text-xs font-semibold text-muted-foreground">Đã đóng</Badge>
                             )}
@@ -227,7 +227,7 @@ export default function MyJobs() {
                             </span>
                           )}
                           {event?.category && (
-                            <span className="flex items-center gap-1 rounded-md bg-accent px-2 py-0.5 text-xs font-medium text-primary">
+                            <span className="flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
                               <Tag className="h-3 w-3" />
                               <span className="truncate max-w-[120px]">{event.category}</span>
                             </span>
@@ -267,7 +267,7 @@ export default function MyJobs() {
                               })
                             }}
                             variant="outline"
-                            className="h-8 rounded-lg border-primary/20 px-2.5 text-xs font-medium text-primary hover:bg-accent"
+                            className="h-8 rounded-lg border-slate-200 px-2.5 text-xs font-medium text-slate-600 hover:bg-slate-100"
                           >
                             <Award className="h-3.5 w-3.5" />
                             Nhận chứng nhận

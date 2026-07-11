@@ -166,19 +166,19 @@ export default function CompanyDetail() {
     <div
       key={job.id}
       onClick={() => navigate(`/jobs/${job.slug || job.id}`)}
-      className="p-4 rounded-xl border border-slate-200 hover:border-primary/40 hover:shadow-md transition-all flex items-start justify-between gap-3 cursor-pointer group bg-white"
+      className="p-4 rounded-xl border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all flex items-start justify-between gap-3 cursor-pointer group bg-white"
     >
       <div className="flex gap-3 min-w-0">
         <div className="w-12 h-12 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0">
           <Avatar className="h-full w-full rounded-lg">
             <AvatarImage src={company.avatar_url} className="object-cover" />
-            <AvatarFallback className="rounded-lg bg-accent text-primary text-base font-bold">
+            <AvatarFallback className="rounded-lg bg-slate-100 text-slate-600 text-base font-bold">
               {company.full_name?.charAt(0).toUpperCase() || "O"}
             </AvatarFallback>
           </Avatar>
         </div>
         <div className="space-y-1 min-w-0">
-          <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors leading-snug line-clamp-1">
+          <h3 className="text-sm font-semibold text-foreground group-hover:text-slate-900 transition-colors leading-snug line-clamp-1">
             {job.title}
           </h3>
           <p className="text-xs text-slate-500 font-medium truncate">{company.full_name}</p>
@@ -193,17 +193,17 @@ export default function CompanyDetail() {
         </div>
       </div>
       <div className="flex flex-col items-end justify-between gap-2 shrink-0">
-        <span className="text-sm font-semibold text-primary">{job.benefits || "Thỏa thuận"}</span>
+        <span className="text-sm font-semibold text-slate-600">{job.benefits || "Thỏa thuận"}</span>
         <button
           onClick={(e) => toggleBookmark(job.id, e)}
           aria-label="Lưu sự kiện"
           aria-pressed={!!bookmarkedJobs[job.id]}
           className={`w-8 h-8 rounded-lg border flex items-center justify-center transition-all ${bookmarkedJobs[job.id]
-            ? "bg-accent border-primary/30 text-primary"
-            : "bg-white border-slate-200 text-slate-400 hover:text-primary hover:border-primary/40"
+            ? "bg-slate-100 border-slate-200 text-slate-600"
+            : "bg-white border-slate-200 text-slate-400 hover:text-slate-900 hover:border-slate-300"
             }`}
         >
-          <Bookmark className={`w-4 h-4 ${bookmarkedJobs[job.id] ? "fill-current text-primary" : ""}`} />
+          <Bookmark className={`w-4 h-4 ${bookmarkedJobs[job.id] ? "fill-current text-slate-600" : ""}`} />
         </button>
       </div>
     </div>
@@ -244,7 +244,7 @@ export default function CompanyDetail() {
             <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0">
               <Avatar className="h-full w-full rounded-lg">
                 <AvatarImage src={company.avatar_url} className="object-cover" />
-                <AvatarFallback className="rounded-lg bg-accent text-primary text-2xl font-bold">
+                <AvatarFallback className="rounded-lg bg-slate-100 text-slate-600 text-2xl font-bold">
                   {company.full_name?.charAt(0).toUpperCase() || "O"}
                 </AvatarFallback>
               </Avatar>
@@ -259,7 +259,7 @@ export default function CompanyDetail() {
                   href={company.website || "#"}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 hover:text-primary transition-colors min-w-0"
+                  className="inline-flex items-center gap-1.5 hover:text-slate-900 transition-colors min-w-0"
                 >
                   <LinkIcon className="w-3.5 h-3.5 shrink-0" />
                   <span className="truncate max-w-xs">{company.website || "Chưa cập nhật website"}</span>
@@ -301,7 +301,7 @@ export default function CompanyDetail() {
               onClick={() => setActiveTab("about")}
               className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
                 activeTab === "about"
-                  ? "bg-accent text-primary"
+                  ? "bg-slate-100 text-slate-600"
                   : "text-slate-500 hover:text-foreground hover:bg-slate-50"
               }`}
             >
@@ -311,13 +311,13 @@ export default function CompanyDetail() {
               onClick={() => setActiveTab("jobs")}
               className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors inline-flex items-center gap-1.5 ${
                 activeTab === "jobs"
-                  ? "bg-accent text-primary"
+                  ? "bg-slate-100 text-slate-600"
                   : "text-slate-500 hover:text-foreground hover:bg-slate-50"
               }`}
             >
               Sự kiện
               <span className={`text-xs px-1.5 py-0.5 rounded ${
-                activeTab === "jobs" ? "bg-primary/10 text-primary" : "bg-slate-100 text-slate-500"
+                activeTab === "jobs" ? "bg-primary/10 text-slate-600" : "bg-slate-100 text-slate-500"
               }`}>
                 {companyEvents.length}
               </span>
@@ -344,7 +344,7 @@ export default function CompanyDetail() {
                   </p>
                   <button
                     onClick={() => setIsIntroExpanded(!isIntroExpanded)}
-                    className="text-xs font-semibold text-primary hover:text-primary/80 mt-2 inline-flex items-center gap-1"
+                    className="text-xs font-semibold text-slate-600 hover:text-slate-900/80 mt-2 inline-flex items-center gap-1"
                   >
                     {isIntroExpanded ? (
                       <>Thu gọn <ChevronUp className="w-3.5 h-3.5" /></>
@@ -366,7 +366,7 @@ export default function CompanyDetail() {
                     <button
                       onClick={() => setCurrentImageIndex(prev => Math.max(0, prev - 1))}
                       disabled={currentImageIndex === 0}
-                      className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-primary hover:border-primary disabled:opacity-30 disabled:hover:text-slate-500 disabled:hover:border-slate-200 transition-all"
+                      className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:border-slate-400 disabled:opacity-30 disabled:hover:text-slate-500 disabled:hover:border-slate-200 transition-all"
                       aria-label="Ảnh trước"
                     >
                       <ChevronLeft className="w-4 h-4" />
@@ -374,7 +374,7 @@ export default function CompanyDetail() {
                     <button
                       onClick={() => setCurrentImageIndex(prev => Math.min(galleryImages.length - 1, prev + 1))}
                       disabled={currentImageIndex === galleryImages.length - 1}
-                      className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-primary hover:border-primary disabled:opacity-30 disabled:hover:text-slate-500 disabled:hover:border-slate-200 transition-all"
+                      className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:border-slate-400 disabled:opacity-30 disabled:hover:text-slate-500 disabled:hover:border-slate-200 transition-all"
                       aria-label="Ảnh sau"
                     >
                       <ChevronRight className="w-4 h-4" />
@@ -421,7 +421,7 @@ export default function CompanyDetail() {
                 {companyEvents.length > 4 && (
                   <button
                     onClick={() => setActiveTab("jobs")}
-                    className="w-full text-center text-sm font-semibold text-primary hover:text-primary/80 py-2 transition-colors"
+                    className="w-full text-center text-sm font-semibold text-slate-600 hover:text-slate-900/80 py-2 transition-colors"
                   >
                     Xem tất cả {companyEvents.length} sự kiện →
                   </button>
@@ -440,8 +440,8 @@ export default function CompanyDetail() {
                 </h2>
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center shrink-0">
-                      <FileText className="w-4 h-4 text-primary" />
+                    <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+                      <FileText className="w-4 h-4 text-slate-600" />
                     </div>
                     <div className="min-w-0">
                       <p className="text-xs text-slate-500">Mã số thuế</p>
@@ -449,8 +449,8 @@ export default function CompanyDetail() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center shrink-0">
-                      <Users className="w-4 h-4 text-primary" />
+                    <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+                      <Users className="w-4 h-4 text-slate-600" />
                     </div>
                     <div className="min-w-0">
                       <p className="text-xs text-slate-500">Quy mô</p>
@@ -477,7 +477,7 @@ export default function CompanyDetail() {
                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(company.address || company.full_name)}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-xs font-semibold text-primary hover:underline"
+                    className="text-xs font-semibold text-slate-600 hover:underline"
                   >
                     Mở trong Google Maps →
                   </a>
@@ -502,7 +502,7 @@ export default function CompanyDetail() {
                     <button
                       onClick={handleCopyLink}
                       aria-label="Sao chép liên kết"
-                      className="p-1.5 text-slate-400 hover:text-primary hover:bg-accent rounded transition-all shrink-0"
+                      className="p-1.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded transition-all shrink-0"
                     >
                       <Copy className="w-3.5 h-3.5" />
                     </button>
@@ -511,15 +511,15 @@ export default function CompanyDetail() {
                 <div>
                   <p className="text-xs text-slate-500 mb-2">Chia sẻ qua mạng xã hội</p>
                   <div className="flex items-center gap-2">
-                    <button className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-primary hover:bg-accent transition-colors" aria-label="Facebook">
+                    <button className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors" aria-label="Facebook">
                       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
                       </svg>
                     </button>
-                    <button className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-primary hover:bg-accent transition-colors" aria-label="X">
+                    <button className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors" aria-label="X">
                       <span className="font-bold text-sm">𝕏</span>
                     </button>
-                    <button className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-primary hover:bg-accent transition-colors" aria-label="LinkedIn">
+                    <button className="w-8 h-8 rounded-lg border border-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors" aria-label="LinkedIn">
                       <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
                         <rect x="2" y="9" width="4" height="12" />
@@ -551,7 +551,7 @@ export default function CompanyDetail() {
                         name="location-filter"
                         checked={selectedLocation === ""}
                         onChange={() => setSelectedLocation("")}
-                        className="text-primary focus:ring-primary"
+                        className="text-slate-600 focus:ring-primary"
                       />
                       <span>Tất cả khu vực ({companyEvents.length})</span>
                     </label>
@@ -564,7 +564,7 @@ export default function CompanyDetail() {
                             name="location-filter"
                             checked={selectedLocation === loc}
                             onChange={() => setSelectedLocation(loc)}
-                            className="text-primary focus:ring-primary"
+                            className="text-slate-600 focus:ring-primary"
                           />
                           <span className="truncate">{loc}</span>
                           <span className="text-xs text-slate-400 ml-auto">({count})</span>
@@ -612,7 +612,7 @@ export default function CompanyDetail() {
               <div className="w-11 h-11 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0">
                 <Avatar className="h-full w-full rounded-lg">
                   <AvatarImage src={company.avatar_url} className="object-cover" />
-                  <AvatarFallback className="rounded-lg bg-accent text-primary text-base font-bold">
+                  <AvatarFallback className="rounded-lg bg-slate-100 text-slate-600 text-base font-bold">
                     {company.full_name?.charAt(0).toUpperCase() || "O"}
                   </AvatarFallback>
                 </Avatar>

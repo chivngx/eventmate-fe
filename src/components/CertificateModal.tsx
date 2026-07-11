@@ -219,7 +219,7 @@ export default function CertificateModal({
  {/* Header */}
  <div className="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50">
  <h3 className="font-black text-lg text-slate-900 flex items-center gap-2">
- <Award className="w-5 h-5 text-emerald-500" />
+ <Award className="w-5 h-5 text-slate-500" />
  Chứng Nhận Sự Kiện
  </h3>
  <button
@@ -235,7 +235,7 @@ export default function CertificateModal({
  <div className="p-8 flex justify-center items-center bg-slate-100 overflow-x-auto">
  <div
  id="certificate-print-area"
- className="w-[842px] h-[595px] p-10 bg-accent border-[20px] border-foreground shadow-md relative flex flex-col justify-between items-center text-center shrink-0"
+ className="w-[842px] h-[595px] p-10 bg-slate-100 border-[20px] border-foreground shadow-md relative flex flex-col justify-between items-center text-center shrink-0"
  >
  <div className="border border-amber-700 w-full h-full p-8 flex flex-col justify-between items-center">
  {/* Header */}

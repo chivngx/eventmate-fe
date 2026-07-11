@@ -63,8 +63,8 @@ export default function CompanyList() {
         {/* HEADER — flat, no blur blob, no gradient */}
         <header className="mb-8 space-y-4">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-lg bg-accent flex items-center justify-center shrink-0">
-              <Building2 className="w-5 h-5 text-primary" />
+            <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+              <Building2 className="w-5 h-5 text-slate-600" />
             </div>
             <div className="min-w-0">
               <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight">
@@ -112,20 +112,20 @@ export default function CompanyList() {
                   key={org.id}
                   style={{ animationDelay: `${index * 40}ms` }}
                   onClick={() => navigate(orgLink)}
-                  className="group bg-white border border-slate-200 rounded-xl p-5 hover:border-primary/40 hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-3"
+                  className="group bg-white border border-slate-200 rounded-xl p-5 hover:border-slate-300 hover:shadow-md transition-all duration-200 cursor-pointer flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-3"
                 >
                   {/* Top: logo + event count badge */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="w-14 h-14 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0">
                       <Avatar className="h-full w-full rounded-lg">
                         <AvatarImage src={org.avatar_url} className="object-cover" />
-                        <AvatarFallback className="rounded-lg bg-accent text-primary text-xl font-bold">
+                        <AvatarFallback className="rounded-lg bg-slate-100 text-slate-600 text-xl font-bold">
                           {displayName.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                     </div>
                     {eventCount > 0 && (
-                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary bg-accent px-2 py-1 rounded">
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-1 rounded">
                         <CalendarDays className="w-3 h-3" />
                         {eventCount} sự kiện
                       </span>
@@ -134,7 +134,7 @@ export default function CompanyList() {
 
                   {/* Body: name + university + bio */}
                   <div className="space-y-1 min-w-0">
-                    <h3 className="text-base font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+                    <h3 className="text-base font-semibold text-foreground line-clamp-1 group-hover:text-slate-900 transition-colors">
                       {displayName}
                     </h3>
                     {org.university && (
@@ -167,7 +167,7 @@ export default function CompanyList() {
                         <span className="text-slate-300">Chưa có liên hệ</span>
                       )}
                     </div>
-                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0" />
+                    <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-slate-900 group-hover:translate-x-0.5 transition-all shrink-0" />
                   </div>
                 </article>
               )

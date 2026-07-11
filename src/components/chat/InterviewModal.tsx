@@ -41,7 +41,7 @@ export default function InterviewModal({
  <Modal isOpen={isOpen} onClose={onClose} label="Hẹn phỏng vấn" maxWidthClassName="max-w-md" panelClassName="rounded-2xl border border-slate-200 overflow-hidden">
  <div className="p-6 border-b border-slate-100 flex items-center bg-slate-50/50">
  <h3 className="font-black text-lg text-slate-900 flex items-center gap-2">
- <Calendar className="w-5 h-5 text-emerald-500" />
+ <Calendar className="w-5 h-5 text-slate-500" />
  Hẹn phỏng vấn
  </h3>
  </div>
@@ -85,7 +85,7 @@ export default function InterviewModal({
  <Button
  type="submit"
  disabled={creatingInterview}
- className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl h-11 flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20"
+ className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl h-11 flex items-center justify-center gap-1.5 shadow-md shadow-slate-200"
  >
  {creatingInterview ?"Đang lên lịch..." :"Gửi lời mời phỏng vấn"}
  </Button>

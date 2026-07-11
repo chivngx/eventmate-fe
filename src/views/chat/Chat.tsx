@@ -352,7 +352,7 @@ export default function Chat() {
       >
         <header className="border-b border-border p-4">
           <h1 className="flex items-center gap-2 text-base font-semibold text-foreground">
-            <MessageSquare className="h-4 w-4 text-primary" />
+            <MessageSquare className="h-4 w-4 text-slate-600" />
             Hội thoại
           </h1>
           <p className="mt-0.5 text-xs text-muted-foreground">{chats.length} cuộc trò chuyện</p>
@@ -374,7 +374,7 @@ export default function Chat() {
                     navigate(`/chat/${chat.id}`)
                   }}
                   className={`flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors ${isActive
-                    ? "bg-accent"
+                    ? "bg-slate-100"
                     : "hover:bg-muted border border-transparent"
                     }`}
                 >
@@ -385,7 +385,7 @@ export default function Chat() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">
-                    <h4 className={`truncate text-sm font-semibold ${isActive ? "text-primary" : "text-foreground"}`}>
+                    <h4 className={`truncate text-sm font-semibold ${isActive ? "text-slate-600" : "text-foreground"}`}>
                       {partner.full_name}
                     </h4>
                     <p className="truncate text-xs text-muted-foreground">
@@ -415,7 +415,7 @@ export default function Chat() {
                     navigate("/chat")
                   }}
                   aria-label="Quay lại danh sách hội thoại"
-                  className="mr-1 shrink-0 rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground md:hidden"
+                  className="mr-1 shrink-0 rounded-lg p-1.5 text-muted-foreground transition-colors hover:bg-slate-100 hover:text-foreground md:hidden"
                 >
                   <ArrowLeft className="h-5 w-5" />
                 </button>
@@ -438,7 +438,7 @@ export default function Chat() {
               {role === "organizer" && (
                 <Button
                   onClick={() => setIsInterviewModalOpen(true)}
-                  className="shrink-0 rounded-lg bg-primary px-3 text-xs font-medium text-primary-foreground hover:bg-primary/90"
+                  className="shrink-0 rounded-lg bg-primary px-3 text-xs font-medium text-slate-600-foreground hover:bg-primary/90"
                 >
                   <Calendar className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">Hẹn phỏng vấn</span>
@@ -456,7 +456,7 @@ export default function Chat() {
                       setMessagesLimit(nextLimit)
                       fetchMessages(activeChat.id, nextLimit)
                     }}
-                    className="rounded-full bg-card px-3 py-1 text-xs font-medium text-primary border border-border hover:bg-accent transition-colors"
+                    className="rounded-full bg-card px-3 py-1 text-xs font-medium text-slate-600 border border-border hover:bg-slate-100 transition-colors"
                   >
                     Tải tin nhắn cũ hơn
                   </button>
@@ -487,7 +487,7 @@ export default function Chat() {
                     <div key={msg.id} className="flex justify-center py-3">
                       <div className="w-full max-w-md rounded-xl border border-border bg-card p-4 shadow-sm">
                         <div className="flex items-center gap-3 border-b border-border pb-3">
-                          <div className="rounded-lg bg-accent p-2 text-primary">
+                          <div className="rounded-lg bg-slate-100 p-2 text-slate-600">
                             <Calendar className="h-4 w-4" />
                           </div>
                           <div>
@@ -504,7 +504,7 @@ export default function Chat() {
                           <div>
                             <span className="block text-muted-foreground">Thời gian</span>
                             <span className="flex items-center gap-1.5 font-medium text-foreground">
-                              <Clock className="h-3.5 w-3.5 text-primary" />
+                              <Clock className="h-3.5 w-3.5 text-slate-600" />
                               {new Date(interview.scheduled_at).toLocaleString("vi-VN", {
                                 dateStyle: "medium",
                                 timeStyle: "short"
@@ -518,7 +518,7 @@ export default function Chat() {
                                 href={interview.meeting_link.startsWith("http") ? interview.meeting_link : `https://${interview.meeting_link}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1.5 font-medium text-primary hover:underline"
+                                className="inline-flex items-center gap-1.5 font-medium text-slate-600 hover:underline"
                               >
                                 <Video className="h-3.5 w-3.5" />
                                 Tham gia cuộc gọi
@@ -533,7 +533,7 @@ export default function Chat() {
                               <div className="flex gap-2">
                                 <Button
                                   onClick={() => handleUpdateInterviewStatus(interview.id, "accepted")}
-                                  className="flex-1 rounded-lg bg-primary py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90"
+                                  className="flex-1 rounded-lg bg-primary py-2 text-xs font-medium text-slate-600-foreground hover:bg-primary/90"
                                 >
                                   <Check className="h-3.5 w-3.5" />
                                   Đồng ý
@@ -553,7 +553,7 @@ export default function Chat() {
                               </div>
                             )
                           ) : interview.status === "accepted" ? (
-                            <div className="flex items-center justify-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-xs font-medium text-primary">
+                            <div className="flex items-center justify-center gap-1.5 rounded-lg bg-slate-100 px-3 py-2 text-xs font-medium text-slate-600">
                               <Check className="h-3.5 w-3.5" />
                               Đã chấp nhận lịch hẹn
                             </div>
@@ -577,12 +577,12 @@ export default function Chat() {
                   >
                     <div
                       className={`max-w-[75%] rounded-xl px-3 py-2 text-sm leading-relaxed sm:max-w-[70%] ${isMe
-                        ? "rounded-tr-sm bg-primary text-primary-foreground"
+                        ? "rounded-tr-sm bg-primary text-slate-600-foreground"
                         : "rounded-tl-sm bg-muted text-foreground"
                         }`}
                     >
                       <p className="break-words">{msg.content}</p>
-                      <span className={`mt-1 block text-right text-xs ${isMe ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+                      <span className={`mt-1 block text-right text-xs ${isMe ? "text-slate-600-foreground/70" : "text-muted-foreground"}`}>
                         {new Date(msg.created_at).toLocaleTimeString("vi-VN", {
                           hour: "2-digit",
                           minute: "2-digit"
@@ -611,7 +611,7 @@ export default function Chat() {
                 type="submit"
                 disabled={sending}
                 aria-label="Gửi tin nhắn"
-                className="h-10 w-10 shrink-0 rounded-lg bg-primary p-0 text-primary-foreground hover:bg-primary/90 disabled:opacity-50 sm:h-11 sm:w-11"
+                className="h-10 w-10 shrink-0 rounded-lg bg-primary p-0 text-slate-600-foreground hover:bg-primary/90 disabled:opacity-50 sm:h-11 sm:w-11"
               >
                 <Send className="h-4 w-4" />
               </Button>

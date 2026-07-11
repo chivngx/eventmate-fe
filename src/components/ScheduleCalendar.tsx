@@ -145,7 +145,7 @@ export default function ScheduleCalendar({ applications, interviews = [] }: Sche
  <div className="max-w-md mx-auto bg-white rounded-xl border border-slate-200 p-4 shadow-md shadow-slate-100/40 transition-all">
  <div className="flex items-center justify-between mb-4">
  <div className="flex items-center gap-2">
- <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-primary">
+ <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">
  <Calendar className="w-4 h-4" />
  </div>
  <div>
@@ -208,14 +208,14 @@ export default function ScheduleCalendar({ applications, interviews = [] }: Sche
  isToday
  ?"bg-slate-900 text-white shadow-md font-black"
  : hasEntries
- ?"bg-accent/50 text-emerald-855 border border-primary/20 hover:bg-primary/10"
+ ?"bg-slate-100/50 text-emerald-855 border border-slate-200 hover:bg-slate-100"
  :"text-slate-755 hover:bg-slate-50 font-medium"
  }`}
  >
  <span className="text-xs font-bold">{date.getDate()}</span>
  {hasEntries && (
  <div className="absolute bottom-1 flex gap-0.5 justify-center w-full">
- {hasEvents && <span className="w-1 h-1 rounded-full bg-emerald-500" />}
+ {hasEvents && <span className="w-1 h-1 rounded-full bg-slate-1000" />}
  {hasInterviews && <span className="w-1 h-1 rounded-full bg-blue-500" />}
  </div>
  )}
@@ -253,8 +253,8 @@ export default function ScheduleCalendar({ applications, interviews = [] }: Sche
  </h5>
  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${
  entry.type ==="interview" 
- ?"bg-accent text-primary border border-blue-100/55" 
- :"bg-accent text-primary border border-primary/20/55"
+ ?"bg-slate-100 text-slate-600 border border-blue-100/55" 
+ :"bg-slate-100 text-slate-600 border border-slate-200/55"
  }`}>
  {entry.type ==="interview" ?"Phỏng vấn" :"Sự kiện"}
  </span>
@@ -262,23 +262,23 @@ export default function ScheduleCalendar({ applications, interviews = [] }: Sche
 
  <div className="grid grid-cols-1 gap-1 text-xs font-semibold text-slate-500">
  <span className="flex items-center gap-1 truncate">
- <MapPin className="w-3 h-3 text-emerald-500 shrink-0" />
+ <MapPin className="w-3 h-3 text-slate-500 shrink-0" />
  {entry.location}
  </span>
  {entry.type ==="interview" ? (
  <span className="flex items-center gap-1">
- <Clock className="w-3 h-3 text-emerald-500" />
+ <Clock className="w-3 h-3 text-slate-500" />
  Thời gian: {entry.time}
  </span>
  ) : (
  <span className="flex items-center gap-1">
- <Briefcase className="w-3 h-3 text-emerald-500" />
+ <Briefcase className="w-3 h-3 text-slate-500" />
  {entry.positionType}
  </span>
  )}
  {entry.type ==="event" && entry.benefits && (
  <span className="flex items-center gap-1 col-span-full">
- <DollarSign className="w-3 h-3 text-emerald-500" />
+ <DollarSign className="w-3 h-3 text-slate-500" />
  Quyền lợi: <strong className="text-slate-800">{entry.benefits}</strong>
  </span>
  )}
@@ -287,7 +287,7 @@ export default function ScheduleCalendar({ applications, interviews = [] }: Sche
  href={entry.meetingLink.startsWith("http") ? entry.meetingLink : `https://${entry.meetingLink}`}
  target="_blank"
  rel="noopener noreferrer"
- className="flex items-center gap-1 col-span-full font-black text-primary hover:underline mt-0.5"
+ className="flex items-center gap-1 col-span-full font-black text-slate-600 hover:underline mt-0.5"
  >
  <Video className="w-3 h-3" />
  Tham gia cuộc họp online &rarr;

@@ -59,7 +59,7 @@ export default function CVViewModal({ viewingCV, onClose }: CVViewModalProps) {
  <div className="flex flex-wrap gap-2">
  {viewingCV.skills ? (
  viewingCV.skills.split(',').map((skill: string, i: number) => (
- <Badge key={i} className="bg-accent text-primary hover:bg-emerald-100 shadow-none px-3 py-1 text-xs">
+ <Badge key={i} className="bg-slate-100 text-slate-600 hover:bg-slate-100 shadow-none px-3 py-1 text-xs">
  {skill.trim()}
  </Badge>
  ))

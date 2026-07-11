@@ -162,7 +162,7 @@ export function GoogleSignInButton({
  type="button"
  onClick={onClick}
  disabled={disabled}
- className="w-full h-12 rounded-lg flex justify-center items-center font-semibold text-sm gap-2.5 border border-slate-200 bg-white text-slate-800 cursor-pointer transition-all hover:border-primary disabled:opacity-75 disabled:cursor-not-allowed shrink-0"
+ className="w-full h-12 rounded-lg flex justify-center items-center font-semibold text-sm gap-2.5 border border-slate-200 bg-white text-slate-800 cursor-pointer transition-all hover:border-slate-400 disabled:opacity-75 disabled:cursor-not-allowed shrink-0"
  >
  <GoogleIcon />
  <span>{label}</span>

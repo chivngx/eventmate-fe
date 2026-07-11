@@ -150,7 +150,7 @@ export default function EventDetail() {
 
  if (applyStatus === 'approved') {
  return (
- <button disabled className="job-detail_info--actions-button button-primary btn-apply-job flex items-center justify-center rounded-md font-semibold bg-emerald-100 border border-primary/30 text-primary h-[40px] px-6">
+ <button disabled className="job-detail_info--actions-button button-primary btn-apply-job flex items-center justify-center rounded-md font-semibold bg-slate-100 border border-slate-200 text-slate-600 h-[40px] px-6">
  <CheckCircle className="w-4 h-4 mr-2" /> Trúng tuyển
  </button>
  )
@@ -164,7 +164,7 @@ export default function EventDetail() {
  }
  if (applyStatus === 'pending') {
  return (
- <button disabled className="job-detail_info--actions-button button-primary btn-apply-job flex items-center justify-center rounded-md font-semibold bg-accent border border-amber-100 text-primary h-[40px] px-6">
+ <button disabled className="job-detail_info--actions-button button-primary btn-apply-job flex items-center justify-center rounded-md font-semibold bg-slate-100 border border-amber-100 text-slate-600 h-[40px] px-6">
  <Clock3 className="w-4 h-4 mr-2" /> Đang chờ duyệt
  </button>
  )
@@ -207,14 +207,14 @@ export default function EventDetail() {
  <div className="flex-1 min-w-0">
  <div className="flex items-center gap-2 mb-2 flex-wrap">
  {event.category && (
- <span className="text-xs font-semibold text-primary bg-accent px-2 py-0.5 rounded">{event.category}</span>
+ <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded">{event.category}</span>
  )}
  {event.position_type && (
  <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{event.position_type}</span>
  )}
  <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
- event.status === 'upcoming' ? 'bg-accent text-primary' :
- event.status === 'ongoing' ? 'bg-accent text-primary' :
+ event.status === 'upcoming' ? 'bg-slate-100 text-slate-600' :
+ event.status === 'ongoing' ? 'bg-slate-100 text-slate-600' :
  'bg-slate-100 text-slate-500'
  }`}>
  {event.status === 'upcoming' ? 'Đang mở đăng ký' : event.status === 'ongoing' ? 'Đang diễn ra' : 'Đã kết thúc'}
@@ -225,7 +225,7 @@ export default function EventDetail() {
  </h1>
  <button
  onClick={() => navigate(`/companies/${event.profiles?.slug || event.organizer_id}`)}
- className="text-sm text-slate-500 hover:text-primary transition-colors inline-flex items-center gap-1.5"
+ className="text-sm text-slate-500 hover:text-slate-900 transition-colors inline-flex items-center gap-1.5"
  >
  <Building2 className="w-4 h-4" />
  {event.profiles?.full_name || "Đơn vị ẩn danh"}
@@ -236,8 +236,8 @@ export default function EventDetail() {
  {/* Quick info grid — 3 cols responsive */}
  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 pt-5 border-t border-slate-100">
  <div className="flex items-center gap-2.5">
- <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center shrink-0">
- <MapPin className="w-4 h-4 text-primary" />
+ <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+ <MapPin className="w-4 h-4 text-slate-600" />
  </div>
  <div className="min-w-0">
  <p className="text-xs text-slate-500">Khu vực</p>
@@ -245,8 +245,8 @@ export default function EventDetail() {
  </div>
  </div>
  <div className="flex items-center gap-2.5">
- <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center shrink-0">
- <Calendar className="w-4 h-4 text-primary" />
+ <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+ <Calendar className="w-4 h-4 text-slate-600" />
  </div>
  <div className="min-w-0">
  <p className="text-xs text-slate-500">Ngày diễn ra</p>
@@ -256,8 +256,8 @@ export default function EventDetail() {
  </div>
  </div>
  <div className="flex items-center gap-2.5">
- <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center shrink-0">
- <DollarSign className="w-4 h-4 text-primary" />
+ <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+ <DollarSign className="w-4 h-4 text-slate-600" />
  </div>
  <div className="min-w-0">
  <p className="text-xs text-slate-500">Quyền lợi</p>
@@ -265,8 +265,8 @@ export default function EventDetail() {
  </div>
  </div>
  <div className="flex items-center gap-2.5">
- <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center shrink-0">
- <Users className="w-4 h-4 text-primary" />
+ <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+ <Users className="w-4 h-4 text-slate-600" />
  </div>
  <div className="min-w-0">
  <p className="text-xs text-slate-500">Số lượng</p>
@@ -286,7 +286,7 @@ export default function EventDetail() {
  {event.application_deadline && (() => {
  const diff = new Date(event.application_deadline).getTime() - Date.now()
  const days = Math.ceil(diff / 86400000)
- return days > 0 ? <span className="text-primary font-semibold">({days} ngày nữa)</span> : null
+ return days > 0 ? <span className="text-slate-600 font-semibold">({days} ngày nữa)</span> : null
  })()}
  </div>
  <div className="flex items-center gap-2">
@@ -296,7 +296,7 @@ export default function EventDetail() {
  onClick={toggleBookmark}
  aria-label={isBookmarked ? "Bỏ lưu" : "Lưu sự kiện"}
  className={`flex items-center justify-center rounded-lg font-semibold h-10 px-5 border transition-all cursor-pointer ${
- isBookmarked ? "bg-primary border-primary text-white hover:bg-primary/90" : "bg-white border-slate-300 text-slate-600 hover:border-primary hover:text-primary"
+ isBookmarked ? "bg-primary border-primary text-white hover:bg-primary/90" : "bg-white border-slate-300 text-slate-600 hover:border-slate-400 hover:text-slate-900"
  }`}
  >
  <Bookmark className={`w-4 h-4 mr-1.5 ${isBookmarked ? "fill-current" : ""}`} />
@@ -342,7 +342,7 @@ export default function EventDetail() {
  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((event.location || '') + ' Đà Nẵng')}`}
  target="_blank"
  rel="noreferrer"
- className="text-xs font-semibold text-primary bg-white px-3 py-2 rounded-lg border border-primary/20 inline-flex items-center gap-1.5 hover:bg-accent transition-colors shrink-0"
+ className="text-xs font-semibold text-slate-600 bg-white px-3 py-2 rounded-lg border border-slate-200 inline-flex items-center gap-1.5 hover:bg-slate-100 transition-colors shrink-0"
  >
  <MapPin className="w-3.5 h-3.5" />
  Xem trên Google Maps
@@ -369,7 +369,7 @@ export default function EventDetail() {
  />
  </div>
  <div className="min-w-0 flex-1">
- <p className="text-sm font-semibold text-foreground hover:text-primary transition-colors truncate">
+ <p className="text-sm font-semibold text-foreground hover:text-slate-900 transition-colors truncate">
  {event.profiles?.full_name || "Đơn vị ẩn danh"}
  </p>
  <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
@@ -382,7 +382,7 @@ export default function EventDetail() {
  </div>
  <button
  onClick={() => navigate(`/companies/${event.profiles?.slug || event.organizer_id}`)}
- className="w-full mt-3 text-sm font-semibold text-primary hover:underline flex items-center justify-center gap-1.5"
+ className="w-full mt-3 text-sm font-semibold text-slate-600 hover:underline flex items-center justify-center gap-1.5"
  >
  Xem trang công ty <ExternalLink className="w-3.5 h-3.5" />
  </button>

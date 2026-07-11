@@ -165,7 +165,7 @@ export default function JobsByPosition() {
         <header className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-7 space-y-4">
           {/* Breadcrumb */}
           <nav className="text-xs text-slate-500 flex items-center gap-1.5 flex-wrap">
-            <button onClick={() => navigate("/")} className="hover:text-primary transition-colors">Trang chủ</button>
+            <button onClick={() => navigate("/")} className="hover:text-slate-900 transition-colors">Trang chủ</button>
             <ChevronRight className="w-3 h-3 shrink-0 text-slate-300" />
             <span className="text-slate-400">Sự kiện theo vị trí</span>
             <ChevronRight className="w-3 h-3 shrink-0 text-slate-300" />
@@ -174,7 +174,7 @@ export default function JobsByPosition() {
 
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight">
-              Sự kiện <span className="text-primary">{positionParam}</span> tại Đà Nẵng
+              Sự kiện <span className="text-slate-600">{positionParam}</span> tại Đà Nẵng
             </h1>
             <p className="text-sm text-slate-500 mt-1.5">
               Khám phá cơ hội hợp tác và tích lũy kỹ năng xã hội cùng các chiến dịch uy tín.
@@ -228,8 +228,8 @@ export default function JobsByPosition() {
                       onClick={() => handleBenefitChange(benefit)}
                       className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${
                         selectedBenefits.includes(benefit)
-                          ? "bg-accent text-primary border-primary/30"
-                          : "bg-white text-slate-600 border-slate-200 hover:border-primary/40 hover:text-foreground"
+                          ? "bg-slate-100 text-slate-600 border-slate-200"
+                          : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:text-foreground"
                       }`}
                     >
                       {benefit}
@@ -248,8 +248,8 @@ export default function JobsByPosition() {
                       onClick={() => setSelectedExperiences(prev => prev.includes(exp) ? prev.filter(e => e !== exp) : [...prev, exp])}
                       className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${
                         selectedExperiences.includes(exp)
-                          ? "bg-accent text-primary border-primary/30"
-                          : "bg-white text-slate-600 border-slate-200 hover:border-primary/40 hover:text-foreground"
+                          ? "bg-slate-100 text-slate-600 border-slate-200"
+                          : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:text-foreground"
                       }`}
                     >
                       {exp}

@@ -74,7 +74,7 @@ export default function AccountTab({
  <button
  onClick={() => setActiveSubTab("info")}
  className={`flex-1 py-3 px-4 rounded-xl text-sm font-black transition-all ${activeSubTab ==="info"
- ?"bg-white text-primary shadow-sm"
+ ?"bg-white text-slate-600 shadow-sm"
  :"text-slate-500 hover:text-slate-800"
  }`}
  >
@@ -83,7 +83,7 @@ export default function AccountTab({
  <button
  onClick={() => setActiveSubTab("password")}
  className={`flex-1 py-3 px-4 rounded-xl text-sm font-black transition-all ${activeSubTab ==="password"
- ?"bg-white text-primary shadow-sm"
+ ?"bg-white text-slate-600 shadow-sm"
  :"text-slate-500 hover:text-slate-800"
  }`}
  >
@@ -166,7 +166,7 @@ export default function AccountTab({
  <button
  type="button"
  onClick={() => document.getElementById("company-image-upload")?.click()}
- className="w-full py-2.5 border-2 border-dashed border-slate-200 hover:border-emerald-500 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 text-slate-500 hover:text-primary"
+ className="w-full py-2.5 border-2 border-dashed border-slate-200 hover:border-emerald-500 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 text-slate-500 hover:text-slate-900"
  >
  {uploadingCompanyImage ?"Đang tải ảnh..." :"Thêm ảnh hoạt động"}
  </button>

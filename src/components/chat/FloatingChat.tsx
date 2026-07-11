@@ -266,7 +266,7 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
  type="submit"
  disabled={sending}
  aria-label="Gửi tin nhắn"
- className="rounded-xl bg-primary hover:bg-primary/90 text-white h-10 w-10 shrink-0 p-0 flex items-center justify-center shadow-md shadow-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
+ className="rounded-xl bg-primary hover:bg-primary/90 text-white h-10 w-10 shrink-0 p-0 flex items-center justify-center shadow-md shadow-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
  >
  <Send className="w-4 h-4" />
  </Button>
@@ -290,7 +290,7 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
  >
  <Avatar className="h-9 w-9 border border-white shadow-sm shrink-0">
  <AvatarImage src={partner.avatar_url} />
- <AvatarFallback className="bg-accent text-primary font-bold text-xs">
+ <AvatarFallback className="bg-slate-100 text-slate-600 font-bold text-xs">
  {partner.full_name?.charAt(0).toUpperCase() || <User className="w-3.5 h-3.5" />}
  </AvatarFallback>
  </Avatar>
@@ -317,7 +317,7 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
  onClick={() => setIsOpen(!isOpen)}
  aria-label="Trò chuyện"
  aria-pressed={isOpen}
- className="w-14 h-14 bg-primary hover:bg-primary/90 text-white rounded-full flex items-center justify-center shadow-md shadow-primary/25 transition-all transform hover:scale-105 active:scale-95 cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
+ className="w-14 h-14 bg-primary hover:bg-primary/90 text-white rounded-full flex items-center justify-center shadow-md shadow-slate-200 transition-all transform hover:scale-105 active:scale-95 cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
  title="Trò chuyện"
  >
  <MessageCircle className="w-7 h-7" />

@@ -142,7 +142,7 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
  <Link
  href="/chat"
  aria-label="Trò chuyện"
- className="p-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-500 hover:text-primary relative flex items-center justify-center shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
+ className="p-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-500 hover:text-slate-900 relative flex items-center justify-center shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
  title="Trò chuyện"
  >
  <MessageSquare className="w-5 h-5" />
@@ -163,7 +163,7 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
  <div className="flex items-center gap-1 sm:gap-2">
  <Button
  variant="ghost"
- className="text-sm font-medium text-slate-600 hover:text-primary hover:bg-accent rounded-lg px-3 py-2 whitespace-nowrap"
+ className="text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg px-3 py-2 whitespace-nowrap"
  onClick={() => setAuthModal({ isOpen: true, mode:"login" })}
  >
  Đăng nhập

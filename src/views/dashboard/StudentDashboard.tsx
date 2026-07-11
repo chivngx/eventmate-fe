@@ -69,7 +69,7 @@ export default function StudentDashboard() {
  <Search className="w-10 h-10 text-slate-300 mx-auto mb-3" />
  <h3 className="text-lg font-bold text-slate-900">Không tìm thấy kết quả</h3>
  <p className="text-slate-500 font-medium mt-1">Thử thay đổi từ khóa hoặc bộ lọc.</p>
- <Button onClick={() => { setSearchTerm(""); setBenefitTerm(""); setWardIdTerm(""); setSearchParams({}); setCurrentPage(1); }} variant="link" className="text-primary font-bold mt-2">Xóa bộ lọc</Button>
+ <Button onClick={() => { setSearchTerm(""); setBenefitTerm(""); setWardIdTerm(""); setSearchParams({}); setCurrentPage(1); }} variant="link" className="text-slate-600 font-bold mt-2">Xóa bộ lọc</Button>
  </div>
  ) : (
  paginatedEvents.map((job, idx) => (

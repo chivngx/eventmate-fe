@@ -139,7 +139,7 @@ export default function AdminDashboard() {
               onClick={() => navigate("/")}
               className="flex cursor-pointer items-center gap-1.5 text-lg font-bold tracking-tight text-background"
             >
-              Event<span className="text-primary">Mate</span>
+              Event<span className="text-slate-600">Mate</span>
               <span className="rounded bg-destructive px-1.5 py-0.5 text-xs font-semibold text-destructive-foreground">ADMIN</span>
             </span>
             <button
@@ -153,7 +153,7 @@ export default function AdminDashboard() {
 
           {/* Profile widget */}
           <div className="flex items-center gap-3 border-b border-background/10 p-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-background/10 text-primary">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-background/10 text-slate-600">
               <Shield className="h-5 w-5" />
             </div>
             <div className="min-w-0">
@@ -175,7 +175,7 @@ export default function AdminDashboard() {
                     if (window.innerWidth < 1024) setIsSidebarOpen(false)
                   }}
                   className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${isActive
-                    ? "bg-primary text-primary-foreground"
+                    ? "bg-primary text-slate-600-foreground"
                     : "text-background/70 hover:bg-background/10 hover:text-background"
                     }`}
                 >
@@ -213,7 +213,7 @@ export default function AdminDashboard() {
               <button
                 onClick={() => setIsSidebarOpen(true)}
                 aria-label="Mở menu điều hướng"
-                className="shrink-0 rounded-lg p-2 text-muted-foreground hover:bg-accent lg:hidden"
+                className="shrink-0 rounded-lg p-2 text-muted-foreground hover:bg-slate-100 lg:hidden"
               >
                 <Menu className="h-5 w-5" />
               </button>
@@ -222,7 +222,7 @@ export default function AdminDashboard() {
               </h2>
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              <Badge className="bg-accent font-medium text-primary">Live</Badge>
+              <Badge className="bg-slate-100 font-medium text-slate-600">Live</Badge>
             </div>
           </header>
 
@@ -270,7 +270,7 @@ export default function AdminDashboard() {
                                 <td className="px-4 py-3 text-muted-foreground sm:px-5">{ev.position_type}</td>
                                 <td className="px-4 py-3 text-muted-foreground sm:px-5">{new Date(ev.event_date).toLocaleDateString("vi-VN")}</td>
                                 <td className="px-4 py-3 sm:px-5">
-                                  <Badge className="bg-accent text-primary">
+                                  <Badge className="bg-slate-100 text-slate-600">
                                     {ev.status === "upcoming" ? "Đang mở đăng ký" : "Hoàn thành"}
                                   </Badge>
                                 </td>
@@ -313,7 +313,7 @@ export default function AdminDashboard() {
                                   size="sm"
                                   variant="outline"
                                   onClick={() => handleToggleOrganizerVerification()}
-                                  className="h-8 rounded-lg border-primary/20 px-2.5 text-xs text-primary hover:bg-accent"
+                                  className="h-8 rounded-lg border-slate-200 px-2.5 text-xs text-slate-600 hover:bg-slate-100"
                                 >
                                   Phê duyệt
                                 </Button>
@@ -358,7 +358,7 @@ export default function AdminDashboard() {
                               <td className="px-4 py-3 sm:px-5">{stud.university || "Chưa cập nhật"}</td>
                               <td className="px-4 py-3 text-muted-foreground sm:px-5">{stud.email}</td>
                               <td className="px-4 py-3 sm:px-5">
-                                <span className="rounded-md bg-accent px-2 py-0.5 text-xs font-medium text-primary">
+                                <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
                                   {stud.cv_completion_percent || 0}%
                                 </span>
                               </td>
@@ -420,7 +420,7 @@ export default function AdminDashboard() {
                         <h3 className="text-base font-semibold text-foreground">Lịch sử giao dịch VIP</h3>
                         <p className="mt-0.5 text-xs text-muted-foreground">Các giao dịch mua gói VIP Recruiter</p>
                       </div>
-                      <Badge className="bg-primary font-medium text-primary-foreground">
+                      <Badge className="bg-primary font-medium text-slate-600-foreground">
                         Doanh thu: {stats.totalRevenue.toLocaleString("vi-VN")}đ
                       </Badge>
                     </div>
@@ -448,10 +448,10 @@ export default function AdminDashboard() {
                               <td className="px-4 py-3 text-muted-foreground sm:px-5">#TXN-{1000 + index}</td>
                               <td className="px-4 py-3 sm:px-5">{org.full_name}</td>
                               <td className="px-4 py-3 sm:px-5">Gói VIP Recruiter (1 tháng)</td>
-                              <td className="px-4 py-3 font-medium text-primary sm:px-5">990.000đ</td>
+                              <td className="px-4 py-3 font-medium text-slate-600 sm:px-5">990.000đ</td>
                               <td className="px-4 py-3 text-muted-foreground sm:px-5">{new Date(org.premium_until || org.created_at).toLocaleDateString("vi-VN")}</td>
                               <td className="px-4 py-3 sm:px-5">
-                                <Badge className="bg-accent text-primary">Hoạt động</Badge>
+                                <Badge className="bg-slate-100 text-slate-600">Hoạt động</Badge>
                               </td>
                             </tr>
                           ))}
@@ -475,7 +475,7 @@ export default function AdminDashboard() {
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-accent text-primary sm:h-12 sm:w-12">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 sm:h-12 sm:w-12">
         {icon}
       </div>
       <div className="min-w-0">

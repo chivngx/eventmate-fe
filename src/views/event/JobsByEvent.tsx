@@ -200,8 +200,8 @@ export default function JobsByEvent() {
                     }}
                     className={`shrink-0 inline-flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium transition-colors ${
                       isSelected
-                        ? "bg-accent text-primary border-primary/30"
-                        : "bg-white text-slate-600 border-slate-200 hover:border-primary/40 hover:text-foreground"
+                        ? "bg-slate-100 text-slate-600 border-slate-200"
+                        : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:text-foreground"
                     }`}
                   >
                     <CatIcon className="w-4 h-4" />
@@ -217,7 +217,7 @@ export default function JobsByEvent() {
         <header className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-7 space-y-4">
           {/* Breadcrumb */}
           <nav className="text-xs text-slate-500 flex items-center gap-1.5 flex-wrap">
-            <button onClick={() => navigate("/")} className="hover:text-primary transition-colors">Trang chủ</button>
+            <button onClick={() => navigate("/")} className="hover:text-slate-900 transition-colors">Trang chủ</button>
             <ChevronRight className="w-3 h-3 shrink-0 text-slate-300" />
             <span className="text-slate-400">Sự kiện theo sự kiện</span>
             <ChevronRight className="w-3 h-3 shrink-0 text-slate-300" />
@@ -226,7 +226,7 @@ export default function JobsByEvent() {
 
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight">
-              Sự kiện <span className="text-primary">{categoryParam}</span> tại Đà Nẵng
+              Sự kiện <span className="text-slate-600">{categoryParam}</span> tại Đà Nẵng
             </h1>
             <p className="text-sm text-slate-500 mt-1.5">
               Chủ động tham gia điều hành sự kiện lớn nhỏ và nhận giấy chứng nhận từ BTC.
@@ -280,8 +280,8 @@ export default function JobsByEvent() {
                       onClick={() => handleBenefitChange(benefit)}
                       className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${
                         selectedBenefits.includes(benefit)
-                          ? "bg-accent text-primary border-primary/30"
-                          : "bg-white text-slate-600 border-slate-200 hover:border-primary/40 hover:text-foreground"
+                          ? "bg-slate-100 text-slate-600 border-slate-200"
+                          : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:text-foreground"
                       }`}
                     >
                       {benefit}
@@ -300,8 +300,8 @@ export default function JobsByEvent() {
                       onClick={() => setSelectedExperiences(prev => prev.includes(exp) ? prev.filter(e => e !== exp) : [...prev, exp])}
                       className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${
                         selectedExperiences.includes(exp)
-                          ? "bg-accent text-primary border-primary/30"
-                          : "bg-white text-slate-600 border-slate-200 hover:border-primary/40 hover:text-foreground"
+                          ? "bg-slate-100 text-slate-600 border-slate-200"
+                          : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:text-foreground"
                       }`}
                     >
                       {exp}

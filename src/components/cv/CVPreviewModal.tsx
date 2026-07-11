@@ -32,10 +32,10 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  case"blue":
  return {
  bg:"bg-blue-600",
- text:"text-primary",
+ text:"text-slate-600",
  border:"border-blue-600",
- lightBg:"bg-accent",
- badge:"bg-accent text-blue-700 border-blue-100",
+ lightBg:"bg-slate-100",
+ badge:"bg-slate-100 text-blue-700 border-blue-100",
  }
  case"violet":
  return {
@@ -48,10 +48,10 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  default:
  return {
  bg:"bg-emerald-600",
- text:"text-primary",
+ text:"text-slate-600",
  border:"border-emerald-600",
- lightBg:"bg-accent",
- badge:"bg-accent text-primary border-primary/20",
+ lightBg:"bg-slate-100",
+ badge:"bg-slate-100 text-slate-600 border-slate-200",
  }
  }
  }

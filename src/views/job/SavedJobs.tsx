@@ -74,7 +74,7 @@ export default function SavedJobs() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="min-w-0">
               <h1 className="flex items-center gap-2 text-xl font-bold text-foreground sm:text-2xl">
-                <Bookmark className="h-5 w-5 text-primary sm:h-6 sm:w-6" />
+                <Bookmark className="h-5 w-5 text-slate-600 sm:h-6 sm:w-6" />
                 Sự kiện đã lưu
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -99,7 +99,7 @@ export default function SavedJobs() {
             </p>
             <Button
               onClick={() => navigate("/")}
-              className="mt-6 h-10 rounded-lg bg-primary px-6 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
+              className="mt-6 h-10 rounded-lg bg-primary px-6 text-sm font-semibold text-slate-600-foreground hover:bg-primary/90"
             >
               Khám phá ngay
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -117,25 +117,25 @@ export default function SavedJobs() {
               return (
                 <li
                   key={b.id}
-                  className="group flex flex-col gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-primary/40 hover:shadow-sm sm:flex-row sm:items-stretch sm:p-5 animate-in fade-in slide-in-from-bottom-3"
+                  className="group flex flex-col gap-4 rounded-xl border border-border bg-card p-4 transition-colors hover:border-slate-300 hover:shadow-sm sm:flex-row sm:items-stretch sm:p-5 animate-in fade-in slide-in-from-bottom-3"
                   style={{ animationDelay: `${idx * 40}ms` }}
                 >
                   {/* Date block — event ticket vibe */}
                   <button
                     onClick={() => navigate(`/jobs/${event?.slug || event?.id}`)}
-                    className="flex w-full shrink-0 flex-row items-center gap-3 sm:w-16 sm:flex-col sm:justify-center sm:gap-1 sm:rounded-lg sm:bg-accent sm:p-2 sm:text-primary"
+                    className="flex w-full shrink-0 flex-row items-center gap-3 sm:w-16 sm:flex-col sm:justify-center sm:gap-1 sm:rounded-lg sm:bg-slate-100 sm:p-2 sm:text-slate-600"
                   >
                     {eventDate ? (
                       <>
                         <span className="text-xl font-extrabold leading-none sm:text-2xl">
                           {String(eventDate.getDate()).padStart(2, "0")}
                         </span>
-                        <span className="text-xs font-semibold uppercase text-muted-foreground sm:text-primary/70">
+                        <span className="text-xs font-semibold uppercase text-muted-foreground sm:text-slate-600/70">
                           Th{eventDate.getMonth() + 1}
                         </span>
                       </>
                     ) : (
-                      <Calendar className="h-6 w-6 text-muted-foreground sm:text-primary/70" />
+                      <Calendar className="h-6 w-6 text-muted-foreground sm:text-slate-600/70" />
                     )}
                   </button>
 
@@ -145,11 +145,11 @@ export default function SavedJobs() {
                     className="min-w-0 flex-1 text-left"
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <h3 className="line-clamp-2 text-sm font-semibold text-foreground group-hover:text-primary sm:text-base">
+                      <h3 className="line-clamp-2 text-sm font-semibold text-foreground group-hover:text-slate-900 sm:text-base">
                         {event?.title || "Sự kiện đã bị xóa"}
                       </h3>
                       {isOpen ? (
-                        <Badge className="shrink-0 bg-accent text-xs font-semibold text-primary">
+                        <Badge className="shrink-0 bg-slate-100 text-xs font-semibold text-slate-600">
                           Đang mở
                         </Badge>
                       ) : (
@@ -176,7 +176,7 @@ export default function SavedJobs() {
                         </span>
                       )}
                       {event?.category && (
-                        <span className="flex items-center gap-1 rounded-md bg-accent px-2 py-0.5 text-xs font-medium text-primary">
+                        <span className="flex items-center gap-1 rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
                           <Tag className="h-3 w-3" />
                           <span className="truncate max-w-[120px]">{event.category}</span>
                         </span>

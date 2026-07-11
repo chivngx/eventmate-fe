@@ -74,7 +74,7 @@ export default function OrgLayout({
               onClick={() => navigate("/")}
               className="font-semibold text-base tracking-tight text-foreground cursor-pointer flex items-center gap-1.5 min-w-0"
             >
-              <span className="truncate">Event<span className="text-primary">Mate</span></span>
+              <span className="truncate">Event<span className="text-slate-600">Mate</span></span>
               <span className="text-xs bg-muted text-muted-foreground font-medium px-1.5 py-0.5 rounded uppercase shrink-0">
                 Recruiter
               </span>
@@ -82,7 +82,7 @@ export default function OrgLayout({
           ) : (
             <span
               onClick={() => navigate("/")}
-              className="font-semibold text-lg text-primary cursor-pointer mx-auto"
+              className="font-semibold text-lg text-slate-600 cursor-pointer mx-auto"
             >
               EM
             </span>
@@ -91,7 +91,7 @@ export default function OrgLayout({
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             aria-label={isSidebarOpen ? "Thu gọn thanh bên" : "Mở rộng thanh bên"}
-            className="hidden lg:flex p-1.5 rounded-lg hover:bg-accent text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 shrink-0"
+            className="hidden lg:flex p-1.5 rounded-lg hover:bg-slate-100 text-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 shrink-0"
           >
             <ChevronLeft className={`w-4 h-4 transition-transform duration-300 ${!isSidebarOpen ? "rotate-180" : ""}`} />
           </button>
@@ -106,8 +106,8 @@ export default function OrgLayout({
               className="w-10 h-10 rounded-lg object-cover border border-border"
             />
             {isPremium && (
-              <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground p-0.5 rounded-full border border-card shadow-sm">
-                <Crown className="w-3 h-3 fill-current text-primary-foreground" />
+              <span className="absolute -top-1 -right-1 bg-primary text-slate-600-foreground p-0.5 rounded-full border border-card shadow-sm">
+                <Crown className="w-3 h-3 fill-current text-slate-600-foreground" />
               </span>
             )}
           </div>
@@ -118,7 +118,7 @@ export default function OrgLayout({
               </h4>
               <div className="flex items-center gap-1 mt-0.5">
                 {isPremium ? (
-                  <span className="inline-flex items-center gap-1 text-xs bg-accent text-primary font-medium px-1.5 py-0.5 rounded border border-primary/20">
+                  <span className="inline-flex items-center gap-1 text-xs bg-slate-100 text-slate-600 font-medium px-1.5 py-0.5 rounded border border-slate-200">
                     <Crown className="w-3 h-3" /> VIP
                   </span>
                 ) : (
@@ -149,19 +149,19 @@ export default function OrgLayout({
                 aria-current={isActive ? "page" : undefined}
                 className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-colors group
                 ${isActive
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                  ? "bg-primary text-slate-600-foreground shadow-sm"
+                  : "text-muted-foreground hover:bg-slate-100 hover:text-foreground"
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <Icon
-                    className={`w-5 h-5 shrink-0 ${isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground"}`}
+                    className={`w-5 h-5 shrink-0 ${isActive ? "text-slate-600-foreground" : "text-muted-foreground group-hover:text-foreground"}`}
                   />
                   {isSidebarOpen && <span className="truncate">{item.name}</span>}
                 </div>
                 {item.isPremiumLocked && isSidebarOpen && (
                   <Lock
-                    className={`w-3.5 h-3.5 shrink-0 ${isActive ? "text-primary-foreground/80" : "text-muted-foreground group-hover:text-foreground"}`}
+                    className={`w-3.5 h-3.5 shrink-0 ${isActive ? "text-slate-600-foreground/80" : "text-muted-foreground group-hover:text-foreground"}`}
                   />
                 )}
               </button>
@@ -189,7 +189,7 @@ export default function OrgLayout({
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               aria-label="Mở menu điều hướng"
-              className="p-2 rounded-lg hover:bg-accent text-muted-foreground lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 shrink-0"
+              className="p-2 rounded-lg hover:bg-slate-100 text-muted-foreground lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 shrink-0"
             >
               <Menu className="w-5 h-5" />
             </button>
@@ -201,7 +201,7 @@ export default function OrgLayout({
 
           <div className="flex items-center gap-3 shrink-0">
             {isPremium ? (
-              <div className="inline-flex items-center gap-1.5 bg-accent text-primary border border-primary/20 rounded-lg px-3 py-1.5 text-xs font-medium">
+              <div className="inline-flex items-center gap-1.5 bg-slate-100 text-slate-600 border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-medium">
                 <Crown className="w-3.5 h-3.5 fill-current" />
                 <span className="hidden sm:inline">Tài khoản VIP Tuyển nhân sự</span>
                 <span className="sm:hidden">VIP</span>
@@ -209,7 +209,7 @@ export default function OrgLayout({
             ) : (
               <button
                 onClick={() => setActiveTab("services")}
-                className="inline-flex items-center gap-1.5 bg-accent text-primary border border-primary/20 hover:bg-primary hover:text-primary-foreground rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
+                className="inline-flex items-center gap-1.5 bg-slate-100 text-slate-600 border border-slate-200 hover:bg-primary hover:text-slate-900-foreground rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
               >
                 <Crown className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Lên VIP Tuyển nhân sự</span>

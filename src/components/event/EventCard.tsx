@@ -43,31 +43,31 @@ function EventCard({
   return (
     <article
       onClick={() => onNavigateToJob(job.id)}
-      className="group relative flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden transition-all duration-200 hover:border-primary/40 hover:shadow-md cursor-pointer animate-in fade-in slide-in-from-bottom-3"
+      className="group relative flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden transition-all duration-200 hover:border-slate-300 hover:shadow-md cursor-pointer animate-in fade-in slide-in-from-bottom-3"
       style={{ animationDelay: `${idx * 40}ms` }}
     >
       {/* Top strip: date block + category badge + bookmark */}
       <div className="flex items-stretch gap-3 p-4 pb-3">
         {/* Date block — event ticket vibe */}
-        <div className="flex flex-col items-center justify-center w-14 shrink-0 bg-accent rounded-lg border border-primary/20">
+        <div className="flex flex-col items-center justify-center w-14 shrink-0 bg-primary rounded-lg">
           {eventDate ? (
             <>
-              <span className="text-lg font-extrabold leading-none text-primary mt-1">
+              <span className="text-lg font-extrabold leading-none text-white mt-1">
                 {eventDate.day}
               </span>
-              <span className="text-xs font-bold text-primary/70 uppercase mb-1">
+              <span className="text-[10px] font-bold text-white/70 uppercase mb-1">
                 {eventDate.month}
               </span>
             </>
           ) : (
-            <Calendar className="w-5 h-5 text-primary/60 my-2" />
+            <Calendar className="w-5 h-5 text-white/60 my-2" />
           )}
         </div>
 
         {/* Title + organizer */}
         <div className="flex-1 min-w-0">
           <h3
-            className="text-sm font-semibold text-slate-900 leading-snug line-clamp-2 group-hover:text-primary transition-colors"
+            className="text-sm font-semibold text-slate-900 leading-snug line-clamp-2 group-hover:text-slate-900 transition-colors"
             title={job.title}
           >
             {job.title}
@@ -77,7 +77,7 @@ function EventCard({
               e.stopPropagation()
               navigate(`/companies/${job.profiles?.slug || job.organizer_id}`)
             }}
-            className="text-xs text-slate-500 mt-1 truncate hover:text-primary transition-colors block max-w-full text-left"
+            className="text-xs text-slate-500 mt-1 truncate hover:text-slate-900 transition-colors block max-w-full text-left"
             title={job.profiles?.full_name}
           >
             {job.profiles?.full_name || "Đơn vị ẩn danh"}
@@ -85,7 +85,7 @@ function EventCard({
           {/* Category + position tags */}
           <div className="flex items-center gap-1.5 mt-2 flex-wrap">
             {job.category && (
-              <span className="text-xs font-semibold text-primary bg-accent px-2 py-0.5 rounded">
+              <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
                 {job.category}
               </span>
             )}
@@ -129,7 +129,7 @@ function EventCard({
           </span>
         )}
         {isDeadlineSoon && (
-          <span className="flex items-center gap-1 shrink-0 ml-auto text-primary font-semibold">
+          <span className="flex items-center gap-1 shrink-0 ml-auto text-slate-600 font-semibold">
             <Clock className="w-3.5 h-3.5" />
             <span>Sắp hết hạn</span>
           </span>

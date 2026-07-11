@@ -34,7 +34,7 @@ export default function UserProfileDropdown({
  <DropdownMenuTrigger className="rounded-full outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 shrink-0">
  <Avatar className="h-9 w-9 sm:h-10 sm:w-10 cursor-pointer border-2 border-white shadow-sm transition-transform hover:scale-105">
  <AvatarImage src={avatarUrl} />
- <AvatarFallback className="bg-accent text-primary font-bold text-sm">
+ <AvatarFallback className="bg-slate-100 text-slate-600 font-bold text-sm">
  {getInitial(fullName)}
  </AvatarFallback>
  </Avatar>
@@ -44,13 +44,13 @@ export default function UserProfileDropdown({
  <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
  <Avatar className="h-12 w-12 rounded-full border border-slate-100 shrink-0">
  <AvatarImage src={avatarUrl} />
- <AvatarFallback className="bg-accent text-primary font-bold text-lg">
+ <AvatarFallback className="bg-slate-100 text-slate-600 font-bold text-lg">
  {getInitial(fullName)}
  </AvatarFallback>
  </Avatar>
  <div className="min-w-0 flex-1">
  <p className="text-sm font-bold text-slate-800 truncate" title={fullName}>{fullName}</p>
- <p className="text-xs text-primary font-semibold bg-accent px-2 py-0.5 rounded-full inline-block mt-0.5">
+ <p className="text-xs text-slate-600 font-semibold bg-slate-100 px-2 py-0.5 rounded-full inline-block mt-0.5">
  {role === 'organizer' ?"Nhà tuyển nhân sự" :"Sinh viên"}
  </p>
  <p className="text-xs text-slate-400 mt-1 truncate">
@@ -67,7 +67,7 @@ export default function UserProfileDropdown({
  <button
  type="button"
  onClick={() => toggleSection("jobSearch")}
- className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-primary transition-colors"
+ className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-slate-900 transition-colors"
  >
  <div className="flex items-center gap-2.5 font-bold text-xs">
  <Briefcase className="w-4 h-4 text-slate-500" />
@@ -80,14 +80,14 @@ export default function UserProfileDropdown({
  <button
  type="button"
  onClick={() => navigate('/dashboard')}
- className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
+ className="text-left text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
  >
  Danh sách sự kiện
  </button>
  <button
  type="button"
  onClick={() => navigate('/dashboard')}
- className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
+ className="text-left text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
  >
  Quản lý hồ sơ người tham gia
  </button>
@@ -100,7 +100,7 @@ export default function UserProfileDropdown({
  <button
  type="button"
  onClick={() => toggleSection("cvManage")}
- className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-primary transition-colors"
+ className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-slate-900 transition-colors"
  >
  <div className="flex items-center gap-2.5 font-bold text-xs">
  <Building2 className="w-4 h-4 text-slate-500" />
@@ -113,14 +113,14 @@ export default function UserProfileDropdown({
  <button
  type="button"
  onClick={() => navigate('/settings')}
- className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
+ className="text-left text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
  >
  Thông tin doanh nghiệp
  </button>
  <button
  type="button"
  onClick={() => navigate('/settings')}
- className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
+ className="text-left text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
  >
  Cài đặt tài khoản
  </button>
@@ -133,7 +133,7 @@ export default function UserProfileDropdown({
  <button
  type="button"
  onClick={() => toggleSection("personalSecurity")}
- className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-primary transition-colors"
+ className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-slate-900 transition-colors"
  >
  <div className="flex items-center gap-2.5 font-bold text-xs">
  <Shield className="w-4 h-4 text-slate-500" />
@@ -146,14 +146,14 @@ export default function UserProfileDropdown({
  <button
  type="button"
  onClick={() => navigate('/settings')}
- className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
+ className="text-left text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
  >
  Cài đặt cá nhân
  </button>
  <button
  type="button"
  onClick={() => navigate('/settings')}
- className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
+ className="text-left text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
  >
  Đổi mật khẩu
  </button>
@@ -166,7 +166,7 @@ export default function UserProfileDropdown({
  <button
  type="button"
  onClick={() => toggleSection("upgrade")}
- className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-primary transition-colors"
+ className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-slate-900 transition-colors"
  >
  <div className="flex items-center gap-2.5 font-bold text-xs">
  <Crown className="w-4 h-4 text-slate-500" />
@@ -179,7 +179,7 @@ export default function UserProfileDropdown({
  <button
  type="button"
  onClick={() => alert("Chức năng mua gói VIP Tuyển nhân sự đang được phát triển!")}
- className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
+ className="text-left text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
  >
  Đăng ký gói VIP tuyển nhân sự
  </button>
@@ -194,7 +194,7 @@ export default function UserProfileDropdown({
  <button
  type="button"
  onClick={() => toggleSection("jobSearch")}
- className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-primary transition-colors"
+ className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-slate-900 transition-colors"
  >
  <div className="flex items-center gap-2.5 font-bold text-xs">
  <Briefcase className="w-4 h-4 text-slate-500" />
@@ -207,7 +207,7 @@ export default function UserProfileDropdown({
  <button
  type="button"
  onClick={() => navigate('/saved')}
- className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
+ className="text-left text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
  >
  Sự kiện đã lưu
  </button>
@@ -215,7 +215,7 @@ export default function UserProfileDropdown({
  <button
  type="button"
  onClick={() => navigate('/my-jobs')}
- className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
+ className="text-left text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
  >
  Sự kiện đã đăng ký
  </button>
@@ -229,7 +229,7 @@ export default function UserProfileDropdown({
  <button
  type="button"
  onClick={() => toggleSection("cvManage")}
- className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-primary transition-colors"
+ className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-slate-900 transition-colors"
  >
  <div className="flex items-center gap-2.5 font-bold text-xs">
  <FileText className="w-4 h-4 text-slate-500" />
@@ -242,14 +242,14 @@ export default function UserProfileDropdown({
  <button
  type="button"
  onClick={() => navigate('/settings')}
- className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
+ className="text-left text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
  >
  Thông tin hồ sơ của tôi
  </button>
  <button
  type="button"
  onClick={() => navigate('/settings')}
- className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
+ className="text-left text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
  >
  Mẫu hồ sơ cá nhân
  </button>
@@ -262,7 +262,7 @@ export default function UserProfileDropdown({
  <button
  type="button"
  onClick={() => toggleSection("emailConfig")}
- className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-primary transition-colors"
+ className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-slate-900 transition-colors"
  >
  <div className="flex items-center gap-2.5 font-bold text-xs">
  <Mail className="w-4 h-4 text-slate-500" />
@@ -275,14 +275,14 @@ export default function UserProfileDropdown({
  <button
  type="button"
  onClick={() => navigate('/settings')}
- className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
+ className="text-left text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
  >
  Cài đặt thông báo sự kiện
  </button>
  <button
  type="button"
  onClick={() => navigate('/settings')}
- className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
+ className="text-left text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
  >
  Cài đặt nhận email
  </button>
@@ -295,7 +295,7 @@ export default function UserProfileDropdown({
  <button
  type="button"
  onClick={() => toggleSection("personalSecurity")}
- className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-primary transition-colors"
+ className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-slate-900 transition-colors"
  >
  <div className="flex items-center gap-2.5 font-bold text-xs">
  <Shield className="w-4 h-4 text-slate-500" />
@@ -308,14 +308,14 @@ export default function UserProfileDropdown({
  <button
  type="button"
  onClick={() => navigate('/settings')}
- className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
+ className="text-left text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
  >
  Cài đặt thông tin cá nhân
  </button>
  <button
  type="button"
  onClick={() => navigate('/settings')}
- className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
+ className="text-left text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
  >
  Đổi mật khẩu tài khoản
  </button>
@@ -328,7 +328,7 @@ export default function UserProfileDropdown({
  <button
  type="button"
  onClick={() => toggleSection("upgrade")}
- className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-primary transition-colors"
+ className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-slate-900 transition-colors"
  >
  <div className="flex items-center gap-2.5 font-bold text-xs">
  <Crown className="w-4 h-4 text-slate-500" />
@@ -341,7 +341,7 @@ export default function UserProfileDropdown({
  <button
  type="button"
  onClick={() => alert("Chức năng nâng cấp tài khoản VIP đang phát triển!")}
- className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
+ className="text-left text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
  >
  Nâng cấp tài khoản VIP
  </button>

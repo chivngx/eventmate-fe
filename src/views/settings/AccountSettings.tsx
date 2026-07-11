@@ -65,7 +65,7 @@ export default function AccountSettings() {
             className={cn(
               "p-3 sm:p-4 rounded-lg text-sm font-medium border",
               message.type === "success"
-                ? "bg-accent border-primary/20 text-primary"
+                ? "bg-slate-100 border-slate-200 text-slate-600"
                 : "bg-destructive/10 border-destructive/20 text-destructive"
             )}
           >
@@ -105,14 +105,14 @@ export default function AccountSettings() {
                   <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 p-4 bg-muted rounded-lg border border-border">
                     <Avatar className="h-16 w-16 border border-border shadow-sm shrink-0 rounded-full">
                       <AvatarImage src={avatarUrl} className="object-cover rounded-full" />
-                      <AvatarFallback className="bg-accent text-primary font-semibold text-xl rounded-full">
+                      <AvatarFallback className="bg-slate-100 text-slate-600 font-semibold text-xl rounded-full">
                         {fullName ? fullName.charAt(0).toUpperCase() : <User className="w-6 h-6" />}
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex flex-col items-center sm:items-start gap-2 min-w-0">
                       <Label
                         htmlFor="avatar-file"
-                        className="text-sm font-medium text-foreground cursor-pointer bg-card border border-border hover:bg-accent px-3.5 py-2 rounded-lg inline-flex items-center gap-2 shadow-sm transition-colors"
+                        className="text-sm font-medium text-foreground cursor-pointer bg-card border border-border hover:bg-slate-100 px-3.5 py-2 rounded-lg inline-flex items-center gap-2 shadow-sm transition-colors"
                       >
                         <Upload className="w-4 h-4" />
                         {uploadingAvatar ? "Đang tải lên..." : "Tải ảnh đại diện mới"}
@@ -168,7 +168,7 @@ export default function AccountSettings() {
                   <Button
                     type="submit"
                     disabled={updating}
-                    className="rounded-lg bg-primary text-primary-foreground font-medium hover:bg-primary/90 h-10 px-5 text-sm transition-colors shadow-sm"
+                    className="rounded-lg bg-primary text-slate-600-foreground font-medium hover:bg-primary/90 h-10 px-5 text-sm transition-colors shadow-sm"
                   >
                     {updating ? "Đang lưu..." : "Lưu thay đổi"}
                   </Button>

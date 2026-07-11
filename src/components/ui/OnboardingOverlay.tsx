@@ -74,7 +74,7 @@ export default function OnboardingOverlay() {
  {
  title: (
  <>
- Chào mừng bạn đến với <span className="text-primary font-bold">EventMate</span>
+ Chào mừng bạn đến với <span className="text-slate-600 font-bold">EventMate</span>
  </>
  ),
  subtitle:"Nền tảng kết nối nhân sự và cơ hội sự kiện hàng đầu dành cho sinh viên và ban tổ chức.",
@@ -91,7 +91,7 @@ export default function OnboardingOverlay() {
  transition={{ delay: 0.2, type:"spring", stiffness: 100 }}
  className="relative z-10 w-28 h-28 bg-white rounded-2xl shadow-md flex items-center justify-center border border-emerald-500/20"
  >
- <Sparkles className="w-12 h-12 text-primary" />
+ <Sparkles className="w-12 h-12 text-slate-600" />
  </motion.div>
 
  <motion.div 
@@ -116,7 +116,7 @@ export default function OnboardingOverlay() {
  <p className="text-slate-500 text-sm md:text-base leading-relaxed">
  Chúng tôi ở đây để giúp bạn tìm kiếm các công việc sự kiện bán thời gian hấp dẫn, quản lý nhân sự chuyên nghiệp, và xây dựng hồ sơ năng lực đột phá.
  </p>
- <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent text-primary text-xs font-semibold">
+ <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
  Khám phá ngay trong 4 bước đơn giản
  </div>
@@ -130,8 +130,8 @@ export default function OnboardingOverlay() {
  illustration: (
  <div className="grid grid-cols-3 gap-3 max-w-sm mx-auto">
  {[
- { icon: Briefcase, color:"bg-accent text-primary", title:"Sự kiện", desc:"Hàng trăm công việc" },
- { icon: FileText, color:"bg-accent text-primary", title:"Hồ sơ năng lực số", desc:"Showcase năng lực" },
+ { icon: Briefcase, color:"bg-slate-100 text-slate-600", title:"Sự kiện", desc:"Hàng trăm công việc" },
+ { icon: FileText, color:"bg-slate-100 text-slate-600", title:"Hồ sơ năng lực số", desc:"Showcase năng lực" },
  { icon: MessageSquare, color:"bg-teal-50 text-teal-600", title:"Chat trực tiếp", desc:"Kết nối tức thì" },
  ].map((item, idx) => (
  <motion.div
@@ -153,7 +153,7 @@ export default function OnboardingOverlay() {
  content: (
  <div className="space-y-3 max-w-md mx-auto text-left">
  <div className="flex gap-3 items-start bg-slate-50 p-3 rounded-2xl border border-slate-200">
- <div className="bg-emerald-100 text-primary p-1.5 rounded-lg shrink-0 mt-0.5">
+ <div className="bg-slate-100 text-slate-600 p-1.5 rounded-lg shrink-0 mt-0.5">
  <CheckCircle2 className="w-4 h-4" />
  </div>
  <div>
@@ -162,7 +162,7 @@ export default function OnboardingOverlay() {
  </div>
  </div>
  <div className="flex gap-3 items-start bg-slate-50 p-3 rounded-2xl border border-slate-200">
- <div className="bg-emerald-100 text-primary p-1.5 rounded-lg shrink-0 mt-0.5">
+ <div className="bg-slate-100 text-slate-600 p-1.5 rounded-lg shrink-0 mt-0.5">
  <CheckCircle2 className="w-4 h-4" />
  </div>
  <div>
@@ -180,9 +180,9 @@ export default function OnboardingOverlay() {
  illustration: (
  <div className="grid grid-cols-3 gap-3 max-w-sm mx-auto">
  {[
- { icon: Users, color:"bg-accent text-primary", title:"Tìm CTV nhanh", desc:"Tiếp cận 1000+ SV" },
- { icon: CheckCircle2, color:"bg-accent text-primary", title:"Duyệt hồ sơ", desc:"Quản lý tập trung" },
- { icon: Award, color:"bg-accent text-primary", title:"Cấp chứng nhận", desc:"Nâng tầm uy tín" },
+ { icon: Users, color:"bg-slate-100 text-slate-600", title:"Tìm CTV nhanh", desc:"Tiếp cận 1000+ SV" },
+ { icon: CheckCircle2, color:"bg-slate-100 text-slate-600", title:"Duyệt hồ sơ", desc:"Quản lý tập trung" },
+ { icon: Award, color:"bg-slate-100 text-slate-600", title:"Cấp chứng nhận", desc:"Nâng tầm uy tín" },
  ].map((item, idx) => (
  <motion.div
  key={idx}
@@ -203,7 +203,7 @@ export default function OnboardingOverlay() {
  content: (
  <div className="space-y-3 max-w-md mx-auto text-left">
  <div className="flex gap-3 items-start bg-slate-50 p-3 rounded-2xl border border-slate-200">
- <div className="bg-emerald-100 text-primary p-1.5 rounded-lg shrink-0 mt-0.5">
+ <div className="bg-slate-100 text-slate-600 p-1.5 rounded-lg shrink-0 mt-0.5">
  <CheckCircle2 className="w-4 h-4" />
  </div>
  <div>
@@ -212,7 +212,7 @@ export default function OnboardingOverlay() {
  </div>
  </div>
  <div className="flex gap-3 items-start bg-slate-50 p-3 rounded-2xl border border-slate-200">
- <div className="bg-emerald-100 text-primary p-1.5 rounded-lg shrink-0 mt-0.5">
+ <div className="bg-slate-100 text-slate-600 p-1.5 rounded-lg shrink-0 mt-0.5">
  <CheckCircle2 className="w-4 h-4" />
  </div>
  <div>
@@ -235,14 +235,14 @@ export default function OnboardingOverlay() {
  onClick={() => setSelectedRole("student")}
  className={`group/role flex flex-col items-center p-5 rounded-2xl border text-center transition-all cursor-pointer ${
  selectedRole ==="student"
- ?"border-emerald-500 bg-accent/50 shadow-md ring-2 ring-emerald-500/20"
+ ?"border-emerald-500 bg-slate-100/50 shadow-md ring-2 ring-emerald-500/20"
  :"border-slate-200 hover:border-slate-300 bg-white shadow-sm"
  }`}
  >
  <div className={`p-4 rounded-full mb-3 transition-colors ${
  selectedRole ==="student" 
  ?"bg-emerald-600 text-white" 
- :"bg-slate-100 text-slate-600 group-hover/role:bg-accent group-hover/role:text-primary"
+ :"bg-slate-100 text-slate-600 group-hover/role:bg-slate-100 group-hover/role:text-slate-600"
  }`}>
  <GraduationCap className="w-8 h-8" />
  </div>
@@ -254,14 +254,14 @@ export default function OnboardingOverlay() {
  onClick={() => setSelectedRole("organizer")}
  className={`group/role flex flex-col items-center p-5 rounded-2xl border text-center transition-all cursor-pointer ${
  selectedRole ==="organizer"
- ?"border-emerald-500 bg-accent/50 shadow-md ring-2 ring-emerald-500/20"
+ ?"border-emerald-500 bg-slate-100/50 shadow-md ring-2 ring-emerald-500/20"
  :"border-slate-200 hover:border-slate-300 bg-white shadow-sm"
  }`}
  >
  <div className={`p-4 rounded-full mb-3 transition-colors ${
  selectedRole ==="organizer" 
  ?"bg-emerald-600 text-white" 
- :"bg-slate-100 text-slate-600 group-hover/role:bg-accent group-hover/role:text-primary"
+ :"bg-slate-100 text-slate-600 group-hover/role:bg-slate-100 group-hover/role:text-slate-600"
  }`}>
  <Building2 className="w-8 h-8" />
  </div>

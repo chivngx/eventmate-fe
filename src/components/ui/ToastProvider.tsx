@@ -56,10 +56,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
  }[toast.type ||"info"]
 
  const iconColor = {
- success:"text-emerald-500 bg-accent",
- warning:"text-primary bg-accent",
+ success:"text-slate-500 bg-slate-100",
+ warning:"text-slate-600 bg-slate-100",
  error:"text-destructive bg-destructive/10",
- info:"text-blue-500 bg-accent",
+ info:"text-blue-500 bg-slate-100",
  }[toast.type ||"info"]
 
  return (
@@ -81,7 +81,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
  {toast.actionLink && (
  <a
  href={toast.actionLink}
- className="inline-block text-xs font-black text-primary mt-2 hover:underline"
+ className="inline-block text-xs font-black text-slate-600 mt-2 hover:underline"
  >
  {toast.actionText ||"Xem ngay"} &rarr;
  </a>

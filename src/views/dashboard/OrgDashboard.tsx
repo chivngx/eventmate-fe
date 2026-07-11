@@ -441,7 +441,7 @@ export default function OrgDashboard() {
             </div>
             <Button
               onClick={() => { setActiveTab("events"); setShowForm(true); }}
-              className="h-10 shrink-0 rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              className="h-10 shrink-0 rounded-lg bg-primary px-5 text-sm font-medium text-slate-600-foreground hover:bg-primary/90"
             >
               Tạo chiến dịch mới
             </Button>
@@ -482,9 +482,9 @@ export default function OrgDashboard() {
             </div>
 
             {/* Premium promo */}
-            <div className="flex flex-col justify-between rounded-xl border border-primary/20 bg-card p-5 shadow-sm sm:p-6">
+            <div className="flex flex-col justify-between rounded-xl border border-slate-200 bg-card p-5 shadow-sm sm:p-6">
               <div className="space-y-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent text-primary">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
                   <Crown className="h-5 w-5" />
                 </div>
                 <h3 className="text-base font-semibold text-foreground">Nâng cấp VIP Tuyển nhân sự</h3>
@@ -494,7 +494,7 @@ export default function OrgDashboard() {
               </div>
               <Button
                 onClick={() => setActiveTab("services")}
-                className="mt-5 h-10 w-full rounded-lg bg-primary text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                className="mt-5 h-10 w-full rounded-lg bg-primary text-sm font-medium text-slate-600-foreground hover:bg-primary/90"
               >
                 Xem bảng giá gói
               </Button>
@@ -510,7 +510,7 @@ export default function OrgDashboard() {
             <h1 className="text-xl font-semibold text-foreground sm:text-2xl">Các chiến dịch của tôi</h1>
             <Button
               onClick={() => setShowForm(true)}
-              className="h-10 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              className="h-10 rounded-lg bg-primary px-4 text-sm font-medium text-slate-600-foreground hover:bg-primary/90"
             >
               Tạo chiến dịch mới
             </Button>
@@ -553,7 +553,7 @@ export default function OrgDashboard() {
                   <button
                     key={ev.id}
                     onClick={() => handleViewApplications(ev)}
-                    className="flex items-center justify-between rounded-lg border border-border bg-muted/40 p-4 text-left transition-colors hover:border-primary/40 hover:bg-card"
+                    className="flex items-center justify-between rounded-lg border border-border bg-muted/40 p-4 text-left transition-colors hover:border-slate-300 hover:bg-card"
                   >
                     <div className="min-w-0">
                       <h4 className="truncate text-sm font-semibold text-foreground">{ev.title}</h4>
@@ -586,14 +586,14 @@ export default function OrgDashboard() {
                 {cv.avatar ? (
                   <img src={cv.avatar} alt={cv.name} loading="lazy" className="h-12 w-12 shrink-0 rounded-lg border border-border object-cover sm:h-14 sm:w-14" />
                 ) : (
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-accent text-base font-semibold text-primary sm:h-14 sm:w-14">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-base font-semibold text-slate-600 sm:h-14 sm:w-14">
                     {cv.name.charAt(0).toUpperCase()}
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <h3 className="truncate text-sm font-semibold text-foreground">{cv.name}</h3>
-                    <span className="shrink-0 rounded-md bg-accent px-1.5 py-0.5 text-xs font-medium text-primary">
+                    <span className="shrink-0 rounded-md bg-slate-100 px-1.5 py-0.5 text-xs font-medium text-slate-600">
                       Match: {cv.match}%
                     </span>
                   </div>
@@ -619,7 +619,7 @@ export default function OrgDashboard() {
                 </div>
                 <Button
                   onClick={() => setActiveTab("services")}
-                  className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                  className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary text-sm font-medium text-slate-600-foreground hover:bg-primary/90"
                 >
                   <Crown className="h-4 w-4" /> Xem gói dịch vụ VIP
                 </Button>
@@ -711,7 +711,7 @@ export default function OrgDashboard() {
                 </div>
                 <Button
                   onClick={() => setActiveTab("services")}
-                  className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                  className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary text-sm font-medium text-slate-600-foreground hover:bg-primary/90"
                 >
                   <Crown className="h-4 w-4" /> Xem gói dịch vụ VIP
                 </Button>
@@ -735,14 +735,14 @@ export default function OrgDashboard() {
             {/* VIP Plan */}
             <div className="relative flex flex-col justify-between rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8">
               {isPremium && (
-                <span className="absolute right-4 top-4 rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-foreground">
+                <span className="absolute right-4 top-4 rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-slate-600-foreground">
                   Đang sử dụng
                 </span>
               )}
               <div className="space-y-5">
                 <div>
                   <h3 className="flex items-center gap-1.5 text-lg font-semibold text-foreground">
-                    <Crown className="h-5 w-5 text-primary" /> VIP Recruiter
+                    <Crown className="h-5 w-5 text-slate-600" /> VIP Recruiter
                   </h3>
                   <p className="mt-1 text-xs text-muted-foreground">Giải pháp tối ưu cho Nhà tuyển nhân sự chuyên nghiệp</p>
                 </div>
@@ -760,7 +760,7 @@ export default function OrgDashboard() {
                     "Hỗ trợ ưu tiên 24/7 từ EventMate"
                   ].map((feat, i) => (
                     <li key={i} className="flex items-center gap-2 text-sm text-foreground">
-                      <Check className="h-4 w-4 shrink-0 text-primary" /> {feat}
+                      <Check className="h-4 w-4 shrink-0 text-slate-600" /> {feat}
                     </li>
                   ))}
                 </ul>
@@ -772,7 +772,7 @@ export default function OrgDashboard() {
                 className={`mt-6 h-11 w-full rounded-lg text-sm font-medium ${
                   isPremium
                     ? "bg-muted text-muted-foreground"
-                    : "bg-primary text-primary-foreground hover:bg-primary/90"
+                    : "bg-primary text-slate-600-foreground hover:bg-primary/90"
                 }`}
               >
                 {isPremium ? "Đã được kích hoạt" : "Kích hoạt ngay"}
@@ -799,7 +799,7 @@ export default function OrgDashboard() {
                     "Đẩy tin tự động mỗi 24 giờ"
                   ].map((feat, i) => (
                     <li key={i} className="flex items-center gap-2 text-sm text-foreground">
-                      <Check className="h-4 w-4 shrink-0 text-primary" /> {feat}
+                      <Check className="h-4 w-4 shrink-0 text-slate-600" /> {feat}
                     </li>
                   ))}
                 </ul>
@@ -842,7 +842,7 @@ export default function OrgDashboard() {
                   <button
                     key={chat.id}
                     onClick={() => handleStartChatWithStudent(event?.id, student?.id)}
-                    className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-primary/40 hover:shadow-sm sm:p-5"
+                    className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-slate-300 hover:shadow-sm sm:p-5"
                   >
                     <div className="flex min-w-0 items-center gap-3">
                       <img
@@ -940,7 +940,7 @@ export default function OrgDashboard() {
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-accent text-primary sm:h-12 sm:w-12">
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 sm:h-12 sm:w-12">
         {icon}
       </div>
       <div className="min-w-0">

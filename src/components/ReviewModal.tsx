@@ -67,7 +67,7 @@ export default function ReviewModal({
  <Modal isOpen={isOpen} onClose={onClose} label="Đánh giá dịch vụ" maxWidthClassName="max-w-md" panelClassName="rounded-2xl border border-slate-200 p-6 sm:p-8 overflow-hidden">
  <h3 className="text-xl font-bold text-slate-900 mb-2">Đánh giá dịch vụ</h3>
  <p className="text-sm font-semibold text-slate-500 mb-6">
- Nhận xét của bạn về: <strong className="text-primary">{revieweeName}</strong>
+ Nhận xét của bạn về: <strong className="text-slate-600">{revieweeName}</strong>
  </p>
 
  <form onSubmit={handleSubmit} className="space-y-6">
@@ -83,7 +83,7 @@ export default function ReviewModal({
  onMouseLeave={() => setHoverRating(null)}
  aria-label={`Đánh giá ${star} sao`}
  aria-pressed={rating === star}
- className="p-1 hover:scale-110 transition-transform text-amber-400 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 rounded"
+ className="p-1 hover:scale-110 transition-transform text-amber-400 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 rounded"
  >
  <Star
  className="w-8 h-8"
@@ -118,7 +118,7 @@ export default function ReviewModal({
  <Button
  type="submit"
  disabled={submitting}
- className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-11 text-xs shadow-md shadow-emerald-600/20"
+ className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-11 text-xs shadow-md shadow-slate-200"
  >
  {submitting ?"Đang gửi..." :"Gửi đánh giá"}
  </Button>

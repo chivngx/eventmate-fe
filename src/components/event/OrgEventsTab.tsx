@@ -51,7 +51,7 @@ export default function OrgEventsTab({
  return (
  <div
  key={job.id}
- className="bg-white border border-slate-200 rounded-2xl p-6 hover:border-primary/40 hover:shadow-md transition-all duration-300 flex flex-col justify-between gap-6 shadow-sm relative group overflow-hidden"
+ className="bg-white border border-slate-200 rounded-2xl p-6 hover:border-slate-300 hover:shadow-md transition-all duration-300 flex flex-col justify-between gap-6 shadow-sm relative group overflow-hidden"
  >
  {/* Top Indicator Gradient Line */}
  <div className="absolute top-0 left-0 right-0 h-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -60,10 +60,10 @@ export default function OrgEventsTab({
  {/* Header: Title and Status Badge */}
  <div className="flex items-start justify-between gap-3">
  <div className="space-y-1 min-w-0">
- <span className="text-xs font-black tracking-widest text-primary uppercase flex items-center gap-1">
+ <span className="text-xs font-black tracking-widest text-slate-600 uppercase flex items-center gap-1">
  <Tag className="w-3 h-3" /> {job.category}
  </span>
- <h4 className="font-black text-slate-900 text-lg leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+ <h4 className="font-black text-slate-900 text-lg leading-snug line-clamp-2 group-hover:text-slate-900 transition-colors">
  {job.title}
  </h4>
  </div>
@@ -71,7 +71,7 @@ export default function OrgEventsTab({
  <div className="flex flex-col items-end gap-1.5 shrink-0">
  <Badge
  className={`border-none font-black text-xs uppercase px-2.5 py-0.5 rounded-full ${job.status === 'upcoming'
- ? 'bg-accent text-primary'
+ ? 'bg-slate-100 text-slate-600'
  : 'bg-slate-100 text-slate-600'
  }`}
  >
@@ -79,7 +79,7 @@ export default function OrgEventsTab({
  </Badge>
 
  {candidateCount > 0 && (
- <Badge className="bg-accent text-indigo-700 border-none font-black text-xs rounded-full">
+ <Badge className="bg-slate-100 text-indigo-700 border-none font-black text-xs rounded-full">
  {candidateCount} hồ sơ
  </Badge>
  )}
@@ -107,7 +107,7 @@ export default function OrgEventsTab({
  <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-xl flex items-center gap-1">
  Cần tuyển: <strong className="text-slate-900 font-extrabold">{job.slots_needed}</strong>
  </span>
- <span className="bg-accent text-primary px-3 py-1 rounded-xl flex items-center gap-1 border border-primary/20/40">
+ <span className="bg-slate-100 text-slate-600 px-3 py-1 rounded-xl flex items-center gap-1 border border-slate-200/40">
  <Award className="w-3.5 h-3.5" /> {job.benefits}
  </span>
  </div>
@@ -117,7 +117,7 @@ export default function OrgEventsTab({
  <div className="flex items-center justify-between gap-3 border-t border-slate-100 pt-4 mt-2">
  <Button
  onClick={() => onViewApplications(job)}
- className="rounded-xl bg-accent hover:bg-emerald-100/80 text-primary font-black text-xs h-10 px-4 flex items-center gap-1.5 shadow-sm active:scale-98 transition-all border border-emerald-250/20"
+ className="rounded-xl bg-slate-100 hover:bg-slate-100/80 text-slate-600 font-black text-xs h-10 px-4 flex items-center gap-1.5 shadow-sm active:scale-98 transition-all border border-emerald-250/20"
  >
  <Users className="w-4 h-4" />
  Xem hồ sơ người tham gia

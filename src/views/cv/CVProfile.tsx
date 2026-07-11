@@ -96,13 +96,13 @@ export default function CVProfile() {
         {/* Page header */}
         <div className="space-y-1">
           <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground flex items-center gap-3">
-            <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-accent text-primary shrink-0">
+            <span className="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-slate-100 text-slate-600 shrink-0">
               <FileText className="w-5 h-5" />
             </span>
             <span className="min-w-0">Hồ sơ Năng lực (CV)</span>
           </h1>
           <p className="text-sm text-muted-foreground">
-            Bổ sung đầy đủ thông tin giúp bạn tăng <strong className="text-primary font-semibold">300% cơ hội</strong> được Ban tổ chức lựa chọn đăng ký.
+            Bổ sung đầy đủ thông tin giúp bạn tăng <strong className="text-slate-600 font-semibold">300% cơ hội</strong> được Ban tổ chức lựa chọn đăng ký.
           </p>
         </div>
 
@@ -110,14 +110,14 @@ export default function CVProfile() {
         <div className="flex items-center gap-4 p-4 sm:p-5 bg-card border border-border rounded-xl shadow-sm">
           <Avatar className="h-14 w-14 sm:h-16 sm:w-16 border border-border shrink-0 rounded-full">
             <AvatarImage src={avatarUrl} className="object-cover rounded-full" />
-            <AvatarFallback className="bg-accent text-primary font-semibold text-xl rounded-full">
+            <AvatarFallback className="bg-slate-100 text-slate-600 font-semibold text-xl rounded-full">
               {fullName ? fullName.charAt(0).toUpperCase() : <User className="w-6 h-6" />}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1 space-y-1">
             <p className="font-semibold text-foreground truncate">{fullName || "Chưa cập nhật"}</p>
             <p className="text-sm text-muted-foreground truncate">{email || "—"}</p>
-            <span className="inline-flex items-center text-xs font-medium text-primary bg-accent border border-primary/20 px-2 py-0.5 rounded">
+            <span className="inline-flex items-center text-xs font-medium text-slate-600 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded">
               {role === "student" ? "Người tham gia" : "Nhà tuyển nhân sự"}
             </span>
           </div>
@@ -138,7 +138,7 @@ export default function CVProfile() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-2">
                   <Label htmlFor="phone" className="text-sm font-medium text-foreground flex items-center gap-2">
-                    <Phone className="w-4 h-4 text-primary" /> Số điện thoại liên hệ
+                    <Phone className="w-4 h-4 text-slate-600" /> Số điện thoại liên hệ
                   </Label>
                   <Input
                     id="phone"
@@ -151,7 +151,7 @@ export default function CVProfile() {
 
                 <div className="space-y-2">
                   <Label htmlFor="university" className="text-sm font-medium text-foreground flex items-center gap-2">
-                    <GraduationCap className="w-4 h-4 text-primary" /> Trường Đại học / Cao đẳng
+                    <GraduationCap className="w-4 h-4 text-slate-600" /> Trường Đại học / Cao đẳng
                   </Label>
                   <Input
                     id="university"
@@ -166,7 +166,7 @@ export default function CVProfile() {
               {/* Skills */}
               <div className="space-y-2">
                 <Label htmlFor="skills" className="text-sm font-medium text-foreground flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-primary" /> Kỹ năng nổi bật
+                  <Sparkles className="w-4 h-4 text-slate-600" /> Kỹ năng nổi bật
                 </Label>
                 <Input
                   id="skills"
@@ -199,14 +199,14 @@ export default function CVProfile() {
                   type="button"
                   onClick={() => setCvPreviewOpen(true)}
                   variant="outline"
-                  className="rounded-lg border-border hover:bg-accent text-foreground font-medium h-11 px-5 w-full sm:w-auto"
+                  className="rounded-lg border-border hover:bg-slate-100 text-foreground font-medium h-11 px-5 w-full sm:w-auto"
                 >
                   <Eye className="w-4 h-4 mr-2" /> Xem trước & Tải CV
                 </Button>
                 <Button
                   type="submit"
                   disabled={saving}
-                  className="rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-medium h-11 px-6 transition-colors shadow-sm w-full sm:w-auto"
+                  className="rounded-lg bg-primary hover:bg-primary/90 text-slate-600-foreground font-medium h-11 px-6 transition-colors shadow-sm w-full sm:w-auto"
                 >
                   {saving ? "Đang lưu..." : (<><Save className="w-4 h-4 mr-2" /> Lưu Hồ sơ năng lực</>)}
                 </Button>
