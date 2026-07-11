@@ -157,7 +157,7 @@ export default function QuickFilters({
  onClick={() => scroll("left")}
  disabled={!showLeftArrow}
  className={`w-8 h-8 rounded-full border flex items-center justify-center shrink-0 transition-all ${showLeftArrow
- ?"text-[#00b14f] border-[#00b14f] hover:bg-[#00b14f]/5 cursor-pointer"
+ ?"text-primary border-primary hover:bg-primary/5 cursor-pointer"
  :"text-slate-300 border-slate-100 cursor-not-allowed opacity-40"
  }`}
  >
@@ -176,8 +176,8 @@ export default function QuickFilters({
  type="button"
  onClick={() => handlePillClick(pill.value)}
  className={`px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all border ${isActive
- ?"bg-[#00b14f] border-[#00b14f] text-white shadow-sm"
- :"bg-[#f2f4f5] border-transparent text-[#212f3f] hover:border-[#00b14f] hover:text-[#00b14f] hover:bg-white"
+ ?"bg-primary border-primary text-white shadow-sm"
+ :"bg-muted border-transparent text-foreground hover:border-primary hover:text-primary hover:bg-white"
  } ${isActive
  ?""
  :""
@@ -194,7 +194,7 @@ export default function QuickFilters({
  onClick={() => scroll("right")}
  disabled={!showRightArrow}
  className={`w-8 h-8 rounded-full border flex items-center justify-center shrink-0 transition-all ${showRightArrow
- ?"text-[#00b14f] border-[#00b14f] hover:bg-[#00b14f]/5 cursor-pointer"
+ ?"text-primary border-primary hover:bg-primary/5 cursor-pointer"
  :"text-slate-300 border-slate-100 cursor-not-allowed opacity-40"
  }`}
  >

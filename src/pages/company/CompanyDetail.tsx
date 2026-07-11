@@ -160,15 +160,15 @@ export default function CompanyDetail() {
 
  return (
  <MainLayout role={role ||"guest"}>
- <div className="max-w-6xl mx-auto pt-1 pb-6 px-4 font-sans text-[#212f3f] selection:bg-emerald-100 animate-in fade-in slide-in-from-bottom-4 duration-500">
+ <div className="max-w-6xl mx-auto pt-1 pb-6 px-4 font-sans text-foreground selection:bg-emerald-100 animate-in fade-in slide-in-from-bottom-4 duration-500">
  {/* Company Header Box (Matching EventDetail header style) */}
  <div className="wrapper-company-cover bg-white rounded-lg border border-slate-200 p-6 md:p-8 shadow-sm flex flex-col md:flex-row items-center md:items-start justify-between gap-6 relative">
  <div className="company-cover-inner_header flex flex-col md:flex-row items-center md:items-start gap-6 w-full md:w-auto">
  {/* Company Logo wrapper matching event details page */}
- <div className="company-logo flex items-center justify-center bg-white border border-[#e9eaec] rounded-[8px] border-[0.8px] p-2 w-[110px] h-[110px] shrink-0">
+ <div className="company-logo flex items-center justify-center bg-white border border-muted rounded-[8px] border-[0.8px] p-2 w-[110px] h-[110px] shrink-0">
  <Avatar className="h-full w-full rounded-md">
  <AvatarImage src={company.avatar_url} className="object-contain" />
- <AvatarFallback className="rounded-md bg-emerald-50 text-[#00b14f] text-4xl font-black">
+ <AvatarFallback className="rounded-md bg-emerald-50 text-primary text-4xl font-black">
  {company.full_name?.charAt(0).toUpperCase() ||"O"}
  </AvatarFallback>
  </Avatar>
@@ -177,18 +177,18 @@ export default function CompanyDetail() {
  {/* Title, website link, followers count */}
  <div className="company-detail-overview flex-1 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full">
  <div className="box-detail text-center md:text-left pt-2 flex flex-col items-center md:items-start gap-2.5">
- <h1 className="box-detail_company-name text-xl md:text-2xl font-bold text-[#263a4d] leading-tight">
+ <h1 className="box-detail_company-name text-xl md:text-2xl font-bold text-foreground leading-tight">
  {company.full_name}
  </h1>
  <div className="box-company-info flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2 mt-1 text-xs font-bold text-slate-400">
  <div className="box-company-info_item flex items-center gap-1.5">
- <a href={company.website ||"#"} target="_blank" rel="noreferrer" className="box-company-info_item hover:text-[#00b14f] flex items-center gap-1.5 transition-colors">
+ <a href={company.website ||"#"} target="_blank" rel="noreferrer" className="box-company-info_item hover:text-primary flex items-center gap-1.5 transition-colors">
  <LinkIcon className="w-3.5 h-3.5 shrink-0" /> {company.website ||"Chưa cập nhật website"}
  </a>
  </div>
  <span className="text-slate-200">|</span>
  <div className="box-company-info_item flex items-center gap-1.5">
- <span className="flex items-center gap-1.5 hover:text-[#00b14f] transition-colors">
+ <span className="flex items-center gap-1.5 hover:text-primary transition-colors">
  <Users className="w-3.5 h-3.5 shrink-0" /> {isFollowed ?"3" :"2"} người theo dõi
  </span>
  </div>
@@ -201,7 +201,7 @@ export default function CompanyDetail() {
  onClick={() => setIsFollowed(!isFollowed)}
  className={`w-full md:w-auto h-[40px] px-6 rounded-md font-semibold transition-all active:scale-95 border cursor-pointer ${isFollowed
  ?"bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200"
- :"bg-[#00b14f] hover:bg-[#009a44] border-[#00b14f] text-white"
+ :"bg-primary hover:bg-[#009a44] border-primary text-white"
  }`}
  >
  {isFollowed ? (
@@ -218,19 +218,19 @@ export default function CompanyDetail() {
  <div className="box-tab-link absolute bottom-0 left-6 md:left-8 flex gap-6">
  <button
  onClick={() => setActiveTab("about")}
- className={`box-tab-link_item pb-3 font-extrabold text-xs relative transition-colors ${activeTab ==="about" ?"active-link text-[#00b14f]" :"text-slate-500 hover:text-[#00b14f]"
+ className={`box-tab-link_item pb-3 font-extrabold text-xs relative transition-colors ${activeTab ==="about" ?"active-link text-primary" :"text-slate-500 hover:text-primary"
  }`}
  >
  Trang chủ
- {activeTab ==="about" && <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#00b14f] rounded-t-full" />}
+ {activeTab ==="about" && <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-primary rounded-t-full" />}
  </button>
  <button
  onClick={() => setActiveTab("jobs")}
- className={`box-tab-link_item pb-3 font-extrabold text-xs relative transition-colors flex items-center gap-1 ${activeTab ==="jobs" ?"active-link text-[#00b14f]" :"text-slate-500 hover:text-[#00b14f]"
+ className={`box-tab-link_item pb-3 font-extrabold text-xs relative transition-colors flex items-center gap-1 ${activeTab ==="jobs" ?"active-link text-primary" :"text-slate-500 hover:text-primary"
  }`}
  >
  Tin tuyển dụng ({companyEvents.length})
- {activeTab ==="jobs" && <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#00b14f] rounded-t-full" />}
+ {activeTab ==="jobs" && <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-primary rounded-t-full" />}
  </button>
  </div>
  </div>
@@ -251,7 +251,7 @@ export default function CompanyDetail() {
  
  {/* Giới thiệu công ty */}
  <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm space-y-6">
- <h2 className="text-lg font-bold text-[#212f3f] border-l-[4px] border-[#00b14f] pl-3 leading-none flex items-center">
+ <h2 className="text-lg font-bold text-foreground border-l-[4px] border-primary pl-3 leading-none flex items-center">
  Giới thiệu công ty
  </h2>
  <div className="relative">
@@ -260,7 +260,7 @@ export default function CompanyDetail() {
  </div>
  <button
  onClick={() => setIsIntroExpanded(!isIntroExpanded)}
- className="text-xs font-bold text-[#00b14f] hover:text-[#009a44] mt-3 flex items-center gap-1 transition-colors"
+ className="text-xs font-bold text-primary hover:text-[#009a44] mt-3 flex items-center gap-1 transition-colors"
  >
  {isIntroExpanded ? (
  <>Thu gọn <ChevronUp className="w-3.5 h-3.5" /></>
@@ -274,21 +274,21 @@ export default function CompanyDetail() {
  {/* Hình ảnh công ty */}
  <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm space-y-6">
  <div className="flex items-center justify-between">
- <h2 className="text-lg font-bold text-[#212f3f] border-l-[4px] border-[#00b14f] pl-3 leading-none flex items-center">
+ <h2 className="text-lg font-bold text-foreground border-l-[4px] border-primary pl-3 leading-none flex items-center">
  Hình ảnh hoạt động
  </h2>
  <div className="flex items-center gap-2">
  <button
  onClick={() => setCurrentImageIndex(prev => Math.max(0, prev - 1))}
  disabled={currentImageIndex === 0}
- className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-[#00b14f] hover:border-[#00b14f] disabled:opacity-30 disabled:hover:text-slate-400 disabled:hover:border-slate-200 transition-all cursor-pointer"
+ className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary disabled:opacity-30 disabled:hover:text-slate-400 disabled:hover:border-slate-200 transition-all cursor-pointer"
  >
  &lt;
  </button>
  <button
  onClick={() => setCurrentImageIndex(prev => Math.min(galleryImages.length - 1, prev + 1))}
  disabled={currentImageIndex === galleryImages.length - 1}
- className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-[#00b14f] hover:border-[#00b14f] disabled:opacity-30 disabled:hover:text-slate-400 disabled:hover:border-slate-200 transition-all cursor-pointer"
+ className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary disabled:opacity-30 disabled:hover:text-slate-400 disabled:hover:border-slate-200 transition-all cursor-pointer"
  >
  &gt;
  </button>
@@ -300,7 +300,7 @@ export default function CompanyDetail() {
  <img
  src={imgUrl}
  alt={`Company Gallery ${idx + 1}`}
- className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${idx === currentImageIndex ?"ring-2 ring-[#00b14f]" :""}`}
+ className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${idx === currentImageIndex ?"ring-2 ring-primary" :""}`}
  />
  </div>
  ))}
@@ -309,7 +309,7 @@ export default function CompanyDetail() {
 
  {/* Tuyển dụng tại công ty */}
  <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm space-y-6">
- <h2 className="text-lg font-bold text-[#212f3f] border-l-[4px] border-[#00b14f] pl-3 leading-none flex items-center">
+ <h2 className="text-lg font-bold text-foreground border-l-[4px] border-primary pl-3 leading-none flex items-center">
  Tuyển dụng mới nhất
  </h2>
 
@@ -328,14 +328,14 @@ export default function CompanyDetail() {
  <select
  value={selectedLocation}
  onChange={(e) => setSelectedLocation(e.target.value)}
- className="border border-slate-200 rounded-xl px-4 py-2 bg-white text-xs font-bold text-slate-600 focus:outline-none focus:border-[#00b14f] max-w-full md:max-w-[200px]"
+ className="border border-slate-200 rounded-xl px-4 py-2 bg-white text-xs font-bold text-slate-600 focus:outline-none focus:border-primary max-w-full md:max-w-[200px]"
  >
  <option value="">Tất cả khu vực</option>
  {locationsList.map(loc => (
  <option key={loc} value={loc}>{loc}</option>
  ))}
  </select>
- <button className="bg-[#00b14f] hover:bg-[#009a44] text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all flex items-center justify-center shrink-0">
+ <button className="bg-primary hover:bg-[#009a44] text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all flex items-center justify-center shrink-0">
  Tìm kiếm
  </button>
  </div>
@@ -349,41 +349,41 @@ export default function CompanyDetail() {
  <div
  key={job.id}
  onClick={() => navigate(`/jobs/${job.slug || job.id}`)}
- className="p-4 rounded-xl border border-slate-100 hover:border-[#00b14f] hover:shadow-md transition-all flex items-start justify-between gap-4 cursor-pointer group bg-white"
+ className="p-4 rounded-xl border border-slate-100 hover:border-primary hover:shadow-md transition-all flex items-start justify-between gap-4 cursor-pointer group bg-white"
  >
  <div className="flex gap-3">
- <div className="company-logo flex items-center justify-center bg-white border border-[#e9eaec] rounded-[8px] border-[0.8px] p-1.5 w-[72px] h-[72px] shrink-0 cursor-pointer">
+ <div className="company-logo flex items-center justify-center bg-white border border-muted rounded-[8px] border-[0.8px] p-1.5 w-[72px] h-[72px] shrink-0 cursor-pointer">
  <Avatar className="h-full w-full rounded-md">
  <AvatarImage src={company.avatar_url} className="object-contain" />
- <AvatarFallback className="rounded-md bg-emerald-50 text-[#00b14f] text-xl font-black">
+ <AvatarFallback className="rounded-md bg-emerald-50 text-primary text-xl font-black">
  {company.full_name?.charAt(0).toUpperCase() ||"O"}
  </AvatarFallback>
  </Avatar>
  </div>
  <div className="space-y-1">
- <h3 className="text-sm md:text-base font-bold text-[#212f3f] group-hover:text-[#00b14f] transition-colors leading-snug cursor-pointer font-sans tracking-[-0.16px]">
+ <h3 className="text-sm md:text-base font-bold text-foreground group-hover:text-primary transition-colors leading-snug cursor-pointer font-sans tracking-[-0.16px]">
  {job.title}
  </h3>
  <p className="text-xs text-slate-400 font-bold mt-1">{company.full_name}</p>
  <div className="flex items-center gap-1.5 flex-wrap pt-1">
- <span className="text-[10px] md:text-xs font-bold bg-[#f4f5f6] text-slate-500 px-2 py-0.5 rounded">
+ <span className="text-[10px] md:text-xs font-bold bg-muted text-slate-500 px-2 py-0.5 rounded">
  {job.danang_wards?.name ? `P. ${job.danang_wards.name}` : (job.location ||"Đà Nẵng")}
  </span>
  </div>
  </div>
  </div>
  <div className="flex flex-col items-end justify-between h-[72px] shrink-0">
- <span className="text-xs md:text-sm font-bold text-[#00b14f]">{job.benefits ||"Thỏa thuận"}</span>
+ <span className="text-xs md:text-sm font-bold text-primary">{job.benefits ||"Thỏa thuận"}</span>
  <button
  onClick={(e) => toggleBookmark(job.id, e)}
  aria-label="Lưu tin"
  aria-pressed={!!bookmarkedJobs[job.id]}
  className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 ${bookmarkedJobs[job.id]
- ?"bg-emerald-50 border-emerald-200 text-[#00b14f]"
- :"bg-white border-slate-200 text-slate-350 hover:text-[#00b14f] hover:border-emerald-200"
+ ?"bg-emerald-50 border-emerald-200 text-primary"
+ :"bg-white border-slate-200 text-slate-350 hover:text-primary hover:border-emerald-200"
  }`}
  >
- <Bookmark className={`w-4 h-4 ${bookmarkedJobs[job.id] ?"fill-current text-[#00b14f]" :"text-slate-400"}`} />
+ <Bookmark className={`w-4 h-4 ${bookmarkedJobs[job.id] ?"fill-current text-primary" :"text-slate-400"}`} />
  </button>
  </div>
  </div>
@@ -398,34 +398,34 @@ export default function CompanyDetail() {
  
  {/* Thông tin chung matching EventDetail styles */}
  <div className="job-detail_body-right--box-general bg-white rounded-lg border border-slate-200 p-5 shadow-sm text-[#333] text-[14px] leading-[20px] w-full">
- <div className="box-title text-lg font-bold text-[#212f3f] mb-4">
+ <div className="box-title text-lg font-bold text-foreground mb-4">
  Thông tin chung
  </div>
  <div className="box-general-content flex flex-col gap-4 text-[#333] text-[14px] leading-[20px] w-full">
  
  <div className="box-general-group flex items-center gap-4 text-[#333] text-[14px] leading-[20px] w-full">
- <div className="box-general-group-icon flex items-center justify-center bg-[#f2f4f5] rounded-[30px] p-2 text-[#333] text-[14px] leading-[20px] w-[40px] h-[40px] shrink-0">
+ <div className="box-general-group-icon flex items-center justify-center bg-muted rounded-[30px] p-2 text-[#333] text-[14px] leading-[20px] w-[40px] h-[40px] shrink-0">
  <FileText className="w-5 h-5 text-[#333] fill-none" />
  </div>
  <div className="box-general-group-info flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full">
  <div className="box-general-group-info-title text-[#4d5965] text-[14px] tracking-[0.14px] leading-[22px] whitespace-nowrap">
  Mã số thuế
  </div>
- <div className="box-general-group-info-value text-[#212f3f] text-[14px] font-semibold tracking-[0.175px] leading-[22px] whitespace-nowrap">
+ <div className="box-general-group-info-value text-foreground text-[14px] font-semibold tracking-[0.175px] leading-[22px] whitespace-nowrap">
  {company.mst ||"Chưa cập nhật"}
  </div>
  </div>
  </div>
 
  <div className="box-general-group flex items-center gap-4 text-[#333] text-[14px] leading-[20px] w-full">
- <div className="box-general-group-icon flex items-center justify-center bg-[#f2f4f5] rounded-[30px] p-2 text-[#333] text-[14px] leading-[20px] w-[40px] h-[40px] shrink-0">
+ <div className="box-general-group-icon flex items-center justify-center bg-muted rounded-[30px] p-2 text-[#333] text-[14px] leading-[20px] w-[40px] h-[40px] shrink-0">
  <Users className="w-5 h-5 text-[#333] fill-none" />
  </div>
  <div className="box-general-group-info flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full">
  <div className="box-general-group-info-title text-[#4d5965] text-[14px] tracking-[0.14px] leading-[22px] whitespace-nowrap">
  Quy mô
  </div>
- <div className="box-general-group-info-value text-[#212f3f] text-[14px] font-semibold tracking-[0.175px] leading-[22px] whitespace-nowrap">
+ <div className="box-general-group-info-value text-foreground text-[14px] font-semibold tracking-[0.175px] leading-[22px] whitespace-nowrap">
  {company.scale ||"Chưa cập nhật"}
  </div>
  </div>
@@ -436,7 +436,7 @@ export default function CompanyDetail() {
 
  {/* Địa điểm công ty */}
  <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm space-y-4 w-full">
- <div className="text-lg font-bold text-[#212f3f]">
+ <div className="text-lg font-bold text-foreground">
  Địa điểm công ty
  </div>
  <div className="space-y-3">
@@ -455,7 +455,7 @@ export default function CompanyDetail() {
  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(company.address || company.full_name)}`}
  target="_blank"
  rel="noreferrer"
- className="absolute bg-white/95 text-[10px] font-bold text-[#00b14f] px-3 py-1.5 rounded-lg shadow border border-slate-200 hover:bg-white transition-colors"
+ className="absolute bg-white/95 text-[10px] font-bold text-primary px-3 py-1.5 rounded-lg shadow border border-slate-200 hover:bg-white transition-colors"
  >
  🗺️ Mở trong Maps
  </a>
@@ -465,7 +465,7 @@ export default function CompanyDetail() {
 
  {/* Chia sẻ công ty */}
  <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm space-y-4 w-full">
- <div className="text-lg font-bold text-[#212f3f]">
+ <div className="text-lg font-bold text-foreground">
  Chia sẻ công ty
  </div>
  <div className="space-y-4">
@@ -481,7 +481,7 @@ export default function CompanyDetail() {
  <button
  onClick={handleCopyLink}
  aria-label="Sao chép liên kết"
- className="p-1 text-slate-400 hover:text-[#00b14f] hover:bg-[#00b14f]/5 rounded transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
+ className="p-1 text-slate-400 hover:text-primary hover:bg-primary/5 rounded transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
  >
  <Copy className="w-3.5 h-3.5" />
  </button>
@@ -519,12 +519,12 @@ export default function CompanyDetail() {
  {/* Left Side ( Filters Sidebar ) - width 350px */}
  <div className="w-full lg:w-[350px] shrink-0 space-y-6">
  <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm space-y-4">
- <h3 className="text-lg font-bold text-[#212f3f] border-b border-slate-100 pb-3">
+ <h3 className="text-lg font-bold text-foreground border-b border-slate-100 pb-3">
  Danh mục vị trí
  </h3>
  <div className="space-y-2 pt-1">
- <label className="flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-[#00b14f] cursor-pointer">
- <input type="checkbox" defaultChecked className="rounded border-slate-300 text-[#00b14f] focus:ring-[#00b14f]" />
+ <label className="flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-primary cursor-pointer">
+ <input type="checkbox" defaultChecked className="rounded border-slate-300 text-primary focus:ring-primary" />
  <span>Tất cả vị trí ({companyEvents.length})</span>
  </label>
  </div>
@@ -550,14 +550,14 @@ export default function CompanyDetail() {
  <select
  value={selectedLocation}
  onChange={(e) => setSelectedLocation(e.target.value)}
- className="border border-slate-200 rounded-xl px-4 py-2 bg-white text-xs font-bold text-slate-600 focus:outline-none focus:border-[#00b14f] max-w-full md:max-w-[200px]"
+ className="border border-slate-200 rounded-xl px-4 py-2 bg-white text-xs font-bold text-slate-600 focus:outline-none focus:border-primary max-w-full md:max-w-[200px]"
  >
  <option value="">Tất cả khu vực</option>
  {locationsList.map(loc => (
  <option key={loc} value={loc}>{loc}</option>
  ))}
  </select>
- <button className="bg-[#00b14f] hover:bg-[#009a44] text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all flex items-center justify-center shrink-0">
+ <button className="bg-primary hover:bg-[#009a44] text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all flex items-center justify-center shrink-0">
  Tìm kiếm
  </button>
  </div>
@@ -571,41 +571,41 @@ export default function CompanyDetail() {
  <div
  key={job.id}
  onClick={() => navigate(`/jobs/${job.slug || job.id}`)}
- className="p-4 rounded-xl border border-slate-100 hover:border-[#00b14f] hover:shadow-md transition-all flex items-start justify-between gap-4 cursor-pointer group bg-white"
+ className="p-4 rounded-xl border border-slate-100 hover:border-primary hover:shadow-md transition-all flex items-start justify-between gap-4 cursor-pointer group bg-white"
  >
  <div className="flex gap-3">
- <div className="company-logo flex items-center justify-center bg-white border border-[#e9eaec] rounded-[8px] border-[0.8px] p-1.5 w-[72px] h-[72px] shrink-0 cursor-pointer">
+ <div className="company-logo flex items-center justify-center bg-white border border-muted rounded-[8px] border-[0.8px] p-1.5 w-[72px] h-[72px] shrink-0 cursor-pointer">
  <Avatar className="h-full w-full rounded-md">
  <AvatarImage src={company.avatar_url} className="object-contain" />
- <AvatarFallback className="rounded-md bg-emerald-50 text-[#00b14f] text-xl font-black">
+ <AvatarFallback className="rounded-md bg-emerald-50 text-primary text-xl font-black">
  {company.full_name?.charAt(0).toUpperCase() ||"O"}
  </AvatarFallback>
  </Avatar>
  </div>
  <div className="space-y-1">
- <h3 className="text-sm md:text-base font-bold text-[#212f3f] group-hover:text-[#00b14f] transition-colors leading-snug cursor-pointer font-sans tracking-[-0.16px]">
+ <h3 className="text-sm md:text-base font-bold text-foreground group-hover:text-primary transition-colors leading-snug cursor-pointer font-sans tracking-[-0.16px]">
  {job.title}
  </h3>
  <p className="text-xs text-slate-400 font-bold mt-1">{company.full_name}</p>
  <div className="flex items-center gap-1.5 flex-wrap pt-1">
- <span className="text-[10px] md:text-xs font-bold bg-[#f4f5f6] text-slate-500 px-2 py-0.5 rounded">
+ <span className="text-[10px] md:text-xs font-bold bg-muted text-slate-500 px-2 py-0.5 rounded">
  {job.danang_wards?.name ? `P. ${job.danang_wards.name}` : (job.location ||"Đà Nẵng")}
  </span>
  </div>
  </div>
  </div>
  <div className="flex flex-col items-end justify-between h-[72px] shrink-0">
- <span className="text-xs md:text-sm font-bold text-[#00b14f]">{job.benefits ||"Thỏa thuận"}</span>
+ <span className="text-xs md:text-sm font-bold text-primary">{job.benefits ||"Thỏa thuận"}</span>
  <button
  onClick={(e) => toggleBookmark(job.id, e)}
  aria-label="Lưu tin"
  aria-pressed={!!bookmarkedJobs[job.id]}
  className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 ${bookmarkedJobs[job.id]
- ?"bg-emerald-50 border-emerald-200 text-[#00b14f]"
- :"bg-white border-slate-200 text-slate-350 hover:text-[#00b14f] hover:border-emerald-200"
+ ?"bg-emerald-50 border-emerald-200 text-primary"
+ :"bg-white border-slate-200 text-slate-350 hover:text-primary hover:border-emerald-200"
  }`}
  >
- <Bookmark className={`w-4 h-4 ${bookmarkedJobs[job.id] ?"fill-current text-[#00b14f]" :"text-slate-400"}`} />
+ <Bookmark className={`w-4 h-4 ${bookmarkedJobs[job.id] ?"fill-current text-primary" :"text-slate-400"}`} />
  </button>
  </div>
  </div>
@@ -620,12 +620,12 @@ export default function CompanyDetail() {
 
  {/* Bottom Floating Follow Banner */}
  {showFloatingBanner && (
- <div className="fixed bottom-4 left-4 right-4 bg-white border border-slate-200 rounded-2xl p-4 shadow-2xl z-[100] flex items-center justify-between gap-4 animate-in slide-in-from-bottom-5 duration-300 max-w-4xl mx-auto border-t-4 border-[#00b14f]">
+ <div className="fixed bottom-4 left-4 right-4 bg-white border border-slate-200 rounded-2xl p-4 shadow-2xl z-[100] flex items-center justify-between gap-4 animate-in slide-in-from-bottom-5 duration-300 max-w-4xl mx-auto border-t-4 border-primary">
  <div className="flex items-center gap-3 min-w-0">
  <div className="border border-slate-200 rounded-xl p-1 w-12 h-12 flex items-center justify-center bg-white shrink-0">
  <Avatar className="h-full w-full rounded-lg">
  <AvatarImage src={company.avatar_url} className="object-contain" />
- <AvatarFallback className="rounded-lg bg-emerald-50 text-[#00b14f] text-lg font-black">
+ <AvatarFallback className="rounded-lg bg-emerald-50 text-primary text-lg font-black">
  {company.full_name?.charAt(0).toUpperCase() ||"O"}
  </AvatarFallback>
  </Avatar>
@@ -638,8 +638,8 @@ export default function CompanyDetail() {
  <Button
  onClick={() => setIsFollowed(!isFollowed)}
  className={`rounded-lg font-bold h-10 px-5 text-xs transition-all shrink-0 ${isFollowed
- ?"bg-[#00b14f] hover:bg-[#009a44] text-white border-[#00b14f]"
- :"bg-[#00b14f] hover:bg-[#009a44] text-white border-[#00b14f]"
+ ?"bg-primary hover:bg-[#009a44] text-white border-primary"
+ :"bg-primary hover:bg-[#009a44] text-white border-primary"
  }`}
  >
  {isFollowed ?"✓ Đang theo dõi" :"+ Theo dõi ngay"}

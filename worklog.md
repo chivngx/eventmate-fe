@@ -461,3 +461,18 @@ Work Log:
 Stage Summary:
 - Lỗi "same key null" đã fix triệt để. Slug null trong DB được handle bằng client-side slugify fallback + migration backfill. App chạy sạch, 0 console error (chỉ còn Vercel Analytics ad-blocker warning — không nghiêm trọng).
 - CẦN USER: chạy migration 0003_backfill_slugs.sql trong Supabase Dashboard để fill slug cho DB (frontend đã fallback nên work ngay cả khi chưa chạy).
+
+---
+Task ID: ui-redesign-v2
+Agent: main (Z.ai Code)
+Task: Redesign UI theo hướng "sự kiện" — bỏ TopCV, thống nhất, fix contrast/overflow, responsive
+
+Work Log:
+- Bulk replace 117 hardcoded TopCV colors (#00b14f → primary, #212f3f → foreground, #f4f5f6 → muted, #dde4ec → border, #6f7882 → muted-foreground) trong 8 file + cleanup FloatingChat/CompanyDetail/EventDetail (#009e47 → primary/90). 0 TopCV hex remaining.
+- Redesign EventCard: event ticket style — date block prominent (DD/ThM), category badge + position tag, bottom strip với location + slots + deadline warning ("Sắp hết hạn" nếu <3 ngày). Avatar/organizer + bookmark. Responsive, không fix cứng.
+- Redesign StudentHero: bỏ gradient inline (linear-gradient #002b33→#008060→#2bab60) → flat bg-primary. Badge "Việc làm sự kiện tại Đà Nẵng" với Calendar icon. Search bar flat trắng trên nền primary. RotatingText giữ.
+- Fix StudentDashboard: bỏ max-w-[1140px] fix cứng + justify-items-center (cards không stretch) → responsive grid tự nhiên. Empty state: rounded-[1.5rem] → rounded-xl, border-2 dashed → border dashed slate-300.
+- Verify: lint 0 errors. Agent Browser desktop 1280px: 0 console error, 9 event cards render với date block "03 Th4"/"15 Th10"/"20 Th5", category tags. Mobile 375px: cards render đầy đủ, không overflow, date block hiển thị rõ. Screenshots saved.
+
+Stage Summary:
+- UI redesign v2 HOÀN TẤT. Bỏ toàn bộ hardcoded TopCV colors (117 → 0). EventCard event ticket style (date prominent). StudentHero flat (bỏ gradient). StudentDashboard responsive (bỏ max-w fix cứng). 0 console error, contrast OK, không overflow.

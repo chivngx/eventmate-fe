@@ -208,7 +208,7 @@ export default function ScheduleCalendar({ applications, interviews = [] }: Sche
  isToday
  ?"bg-slate-900 text-white shadow-md font-black"
  : hasEntries
- ?"bg-emerald-50/50 text-emerald-855 border border-emerald-100/50 hover:bg-[#00b14f]/10"
+ ?"bg-emerald-50/50 text-emerald-855 border border-emerald-100/50 hover:bg-primary/10"
  :"text-slate-755 hover:bg-slate-50 font-medium"
  }`}
  >

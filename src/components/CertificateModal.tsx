@@ -235,7 +235,7 @@ export default function CertificateModal({
  <div className="p-8 flex justify-center items-center bg-slate-100 overflow-x-auto">
  <div 
  id="certificate-print-area" 
- className="w-[842px] h-[595px] p-10 bg-[#fff8ee] border-[20px] border-[#0f172a] shadow-lg relative flex flex-col justify-between items-center text-center shrink-0"
+ className="w-[842px] h-[595px] p-10 bg-[#fff8ee] border-[20px] border-foreground shadow-lg relative flex flex-col justify-between items-center text-center shrink-0"
  >
  <div className="border-2 border-[#b45309] w-full h-full p-8 flex flex-col justify-between items-center">
  {/* Header */}
