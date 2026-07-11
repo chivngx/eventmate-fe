@@ -74,3 +74,24 @@ Stage Summary:
 - App chạy ổn định trên port 3000, tất cả route 200, UI render đúng như bản Vite, tương tác (modal, tabs, navigation) hoạt động.
 - Lỗi duy nhất trong dev.log là "TypeError: Failed to fetch" từ useStudentDashboard — MONG ĐỎI do .env dùng Supabase placeholder (không có backend thật), giống hệt bản Vite. App xử lý graceful (hiển thị "Không tìm thấy kết quả").
 - Để bật đầy đủ tính năng (auth/data thật): thay NEXT_PUBLIC_SUPABASE_URL và NEXT_PUBLIC_SUPABASE_ANON_KEY trong .env bằng thông tin Supabase project thật.
+
+---
+Task ID: 4-supabase-real
+Agent: main (Z.ai Code)
+Task: Cấu hình Supabase credentials thật và verify app hoạt động với backend
+
+Work Log:
+- Cập nhật .env: NEXT_PUBLIC_SUPABASE_URL=https://vncgqeaslscpliadivod.supabase.co + anon key thật.
+- Kill dev server cũ, restart qua .zscripts/dev.sh (setsid) để Next.js load env mới. Next.js 16.2.10 ready trên port 3000.
+- Verify Supabase REST API trực tiếp: GET /rest/v1/profiles → HTTP 200 (kết nối backend thành công, anon key hợp lệ).
+- Verify Agent Browser:
+  + Home: dropdown "Địa điểm" hiển thị 10 phường/xã Đà Nẵng thật (An Hải, Cẩm Lệ, Hải Châu, Hòa Cường, Hòa Vang, Hòa Xuân, Hội An, Sơn Trà, Tân Hiệp, Tây Hồ) từ bảng danang_wards.
+  + Event cards thật hiển thị: "Điều phối viên Giải Futsal Nữ Đại hội TDTT Đà Nẵng 2027", "CTV Truyền thông SURF Đà Nẵng 2026", "Tình nguyện viên Lễ hội Ẩm thực Tour Đà Nẵng 2027", "Hậu cần & Setup Triển lãm Made in Da Nang Expo 2027" — organizer "Công ty Tổ chức Sự kiện Hoà Bình Event".
+  + /jobs/[id]: redirect UUID→slug hoạt động (bce230c2-... → tinh-nguyen-vien-le-hoi-chao-nam-moi-da-nang-2027-df06e3). Trang detail render đầy đủ: title "Tình nguyện viên Lễ hội Chào năm mới Đà Nẵng 2027", "Mô tả công việc", "Địa điểm làm việc cụ thể".
+  + /companies: hiển thị 4 ban tổ chức thật: "Công ty Cổ phần Du lịch DANAGO", "Công ty Tổ chức Sự kiện Hoà Bình Event", "D2 EVENTS", "Công ty TNHH Công nghệ & Truyền thông XOO".
+  + Không còn lỗi "Failed to fetch" trong console (so với bản placeholder).
+
+Stage Summary:
+- App Next.js 16 đã kết nối thành công với backend Supabase thật.
+- Tất cả luồng đọc dữ liệu hoạt động: danang_wards (dropdown + QuickFilters), events (event cards + detail page với UUID→slug redirect), profiles (companies list).
+- Toàn bộ migration Vite→Next.js + kết nối backend thật HOÀN TẤT và ĐÃ VERIFY end-to-end qua Agent Browser.
