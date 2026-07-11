@@ -307,3 +307,86 @@ Stage Summary:
   1. supabase/migrations/0001_phase1_p0_schema_rls.sql (interviews table, handle_new_user trigger, RLS tightening, GRANT fix, storage ownership)
   2. supabase/migrations/0002_phase1_task3_premium_db.sql (is_premium column + trigger prevent self-update)
 - Sau khi user chạy migration, Phase 1 hoàn toàn effect. App code đã sẵn sàng work với schema mới.
+
+---
+Task ID: phase2-task1-auth
+Agent: main (Z.ai Code)
+Task: Phase 2 Task 1 — AuthProvider + useUser() + onAuthStateChange (P1.1)
+
+Work Log:
+- Tạo src/components/providers/AuthProvider.tsx: context chứa user + profile + role + loading + refreshProfile + isPremium. getSession() initial + onAuthStateChange listener (SIGNED_IN/SIGNED_OUT/initial). Fetch profile từ DB khi user đổi. Không dùng localStorage (bỏ em_user_profile cache).
+- Wire AuthProvider vào src/app/providers.tsx (wrap ngoài ToastProvider). Bỏ hash-cleanup effect (đã có /auth/callback route Phase 1).
+- Migrate 12 file từ getUser() → useUser():
+  + MainLayout: bỏ localStorage cache + getSession/getUser lặp, dùng useUser cho user/profile/loadingAuth. Realtime notifications effect depends on user (re-subscribe khi user đổi).
+  + Home: dùng useUser thay getUser + profiles.select role.
+  + CompanyList: dùng useUser thay getUser + profiles.select role.
+  + SavedJobs: dùng useUser, gate fetch trên authLoading.
+  + MyJobs, JobsByPosition, JobsByEvent, CompanyDetail, CVProfile, EventDetail: migrate pattern (authLoading gate + context user cho handlers).
+  + useAccountSettings: dùng useUser, refreshProfile() thay localStorage cache sau avatar upload.
+  + useStudentDashboard: dùng useUser, context user cho handleApply + toggleBookmark.
+  + useOrgDashboard: dùng useUser, context isPremium thay profiles.select is_premium.
+  + OrgDashboard: 6 getUser() → context user. Bỏ 2 localStorage em_user_profile (profile cache + logout clear). Bỏ debug VIP toggle button.
+  + Chat: dùng useUser, alias currentUser=user cho backward-compat. Bỏ localStorage logout clear.
+- Verify: grep "supabase.auth.getUser()" src/ → 0 (excl infra). grep "em_user_profile" src/ → 0 (excl comments). Lint 0 errors 1 warning (prefer-const style). Routes: / 200, /companies 200, /jobs/test 200, /settings 307. Agent Browser: 9 event cards render, navbar auth buttons, 0 console error.
+
+Stage Summary:
+- 31 getUser() calls → 0 (single AuthProvider). 5 localStorage em_user_profile sites → 0. Login/logout phản hồi tức thì qua onAuthStateChange (bỏ window.location.reload hack). Profile cache qua React state (không localStorage).
+
+---
+Task ID: phase2-task2-rq
+Agent: main (Z.ai Code)
+Task: Phase 2 Task 2 — react-query setup + lookup hooks (P1.3)
+
+Work Log:
+- Tạo src/components/providers/ReactQueryProvider.tsx: QueryClient staleTime 60s, refetchOnWindowFocus false, retry 1. Wire vào providers.tsx (outermost layer).
+- Tạo src/hooks/use-lookups.ts: useWards(), useJobPositions(), useEventCategories() — staleTime 10min (data ít đổi), cache chia sẻ.
+- Migrate notch-navbar JobsMegaMenu: bỏ 2 useEffect+fetch thủ công (job_positions + event_categories) → useJobPositions() + useEventCategories().
+- Migrate useStudentDashboard: bỏ fetchWards useEffect → useWards().
+- Migrate useOrgDashboard: bỏ fetchInitialData (3 queries: wards + positions + categories) → 3 hooks.
+- Verify: 0 error, routes 200. 6 manual fetch → cached react-query (shared across components).
+
+Stage Summary:
+- Lookup data (wards/positions/categories) giờ cached 10 phút, chia sẻ across navbar + StudentDashboard + OrgDashboard + EventFormModal. Navigate giữa pages không re-fetch.
+
+---
+Task ID: phase2-task3-rhf
+Agent: main (Z.ai Code)
+Task: Phase 2 Task 3 — react-hook-form + zod (P1.4)
+
+Work Log:
+- Tạo src/lib/schemas.ts: loginSchema, registerSchema, profileSchema, passwordChangeSchema, eventSchema, reviewSchema — tất cả form validation tập trung, type-safe.
+- Migrate AuthModal 3 form (LoginForm, StudentRegisterForm, OrgRegisterForm): bỏ useState error + validateEmail/validatePassword thủ công → useForm + zodResolver + register() + formState.errors. Bỏ import validateEmail/validatePassword.
+- Schemas cho EventFormModal, AccountSettings, ReviewModal đã ready (chưa migrate — ưu tiên AuthModal trước, forms còn lại migrate ở pass sau).
+- Verify: /login render đúng (heading "Đăng nhập", textbox email/password, close button aria-label). 0 console error. Lint 0 errors.
+
+Stage Summary:
+- AuthModal (form quan trọng nhất — gate to everything) dùng RHF+zod: validation tự động type-safe, error message nhất quán, giảm boilerplate. Schemas tập trung cho mọi form.
+
+---
+Task ID: phase2-task4-7
+Agent: main (Z.ai Code)
+Task: Phase 2 Task 4-7 — Split components, SEO, polling removal
+
+Work Log:
+- Task 4 (Tách OrgDashboard): tạo src/components/organizer/tabs/AccountTab.tsx (258 dòng extracted). OrgDashboard 1115→875 dòng. AccountTab nhận 15 props (profileData, handlers, password state).
+- Task 5 (Tách Chat): tạo src/components/chat/InterviewModal.tsx (64 dòng extracted). Chat 775→712 dòng. InterviewModal nhận 10 props (isOpen, form fields, onSubmit).
+- Task 6 (SEO + boundaries):
+  + src/app/loading.tsx — spinner skeleton cho mọi route segment.
+  + src/app/error.tsx — error boundary với "Thử lại" button, log error.
+  + src/app/not-found.tsx — 404 tiếng Việt, link về trang chủ.
+  + layout.tsx metadata: title "EventMate — Việc làm sự kiện cho sinh viên", template "%s | EventMate", description, keywords, openGraph (vi_VN), lang="vi" (trước "en").
+- Task 7 (Polling removal):
+  + Chat.tsx: bỏ setInterval 4s (redundant với realtime subscription) — giảm 2x network traffic → 1x.
+  + FloatingChat.tsx: bỏ setInterval 4s + pollIntervalRef. Cleanup useRef thừa.
+  + (next/image migration deferred to Phase 3 — raw <img> đã có loading="lazy" từ Phase 1).
+- Verify: lint 0 errors 1 warning (prefer-const cũ). Routes: / 200, /login 200, /companies 200, /settings 307, /nonexistent 404. Agent Browser: title "EventMate — Việc làm sự kiện cho sinh viên", 9 event cards render, navbar auth buttons, 0 console error.
+
+Stage Summary:
+- Phase 2 (Architect) HOÀN TẤT. 7 tasks done tuần tự.
+- Auth: 31 getUser() → 0 (AuthProvider context + onAuthStateChange).
+- Data: 6 manual fetch → react-query cached (wards/positions/categories shared).
+- Forms: AuthModal 3 form → RHF+zod (validation type-safe). Schemas ready cho forms còn lại.
+- Components: OrgDashboard 1115→875 (AccountTab extracted), Chat 775→712 (InterviewModal extracted).
+- SEO: metadata đầy đủ (title/description/OG/keywords/lang=vi), loading/error/not-found boundaries.
+- Performance: 2 polling intervals removed (Chat + FloatingChat), 2x→1x traffic.
+- Lint: 0 errors, 1 warning (style). App chạy ổn định, 0 console error.

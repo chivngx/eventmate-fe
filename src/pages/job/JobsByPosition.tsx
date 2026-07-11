@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useSearchParams, useNavigate, useParams } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
+import { useUser } from "@/components/providers/AuthProvider"
 import MainLayout from "@/components/layout/MainLayout"
 import { Search, MapPin, Briefcase, Tag, Clock, ChevronLeft, ChevronRight, Building2, Heart } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -15,6 +16,9 @@ export default function JobsByPosition() {
 
   const { position: positionRouteParam } = useParams<{ position: string }>()
   const positionParam = positionRouteParam || searchParams.get("position") || "Tình nguyện viên"
+
+  // 🔒 P1.1: user từ context (thay getUser() lặp)
+  const { user, loading: authLoading } = useUser()
 
   const [loading, setLoading] = useState(true)
   const [events, setEvents] = useState<any[]>([])
@@ -37,6 +41,7 @@ export default function JobsByPosition() {
   const experienceOptions = ["Không yêu cầu kinh nghiệm", "Dưới 1 năm", "1 - 2 năm", "Trên 2 năm"]
 
   useEffect(() => {
+    if (authLoading) return
     const fetchInitialData = async () => {
       // 1. Tải danh sách Phường/Xã Đà Nẵng
       const { data: wardsData } = await supabase
@@ -46,7 +51,6 @@ export default function JobsByPosition() {
       if (wardsData) setWards(wardsData)
 
       // 2. Lấy bookmarks nếu đã đăng nhập
-      const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         const { data: bookmarks } = await supabase
           .from("event_bookmarks")
@@ -62,7 +66,7 @@ export default function JobsByPosition() {
       }
     }
     fetchInitialData()
-  }, [])
+  }, [user, authLoading])
 
   const fetchEvents = async () => {
     setLoading(true)
@@ -120,7 +124,6 @@ export default function JobsByPosition() {
   }
 
   const handleToggleBookmark = async (eventId: string) => {
-    const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { mode: "login" } }))
       return

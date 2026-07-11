@@ -3,8 +3,12 @@
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
 import { getUserFacingMessage } from "@/lib/error"
+import { useUser } from "@/components/providers/AuthProvider"
 
 export function useAccountSettings() {
+    // 🔒 P1.1: user + profile từ context (thay getUser() + profiles.select lặp)
+    const { user, profile, loading: authLoading, refreshProfile } = useUser()
+
     // State quản lý hệ thống
     const [hasPassword, setHasPassword] = useState(true)
     const [role, setRole] = useState<string | null>(null)
@@ -23,32 +27,27 @@ export function useAccountSettings() {
     const [currentPassword, setCurrentPassword] = useState<string>("")
     const [newPassword, setNewPassword] = useState<string>("")
 
-    // Tự động lấy dữ liệu khi render
+    // Tự động lấy dữ liệu khi render — dùng user + profile từ context
     useEffect(() => {
-        const fetchUserData = async () => {
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) {
-                setLoading(false)
-                return
-            }
-
-            setUserId(user.id)
-            setEmail(user.email || "")
-
-            const providers = user.app_metadata?.providers || []
-            setHasPassword(providers.includes('email'))
-
-            const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
-            if (profile) {
-                setRole(profile.role)
-                setFullName(profile.full_name || "")
-                setAvatarUrl(profile.avatar_url || "")
-            }
+        if (authLoading) return
+        if (!user) {
             setLoading(false)
+            return
         }
 
-        fetchUserData()
-    }, [])
+        setUserId(user.id)
+        setEmail(user.email || "")
+
+        const providers = user.app_metadata?.providers || []
+        setHasPassword(providers.includes('email'))
+
+        if (profile) {
+            setRole(profile.role)
+            setFullName(profile.full_name || "")
+            setAvatarUrl(profile.avatar_url || "")
+        }
+        setLoading(false)
+    }, [user, profile, authLoading])
 
     // Tự động ẩn thông báo sau 3 giây
     useEffect(() => {
@@ -135,13 +134,8 @@ export function useAccountSettings() {
             setAvatarUrl(publicUrl)
             setMessage({ type: "success", text: "Tải ảnh đại diện lên thành công!" })
 
-            // Cập nhật local storage cache
-            const cached = localStorage.getItem("em_user_profile")
-            if (cached) {
-                const parsed = JSON.parse(cached)
-                parsed.avatarUrl = publicUrl
-                localStorage.setItem("em_user_profile", JSON.stringify(parsed))
-            }
+            // 🔒 P1.1: refresh profile trong AuthProvider context (thay localStorage cache)
+            await refreshProfile()
         } catch (error: any) {
             setMessage({ type: "error", text: getUserFacingMessage(error, "Tải ảnh lên thất bại. Vui lòng thử lại.") })
         } finally {

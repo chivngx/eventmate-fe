@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
 import { getUserFacingMessage } from "@/lib/error"
+import { useUser } from "@/components/providers/AuthProvider"
 import MainLayout from "@/components/layout/MainLayout"
 import { Briefcase, MapPin, Building2, CheckCircle, XCircle, Clock3, ArrowRight, CalendarDays, Tag, Trash2, Award } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -18,77 +19,73 @@ import { useToast } from "@/components/ui/ToastProvider"
 export default function MyJobs() {
     const navigate = useNavigate()
     const { showToast } = useToast()
+    // 🔒 P1.1: user + role từ context (thay getUser() + profiles.select lặp)
+    const { user, role, profile, loading: authLoading } = useUser()
     const [applications, setApplications] = useState<any[]>([])
     const [interviews, setInterviews] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
-    const [role, setRole] = useState("student")
-    const [userId, setUserId] = useState<string | null>(null)
     const [reviewingEvent, setReviewingEvent] = useState<{ eventId: string; organizerId: string; organizerName: string } | null>(null)
     const [studentName, setStudentName] = useState("Sinh viên")
     const [viewingCertificate, setViewingCertificate] = useState<{ studentName: string; eventTitle: string; position: string; eventDate: string; organizerName: string } | null>(null)
 
-    const fetchMyApplications = async () => {
-        setLoading(true)
-        const { data: { user } } = await supabase.auth.getUser()
-
+    useEffect(() => {
+        if (authLoading) return
         if (!user) {
             navigate("/login")
             return
         }
-        setUserId(user.id)
+        const fetchMyApplications = async () => {
+            setLoading(true)
 
-        const { data: profile } = await supabase.from("profiles").select("role, full_name").eq("id", user.id).maybeSingle()
-        if (profile) {
-            setRole(profile.role)
-            if (profile.full_name) setStudentName(profile.full_name)
+            const { data, error } = await supabase
+                .from("applications")
+                .select(`
+                    id, 
+                    status, 
+                    applied_at,
+                    events (
+                        id, title, location, status, position_type, category, benefits, event_date, application_deadline, ward_id, slug,
+                        danang_wards (name),
+                        profiles (id, full_name, avatar_url, slug)
+                    )
+                `)
+                .eq("student_id", user.id)
+                .order("applied_at", { ascending: false })
+
+            if (error) {
+                console.error("🚨 Lỗi truy vấn đơn ứng tuyển:", error)
+                showToast({ title: "Lỗi kết nối Database", message: getUserFacingMessage(error, "Đã xảy ra lỗi kết nối. Vui lòng thử lại."), type: "error" })
+            } else if (data) {
+                setApplications(data)
+            }
+
+            // Tải các buổi phỏng vấn đã được chấp nhận
+            const { data: intData, error: intError } = await supabase
+                .from("interviews")
+                .select(`
+                    id,
+                    title,
+                    scheduled_at,
+                    meeting_link,
+                    status,
+                    events (id, title, location)
+                `)
+                .eq("student_id", user.id)
+                .eq("status", "accepted")
+
+            if (!intError && intData) {
+                setInterviews(intData)
+            }
+
+            setLoading(false)
         }
-
-        const { data, error } = await supabase
-            .from("applications")
-            .select(`
-                id, 
-                status, 
-                applied_at,
-                events (
-                    id, title, location, status, position_type, category, benefits, event_date, application_deadline, ward_id, slug,
-                    danang_wards (name),
-                    profiles (id, full_name, avatar_url, slug)
-                )
-            `)
-            .eq("student_id", user.id)
-            .order("applied_at", { ascending: false })
-
-        if (error) {
-            console.error("🚨 Lỗi truy vấn đơn ứng tuyển:", error)
-            showToast({ title: "Lỗi kết nối Database", message: getUserFacingMessage(error, "Đã xảy ra lỗi kết nối. Vui lòng thử lại."), type: "error" })
-        } else if (data) {
-            setApplications(data)
-        }
-
-        // Tải các buổi phỏng vấn đã được chấp nhận
-        const { data: intData, error: intError } = await supabase
-            .from("interviews")
-            .select(`
-                id,
-                title,
-                scheduled_at,
-                meeting_link,
-                status,
-                events (id, title, location)
-            `)
-            .eq("student_id", user.id)
-            .eq("status", "accepted")
-
-        if (!intError && intData) {
-            setInterviews(intData)
-        }
-
-        setLoading(false)
-    }
-
-    useEffect(() => {
         fetchMyApplications()
-    }, [navigate])
+    }, [user, authLoading, navigate])
+
+    // 🔒 P1.1: đồng bộ studentName từ profile context
+    useEffect(() => {
+        if (profile?.full_name) setStudentName(profile.full_name)
+    }, [profile])
 
     const handleWithdraw = async (appId: string) => {
         const isConfirmed = window.confirm("⚠️ Bạn có chắc chắn muốn rút đơn ứng tuyển sự kiện này không?\nHành động này không thể hoàn tác.")
@@ -110,7 +107,7 @@ export default function MyJobs() {
     if (loading) return <SkeletonGenericPage />
 
     return (
-        <MainLayout role={role}>
+        <MainLayout role={role || "student"}>
             <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
 
                 <div className="mb-8 bg-white p-8 rounded-[2rem] border-2 border-slate-100 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -290,12 +287,12 @@ export default function MyJobs() {
 
             </div>
 
-            {reviewingEvent && userId && (
+            {reviewingEvent && user && (
                 <ReviewModal
                     isOpen={!!reviewingEvent}
                     onClose={() => setReviewingEvent(null)}
                     eventId={reviewingEvent.eventId}
-                    reviewerId={userId}
+                    reviewerId={user.id}
                     revieweeId={reviewingEvent.organizerId}
                     revieweeName={reviewingEvent.organizerName}
                 />

@@ -1,12 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Search, FileText, Menu, X, ChevronDown, Bookmark, Briefcase, Building2, MessageSquare } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
-import { supabase } from "@/lib/supabase"
+import { useJobPositions, useEventCategories } from "@/hooks/use-lookups"
 
 const NavLink = ({ href, icon: Icon, label, onClick }: { href: string; icon: React.ComponentType<{ className?: string }>; label: string; onClick?: (e: React.MouseEvent) => void }) => {
     const pathname = usePathname()
@@ -44,22 +44,9 @@ const JobsMegaMenu = ({ role }: { role?: string }) => {
         }
     }
 
-    const [positions, setPositions] = useState<{ name: string; slug: string }[]>([])
-    const [categories, setCategories] = useState<{ name: string; slug: string }[]>([])
-
-    useEffect(() => {
-        const loadDbData = async () => {
-            const { data: posData } = await supabase.from('job_positions').select('name, slug').order('name', { ascending: true })
-            if (posData && posData.length > 0) {
-                setPositions(posData.map(p => ({ name: p.name, slug: p.slug || p.name })))
-            }
-            const { data: catData } = await supabase.from('event_categories').select('name, slug').order('name', { ascending: true })
-            if (catData && catData.length > 0) {
-                setCategories(catData.map(c => ({ name: c.name, slug: c.slug || c.name })))
-            }
-        }
-        loadDbData()
-    }, [])
+    // 🔒 P1.3: dùng react-query cache (chia sẻ với EventFormModal, StudentDashboard)
+    const { data: positions = [] } = useJobPositions()
+    const { data: categories = [] } = useEventCategories()
 
     return (
         <div className="group relative">

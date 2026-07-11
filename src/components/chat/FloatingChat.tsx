@@ -34,7 +34,7 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
   const [sending, setSending] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const pollIntervalRef = useRef<any>(null)
+  // pollIntervalRef removed (Phase 2 Task 7 — polling eliminated, realtime only)
 
   // Fetch list of chats
   const fetchChats = async () => {
@@ -116,14 +116,10 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
         )
         .subscribe()
 
-      // Polling fallback
-      pollIntervalRef.current = setInterval(() => {
-        fetchMessages(activeChat.id)
-      }, 4000)
+      // 🔒 P1.6: Removed 4-second polling — realtime subscription handles live updates.
 
       return () => {
         supabase.removeChannel(channel)
-        if (pollIntervalRef.current) clearInterval(pollIntervalRef.current)
       }
     }
   }, [activeChat])

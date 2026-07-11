@@ -4,9 +4,13 @@ import { useState, useEffect } from "react"
 import { useNavigate, useSearchParams, useLocation } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
 import { getUserFacingMessage } from "@/lib/error"
+import { useUser } from "@/components/providers/AuthProvider"
+import { useWards } from "@/hooks/use-lookups"
 
 export function useStudentDashboard() {
     const navigate = useNavigate()
+    // 🔒 P1.1: user từ context (thay getUser() lặp 3 lần)
+    const { user, profile, loading: authLoading } = useUser()
     const [searchParams, setSearchParams] = useSearchParams()
     const [events, setEvents] = useState<any[]>([])
     const [myApplications, setMyApplications] = useState<Record<string, string>>({})
@@ -22,8 +26,9 @@ export function useStudentDashboard() {
     const [benefitTerm, setBenefitTerm] = useState("")
     const [categoryTerm, setCategoryTerm] = useState("")
 
-    // Gốc danh mục Phường/Xã Đà Nẵng
-    const [wards, setWards] = useState<any[]>([])
+    // 🔒 P1.3: wards từ react-query cache (thay fetch thủ công)
+    const { data: wardsData = [] } = useWards()
+    const wards = wardsData
     const [wardIdTerm, setWardIdTerm] = useState("")
 
     // [MỚI] State lưu trữ các ID Phường/Xã ĐANG CÓ BÀI ĐĂNG HOẠT ĐỘNG
@@ -45,38 +50,19 @@ export function useStudentDashboard() {
         setCurrentPage(1)
     }, [searchTerm, locationTerm, benefitTerm, wardIdTerm, positionParam, categoryTerm, filterParam, location.pathname])
 
-    // Tải danh mục gốc Phường/Xã
-    useEffect(() => {
-        const fetchWards = async () => {
-            const { data } = await supabase
-                .from("danang_wards")
-                .select("*")
-                .order("name", { ascending: true })
-            if (data) setWards(data)
-        }
-        fetchWards()
-    }, [])
-
     const fetchEventsAndApplications = async () => {
         setLoadingData(true)
-        const { data: { user } } = await supabase.auth.getUser()
         let bookmarkedIds: string[] = []
 
         if (user) {
-            const { data: profileData } = await supabase
-                .from("profiles")
-                .select("*")
-                .eq("id", user.id)
-                .maybeSingle()
-
-            if (profileData) {
-                setUserProfile(profileData)
+            if (profile) {
+                setUserProfile(profile)
                 let score = 0
-                if (profileData.full_name) score += 20
-                if (profileData.avatar_url) score += 20
-                if (profileData.phone) score += 20
-                if (profileData.university) score += 20
-                if (profileData.skills) score += 20
+                if (profile.full_name) score += 20
+                if (profile.avatar_url) score += 20
+                if (profile.phone) score += 20
+                if (profile.university) score += 20
+                if (profile.skills) score += 20
                 setCvProgress(score)
             }
 
@@ -182,15 +168,15 @@ export function useStudentDashboard() {
     const [totalPages, setTotalPages] = useState(1)
 
     useEffect(() => {
+        if (authLoading) return
         const delayDebounceFn = setTimeout(() => {
             fetchEventsAndApplications()
         }, 300)
         return () => clearTimeout(delayDebounceFn)
-    }, [searchTerm, locationTerm, benefitTerm, wardIdTerm, searchParams, currentPage, location.pathname])
+    }, [searchTerm, locationTerm, benefitTerm, wardIdTerm, searchParams, currentPage, location.pathname, user, profile, authLoading])
 
     const handleApply = async (eventId: string, _organizerId?: string, _eventTitle?: string) => {
         setApplyingId(eventId)
-        const { data: { user } } = await supabase.auth.getUser()
 
         if (!user) {
             window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { mode: "login" } }))
@@ -222,7 +208,6 @@ export function useStudentDashboard() {
     }
 
     const toggleBookmark = async (eventId: string) => {
-        const { data: { user } } = await supabase.auth.getUser()
         if (!user) {
             window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { mode: "login" } }))
             return

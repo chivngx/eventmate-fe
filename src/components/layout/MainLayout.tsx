@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { supabase } from "@/lib/supabase"
+import { useUser } from "@/components/providers/AuthProvider"
 import { NotchNavbar } from "@/components/layout/notch-navbar"
 import { Button } from "@/components/ui/button"
 import AuthModal from "@/components/auth/AuthModal"
@@ -18,26 +19,15 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
     const router = useRouter()
     const navigate = (path: string) => router.push(path)
     const { showToast } = useToast()
+    // 🔒 P1.1: auth + profile từ context (thay 31 getUser() calls + localStorage cache)
+    const { user, profile, loading: loadingAuth } = useUser()
 
-    const getCachedProfile = () => {
-        if (typeof window === "undefined") return null
-        const cached = localStorage.getItem("em_user_profile")
-        if (cached) {
-            try {
-                return JSON.parse(cached)
-            } catch {
-                return null
-            }
-        }
-        return null
-    }
-
-    const [user, setUser] = useState<any>(null)
-    const [loadingAuth, setLoadingAuth] = useState(true)
-    const [fullName, setFullName] = useState("")
-    const [email, setEmail] = useState("")
-    const [avatarUrl, setAvatarUrl] = useState("")
-    const [userRole, setUserRole] = useState(role || "student")
+    // Derive display values from context. `role` prop is kept as a backward-
+    // compat override for pages not yet migrated to useUser().
+    const fullName = profile?.full_name || ""
+    const email = user?.email || ""
+    const avatarUrl = profile?.avatar_url || ""
+    const userRole = role || profile?.role || "guest"
 
     const [authModal, setAuthModal] = useState<{ isOpen: boolean; mode: "login" | "register" }>({
         isOpen: false,
@@ -62,6 +52,8 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
         }))
     }
 
+    // Open auth modal from anywhere via CustomEvent (kept for backward compat
+    // with notch-navbar / EventCard / useStudentDashboard).
     useEffect(() => {
         const handleOpenAuth = (e: Event) => {
             const customEvent = e as CustomEvent
@@ -74,105 +66,59 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
         return () => window.removeEventListener("open-auth-modal", handleOpenAuth)
     }, [])
 
+    // Fetch notifications + subscribe to realtime INSERTs for the current user.
+    // Depends on user.id (from context) — re-subscribes when user changes.
     useEffect(() => {
-        let channel: any; // Biến lưu trữ kênh đăng ký Real-time để cleanup khi unmount
+        if (!user) {
+            setNotifications([])
+            return
+        }
+        let channel: any
 
-        const fetchProfileAndSetupRealtime = async () => {
-            // Áp dụng cache profile cục bộ để hiển thị tức thì (chỉ client)
-            const cachedProfile = getCachedProfile()
-            if (cachedProfile) {
-                setUser({ email: cachedProfile.email })
-                setFullName(cachedProfile.fullName || "")
-                setEmail(cachedProfile.email || "")
-                setAvatarUrl(cachedProfile.avatarUrl || "")
-                setUserRole(cachedProfile.role || "student")
-                setLoadingAuth(false)
-            }
+        const fetchNotifs = async () => {
+            const { data: notifs } = await supabase
+                .from("notifications")
+                .select("*")
+                .eq("user_id", user.id)
+                .order("created_at", { ascending: false })
+                .limit(10)
+            if (notifs) setNotifications(notifs)
+        }
+        fetchNotifs()
 
-            // Lấy session từ cache cục bộ (nhanh hơn getUser rất nhiều)
-            const { data: { session } } = await supabase.auth.getSession()
-            let currentUser = session?.user || null
-
-            if (!currentUser) {
-                const { data: { user } } = await supabase.auth.getUser()
-                currentUser = user
-            }
-
-            setUser(currentUser)
-            if (currentUser) {
-                setEmail(currentUser.email || "")
-                const { data } = await supabase.from("profiles").select("*").eq("id", currentUser.id).maybeSingle()
-                if (data) {
-                    const updatedFullName = data.full_name || ""
-                    const updatedAvatarUrl = data.avatar_url || ""
-                    const updatedRole = data.role || "student"
-                    setFullName(updatedFullName)
-                    setAvatarUrl(updatedAvatarUrl)
-                    setUserRole(updatedRole)
-
-                    // Lưu lại cache mới nhất
-                    localStorage.setItem("em_user_profile", JSON.stringify({
-                        fullName: updatedFullName,
-                        avatarUrl: updatedAvatarUrl,
-                        email: currentUser.email || "",
-                        role: updatedRole
-                    }))
+        channel = supabase
+            .channel(`user-realtime-notifications-${user.id}-${Math.random().toString(36).substring(7)}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'notifications',
+                    filter: `user_id=eq.${user.id}`
+                },
+                (payload) => {
+                    const newNotif = payload.new
+                    setNotifications(prev => [newNotif, ...prev].slice(0, 10))
+                    showToast({
+                        title: newNotif.title || "Thông báo mới",
+                        message: newNotif.message || "",
+                        type: "info"
+                    })
                 }
+            )
+            .subscribe()
 
-                // 1. Tải 10 thông báo mới nhất từ Database khi vừa nạp trang
-                const { data: notifs } = await supabase
-                    .from("notifications")
-                    .select("*")
-                    .eq("user_id", currentUser.id)
-                    .order("created_at", { ascending: false })
-                    .limit(10)
-                if (notifs) setNotifications(notifs)
-
-                // 2. [MỚI] Cài đặt kênh kết nối Real-time lắng nghe sự kiện INSERT vào bảng notifications của riêng user này
-                channel = supabase
-                    .channel(`user-realtime-notifications-${currentUser.id}-${Math.random().toString(36).substring(7)}`)
-                    .on(
-                        'postgres_changes',
-                        {
-                            event: 'INSERT',
-                            schema: 'public',
-                            table: 'notifications',
-                            filter: `user_id=eq.${currentUser.id}`
-                        },
-                        (payload) => {
-                            const newNotif = payload.new
-                            setNotifications(prev => [newNotif, ...prev].slice(0, 10))
-                            showToast({
-                                title: newNotif.title || "Thông báo mới",
-                                message: newNotif.message || "",
-                                type: "info"
-                            })
-                        }
-                    )
-                    .subscribe()
-            } else {
-                localStorage.removeItem("em_user_profile")
-            }
-            setLoadingAuth(false)
-        }
-
-        fetchProfileAndSetupRealtime()
-
-        // Cleanup: Hủy lắng nghe kênh truyền khi người dùng chuyển trang hoặc đăng xuất
         return () => {
-            if (channel) {
-                supabase.removeChannel(channel)
-            }
+            if (channel) supabase.removeChannel(channel)
         }
-    }, [])
+    }, [user, showToast])
 
     const handleLogout = async () => {
-        localStorage.removeItem("em_user_profile")
         await supabase.auth.signOut()
-
-        const privatePaths = ["/settings", "/my-jobs", "/dashboard"]
+        // onAuthStateChange in AuthProvider clears user/profile state.
+        // Navigate away from private pages; reload others to flush UI state.
+        const privatePaths = ["/settings", "/my-jobs", "/dashboard", "/chat", "/cv", "/saved"]
         const isPrivate = privatePaths.some(path => window.location.pathname.startsWith(path))
-
         if (isPrivate) {
             navigate("/")
         } else {
@@ -180,14 +126,10 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
         }
     }
 
-    // Hàm đánh dấu toàn bộ thông báo hiện tại đã đọc
     const markAsRead = async () => {
-        if (unreadCount === 0) return
-        const { data: { user } } = await supabase.auth.getUser()
-        if (user) {
-            await supabase.from("notifications").update({ is_read: true }).eq("user_id", user.id).eq("is_read", false)
-            setNotifications(notifications.map(n => ({ ...n, is_read: true })))
-        }
+        if (unreadCount === 0 || !user) return
+        await supabase.from("notifications").update({ is_read: true }).eq("user_id", user.id).eq("is_read", false)
+        setNotifications(notifications.map(n => ({ ...n, is_read: true })))
     }
 
     const rightActions = loadingAuth ? null : user ? (
@@ -208,7 +150,7 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
             <UserProfileDropdown
                 avatarUrl={avatarUrl}
                 fullName={fullName}
-                role={role}
+                role={role || profile?.role}
                 user={user}
                 email={email}
                 expandedSections={expandedSections}
@@ -240,7 +182,7 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
             <NotchNavbar
                 logo={<span className="font-black text-xl tracking-tight text-slate-900 dark:text-slate-100 cursor-pointer" onClick={() => navigate('/')}>Event<span className="text-emerald-600">Mate</span></span>}
                 rightActions={rightActions}
-                role={role}
+                role={role || profile?.role || "guest"}
             />
             <main className="pt-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
                 {children}

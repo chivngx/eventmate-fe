@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
 import { getUserFacingMessage } from "@/lib/error"
+import { useUser } from "@/components/providers/AuthProvider"
 import MainLayout from "@/components/layout/MainLayout"
 import { MapPin, Calendar, CheckCircle, XCircle, Clock3, Bookmark, Briefcase, Tag, DollarSign, Users, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -14,14 +15,16 @@ export default function EventDetail() {
     const { id } = useParams<{ id: string }>()
     const navigate = useNavigate()
     const { showToast } = useToast()
+    // 🔒 P1.1: user + role từ context (thay getUser() + profiles.select lặp)
+    const { user, role, loading: authLoading } = useUser()
     const [event, setEvent] = useState<any>(null)
     const [loading, setLoading] = useState(true)
-    const [role, setRole] = useState<string>("guest")
     const [applyStatus, setApplyStatus] = useState<string | null>(null)
     const [isApplying, setIsApplying] = useState(false)
     const [isBookmarked, setIsBookmarked] = useState(false)
 
     useEffect(() => {
+        if (authLoading) return
         const fetchEventDetails = async () => {
             setLoading(true)
             const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id || "")
@@ -45,13 +48,8 @@ export default function EventDetail() {
                     navigate(`/jobs/${eventData.slug}`, { replace: true })
                 }
 
-                const { data: { user } } = await supabase.auth.getUser()
-
                 if (user) {
-                    const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
-                    if (profile) setRole(profile.role)
-
-                    if (profile?.role === "student") {
+                    if (role === "student") {
                         const { data: appData } = await supabase
                             .from("applications")
                             .select("status")
@@ -78,11 +76,10 @@ export default function EventDetail() {
         }
 
         fetchEventDetails()
-    }, [id])
+    }, [id, user, role, authLoading, navigate])
 
     const handleApply = async () => {
         setIsApplying(true)
-        const { data: { user } } = await supabase.auth.getUser()
 
         if (!user) {
             window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { mode: "login" } }))
@@ -103,7 +100,6 @@ export default function EventDetail() {
     }
 
     const toggleBookmark = async () => {
-        const { data: { user } } = await supabase.auth.getUser()
         if (!user) {
             window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { mode: "login" } }))
             return
@@ -186,7 +182,7 @@ export default function EventDetail() {
     }
 
     return (
-        <MainLayout role={role}>
+        <MainLayout role={role || "guest"}>
             <div className="max-w-6xl mx-auto pt-1 pb-6 px-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {/* Two Column Layout */}
                 <div className="job-detail_body flex flex-col lg:flex-row gap-6 items-start min-[1440px]:w-[1140px] min-[1440px]:gap-[28px] min-[1440px]:flex-row">

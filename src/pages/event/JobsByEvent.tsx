@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react"
 import { useSearchParams, useNavigate, useParams } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
+import { useUser } from "@/components/providers/AuthProvider"
 import MainLayout from "@/components/layout/MainLayout"
 import { Search, MapPin, Briefcase, Clock, ChevronLeft, ChevronRight, Building2, Heart } from "lucide-react"
 import * as LucideIcons from "lucide-react"
@@ -20,6 +21,9 @@ export default function JobsByEvent() {
   const [searchParams] = useSearchParams()
   const { category: categoryRouteParam } = useParams<{ category: string }>()
   const categoryParam = categoryRouteParam || searchParams.get("category") || "Lễ hội Âm nhạc"
+
+  // 🔒 P1.1: user từ context (thay getUser() lặp)
+  const { user, loading: authLoading } = useUser()
 
   const [loading, setLoading] = useState(true)
   const [events, setEvents] = useState<any[]>([])
@@ -44,6 +48,7 @@ export default function JobsByEvent() {
   const experienceOptions = ["Không yêu cầu kinh nghiệm", "Dưới 1 năm", "1 - 2 năm", "Trên 2 năm"]
 
   useEffect(() => {
+    if (authLoading) return
     const fetchInitialData = async () => {
       // 1. Tải danh mục Phường/Xã Đà Nẵng
       const { data: wardsData } = await supabase
@@ -66,7 +71,6 @@ export default function JobsByEvent() {
       }
 
       // 3. Lấy bookmarks nếu đã đăng nhập
-      const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         const { data: bookmarks } = await supabase
           .from("event_bookmarks")
@@ -82,7 +86,7 @@ export default function JobsByEvent() {
       }
     }
     fetchInitialData()
-  }, [])
+  }, [user, authLoading])
 
   const fetchEvents = async () => {
     setLoading(true)
@@ -140,7 +144,6 @@ export default function JobsByEvent() {
   }
 
   const handleToggleBookmark = async (eventId: string) => {
-    const { data: { user } } = await supabase.auth.getUser()
     if (!user) {
       window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { mode: "login" } }))
       return

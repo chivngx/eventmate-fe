@@ -1,14 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 import { supabase } from "@/lib/supabase"
 import { getUserFacingMessage } from "@/lib/error"
+import { loginSchema, registerSchema, type LoginValues, type RegisterValues } from "@/lib/schemas"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { X } from "lucide-react"
 import {
   AuthInput,
-  validateEmail,
-  validatePassword,
   EmailIcon,
   LockIcon,
   UserIcon,
@@ -40,41 +41,33 @@ function LoginForm({
   setSuccess,
   onSwitchToRegister
 }: LoginFormProps) {
-  const [emailError, setEmailError] = useState<string | null>(null)
-  const [passwordError, setPasswordError] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
 
-  const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  // 🔒 P1.4: react-hook-form + zod thay useState + validateEmail/Password thủ công
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginValues>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  })
+
+  const onValid = async (values: LoginValues) => {
     setError(null)
     setSuccess(null)
-    setEmailError(null)
-    setPasswordError(null)
-
-    const formData = new FormData(e.currentTarget)
-    const email = (formData.get("email") as string || "").trim()
-    const password = formData.get("password") as string
-
-    const emailVal = validateEmail(email)
-    const passwordVal = validatePassword(password)
-
-    if (emailVal || passwordVal) {
-      setEmailError(emailVal)
-      setPasswordError(passwordVal)
-      return
-    }
-
     setLoading(true)
+
     const { data, error: signInError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+      email: values.email,
+      password: values.password,
     })
 
     if (signInError) {
-      // SECURITY: don't surface raw Supabase auth error text (can leak internals).
       setError(getUserFacingMessage(signInError, "Email hoặc mật khẩu không chính xác."))
       setLoading(false)
     } else if (data.user) {
+      // 🔒 P1.1: AuthProvider onAuthStateChange handles session — just navigate
       if (window.location.pathname === "/login" || window.location.pathname === "/register") {
         window.location.href = "/"
       } else {
@@ -101,32 +94,33 @@ function LoginForm({
   }
 
   return (
-    <form onSubmit={handleSignIn} className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit(onValid)} className="flex flex-col gap-4">
       <AuthInput
         label="Email"
-        name="email"
         type="text"
         placeholder="Nhập email của bạn"
         icon={<EmailIcon />}
-        error={emailError}
+        error={errors.email?.message ?? null}
+        {...register("email")}
       />
 
       <AuthInput
         label="Mật khẩu"
-        name="password"
         type={showPassword ? "text" : "password"}
         placeholder="Nhập mật khẩu của bạn"
         icon={<LockIcon />}
-        error={passwordError}
+        error={errors.password?.message ?? null}
         rightElement={
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
+            aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
             className="text-slate-400 hover:text-slate-600 transition-colors focus:outline-none ml-2"
           >
             <EyeIcon />
           </button>
         }
+        {...register("password")}
       />
 
       {/* Remember & Forgot Password */}
@@ -194,57 +188,29 @@ function StudentRegisterForm({
   setError,
   setSuccess
 }: StudentRegisterFormProps) {
-  const [nameError, setNameError] = useState<string | null>(null)
-  const [emailError, setEmailError] = useState<string | null>(null)
-  const [passwordError, setPasswordError] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
 
-  const handleStudentSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  // 🔒 P1.4: react-hook-form + zod
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: { fullName: "", email: "", password: "" },
+  })
+
+  const onValid = async (values: RegisterValues) => {
     setLoading(true)
     setError(null)
     setSuccess(null)
-    setNameError(null)
-    setEmailError(null)
-    setPasswordError(null)
-
-    const formData = new FormData(e.currentTarget)
-    const fullName = (formData.get("fullName") as string || "").trim()
-    const email = (formData.get("email") as string || "").trim()
-    const password = formData.get("password") as string
-
-    let hasError = false
-    if (!fullName) {
-      setNameError("Vui lòng nhập họ và tên.")
-      hasError = true
-    } else if (fullName.length < 2) {
-      setNameError("Họ và tên phải có ít nhất 2 ký tự.")
-      hasError = true
-    }
-
-    const emailVal = validateEmail(email)
-    const passwordVal = validatePassword(password)
-
-    if (emailVal) {
-      setEmailError(emailVal)
-      hasError = true
-    }
-    if (passwordVal) {
-      setPasswordError(passwordVal)
-      hasError = true
-    }
-
-    if (hasError) {
-      setLoading(false)
-      return
-    }
 
     const { data, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
+      email: values.email,
+      password: values.password,
       options: {
         data: {
-          full_name: fullName,
+          full_name: values.fullName,
           role: "student",
         },
       },
@@ -259,41 +225,42 @@ function StudentRegisterForm({
   }
 
   return (
-    <form onSubmit={handleStudentSignUp} className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit(onValid)} className="flex flex-col gap-4">
       <AuthInput
         label="Họ và tên"
-        name="fullName"
         type="text"
         placeholder="Nguyễn Văn A"
         icon={<UserIcon />}
-        error={nameError}
+        error={errors.fullName?.message ?? null}
+        {...register("fullName")}
       />
 
       <AuthInput
         label="Email cá nhân / trường"
-        name="email"
         type="text"
         placeholder="sv@fpt.edu.vn"
         icon={<EmailIcon />}
-        error={emailError}
+        error={errors.email?.message ?? null}
+        {...register("email")}
       />
 
       <AuthInput
         label="Mật khẩu"
-        name="password"
         type={showPassword ? "text" : "password"}
         placeholder="Nhập ít nhất 6 ký tự"
         icon={<LockIcon />}
-        error={passwordError}
+        error={errors.password?.message ?? null}
         rightElement={
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
+            aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
             className="text-slate-400 hover:text-slate-600 transition-colors focus:outline-none ml-2"
           >
             <EyeIcon />
           </button>
         }
+        {...register("password")}
       />
 
       <button
@@ -323,57 +290,29 @@ function OrgRegisterForm({
   setError,
   setSuccess
 }: OrgRegisterFormProps) {
-  const [nameError, setNameError] = useState<string | null>(null)
-  const [emailError, setEmailError] = useState<string | null>(null)
-  const [passwordError, setPasswordError] = useState<string | null>(null)
   const [showPassword, setShowPassword] = useState(false)
 
-  const handleOrgSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  // 🔒 P1.4: react-hook-form + zod
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<RegisterValues>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: { fullName: "", email: "", password: "" },
+  })
+
+  const onValid = async (values: RegisterValues) => {
     setLoading(true)
     setError(null)
     setSuccess(null)
-    setNameError(null)
-    setEmailError(null)
-    setPasswordError(null)
-
-    const formData = new FormData(e.currentTarget)
-    const fullName = (formData.get("fullName") as string || "").trim()
-    const email = (formData.get("email") as string || "").trim()
-    const password = formData.get("password") as string
-
-    let hasError = false
-    if (!fullName) {
-      setNameError("Vui lòng nhập tên Đơn vị / CLB.")
-      hasError = true
-    } else if (fullName.length < 2) {
-      setNameError("Tên Đơn vị phải có ít nhất 2 ký tự.")
-      hasError = true
-    }
-
-    const emailVal = validateEmail(email)
-    const passwordVal = validatePassword(password)
-
-    if (emailVal) {
-      setEmailError(emailVal)
-      hasError = true
-    }
-    if (passwordVal) {
-      setPasswordError(passwordVal)
-      hasError = true
-    }
-
-    if (hasError) {
-      setLoading(false)
-      return
-    }
 
     const { data, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
+      email: values.email,
+      password: values.password,
       options: {
         data: {
-          full_name: fullName,
+          full_name: values.fullName,
           role: "organizer",
         },
       },
@@ -388,41 +327,42 @@ function OrgRegisterForm({
   }
 
   return (
-    <form onSubmit={handleOrgSignUp} className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit(onValid)} className="flex flex-col gap-4">
       <AuthInput
         label="Tên Đơn vị / CLB"
-        name="fullName"
         type="text"
         placeholder="CLB Truyền thông FPT"
         icon={<UserIcon />}
-        error={nameError}
+        error={errors.fullName?.message ?? null}
+        {...register("fullName")}
       />
 
       <AuthInput
         label="Email làm việc"
-        name="email"
         type="text"
         placeholder="contact@eventmate.vn"
         icon={<EmailIcon />}
-        error={emailError}
+        error={errors.email?.message ?? null}
+        {...register("email")}
       />
 
       <AuthInput
         label="Mật khẩu"
-        name="password"
         type={showPassword ? "text" : "password"}
         placeholder="Nhập ít nhất 6 ký tự"
         icon={<LockIcon />}
-        error={passwordError}
+        error={errors.password?.message ?? null}
         rightElement={
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
+            aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
             className="text-slate-400 hover:text-slate-600 transition-colors focus:outline-none ml-2"
           >
             <EyeIcon />
           </button>
         }
+        {...register("password")}
       />
 
       <button

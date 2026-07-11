@@ -4,11 +4,13 @@ import { useEffect, useState, useRef } from "react"
 import { useParams, useNavigate } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
 import { getUserFacingMessage } from "@/lib/error"
+import { useUser } from "@/components/providers/AuthProvider"
 import MainLayout from "@/components/layout/MainLayout"
 import OrgLayout from "@/components/layout/OrgLayout"
 import { Send, MessageSquare, User, ArrowLeft, Calendar, Video, Clock, Check, X } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
+import InterviewModal from "@/components/chat/InterviewModal"
 
 interface ChatItem {
   id: string
@@ -32,9 +34,11 @@ interface Message {
 export default function Chat() {
   const { id: routeChatId } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  // 🔒 P1.1: user + role + isPremium từ context (thay getUser() + profiles.select lặp)
+  const { user, role, isPremium, loading: authLoading } = useUser()
+  // Alias cho backward-compat với 700+ dòng code dùng `currentUser`
+  const currentUser = user
 
-  const [currentUser, setCurrentUser] = useState<any>(null)
-  const [role, setRole] = useState("student")
   const [loading, setLoading] = useState(true)
 
   const [chats, setChats] = useState<ChatItem[]>([])
@@ -54,34 +58,18 @@ export default function Chat() {
   const [interviewLink, setInterviewLink] = useState("")
   const [interviews, setInterviews] = useState<Record<string, any>>({})
   const [creatingInterview, setCreatingInterview] = useState(false)
-  // 🔒 SECURITY: isPremium đọc từ DB (profiles.is_premium), không còn localStorage.
-  const [isPremium, setIsPremium] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // 1. Lấy thông tin User hiện tại
+  // 🔒 P1.1: auth từ context — redirect nếu chưa login
   useEffect(() => {
-    const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) {
-        navigate("/login")
-        return
-      }
-      setCurrentUser(user)
-
-      const { data: profile } = await supabase.from("profiles").select("role, is_premium, premium_until").eq("id", user.id).maybeSingle()
-      if (profile) {
-        setRole(profile.role)
-        const stillValid = profile.is_premium && (
-          !profile.premium_until || new Date(profile.premium_until) > new Date()
-        )
-        setIsPremium(!!stillValid)
-      }
-
-      setLoading(false)
+    if (authLoading) return
+    if (!user) {
+      navigate("/login")
+      return
     }
-    fetchUser()
-  }, [navigate])
+    setLoading(false)
+  }, [user, authLoading, navigate])
 
   // 2. Fetch danh sách các phòng Chat của User
   const fetchChats = async () => {
@@ -229,17 +217,8 @@ export default function Chat() {
     }
   }, [activeChat])
 
-  // Polling fallback to fetch messages every 4 seconds (handles cases where Supabase Realtime replication is disabled)
-  useEffect(() => {
-    if (!activeChat) return
-
-    const interval = setInterval(() => {
-      fetchMessages(activeChat.id, messagesLimit)
-      fetchInterviews(activeChat)
-    }, 4000)
-
-    return () => clearInterval(interval)
-  }, [activeChat, messagesLimit])
+  // 🔒 P1.6: Removed 4-second polling — realtime subscription handles live updates.
+  // Polling was redundant (2x traffic). If realtime fails, user can refresh manually.
 
   const scrollToBottom = () => {
     setTimeout(() => {
@@ -675,69 +654,19 @@ export default function Chat() {
       </div>
 
       {/* Modal Lên lịch phỏng vấn (Dành cho Organizer) */}
-      {isInterviewModalOpen && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
-              <h3 className="font-black text-lg text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-emerald-500" />
-                Hẹn phỏng vấn
-              </h3>
-              <button
-                onClick={() => setIsInterviewModalOpen(false)}
-                className="text-xs font-black text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
-              >
-                Đóng
-              </button>
-            </div>
-
-            <form onSubmit={handleCreateInterview} className="p-6 space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Chủ đề phỏng vấn *</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="Ví dụ: Phỏng vấn vị trí CTV Sự Kiện..."
-                  value={interviewTitle}
-                  onChange={(e) => setInterviewTitle(e.target.value)}
-                  className="w-full h-11 bg-slate-50 dark:bg-slate-800/60 rounded-xl px-4 text-sm font-medium focus:outline-none border-2 border-transparent focus:border-emerald-500 dark:text-slate-150 transition-colors"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Thời gian diễn ra *</label>
-                <input
-                  type="datetime-local"
-                  required
-                  value={interviewDate}
-                  onChange={(e) => setInterviewDate(e.target.value)}
-                  className="w-full h-11 bg-slate-50 dark:bg-slate-800/60 rounded-xl px-4 text-sm font-medium focus:outline-none border-2 border-transparent focus:border-emerald-500 dark:text-slate-150 transition-colors"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Link phòng họp (Google Meet, Zoom...) - Không bắt buộc</label>
-                <input
-                  type="text"
-                  placeholder="Ví dụ: meet.google.com/abc-defg-hij"
-                  value={interviewLink}
-                  onChange={(e) => setInterviewLink(e.target.value)}
-                  className="w-full h-11 bg-slate-50 dark:bg-slate-800/60 rounded-xl px-4 text-sm font-medium focus:outline-none border-2 border-transparent focus:border-emerald-500 dark:text-slate-150 transition-colors"
-                />
-              </div>
-
-              <div className="pt-3">
-                <Button
-                  type="submit"
-                  disabled={creatingInterview}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl h-11 flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20"
-                >
-                  {creatingInterview ? "Đang lên lịch..." : "Gửi lời mời phỏng vấn"}
-                </Button>
-              </div>
-            </form>
-          </div>
-        </div>
+{isInterviewModalOpen && (
+        <InterviewModal
+          isOpen={isInterviewModalOpen}
+          onClose={() => setIsInterviewModalOpen(false)}
+          interviewTitle={interviewTitle}
+          setInterviewTitle={setInterviewTitle}
+          interviewDate={interviewDate}
+          setInterviewDate={setInterviewDate}
+          interviewLink={interviewLink}
+          setInterviewLink={setInterviewLink}
+          creatingInterview={creatingInterview}
+          onSubmit={handleCreateInterview}
+        />
       )}
     </>
   )
@@ -754,7 +683,7 @@ export default function Chat() {
           email: currentUser?.email || ""
         }}
         onLogout={async () => {
-          localStorage.removeItem("em_user_profile")
+          // 🔒 P1.1: AuthProvider onAuthStateChange clears session state
           await supabase.auth.signOut()
           navigate("/")
         }}

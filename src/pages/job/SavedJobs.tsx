@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
 import { getUserFacingMessage } from "@/lib/error"
+import { useUser } from "@/components/providers/AuthProvider"
 import MainLayout from "@/components/layout/MainLayout"
 import { Bookmark, MapPin, Building2, Briefcase, Tag, Trash2, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -13,47 +14,43 @@ import { SkeletonGenericPage } from "@/components/ui/Skeleton"
 
 export default function SavedJobs() {
     const navigate = useNavigate()
+    // 🔒 P1.1: user + role từ context (thay getUser() + profiles.select lặp)
+    const { user, role, loading: authLoading } = useUser()
     const [bookmarks, setBookmarks] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
-    const [role, setRole] = useState("student")
 
-    const fetchMyBookmarks = async () => {
-        setLoading(true)
-        const { data: { user } } = await supabase.auth.getUser()
-
+    useEffect(() => {
+        if (authLoading) return
         if (!user) {
             navigate("/login")
             return
         }
+        const fetchMyBookmarks = async () => {
+            setLoading(true)
 
-        const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
-        if (profile) setRole(profile.role)
+            const { data, error } = await supabase
+                .from("event_bookmarks")
+                .select(`
+                    id,
+                    event_id,
+                    events (
+                        id, title, location, status, position_type, category, benefits, event_date, application_deadline, slug,
+                        danang_wards (name),
+                        profiles (id, full_name, avatar_url, slug)
+                    )
+                `)
+                .eq("student_id", user.id)
+                .order("created_at", { ascending: false })
 
-        const { data, error } = await supabase
-            .from("event_bookmarks")
-            .select(`
-                id,
-                event_id,
-                events (
-                    id, title, location, status, position_type, category, benefits, event_date, application_deadline, slug,
-                    danang_wards (name),
-                    profiles (id, full_name, avatar_url, slug)
-                )
-            `)
-            .eq("student_id", user.id)
-            .order("created_at", { ascending: false })
-
-        if (error) {
-            console.error("🚨 Lỗi truy vấn việc làm đã lưu:", error)
-        } else if (data) {
-            setBookmarks(data)
+            if (error) {
+                console.error("🚨 Lỗi truy vấn việc làm đã lưu:", error)
+            } else if (data) {
+                setBookmarks(data)
+            }
+            setLoading(false)
         }
-        setLoading(false)
-    }
-
-    useEffect(() => {
         fetchMyBookmarks()
-    }, [navigate])
+    }, [user, authLoading, navigate])
 
     const handleRemoveBookmark = async (bookmarkId: string) => {
         const { error } = await supabase

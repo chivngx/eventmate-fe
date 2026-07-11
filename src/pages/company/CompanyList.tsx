@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
+import { useUser } from "@/components/providers/AuthProvider"
 import MainLayout from "@/components/layout/MainLayout"
 import { Building2, Search, MapPin, Mail, Phone, CalendarDays, ArrowRight } from "lucide-react"
 import { Input } from "@/components/ui/input"
@@ -12,21 +13,16 @@ import { Badge } from "@/components/ui/badge"
 
 export default function CompanyList() {
     const navigate = useNavigate()
+    // 🔒 P1.1: role từ context (thay getUser() + profiles.select lặp)
+    const { user, role } = useUser()
+    const userRole = user ? (role || "student") : "guest"
     const [organizers, setOrganizers] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [searchTerm, setSearchTerm] = useState("")
-    const [userRole, setUserRole] = useState("guest")
 
     useEffect(() => {
         const fetchData = async () => {
             setLoading(true)
-
-            // Fetch user role
-            const { data: { user } } = await supabase.auth.getUser()
-            if (user) {
-                const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
-                if (profile) setUserRole(profile.role)
-            }
 
             // Fetch organizer profiles & their events to count
             const { data, error } = await supabase

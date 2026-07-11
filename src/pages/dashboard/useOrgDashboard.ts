@@ -4,9 +4,13 @@ import { useState, useEffect } from "react"
 import { useSearchParams, useNavigate } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
 import { getUserFacingMessage } from "@/lib/error"
+import { useUser } from "@/components/providers/AuthProvider"
+import { useWards, useJobPositions, useEventCategories } from "@/hooks/use-lookups"
 
 export function useOrgDashboard() {
     const navigate = useNavigate()
+    // 🔒 P1.1: user + isPremium từ context (thay getUser() lặp 3 lần + profiles.select is_premium)
+    const { user, isPremium: ctxIsPremium, loading: authLoading } = useUser()
     const [searchParams, setSearchParams] = useSearchParams()
     const [events, setEvents] = useState<any[]>([])
 
@@ -21,8 +25,7 @@ export function useOrgDashboard() {
     const [eventDate, setEventDate] = useState("")
     const [applicationDeadline, setApplicationDeadline] = useState("")
 
-    // [MỚI] State lưu trữ danh mục Phường/Xã phục vụ Tạo sự kiện mới
-    const [wards, setWards] = useState<any[]>([])
+    // [MỚI] State lưu trữ Phường/Xã đang chọn cho form (wards lấy từ useWards hook ở dưới)
     const [wardId, setWardId] = useState("")
 
     const [loading, setLoading] = useState(false)
@@ -57,60 +60,26 @@ export function useOrgDashboard() {
     }
 
 
-    const [dbPositions, setDbPositions] = useState<string[]>([])
-    const [dbCategories, setDbCategories] = useState<string[]>([])
+    // 🔒 P1.3: lookup data từ react-query cache (thay fetch thủ công 3 queries)
+    const { data: wardsData = [] } = useWards()
+    const wards = wardsData
+    const { data: posData = [] } = useJobPositions()
+    const dbPositions = posData.map(p => p.name)
+    const { data: catData = [] } = useEventCategories()
+    const dbCategories = catData.map(c => c.name)
 
-    // [MỚI] Nạp toàn bộ danh sách Phường/Xã, Vị trí và Danh mục từ Database lên khi mở trang quản trị
+    // Set default position + category khi data load xong
     useEffect(() => {
-        const fetchInitialData = async () => {
-            const { data } = await supabase
-                .from("danang_wards")
-                .select("*")
-                .order("name", { ascending: true })
-            if (data) setWards(data)
-
-            const { data: posData } = await supabase
-                .from("job_positions")
-                .select("name")
-                .order("name", { ascending: true })
-            if (posData && posData.length > 0) {
-                const names = posData.map(p => p.name)
-                setDbPositions(names)
-                setPositionType(names[0])
-            }
-
-            const { data: catData } = await supabase
-                .from("event_categories")
-                .select("name")
-                .order("name", { ascending: true })
-            if (catData && catData.length > 0) {
-                const names = catData.map(c => c.name)
-                setDbCategories(names)
-                setCategory(names[0])
-            }
-        }
-        fetchInitialData()
-    }, [])
+        if (dbPositions.length > 0 && !positionType) setPositionType(dbPositions[0])
+        if (dbCategories.length > 0 && !category) setCategory(dbCategories[0])
+    }, [dbPositions, dbCategories])
 
     const fetchMyEvents = async () => {
-        setFetching(true)
-        const { data: { user } } = await supabase.auth.getUser()
         if (!user) return
+        setFetching(true)
         setUserId(user.id)
-
-        // Fetch is_premium từ DB (thay vì localStorage)
-        const { data: profileData } = await supabase
-            .from("profiles")
-            .select("is_premium, premium_until")
-            .eq("id", user.id)
-            .maybeSingle()
-        if (profileData) {
-            // Premium còn hiệu lực nếu is_premium=true VÀ (premium_until null HOẶC > now)
-            const stillValid = profileData.is_premium && (
-                !profileData.premium_until || new Date(profileData.premium_until) > new Date()
-            )
-            setIsPremium(!!stillValid)
-        }
+        // 🔒 P1.1: isPremium từ context (thay profiles.select is_premium fetch)
+        setIsPremium(ctxIsPremium)
 
         const { data, error } = await supabase
             .from("events")
@@ -125,8 +94,9 @@ export function useOrgDashboard() {
     }
 
     useEffect(() => {
+        if (authLoading) return
         fetchMyEvents()
-    }, [])
+    }, [user, authLoading])
 
     useEffect(() => {
         if (searchParams.get("action") === "create") {
@@ -158,7 +128,6 @@ export function useOrgDashboard() {
             return
         }
         setLoading(true)
-        const { data: { user } } = await supabase.auth.getUser()
 
         if (user) {
             const eventPayload = {
@@ -269,7 +238,6 @@ export function useOrgDashboard() {
     }
 
     const handleStartChatWithStudent = async (eventId: string, studentId: string) => {
-        const { data: { user } } = await supabase.auth.getUser()
         if (!user) return
 
         const { data: existingChat } = await supabase

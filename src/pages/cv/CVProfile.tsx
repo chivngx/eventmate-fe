@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useNavigate } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
 import { getUserFacingMessage } from "@/lib/error"
+import { useUser } from "@/components/providers/AuthProvider"
 import MainLayout from "@/components/layout/MainLayout"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -14,9 +15,10 @@ import { SkeletonGenericPage } from "@/components/ui/Skeleton"
 
 export default function CVProfile() {
     const navigate = useNavigate()
+    // 🔒 P1.1: user + role từ context (thay getUser() + profiles.select lặp)
+    const { user, role, loading: authLoading } = useUser()
     const [loading, setLoading] = useState(true)
     const [saving, setSaving] = useState(false)
-    const [role, setRole] = useState<string>("student")
     const [cvPreviewOpen, setCvPreviewOpen] = useState(false)
 
     // State thông tin người dùng bổ sung hiển thị trực quan
@@ -31,13 +33,12 @@ export default function CVProfile() {
     const [skills, setSkills] = useState("")
 
     useEffect(() => {
+        if (authLoading) return
+        if (!user) {
+            navigate("/login")
+            return
+        }
         const fetchCV = async () => {
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) {
-                navigate("/login")
-                return
-            }
-
             const { data } = await supabase
                 .from("profiles")
                 .select("*")
@@ -45,7 +46,6 @@ export default function CVProfile() {
                 .maybeSingle()
 
             if (data) {
-                setRole(data.role)
                 setFullName(data.full_name || "")
                 setEmail(data.email || user.email || "")
                 setAvatarUrl(data.avatar_url || "")
@@ -57,12 +57,11 @@ export default function CVProfile() {
             setLoading(false)
         }
         fetchCV()
-    }, [navigate])
+    }, [user, authLoading, navigate])
 
     const handleSaveCV = async (e: React.FormEvent) => {
         e.preventDefault()
         setSaving(true)
-        const { data: { user } } = await supabase.auth.getUser()
 
         if (user) {
             // Cập nhật dữ liệu lên bảng profiles
@@ -89,7 +88,7 @@ export default function CVProfile() {
     if (loading) return <SkeletonGenericPage />
 
     return (
-        <MainLayout role={role}>
+        <MainLayout role={role || "student"}>
             <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
 
                 <div className="mb-8">

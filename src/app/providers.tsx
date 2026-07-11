@@ -1,33 +1,23 @@
 "use client"
 
-import { useEffect } from "react"
 import { ToastProvider } from "@/components/ui/ToastProvider"
 import OnboardingOverlay from "@/components/ui/OnboardingOverlay"
+import { AuthProvider } from "@/components/providers/AuthProvider"
+import { ReactQueryProvider } from "@/components/providers/ReactQueryProvider"
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  useEffect(() => {
-    // Dọn dẹp hash fragment sau khi Supabase OAuth redirect (tránh token lưu trong URL)
-    const cleanHash = () => {
-      if (window.location.href.includes("#")) {
-        // Đợi 300ms để Supabase Auth đọc và xử lý token fragment trước khi xóa
-        setTimeout(() => {
-          window.history.replaceState(
-            null,
-            "",
-            window.location.pathname + window.location.search
-          )
-        }, 300)
-      }
-    }
-    cleanHash()
-    window.addEventListener("hashchange", cleanHash)
-    return () => window.removeEventListener("hashchange", cleanHash)
-  }, [])
+  // NOTE: The old hash-cleanup effect (stripping `#access_token=...` after
+  // Supabase OAuth) was removed — we now use the PKCE code flow handled by
+  // /auth/callback (Phase 1 Task 2), so tokens never land in the URL hash.
 
   return (
-    <ToastProvider>
-      <OnboardingOverlay />
-      {children}
-    </ToastProvider>
+    <ReactQueryProvider>
+      <AuthProvider>
+        <ToastProvider>
+          <OnboardingOverlay />
+          {children}
+        </ToastProvider>
+      </AuthProvider>
+    </ReactQueryProvider>
   )
 }

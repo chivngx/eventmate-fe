@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
+import { useUser } from "@/components/providers/AuthProvider"
 import MainLayout from "@/components/layout/MainLayout"
 import { Link as LinkIcon, Users, MapPin, Search, ChevronDown, ChevronUp, Copy, Bookmark, FileText, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -13,10 +14,12 @@ export default function CompanyDetail() {
     const { id } = useParams<{ id: string }>()
     const navigate = useNavigate()
 
+    // 🔒 P1.1: user + role từ context (thay getUser() + profiles.select lặp)
+    const { user, role, loading: authLoading } = useUser()
+
     const [company, setCompany] = useState<any>(null)
     const [companyEvents, setCompanyEvents] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
-    const [role, setRole] = useState<string>("guest")
     const [isFollowed, setIsFollowed] = useState(false)
     const [activeTab, setActiveTab] = useState<"about" | "jobs">("about")
 
@@ -33,13 +36,10 @@ export default function CompanyDetail() {
     const [bookmarkedJobs, setBookmarkedJobs] = useState<Record<string, boolean>>({})
 
     useEffect(() => {
+        if (authLoading) return
         const fetchCompanyDetails = async () => {
             setLoading(true)
-            const { data: { user } } = await supabase.auth.getUser()
             if (user) {
-                const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
-                if (profile) setRole(profile.role)
-
                 // Fetch student bookmarks to show on job cards
                 const { data: bookmarks } = await supabase
                     .from("event_bookmarks")
@@ -86,7 +86,7 @@ export default function CompanyDetail() {
         }
 
         fetchCompanyDetails()
-    }, [id])
+    }, [id, user, authLoading])
 
     // Scroll listener for floating follow banner
     useEffect(() => {
@@ -127,7 +127,6 @@ export default function CompanyDetail() {
 
     const toggleBookmark = async (eventId: string, e: React.MouseEvent) => {
         e.stopPropagation()
-        const { data: { user } } = await supabase.auth.getUser()
         if (!user) {
             window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { mode: "login" } }))
             return
@@ -163,7 +162,7 @@ export default function CompanyDetail() {
     const locationsList = Array.from(new Set(companyEvents.map(job => job.danang_wards?.name).filter(Boolean))) as string[]
 
     return (
-        <MainLayout role={role}>
+        <MainLayout role={role || "guest"}>
             <div className="max-w-6xl mx-auto pt-1 pb-6 px-4 font-sans text-[#212f3f] selection:bg-emerald-100 animate-in fade-in slide-in-from-bottom-4 duration-500">
                 {/* Company Header Box (Matching EventDetail header style) */}
                 <div className="wrapper-company-cover bg-white rounded-lg border border-slate-200 p-6 md:p-8 min-[1440px]:p-[24px_24px_0px] shadow-sm flex flex-col md:flex-row items-center md:items-start justify-between gap-6 relative min-[1440px]:w-[1140px] min-[1440px]:h-[230px] min-[1440px]:rounded-[8px] min-[1440px]:shadow-[0px_0px_14px_0px_rgba(0,0,0,0.03)] min-[1440px]:box-border">
