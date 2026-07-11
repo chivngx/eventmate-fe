@@ -181,3 +181,47 @@ Stage Summary:
 - 3 file chuẩn đã được áp dụng: Security (XSS + error sanitize triệt để), Performance (memo + lazy images), Design (ARIA labels + focus-visible cho icon-only buttons).
 - .standards/ lưu làm reference. Kể từ đây về sau, mọi code mới tuân thủ 3 chuẩn này.
 - App chạy ổn định, lint sạch, Agent Browser verify pass.
+
+---
+Task ID: audit-current
+Agent: Explore
+Task: Deep audit of current EventMate project state for upgrade proposal
+
+Work Log:
+- Read worklog.md (prior 6 tasks: Vite→Next.js migration, Supabase real creds, error sanitize, ARIA labels, standards application).
+- Inventoried root dir + src tree; counted files (src/app=20, src/pages=19, src/components=37, src/lib=4).
+- Read package.json, next.config.ts, tsconfig.json, postcss.config.mjs, eslint.config.mjs, components.json, Caddyfile, README.md, .gitignore, .env, db.sql (551 lines) in full.
+- Read src/app/layout.tsx, providers.tsx, globals.css, all 17 page.tsx re-exports.
+- Read src/lib/supabase.ts, error.ts, router.tsx, utils.ts.
+- Read src/pages/Home.tsx, MainLayout.tsx, AuthModal.tsx, MyJobs.tsx, AdminDashboard.tsx, OrgDashboard.tsx (partial), ScheduleCalendar.tsx, OnboardingOverlay.tsx (partial), AuthComponents.tsx (partial), Chat.tsx (partial), FloatingChat.tsx (partial).
+- Grepped across src/ for: supabase.auth.getUser (30 calls), supabase.auth.* (full list), supabase.channel + .subscribe + cleanup, onAuthStateChange, localStorage, error.message/err.message, dangerouslySetInnerHTML/document.write, <img>/<Image, react-hook-form/zod/@hookform, @tanstack/react-query, next-themes, @supabase/ssr, framer-motion/motion, React.memo, useMemo/useCallback, next/dynamic, mock/Mock/TODO/FIXME/HACK/dummy/placeholder, VIP/premium/upgrade, <form, generateMetadata/metadata, sitemap/robots, middleware/route.ts/loading/error/not-found, validate functions, fixed inset-0 modals, aria-modal/Escape/role=dialog, zoom hack, use client directive per page.
+- Verified: no middleware.ts, no /auth/callback route, no sitemap.ts/robots.ts, no loading.tsx/error.tsx/not-found.tsx/global-error.tsx at any level, no test files, no CI workflows, no husky hooks.
+- Verified dependencies: @fontsource-variable/geist, react-hook-form, @hookform/resolvers, zod, @tanstack/react-query, next-themes are installed but NOT imported anywhere in src/ (truly unused). tailwind.config.js referenced by components.json but MISSING from project root.
+
+Stage Summary:
+- Architecture: 17 client-only route re-exports (no RSC, no streaming, no per-route metadata). Single shared Supabase client (`@supabase/supabase-js`), NO `@supabase/ssr`, NO server components doing data fetching, NO middleware. 30 redundant `supabase.auth.getUser()` calls across 14 files (anti-pattern). 0 `onAuthStateChange` — auth state re-fetched manually + cached in `localStorage["em_user_profile"]`. 3 realtime channels (notifications/messages/messages) all have proper `removeChannel` cleanup. `@tanstack/react-query` installed but ALL data fetching is `useEffect + useState` (no caching, no dedup, no invalidation).
+- Database: `interviews` table referenced in 3 files (MyJobs.tsx, Chat.tsx, ScheduleCalendar.tsx — fields: id, event_id, student_id, organizer_id, title, scheduled_at, meeting_link, status) but NOT DEFINED in db.sql. `handle_new_user` trigger COMMENTED OUT (db.sql:401-404) — new signups do NOT auto-create profiles rows, yet AuthModal.signUp does not insert into profiles either → broken registration. Overly-permissive RLS: `applications` UPDATE `USING (true)` (anyone can update any application), `notifications` INSERT `WITH CHECK (true)` (anyone can spam any user), `applications` SELECT `USING (true)` (public read of student_id+event_id+status), avatars storage INSERT/UPDATE/DELETE allow any authenticated user on any object, `GRANT ALL ON ALL TABLES TO anon` (anon can write). Duplicate policies on profiles/applications (both English and Vietnamese versions coexist).
+- Security: NO middleware (no auth-gated routes, no session refresh). NO `/auth/callback` route handler (PKCE flow depends on hash-cleanup effect in providers.tsx with 300ms setTimeout — fragile). 0 `error.message` leaks (verified — prior sanitize task succeeded). 1 `document.write` (CertificateModal) properly escaped via `escapeHtml()`. 0 `dangerouslySetInnerHTML`. 0 hardcoded secrets in src/ (Supabase URL+anon key in .env, gitignored). `next.config.ts` is empty — NO security headers (CSP/X-Frame-Options/Referrer-Policy/Permissions-Policy). localStorage keys: `em_user_profile`, `em_premium_recruiter`, `em_onboarding_visited`, `em_preferred_role`, `followed_organizers` (premium status stored client-side = trivially bypassable).
+- Forms: 14 `<form>` elements, all use manual `useState` + `FormData` + custom regex validators (`validateEmail`/`validatePassword` in AuthComponents.tsx). NONE use `react-hook-form` (installed, unused), NONE use `zod` (installed, unused), NONE use `@hookform/resolvers` (installed, unused). Validation only on auth forms; other forms (EventFormModal, OrgDashboard profile/password, AccountSettings, ReviewModal, Chat interview) have no client-side validation beyond required attributes.
+- UI/UX: `next-themes` installed but NOT wired (no ThemeProvider, no toggle, no `class="dark"` ever applied despite `.dark` CSS variables defined — dark mode is DEAD CODE). `body { zoom: calc(100vw/1440) }` hack STILL PRESENT (globals.css:136). 9 modal/overlay components, NONE accessible (no `aria-modal`, no `role="dialog"`, no Escape-to-close, no focus trap, no focus restore). 3 raw `<img>` (all in OrgDashboard.tsx) vs 0 `next/image` — no image optimization. Empty states GOOD (13+ locations). Loading states: 5 pages use Skeleton components, 5 use bare spinner, Home uses bare spinner. NO global `error.tsx`, NO `not-found.tsx`, NO `loading.tsx` at any route.
+- SEO: root layout metadata only (`title: "eventmate-fe"` (stale default), description, favicon). NO per-route `metadata` exports, NO `generateMetadata`. NO `sitemap.ts`, NO `robots.ts`, NO OpenGraph images, NO Twitter cards. `<html lang="en">` but all content is Vietnamese (should be `lang="vi"`).
+- Testing/CI: ZERO test files, ZERO test config (no vitest/playwright/jest), ZERO CI workflows (no .github/), ZERO pre-commit hooks (no .husky/). README.md is still the Vite template boilerplate (stale, references Vite plugins, `defineConfig`, `import.meta.dirname`).
+- Performance: 0 `next/dynamic` imports (no code splitting). Only `EventCard` is `React.memo`-ized (1 component). `useMemo`/`useCallback` only in ToastProvider, RotatingText, router compat (3 files). 4 files >500 lines: OrgDashboard.tsx (1133), Chat.tsx (766), CompanyDetail.tsx (656), AuthModal.tsx (585). Polling fallback every 4s in BOTH Chat.tsx and FloatingChat.tsx (redundant with realtime).
+- Mock/incomplete features: AdminDashboard transactions table is FAKE (uses organizers list with hardcoded 990000đ price, #TXN-1000+indices, "22/06/2026" date — line 401-412). AdminDashboard revenue = `2470000 + orgs.length * 990000` (mock). OrgDashboard "CV đề xuất" tab uses hardcoded `mockCVs` array (4 fake students with Unsplash avatars, lines 354-359). OrgDashboard stats "Tỷ lệ duyệt hồ sơ 85%", "Lượt xem hồ sơ 142 lượt", "Biểu đồ hiệu quả tuyển dụng Tháng 6" are all hardcoded mock SVG. CompanyDetail has "Mock Google Maps block" (line 451). VIP/Premium UI is extensive (OrgDashboard, OrgLayout, UserProfileDropdown, useOrgDashboard, Chat) but it's ONLY a localStorage toggle — NO payment integration, NO backend billing table, NO webhook handler. `handleToggleOrganizerVerification` in AdminDashboard is a no-op showToast (line 99-105).
+- Dependencies currency: NEXT 16.1.1, React 19.2.6, TypeScript ~6.0.2, Supabase-js 2.108, Tailwind 4.3, framer-motion 12.40. MISSING recommended: `@supabase/ssr` (server-side auth/cookies), `sonner` (or keep custom ToastProvider), `next-intl` (i18n — content is Vietnamese), `@vercel/analytics`, `@sentry/nextjs` (error tracking). `autoprefixer` devDep is unnecessary with Tailwind v4 `@tailwindcss/postcss`. `shadcn` is in `dependencies` (should be `devDependencies` — it's a CLI).
+
+---
+Task ID: upgrade-proposal
+Agent: main (Z.ai Code)
+Task: Nghiên cứu kỹ dự án + đưa ra đề xuất nâng cấp hoàn chỉnh FE & BE
+
+Work Log:
+- Dispatch Explore agent audit toàn diện hiện trạng (Task audit-current): 28 vấn đề, 9 P0 / 8 P1 / 11 P2.
+- Tổng hợp thành đề xuất nâng cấp, lưu tại .standards/UPGRADE_PROPOSAL.md (~350 dòng).
+
+Stage Summary:
+- Đề xuất chia 4 phase: Stabilize (P0, 1-2 ngày) → Architect (P1, 3-4 ngày) → Polish (P2.1-2.7+2.11, 2-3 ngày) → Complete features (P2.8-2.10, 3-5 ngày). Tổng ~9-14 ngày.
+- 9 P0 critical: interviews table missing, handle_new_user trigger, 3 RLS holes, storage ownership, GRANT ALL to anon, no middleware, no @supabase/ssr, VIP localStorage bypass, security headers.
+- 8 P1 architect: auth context, RSC migration, react-query adoption, RHF+zod adoption, tách OrgDashboard 1133 dòng + Chat 766 dòng, bỏ polling thỏa, next/image.
+- 11 P2 polish: dark mode, bỏ zoom hack, modal accessible, loading/error boundary, SEO, dead code, test/CI, mock→real, observability, i18n, re-enable eslint-config-next.
+- Cần user chốt 7 quyết định trước khi code (dark mode, primitive choice, payment provider, i18n, test framework, scope, priority).
