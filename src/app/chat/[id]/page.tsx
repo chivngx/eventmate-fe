@@ -1,1 +1,1 @@
-export { default } from"@/pages/chat/Chat"
+export { default } from"@/views/chat/Chat"

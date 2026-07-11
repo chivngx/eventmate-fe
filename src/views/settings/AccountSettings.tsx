@@ -17,7 +17,7 @@ import {
 import { Input } from"@/components/ui/input"
 import { Label } from"@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from"@/components/ui/tabs"
-import { useAccountSettings } from"@/pages/settings/useAccountSettings"
+import { useAccountSettings } from "@/hooks/useAccountSettings"
 import { Avatar, AvatarFallback, AvatarImage } from"@/components/ui/avatar"
 import { User, Upload } from"lucide-react"
 
@@ -55,7 +55,7 @@ export default function AccountSettings() {
  if (!role) return <Navigate to="/login" replace />
 
  return (
- <MainLayout role={role}>
+ <MainLayout role={role ?? undefined}>
  <div className="max-w-5xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
 
  {/* Tiêu đề trang */}

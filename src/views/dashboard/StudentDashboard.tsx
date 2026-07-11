@@ -6,7 +6,7 @@ import StudentHero from"@/components/dashboard/StudentHero"
 import EventCard from"@/components/event/EventCard"
 import QuickFilters from"@/components/QuickFilters"
 import Pagination from"@/components/Pagination"
-import { useStudentDashboard } from"./useStudentDashboard"
+import { useStudentDashboard } from "@/hooks/useStudentDashboard"
 
 export default function StudentDashboard() {
  const {

@@ -68,7 +68,7 @@ export default function SavedJobs() {
  if (loading) return <SkeletonGenericPage />
 
  return (
- <MainLayout role={role}>
+ <MainLayout role={role ?? undefined}>
  <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
 
  <div className="mb-8 bg-card p-6 sm:p-8 rounded-2xl border border-border shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from"react"
-import { useOrgDashboard } from"./useOrgDashboard"
+import { useOrgDashboard } from "@/hooks/useOrgDashboard"
 import { Button } from"@/components/ui/button"
 import {
  Briefcase,

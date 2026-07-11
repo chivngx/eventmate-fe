@@ -1,1 +1,1 @@
-export { default } from"@/pages/event/EventDetail"
+export { default } from"@/views/event/EventDetail"

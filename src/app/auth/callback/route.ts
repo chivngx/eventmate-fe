@@ -18,6 +18,7 @@ export async function GET(request: NextRequest) {
  const redirectParam = request.nextUrl.searchParams.get('redirect')
  // Default redirect destination after successful auth.
  const next = redirectParam && redirectParam.startsWith('/') ? redirectParam : '/'
+ const response = NextResponse.redirect(`${origin}${next}`)
 
  if (code) {
  const supabaseUrl =
@@ -32,8 +33,11 @@ export async function GET(request: NextRequest) {
  return request.cookies.getAll()
  },
  setAll(cookiesToSet) {
+ cookiesToSet.forEach(({ name, value }) =>
+ request.cookies.set(name, value)
+ )
  cookiesToSet.forEach(({ name, value, options }) =>
- request.cookies.set(name, value, options)
+ response.cookies.set(name, value, options)
  )
  },
  },
@@ -50,5 +54,5 @@ export async function GET(request: NextRequest) {
  }
 
  // Successful exchange (or no code) → go to the intended destination.
- return NextResponse.redirect(`${origin}${next}`)
+ return response
 }

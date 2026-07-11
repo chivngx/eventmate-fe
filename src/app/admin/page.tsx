@@ -1,1 +1,1 @@
-export { default } from"@/pages/dashboard/AdminDashboard"
+export { default } from"@/views/dashboard/AdminDashboard"

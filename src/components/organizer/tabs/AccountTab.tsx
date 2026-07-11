@@ -20,6 +20,7 @@ export interface ProfileData {
  bio: string
  avatarUrl: string
  companyImages: string
+ university: string
 }
 
 export interface PasswordState {

@@ -61,13 +61,13 @@ export function useSearchParams() {
  const nextSearchParams = useNextSearchParams()
 
  const searchParams = useMemo(
- () => new URLSearchParams(nextSearchParams.toString()),
+ () => new URLSearchParams(nextSearchParams?.toString() ?? ''),
  [nextSearchParams]
  )
 
  const setSearchParams = useCallback(
  (nextInit: SearchParamsInit) => {
- const current = new URLSearchParams(nextSearchParams.toString())
+ const current = new URLSearchParams(nextSearchParams?.toString() ?? '')
  const resolved =
  typeof nextInit ==="function" ? nextInit(current) : nextInit
 
@@ -87,7 +87,8 @@ export function useSearchParams() {
  }
 
  const qs = params.toString()
- router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
+ const path = pathname ?? '/'
+ router.replace(qs ? `${path}?${qs}` : path, { scroll: false })
  },
  [nextSearchParams, router, pathname]
  )

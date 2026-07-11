@@ -11,7 +11,7 @@ import { resolveSlug } from "@/lib/slugify"
 
 const NavLink = ({ href, icon: Icon, label, onClick }: { href: string; icon: React.ComponentType<{ className?: string }>; label: string; onClick?: (e: React.MouseEvent) => void }) => {
  const pathname = usePathname()
- const isActive = href ==="/" ? pathname ==="/" : pathname.startsWith(href)
+ const isActive = href === "/" ? pathname === "/" : (pathname?.startsWith(href) ?? false)
 
  return (
  <Link

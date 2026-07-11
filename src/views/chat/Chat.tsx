@@ -86,7 +86,7 @@ export default function Chat() {
  student_profile:profiles!student_id (id, full_name, avatar_url),
  organizer_profile:profiles!organizer_id (id, full_name, avatar_url)
  `)
- .eq(queryField, currentUser.id)
+ .eq(queryField, currentUser?.id)
  .order("created_at", { ascending: false })
 
  if (error) {
@@ -240,7 +240,7 @@ export default function Chat() {
  .insert([
  {
  chat_id: activeChat.id,
- sender_id: currentUser.id,
+ sender_id: currentUser?.id,
  content: tempMsg
  }
  ])
@@ -274,7 +274,7 @@ export default function Chat() {
  .insert([
  {
  event_id: activeChat.event_id,
- organizer_id: currentUser.id,
+ organizer_id: currentUser?.id,
  student_id: activeChat.student_id,
  title: interviewTitle,
  scheduled_at: new Date(interviewDate).toISOString(),
@@ -293,7 +293,7 @@ export default function Chat() {
  .insert([
  {
  chat_id: activeChat.id,
- sender_id: currentUser.id,
+ sender_id: currentUser?.id,
  content: `__INTERVIEW_REQUEST__:${interview.id}`
  }
  ])
@@ -484,7 +484,7 @@ export default function Chat() {
  )}
 
  {messages.map((msg) => {
- const isMe = msg.sender_id === currentUser.id
+ const isMe = msg.sender_id === currentUser?.id
 
  // Kiểm tra xem tin nhắn có phải là lời mời phỏng vấn không
  if (msg.content.startsWith("__INTERVIEW_REQUEST__:")) {
@@ -677,8 +677,8 @@ export default function Chat() {
  setActiveTab={(tab) => navigate(`/?tab=${tab}`)}
  isPremium={isPremium}
  userProfile={{
- fullName: currentUser?.raw_user_meta_data?.full_name ||"Nhà tuyển dụng",
- avatarUrl: currentUser?.raw_user_meta_data?.avatar_url ||"",
+ fullName: currentUser?.user_metadata?.full_name ||"Nhà tuyển dụng",
+ avatarUrl: currentUser?.user_metadata?.avatar_url ||"",
  email: currentUser?.email ||""
  }}
  onLogout={async () => {
@@ -695,7 +695,7 @@ export default function Chat() {
  }
 
  return (
- <MainLayout role={role}>
+ <MainLayout role={role ?? undefined}>
  {chatUI}
  </MainLayout>
  )
