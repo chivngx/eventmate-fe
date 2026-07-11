@@ -385,7 +385,7 @@ export default function Chat() {
                     </AvatarFallback>
                   </Avatar>
                   <div className="min-w-0 flex-1">
-                    <h4 className={`truncate text-sm font-semibold ${isActive ? "text-slate-600" : "text-foreground"}`}>
+                    <h4 className={`truncate text-sm font-semibold ${isActive ? "text-slate-900" : "text-foreground"}`}>
                       {partner.full_name}
                     </h4>
                     <p className="truncate text-xs text-muted-foreground">

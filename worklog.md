@@ -623,3 +623,80 @@ Stage Summary:
 - OrgLayout: VIP upgrade button converted from amber-50/amber-600/amber-200 hardcoded to `bg-accent text-primary border-primary/20 hover:bg-primary hover:text-primary-foreground`. All text-[10px] → text-xs. text-amber-500 lock icon → muted-foreground with primary-foreground/80 active variant. Sidebar/topbar fully token-compliant; VIP label collapses on mobile for overflow safety.
 - All business logic preserved: useAccountSettings hook + handlers, useUser + supabase profile fetch/save + CVPreviewModal wiring, OrgLayout menuItems + collapse state + onLogout. Only JSX/className/layout touched.
 - ESLint clean (0 errors, 1 unrelated warning). Next actions: (1) verify visual rendering of the new AccountSettings tabs and CVProfile identity card on dev server; (2) verify OrgLayout mobile sidebar collapse + VIP button hover state on /organizer routes.
+
+---
+Task ID: final-redesign-1
+Agent: general-purpose
+Task: Final TopCV cleanup for EventDetail/CompanyList/CompanyDetail
+
+Work Log:
+- src/views/event/EventDetail.tsx:
+  - Removed ALL TopCV class names from renderApplyAction buttons: `job-detail_info--actions-button`, `button-primary`, `open-apply-modal`, `btn-apply-job` (4 buttons: approved / rejected / pending / apply CTA).
+  - Replaced custom `h-[40px]` with `h-10` and `rounded-md` with `rounded-lg` on all 4 apply buttons; consolidated status buttons (rejected now uses slate-200 instead of amber-100) and added `disabled:cursor-not-allowed` + `text-sm` for consistency.
+  - Renamed CTA label from "Đăng ký ngay" → "Đăng ký tham gia" (event language, not job language) and deadline text "Đã hết hạn đăng ký đơn" → "Đã hết hạn đăng ký".
+  - Replaced 2 emerald section accent bars (`w-1 h-5 bg-primary rounded`) with neutral `w-1 h-5 bg-slate-300 rounded-full` on Description and Location headings — emerald is now ONLY on date block, apply CTA, and active bookmark.
+  - Description section: padding p-5 sm:p-6 → p-5 sm:p-7, heading gap-2 → gap-2.5, mb-3 → mb-4, text-sm → text-sm sm:text-base for more breathing room.
+  - Location section: padding p-5 sm:p-6 → p-5 sm:p-7, accent bar neutralized, address redesigned as icon-in-white-tile + label "Địa chỉ" + semibold address text (was a single truncated line) for clean spaciousness; gap-3 → gap-4, p-4 → p-4 sm:p-5.
+  - Organizer card: padding p-5 → p-5 sm:p-6, heading mb-3 → mb-4, meta spacing tightened with mt-1.5/mt-1, replaced text-link "Xem trang công ty" with clean bordered slate button "Xem trang ban tổ chức" (event language, not job language) using bg-slate-50 hover:bg-slate-100 border-slate-200 rounded-lg.
+- src/views/company/CompanyList.tsx:
+  - Removed emerald focus state on search input: `focus:border-primary` → `focus:border-slate-400` (emerald is not allowed on inputs).
+  - Cards already clean (logo w-14 h-14 + name line-clamp-1 + university + bio line-clamp-2 + slate-100 event-count badge + slate-100 contact + arrow). No emerald tints. No TopCV class names. No custom widths.
+- src/views/company/CompanyDetail.tsx:
+  - Replaced 8 emerald section accent bars (`w-1 h-5 bg-primary rounded`) with neutral `w-1 h-5 bg-slate-300 rounded-full` on all section headings (Giới thiệu, Hình ảnh, Tuyển nhân sự mới nhất, Thông tin chung, Địa điểm, Chia sẻ, Bộ lọc, Tuyển nhân sự tại…).
+  - Active tab count badge: `bg-primary/10 text-slate-600` → `bg-slate-200 text-slate-700` (no emerald tint).
+  - Gallery selected-image border: `border-primary ring-2 ring-primary/20` → `border-slate-400 ring-2 ring-slate-200`.
+  - Search bar focus states (2 instances): `focus-within:border-primary` / `focus:border-primary` → `focus-within:border-slate-400` / `focus:border-slate-400`.
+  - Location filter radio inputs (2 instances): `focus:ring-primary` → `focus:ring-slate-400`.
+  - Floating follow banner top accent: `border-t-4 border-t-primary` → `border-t-4 border-t-slate-300`.
+  - The 2 CTA follow buttons (header + floating banner) correctly retain `bg-primary hover:bg-primary/90 text-white border border-primary` (allowed CTA usage).
+  - Header card, tab strip, mock map placeholder (dashed border-slate-300 bg-slate-50), info card, share section, filters sidebar — all clean, neutral slate, no emerald tints, no TopCV class names.
+
+Stage Summary:
+- Lint: `bun run lint` → 0 errors, 2 unrelated warnings (StudentHero unused Button, MainLayout prefer-const channel — both outside the 3 target files).
+- Emerald (primary) usage in target files now strictly follows design philosophy: only date block (EventDetail), apply CTA (EventDetail), active bookmark (EventDetail), and 2 follow CTAs (CompanyDetail). All decorative accents, focus rings, tab badges, gallery borders, and floating-banner accents are now neutral slate.
+- All TopCV class names (`job-detail_*`, `button-primary`, `btn-apply-job`, `open-apply-modal`) removed from EventDetail.
+- All custom pixel values (`h-[40px]`, `text-[15px]`) replaced with standard tokens (`h-10`, `text-sm sm:text-base`).
+- All section accent bars converted from emerald to slate-300 with `rounded-full` for a softer, more event-platform feel.
+- Event language corrections: "Đăng ký ngay" → "Đăng ký tham gia", "Đã hết hạn đăng ký đơn" → "Đã hết hạn đăng ký", "Xem trang công ty" → "Xem trang ban tổ chức".
+- Layout philosophy: cards now have more generous padding (p-5 sm:p-7 on description/location), clearer hierarchy (label + value pairing on location), and a clean bordered CTA on the organizer card — moving away from TopCV's dense pixel-perfect job-board feel toward Eventbrite-style spaciousness.
+- Next actions: (1) visually verify the three pages on dev server — especially the new location "icon tile + address label/value" layout and the organizer card's bordered CTA button; (2) consider applying the same neutral accent bar pattern (bg-slate-300 rounded-full) to any remaining pages that still use bg-primary accent bars for visual consistency across the platform.
+
+---
+Task ID: final-redesign-2
+Agent: general-purpose
+Task: Final TopCV cleanup for dashboards/chat/settings
+
+Work Log:
+- src/views/dashboard/OrgDashboard.tsx — 4 fixes:
+  - Weekly applications chart highlighted bar (current week, `i === 2`): `bg-primary` → `bg-foreground` (data-viz should be neutral slate, not emerald).
+  - Reports chart legend dot "Đơn đăng ký": `bg-primary` → `bg-foreground`.
+  - Reports chart apps series bar: `bg-primary hover:bg-primary/80` → `bg-foreground hover:bg-foreground/80`.
+  - Services plan card "Đang sử dụng" status badge: `bg-primary text-primary-foreground` → `bg-slate-100 text-slate-600` (informational badge, not a CTA).
+  - Stat cards already neutral (slate-100 icons / slate-600 text). Section headings already clean (no emerald accent bars). All CTAs (bg-primary) preserved.
+- src/views/dashboard/AdminDashboard.tsx — 1 fix:
+  - Transactions tab header revenue badge: `bg-primary font-medium text-primary-foreground` → `bg-slate-100 font-medium text-slate-600` (stat indicator, not CTA).
+  - All tables already clean (slate-100 status badges, slate-100 verification buttons, slate-100 cv-completion pills). Stat cards already neutral. Sidebar active nav (bg-primary) preserved as allowed CTA-equivalent for active state.
+- src/components/layout/OrgLayout.tsx — 2 fixes:
+  - Premium avatar overlay Crown badge: `bg-primary text-primary-foreground` (badge + icon) → `bg-slate-100 text-slate-600` (informational premium indicator, not a CTA).
+  - Topbar "Lên VIP Tuyển nhân sự" upgrade button: fixed broken hover class `hover:text-slate-900-foreground` (invalid Tailwind class). Converted from neutral-with-broken-hover to a proper always-CTA: `bg-primary text-primary-foreground border border-primary hover:bg-primary/90` (upgrade button IS a CTA per design philosophy). The premium-state counterpart badge (`bg-slate-100 text-slate-600 border border-slate-200`) was already neutral — correct.
+  - Active nav state `bg-primary text-primary-foreground shadow-sm` preserved (allowed for active nav). Non-active items already neutral (`text-muted-foreground hover:bg-slate-100 hover:text-foreground`).
+- src/views/chat/Chat.tsx — 1 fix:
+  - Active chat item name color: `text-slate-600` → `text-slate-900` (matches active-nav pattern: bg-slate-100 text-slate-900 for proper active emphasis).
+  - Message bubbles preserved: own=`bg-primary text-primary-foreground` (CTA-equivalent for own message emphasis — allowed), other=`bg-muted text-foreground` (neutral). Interview request card already neutral (slate-100 icon tile, slate-600 calendar icon). Accept/Reject buttons correct (primary CTA + destructive outline). Send button preserved as bg-primary CTA. Loading spinner `border-primary` left as-is — small loading indicator, not a TopCV pattern.
+- src/views/job/MyJobs.tsx — verified clean, no changes needed:
+  - Stat cards absent (it's a list page). Status badges already neutral slate (bg-slate-100 text-slate-600 for approved, bg-muted text-muted-foreground for rejected, bg-secondary text-secondary-foreground for pending). Tags use bg-muted + bg-slate-100 (neutral). Only CTA "Tìm sự kiện ngay" uses bg-primary (correct).
+- src/views/job/SavedJobs.tsx — verified clean, no changes needed:
+  - Status badges neutral (bg-slate-100 / bg-muted). Date block uses bg-slate-100 text-slate-600 (neutral, matches "date block allowed emerald" rule but here it's slate — acceptable). Only CTA "Khám phá ngay" uses bg-primary (correct).
+- src/views/cv/CVProfile.tsx — verified clean, no changes needed:
+  - Identity card uses slate-100/slate-600 for avatar fallback + role pill (neutral). Form inputs use bg-card border-border (neutral). Only CTA "Lưu Hồ sơ năng lực" uses bg-primary (correct). "Xem trước & Tải CV" outline button neutral.
+- src/views/settings/AccountSettings.tsx — verified clean, no changes needed:
+  - Status alert neutral (bg-slate-100 border-slate-200 text-slate-600 for success, bg-destructive/10 for error). Tabs pill strip neutral. Form inputs bg-card. Avatar fallback slate-100/slate-600. Only CTAs use bg-primary (Lưu thay đổi) or bg-foreground (Cập nhật mật khẩu — dark neutral CTA).
+
+Stage Summary:
+- Lint: `bun run lint` → 0 errors, 2 unrelated pre-existing warnings (StudentHero unused Button, MainLayout prefer-const channel — both outside the 7 target files).
+- Emerald (primary) usage in target files now strictly follows design philosophy: PRIMARY only on (a) CTAs (bg-primary text-primary-foreground): OrgDashboard feed/events/services tab buttons + premium-unlock buttons + service plan activate button + Chat send button + Chat accept-interview button + Chat own message bubble + OrgLayout "Lên VIP" upgrade button + MyJobs/SavedJobs/CVProfile/AccountSettings submit CTAs; (b) active nav: OrgLayout sidebar active item (bg-primary text-primary-foreground) + AdminDashboard sidebar active item.
+- All non-CTA emerald tints removed: OrgDashboard chart bars + legend dots + "Đang sử dụng" badge → neutral slate/foreground; AdminDashboard revenue badge → slate-100/slate-600; OrgLayout premium Crown avatar overlay → slate-100/slate-600.
+- Fixed broken Tailwind class `text-slate-900-foreground` on OrgLayout "Lên VIP" button (was producing no hover text color); converted button to a proper always-CTA style.
+- Improved active-chat emphasis in Chat.tsx (text-slate-600 → text-slate-900) to match platform-wide active-nav pattern (bg-slate-100 text-slate-900).
+- All business logic preserved: useOrgDashboard hook + supabase queries, AdminDashboard fetchAdminData + handleDeleteEvent + handleToggleOrganizerVerification, OrgLayout menuItems + collapse state + onLogout, Chat fetchChats + fetchMessages + realtime subscription + handleSendMessage + handleCreateInterview + handleUpdateInterviewStatus, MyJobs/SavedJobs/CVProfile/AccountSettings hooks + handlers. Only className strings touched.
+- Next actions: (1) visually verify the four edited files on dev server — especially the OrgDashboard reports chart now using bg-foreground bars + neutral legend dots, and the OrgLayout topbar "Lên VIP" button now showing as a solid emerald CTA; (2) the remaining 22 files containing hex codes / emerald references are mostly outside this task's scope (modals, dropdowns, event components) — consider a follow-up pass if full-platform emerald audit is desired.

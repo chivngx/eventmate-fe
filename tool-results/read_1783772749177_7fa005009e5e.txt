@@ -1,0 +1,952 @@
+     1→     1→"use client"
+     2→     2→
+     3→     3→import { useState, useEffect } from"react"
+     4→     4→import { useOrgDashboard } from "@/hooks/useOrgDashboard"
+     5→     5→import { Button } from"@/components/ui/button"
+     6→     6→import {
+     7→     7→ Briefcase,
+     8→     8→ Calendar,
+     9→     9→ Users,
+    10→    10→ MessageSquare,
+    11→    11→ Lock,
+    12→    12→ Crown,
+    13→    13→ Check,
+    14→    14→ TrendingUp,
+    15→    15→ ArrowRight,
+    16→    16→ ChevronRight
+    17→    17→} from"lucide-react"
+    18→    18→import OrgEventsTab from"@/components/event/OrgEventsTab"
+    19→    19→import OrgEventApplicationsDetail from"@/components/organizer/OrgEventApplicationsDetail"
+    20→    20→import EventFormModal from"@/components/event/EventFormModal"
+    21→    21→import ReviewModal from"@/components/ReviewModal"
+    22→    22→import CVViewModal from"@/components/cv/CVViewModal"
+    23→    23→import OrgLayout from"@/components/layout/OrgLayout"
+    24→    24→import AccountTab from"@/components/organizer/tabs/AccountTab"
+    25→    25→import { supabase } from"@/lib/supabase"
+    26→    26→import { getUserFacingMessage } from"@/lib/error"
+    27→    27→import { useUser } from"@/components/providers/AuthProvider"
+    28→    28→import { useToast } from"@/components/ui/ToastProvider"
+    29→    29→
+    30→    30→export default function OrgDashboard() {
+    31→    31→ const { showToast } = useToast()
+    32→    32→ // 🔒 P1.1: user từ context (thay getUser() lặp 6 lần)
+    33→    33→ const { user } = useUser()
+    34→    34→ const {
+    35→    35→ events, title, setTitle, desc, setDesc, location, setLocation,
+    36→    36→ wardId, setWardId, wards,
+    37→    37→ positionType, setPositionType, benefits, setBenefits,
+    38→    38→ category, setCategory, slotsNeeded, setSlotsNeeded,
+    39→    39→ eventDate, setEventDate, applicationDeadline, setApplicationDeadline,
+    40→    40→ loading, fetching, showForm, setShowForm, editingId,
+    41→    41→ viewingCV, setViewingCV, applications, loadingApps,
+    42→    42→ selectedEventForCandidates, handleBackToEvents,
+    43→    43→ handleSubmitEvent, handleEditClick, handleDeleteEvent,
+    44→    44→ handleViewApplications, handleUpdateStatus, handleStartChatWithStudent, resetForm,
+    45→    45→ totalEvents, activeEvents, userId,
+    46→    46→ activeTab, setActiveTab, isPremium, handleBuyPremium
+    47→    47→ } = useOrgDashboard()
+    48→    48→
+    49→    49→ const [reviewingStudent, setReviewingStudent] = useState<{ eventId: string; studentId: string; studentName: string } | null>(null)
+    50→    50→
+    51→    51→ // Profile update state
+    52→    52→ const [profileData, setProfileData] = useState({
+    53→    53→ fullName:"",
+    54→    54→ phone:"",
+    55→    55→ university:"", // represents Company Name
+    56→    56→ bio:"",
+    57→    57→ avatarUrl:"",
+    58→    58→ email:"",
+    59→    59→ mst:"",
+    60→    60→ website:"",
+    61→    61→ scale:"",
+    62→    62→ address:"",
+    63→    63→ companyImages:""
+    64→    64→ })
+    65→    65→ const [isUpdatingProfile, setIsUpdatingProfile] = useState(false)
+    66→    66→ const [activeSubTab, setActiveSubTab] = useState<"info" |"password">("info")
+    67→    67→ const [uploadingAvatar, setUploadingAvatar] = useState(false)
+    68→    68→ const [uploadingCompanyImage, setUploadingCompanyImage] = useState(false)
+    69→    69→
+    70→    70→ // Password change state
+    71→    71→ const [passwordState, setPasswordState] = useState({
+    72→    72→ newPassword:"",
+    73→    73→ confirmPassword:""
+    74→    74→ })
+    75→    75→ const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
+    76→    76→
+    77→    77→ // Fetch / sync organizer profile
+    78→    78→ const fetchProfile = async () => {
+    79→    79→ if (user) {
+    80→    80→ const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
+    81→    81→ if (data) {
+    82→    82→ setProfileData({
+    83→    83→ fullName: data.full_name ||"",
+    84→    84→ phone: data.phone ||"",
+    85→    85→ university: data.university ||"",
+    86→    86→ bio: data.bio ||"",
+    87→    87→ avatarUrl: data.avatar_url ||"",
+    88→    88→ email: data.email ||"",
+    89→    89→ mst: data.mst ||"",
+    90→    90→ website: data.website ||"",
+    91→    91→ scale: data.scale ||"",
+    92→    92→ address: data.address ||"",
+    93→    93→ companyImages: data.company_images ||""
+    94→    94→ })
+    95→    95→ }
+    96→    96→ }
+    97→    97→ }
+    98→    98→
+    99→    99→ useEffect(() => {
+   100→   100→ fetchProfile()
+   101→   101→ }, [userId])
+   102→   102→
+   103→   103→ const handleUpdateProfile = async (e: React.FormEvent) => {
+   104→   104→ e.preventDefault()
+   105→   105→ setIsUpdatingProfile(true)
+   106→   106→ if (user) {
+   107→   107→ const { error } = await supabase.from("profiles").update({
+   108→   108→ full_name: profileData.fullName,
+   109→   109→ phone: profileData.phone,
+   110→   110→ university: profileData.fullName, // Keep university field synced with Company Name/CLB
+   111→   111→ bio: profileData.bio,
+   112→   112→ avatar_url: profileData.avatarUrl,
+   113→   113→ mst: profileData.mst,
+   114→   114→ website: profileData.website,
+   115→   115→ scale: profileData.scale,
+   116→   116→ address: profileData.address,
+   117→   117→ company_images: profileData.companyImages
+   118→   118→ }).eq("id", user.id)
+   119→   119→
+   120→   120→ if (!error) {
+   121→   121→ showToast({
+   122→   122→ title:"Thành công",
+   123→   123→ message:"Cập nhật thông tin công ty thành công!",
+   124→   124→ type:"success"
+   125→   125→ })
+   126→   126→ fetchProfile()
+   127→   127→ } else {
+   128→   128→ showToast({
+   129→   129→ title:"Lỗi cập nhật",
+   130→   130→ message: getUserFacingMessage(error,"Cập nhật hồ sơ thất bại. Vui lòng thử lại."),
+   131→   131→ type:"error"
+   132→   132→ })
+   133→   133→ }
+   134→   134→ }
+   135→   135→ setIsUpdatingProfile(false)
+   136→   136→ }
+   137→   137→
+   138→   138→ // Upload Logo handler
+   139→   139→ const handleUploadLogo = async (file: File) => {
+   140→   140→ try {
+   141→   141→ setUploadingAvatar(true)
+   142→   142→ if (!user) return
+   143→   143→
+   144→   144→ const fileExt = file.name.split('.').pop()
+   145→   145→ const fileName = `${user.id}-logo-${Math.random().toString(36).substring(7)}.${fileExt}`
+   146→   146→ const filePath = fileName
+   147→   147→
+   148→   148→ const { error: uploadError } = await supabase.storage
+   149→   149→ .from('avatars')
+   150→   150→ .upload(filePath, file, { cacheControl: '3600', upsert: true })
+   151→   151→
+   152→   152→ if (uploadError) throw uploadError
+   153→   153→
+   154→   154→ const { data: { publicUrl } } = supabase.storage
+   155→   155→ .from('avatars')
+   156→   156→ .getPublicUrl(filePath)
+   157→   157→
+   158→   158→ // Update local state and also sync to db
+   159→   159→ const { error: updateError } = await supabase
+   160→   160→ .from('profiles')
+   161→   161→ .update({ avatar_url: publicUrl })
+   162→   162→ .eq('id', user.id)
+   163→   163→
+   164→   164→ if (updateError) throw updateError
+   165→   165→
+   166→   166→ setProfileData(prev => ({ ...prev, avatarUrl: publicUrl }))
+   167→   167→ showToast({
+   168→   168→ title:"Thành công",
+   169→   169→ message:"Tải lên logo thành công!",
+   170→   170→ type:"success"
+   171→   171→ })
+   172→   172→ fetchProfile()
+   173→   173→ } catch (err: any) {
+   174→   174→ showToast({
+   175→   175→ title:"Lỗi tải ảnh lên",
+   176→   176→ message: getUserFacingMessage(err,"Không thể tải ảnh lên. Vui lòng thử lại."),
+   177→   177→ type:"error"
+   178→   178→ })
+   179→   179→ } finally {
+   180→   180→ setUploadingAvatar(false)
+   181→   181→ }
+   182→   182→ }
+   183→   183→
+   184→   184→ // Upload Company Image handler
+   185→   185→ const handleUploadCompanyImage = async (file: File) => {
+   186→   186→ try {
+   187→   187→ setUploadingCompanyImage(true)
+   188→   188→ if (!user) return
+   189→   189→
+   190→   190→ const fileExt = file.name.split('.').pop()
+   191→   191→ const fileName = `${user.id}-company-${Math.random().toString(36).substring(7)}.${fileExt}`
+   192→   192→ const filePath = fileName
+   193→   193→
+   194→   194→ const { error: uploadError } = await supabase.storage
+   195→   195→ .from('avatars')
+   196→   196→ .upload(filePath, file, { cacheControl: '3600', upsert: true })
+   197→   197→
+   198→   198→ if (uploadError) throw uploadError
+   199→   199→
+   200→   200→ const { data: { publicUrl } } = supabase.storage
+   201→   201→ .from('avatars')
+   202→   202→ .getPublicUrl(filePath)
+   203→   203→
+   204→   204→ const currentImages = profileData.companyImages ? profileData.companyImages.split(',').filter(Boolean) : []
+   205→   205→ const newImages = [...currentImages, publicUrl].join(',')
+   206→   206→
+   207→   207→ const { error: updateError } = await supabase
+   208→   208→ .from('profiles')
+   209→   209→ .update({ company_images: newImages })
+   210→   210→ .eq('id', user.id)
+   211→   211→
+   212→   212→ if (updateError) throw updateError
+   213→   213→
+   214→   214→ setProfileData(prev => ({ ...prev, companyImages: newImages }))
+   215→   215→ showToast({
+   216→   216→ title:"Thành công",
+   217→   217→ message:"Tải lên hình ảnh công ty thành công!",
+   218→   218→ type:"success"
+   219→   219→ })
+   220→   220→ fetchProfile()
+   221→   221→ } catch (err: any) {
+   222→   222→ showToast({
+   223→   223→ title:"Lỗi tải ảnh lên",
+   224→   224→ message: getUserFacingMessage(err,"Không thể tải ảnh lên. Vui lòng thử lại."),
+   225→   225→ type:"error"
+   226→   226→ })
+   227→   227→ } finally {
+   228→   228→ setUploadingCompanyImage(false)
+   229→   229→ }
+   230→   230→ }
+   231→   231→
+   232→   232→ // Delete Company Image handler
+   233→   233→ const handleDeleteCompanyImage = async (indexToDelete: number) => {
+   234→   234→ try {
+   235→   235→ if (!user) return
+   236→   236→
+   237→   237→ const currentImages = profileData.companyImages ? profileData.companyImages.split(',').filter(Boolean) : []
+   238→   238→ const updatedImagesList = currentImages.filter((_, idx) => idx !== indexToDelete)
+   239→   239→ const newImages = updatedImagesList.join(',')
+   240→   240→
+   241→   241→ const { error: updateError } = await supabase
+   242→   242→ .from('profiles')
+   243→   243→ .update({ company_images: newImages })
+   244→   244→ .eq('id', user.id)
+   245→   245→
+   246→   246→ if (updateError) throw updateError
+   247→   247→
+   248→   248→ setProfileData(prev => ({ ...prev, companyImages: newImages }))
+   249→   249→ showToast({
+   250→   250→ title:"Thành công",
+   251→   251→ message:"Xóa hình ảnh thành công!",
+   252→   252→ type:"success"
+   253→   253→ })
+   254→   254→ fetchProfile()
+   255→   255→ } catch (err: any) {
+   256→   256→ showToast({
+   257→   257→ title:"Lỗi xóa ảnh",
+   258→   258→ message: getUserFacingMessage(err,"Không thể xóa ảnh. Vui lòng thử lại."),
+   259→   259→ type:"error"
+   260→   260→ })
+   261→   261→ }
+   262→   262→ }
+   263→   263→
+   264→   264→ const handleChangePassword = async (e: React.FormEvent) => {
+   265→   265→ e.preventDefault()
+   266→   266→ if (!passwordState.newPassword) {
+   267→   267→ showToast({
+   268→   268→ title:"Lỗi",
+   269→   269→ message:"Vui lòng nhập mật khẩu mới",
+   270→   270→ type:"error"
+   271→   271→ })
+   272→   272→ return
+   273→   273→ }
+   274→   274→ if (passwordState.newPassword !== passwordState.confirmPassword) {
+   275→   275→ showToast({
+   276→   276→ title:"Lỗi",
+   277→   277→ message:"Mật khẩu xác nhận không khớp",
+   278→   278→ type:"error"
+   279→   279→ })
+   280→   280→ return
+   281→   281→ }
+   282→   282→ setIsUpdatingPassword(true)
+   283→   283→ const { error } = await supabase.auth.updateUser({
+   284→   284→ password: passwordState.newPassword
+   285→   285→ })
+   286→   286→ if (!error) {
+   287→   287→ showToast({
+   288→   288→ title:"Thành công",
+   289→   289→ message:"Đổi mật khẩu thành công!",
+   290→   290→ type:"success"
+   291→   291→ })
+   292→   292→ setPasswordState({ newPassword:"", confirmPassword:"" })
+   293→   293→ } else {
+   294→   294→ showToast({
+   295→   295→ title:"Lỗi",
+   296→   296→ message: getUserFacingMessage(error,"Đổi mật khẩu thất bại. Vui lòng thử lại."),
+   297→   297→ type:"error"
+   298→   298→ })
+   299→   299→ }
+   300→   300→ setIsUpdatingPassword(false)
+   301→   301→ }
+   302→   302→
+   303→   303→ const handleBuyPremiumService = () => {
+   304→   304→ handleBuyPremium()
+   305→   305→ showToast({
+   306→   306→ title:"Kích hoạt thành công",
+   307→   307→ message:"Chúc mừng! Bạn đã nâng cấp tài khoản VIP Tuyển nhân sự thành công.",
+   308→   308→ type:"success"
+   309→   309→ })
+   310→   310→ }
+   311→   311→
+   312→   312→ const userProfileCached = {
+   313→   313→ fullName: profileData.fullName ||"Nhà tuyển nhân sự",
+   314→   314→ avatarUrl: profileData.avatarUrl ||"",
+   315→   315→ email: profileData.email ||""
+   316→   316→ }
+   317→   317→
+   318→   318→ // Active Chats list for the Recruiter
+   319→   319→ const [activeChats, setActiveChats] = useState<any[]>([])
+   320→   320→ const [loadingChats, setLoadingChats] = useState(false)
+   321→   321→
+   322→   322→ // 🔒 P2.8: CV recommendations — fetch applicants thật (thay mock 4 fake students)
+   323→   323→ const [recommendedCVs, setRecommendedCVs] = useState<any[]>([])
+   324→   324→ useEffect(() => {
+   325→   325→ if (activeTab !=="recommended" || !isPremium || !userId) return
+   326→   326→ const fetchRecommended = async () => {
+   327→   327→ // Lấy applicants mới nhất join profiles + events (lấy skills từ profile + position_type từ event để match)
+   328→   328→ const { data } = await supabase
+   329→   329→ .from("applications")
+   330→   330→ .select(`
+   331→   331→ id,
+   332→   332→ status,
+   333→   333→ applied_at,
+   334→   334→ student_id,
+   335→   335→ event_id,
+   336→   336→ events (title, position_type, benefits),
+   337→   337→ profiles!applications_student_id_fkey (id, full_name, avatar_url, university, skills, cv_completion_percent)
+   338→   338→ `)
+   339→   339→ .eq("events.organizer_id", userId)
+   340→   340→ .order("applied_at", { ascending: false })
+   341→   341→ .limit(8)
+   342→   342→ if (data) {
+   343→   343→ // Compute match score đơn giản: cv_completion_percent + bonus nếu skills chứa position_type keyword
+   344→   344→ const scored = data.map((app: any) => {
+   345→   345→ const skills = (app.profiles?.skills ||"").toLowerCase()
+   346→   346→ const position = (app.events?.position_type ||"").toLowerCase()
+   347→   347→ let match = app.profiles?.cv_completion_percent || 50
+   348→   348→ if (position && skills.includes(position.split("")[0])) match = Math.min(99, match + 10)
+   349→   349→ return {
+   350→   350→ name: app.profiles?.full_name ||"Sinh viên",
+   351→   351→ university: app.profiles?.university ||"Chưa cập nhật",
+   352→   352→ skills: app.profiles?.skills ||"Chưa cập nhật kỹ năng",
+   353→   353→ match,
+   354→   354→ completion: app.profiles?.cv_completion_percent || 0,
+   355→   355→ avatar: app.profiles?.avatar_url ||"",
+   356→   356→ studentId: app.profiles?.id,
+   357→   357→ eventId: app.event_id,
+   358→   358→ }
+   359→   359→ })
+   360→   360→ setRecommendedCVs(scored)
+   361→   361→ }
+   362→   362→ }
+   363→   363→ fetchRecommended()
+   364→   364→ }, [activeTab, isPremium, userId])
+   365→   365→
+   366→   366→ useEffect(() => {
+   367→   367→ const fetchChats = async () => {
+   368→   368→ if (!user) return
+   369→   369→ setLoadingChats(true)
+   370→   370→ const { data } = await supabase
+   371→   371→ .from("chats")
+   372→   372→ .select(`
+   373→   373→ id,
+   374→   374→ created_at,
+   375→   375→ events (id, title),
+   376→   376→ profiles!chats_student_id_fkey (id, full_name, avatar_url, university)
+   377→   377→ `)
+   378→   378→ .eq("organizer_id", user.id)
+   379→   379→ if (data) setActiveChats(data)
+   380→   380→ setLoadingChats(false)
+   381→   381→ }
+   382→   382→ if (activeTab ==="chat") {
+   383→   383→ fetchChats()
+   384→   384→ }
+   385→   385→ }, [activeTab])
+   386→   386→
+   387→   387→ // 🔒 P2.8: mockCVs removed — using recommendedCVs (real applicants from DB)
+   388→   388→
+   389→   389→ // 🔒 P2.8: feed stats — approval rate + weekly applications (thay 85% / 142 lượt / chart mock)
+   390→   390→ const [feedStats, setFeedStats] = useState<{ approvalRate: number; weeklyApps: number[] }>({ approvalRate: 0, weeklyApps: [0, 0, 0, 0] })
+   391→   391→ useEffect(() => {
+   392→   392→ if (activeTab !=="feed" || !userId) return
+   393→   393→ const fetchStats = async () => {
+   394→   394→ // Approval rate: approved / total applications cho events của organizer
+   395→   395→ const { data: apps } = await supabase
+   396→   396→ .from("applications")
+   397→   397→ .select("status, applied_at")
+   398→   398→ .in("event_id", (await supabase.from("events").select("id").eq("organizer_id", userId)).data?.map((e: any) => e.id) || [])
+   399→   399→ if (apps && apps.length > 0) {
+   400→   400→ const approved = apps.filter((a: any) => a.status ==="approved").length
+   401→   401→ const rate = Math.round((approved / apps.length) * 100)
+   402→   402→ // Weekly applications (4 tuần gần nhất)
+   403→   403→ const now = Date.now()
+   404→   404→ const weekMs = 7 * 24 * 60 * 60 * 1000
+   405→   405→ const weekly = [0, 0, 0, 0]
+   406→   406→ apps.forEach((a: any) => {
+   407→   407→ const applied = new Date(a.applied_at).getTime()
+   408→   408→ const weeksAgo = Math.floor((now - applied) / weekMs)
+   409→   409→ if (weeksAgo >= 0 && weeksAgo < 4) weekly[3 - weeksAgo]++
+   410→   410→ })
+   411→   411→ setFeedStats({ approvalRate: rate, weeklyApps: weekly })
+   412→   412→ }
+   413→   413→ }
+   414→   414→ fetchStats()
+   415→   415→ }, [activeTab, userId])
+   416→   416→
+   417→   417→  return (
+   418→   418→    <OrgLayout
+   419→   419→      activeTab={activeTab}
+   420→   420→      setActiveTab={setActiveTab}
+   421→   421→      isPremium={isPremium}
+   422→   422→      userProfile={userProfileCached}
+   423→   423→      onLogout={async () => {
+   424→   424→        // 🔒 P1.1: AuthProvider onAuthStateChange clears session state
+   425→   425→        await supabase.auth.signOut()
+   426→   426→        window.location.href = "/"
+   427→   427→      }}
+   428→   428→    >
+   429→   429→      {/* 1. TAB: FEED */}
+   430→   430→      {activeTab === "feed" && (
+   431→   431→        <div className="space-y-6 animate-in fade-in duration-300">
+   432→   432→          {/* Welcome header */}
+   433→   433→          <div className="flex flex-col gap-4 rounded-xl border border-border bg-card p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
+   434→   434→            <div className="min-w-0">
+   435→   435→              <h1 className="text-xl font-semibold text-foreground sm:text-2xl">
+   436→   436→                Xin chào, {profileData.fullName || "Nhà tuyển nhân sự"}!
+   437→   437→              </h1>
+   438→   438→              <p className="mt-1 text-sm text-muted-foreground">
+   439→   439→                Tổng quan hiệu suất các chiến dịch tuyển nhân sự tình nguyện viên của bạn.
+   440→   440→              </p>
+   441→   441→            </div>
+   442→   442→            <Button
+   443→   443→              onClick={() => { setActiveTab("events"); setShowForm(true); }}
+   444→   444→              className="h-10 shrink-0 rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+   445→   445→            >
+   446→   446→              Tạo chiến dịch mới
+   447→   447→            </Button>
+   448→   448→          </div>
+   449→   449→
+   450→   450→          {/* Stat cards — 4 cols responsive */}
+   451→   451→          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+   452→   452→            <StatCard icon={<Briefcase className="h-5 w-5" />} label="Tổng chiến dịch" value={String(totalEvents)} />
+   453→   453→            <StatCard icon={<Calendar className="h-5 w-5" />} label="Đang mở đăng ký" value={String(activeEvents)} />
+   454→   454→            <StatCard icon={<Users className="h-5 w-5" />} label="Tỷ lệ duyệt đăng ký" value={`${feedStats.approvalRate}%`} />
+   455→   455→            <StatCard icon={<TrendingUp className="h-5 w-5" />} label="Tổng đơn đăng ký" value={String(feedStats.weeklyApps.reduce((a: number, b: number) => a + b, 0))} />
+   456→   456→          </div>
+   457→   457→
+   458→   458→          <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+   459→   459→            {/* Weekly applications chart */}
+   460→   460→            <div className="space-y-4 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:col-span-2">
+   461→   461→              <div>
+   462→   462→                <h3 className="text-base font-semibold text-foreground">Biểu đồ đăng ký</h3>
+   463→   463→                <p className="mt-0.5 text-xs text-muted-foreground">4 tuần gần nhất</p>
+   464→   464→              </div>
+   465→   465→              {/* 🔒 P2.8: real chart từ feedStats.weeklyApps */}
+   466→   466→              <div className="flex h-48 w-full items-end justify-between gap-2 border-b border-l border-border pl-3 pt-6 sm:h-56">
+   467→   467→                {(() => {
+   468→   468→                  const max = Math.max(...feedStats.weeklyApps, 1)
+   469→   469→                  return feedStats.weeklyApps.map((count, i) => (
+   470→   470→                    <div key={i} className="flex flex-1 flex-col items-center gap-2">
+   471→   471→                      <span className="text-xs font-medium text-foreground">{count}</span>
+   472→   472→                      <div
+   473→   473→                        className={`w-full max-w-12 rounded-t-md transition-colors ${i === 2 ? "bg-primary" : "bg-muted-foreground/30 hover:bg-muted-foreground/50"}`}
+   474→   474→                        style={{ height: `${Math.max(8, (count / max) * 140)}px` }}
+   475→   475→                        title={`${count} người tham gia`}
+   476→   476→                      />
+   477→   477→                      <span className="text-xs text-muted-foreground">Tuần {i + 1}</span>
+   478→   478→                    </div>
+   479→   479→                  ))
+   480→   480→                })()}
+   481→   481→              </div>
+   482→   482→            </div>
+   483→   483→
+   484→   484→            {/* Premium promo */}
+   485→   485→            <div className="flex flex-col justify-between rounded-xl border border-slate-200 bg-card p-5 shadow-sm sm:p-6">
+   486→   486→              <div className="space-y-3">
+   487→   487→                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+   488→   488→                  <Crown className="h-5 w-5" />
+   489→   489→                </div>
+   490→   490→                <h3 className="text-base font-semibold text-foreground">Nâng cấp VIP Tuyển nhân sự</h3>
+   491→   491→                <p className="text-sm leading-relaxed text-muted-foreground">
+   492→   492→                  Tiếp cận trực tiếp hàng ngàn hồ sơ sinh viên tài năng tại Đà Nẵng, xem báo cáo thông minh và đẩy sự kiện lên vị trí nổi bật.
+   493→   493→                </p>
+   494→   494→              </div>
+   495→   495→              <Button
+   496→   496→                onClick={() => setActiveTab("services")}
+   497→   497→                className="mt-5 h-10 w-full rounded-lg bg-primary text-sm font-medium text-primary-foreground hover:bg-primary/90"
+   498→   498→              >
+   499→   499→                Xem bảng giá gói
+   500→   500→              </Button>
+   501→   501→            </div>
+   502→   502→          </div>
+   503→   503→        </div>
+   504→   504→      )}
+   505→   505→
+   506→   506→      {/* 2. TAB: EVENTS */}
+   507→   507→      {activeTab === "events" && (
+   508→   508→        <div className="space-y-6 animate-in fade-in duration-300">
+   509→   509→          <div className="flex items-center justify-between gap-4">
+   510→   510→            <h1 className="text-xl font-semibold text-foreground sm:text-2xl">Các chiến dịch của tôi</h1>
+   511→   511→            <Button
+   512→   512→              onClick={() => setShowForm(true)}
+   513→   513→              className="h-10 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+   514→   514→            >
+   515→   515→              Tạo chiến dịch mới
+   516→   516→            </Button>
+   517→   517→          </div>
+   518→   518→          <OrgEventsTab
+   519→   519→            fetching={fetching}
+   520→   520→            events={events}
+   521→   521→            onEditClick={handleEditClick}
+   522→   522→            onDeleteEvent={handleDeleteEvent}
+   523→   523→            onViewApplications={handleViewApplications}
+   524→   524→          />
+   525→   525→        </div>
+   526→   526→      )}
+   527→   527→
+   528→   528→      {/* 3. TAB: CANDIDATES */}
+   529→   529→      {activeTab === "candidates" && (
+   530→   530→        <div className="space-y-6 animate-in fade-in duration-300">
+   531→   531→          {selectedEventForCandidates ? (
+   532→   532→            <OrgEventApplicationsDetail
+   533→   533→              event={selectedEventForCandidates}
+   534→   534→              applications={applications}
+   535→   535→              loadingApps={loadingApps}
+   536→   536→              onBack={handleBackToEvents}
+   537→   537→              setViewingCV={setViewingCV}
+   538→   538→              handleUpdateStatus={handleUpdateStatus}
+   539→   539→              onStartChatWithStudent={handleStartChatWithStudent}
+   540→   540→              onRateStudent={(eventId, studentId, studentName) => setReviewingStudent({ eventId, studentId, studentName })}
+   541→   541→            />
+   542→   542→          ) : (
+   543→   543→            <div className="space-y-5 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6">
+   544→   544→              <div>
+   545→   545→                <h2 className="text-lg font-semibold text-foreground">Chọn sự kiện để xem người tham gia</h2>
+   546→   546→                <p className="mt-1 text-sm text-muted-foreground">
+   547→   547→                  Chọn một trong những sự kiện dưới đây để xem danh sách hồ sơ chi tiết.
+   548→   548→                </p>
+   549→   549→              </div>
+   550→   550→
+   551→   551→              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+   552→   552→                {events.map((ev) => (
+   553→   553→                  <button
+   554→   554→                    key={ev.id}
+   555→   555→                    onClick={() => handleViewApplications(ev)}
+   556→   556→                    className="flex items-center justify-between rounded-lg border border-border bg-muted/40 p-4 text-left transition-colors hover:border-slate-300 hover:bg-card"
+   557→   557→                  >
+   558→   558→                    <div className="min-w-0">
+   559→   559→                      <h4 className="truncate text-sm font-semibold text-foreground">{ev.title}</h4>
+   560→   560→                      <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+   561→   561→                        <Users className="h-3.5 w-3.5" />
+   562→   562→                        Số lượng đơn đăng ký: {ev.applications?.length || 0}
+   563→   563→                      </p>
+   564→   564→                    </div>
+   565→   565→                    <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
+   566→   566→                  </button>
+   567→   567→                ))}
+   568→   568→              </div>
+   569→   569→            </div>
+   570→   570→          )}
+   571→   571→        </div>
+   572→   572→      )}
+   573→   573→
+   574→   574→      {/* 4. TAB: RECOMMENDED (Premium) */}
+   575→   575→      {activeTab === "recommended" && (
+   576→   576→        <div className="relative z-10 min-h-[450px] space-y-6 animate-in fade-in duration-300">
+   577→   577→          <h1 className="text-xl font-semibold text-foreground sm:text-2xl">Đề xuất người tham gia Thông minh</h1>
+   578→   578→
+   579→   579→          <div className={`grid grid-cols-1 gap-4 md:grid-cols-2 ${!isPremium ? "pointer-events-none select-none blur-sm" : ""}`}>
+   580→   580→            {recommendedCVs.length === 0 ? (
+   581→   581→              <div className="py-12 text-center text-sm text-muted-foreground md:col-span-2">
+   582→   582→                Chưa có người tham gia nào đăng ký vào sự kiện của bạn.
+   583→   583→              </div>
+   584→   584→            ) : recommendedCVs.map((cv, i) => (
+   585→   585→              <div key={i} className="flex items-start gap-4 rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
+   586→   586→                {cv.avatar ? (
+   587→   587→                  <img src={cv.avatar} alt={cv.name} loading="lazy" className="h-12 w-12 shrink-0 rounded-lg border border-border object-cover sm:h-14 sm:w-14" />
+   588→   588→                ) : (
+   589→   589→                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-base font-semibold text-slate-600 sm:h-14 sm:w-14">
+   590→   590→                    {cv.name.charAt(0).toUpperCase()}
+   591→   591→                  </div>
+   592→   592→                )}
+   593→   593→                <div className="min-w-0 flex-1">
+   594→   594→                  <div className="flex items-center gap-2">
+   595→   595→                    <h3 className="truncate text-sm font-semibold text-foreground">{cv.name}</h3>
+   596→   596→                    <span className="shrink-0 rounded-md bg-slate-100 px-1.5 py-0.5 text-xs font-medium text-slate-600">
+   597→   597→                      Match: {cv.match}%
+   598→   598→                    </span>
+   599→   599→                  </div>
+   600→   600→                  <p className="mt-0.5 truncate text-xs text-muted-foreground">{cv.university}</p>
+   601→   601→                  <p className="mt-2 truncate text-xs text-foreground">Kỹ năng: {cv.skills}</p>
+   602→   602→                </div>
+   603→   603→              </div>
+   604→   604→            ))}
+   605→   605→          </div>
+   606→   606→
+   607→   607→          {/* Premium lock overlay */}
+   608→   608→          {!isPremium && (
+   609→   609→            <div className="absolute inset-0 z-10 flex items-center justify-center bg-muted/20 p-6">
+   610→   610→              <div className="w-full max-w-md space-y-5 rounded-xl border border-border bg-card p-6 text-center shadow-md sm:p-8 animate-in zoom-in-95">
+   611→   611→                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+   612→   612→                  <Lock className="h-7 w-7" />
+   613→   613→                </div>
+   614→   614→                <div className="space-y-2">
+   615→   615→                  <h3 className="text-lg font-semibold text-foreground">Mở khóa tính năng VIP</h3>
+   616→   616→                  <p className="text-sm leading-relaxed text-muted-foreground">
+   617→   617→                    Khám phá tính năng gợi ý CV tự động bằng AI, tìm kiếm sinh viên phù hợp nhất dựa trên tiêu chuẩn sự kiện và gửi lời mời phỏng vấn ngay lập tức!
+   618→   618→                  </p>
+   619→   619→                </div>
+   620→   620→                <Button
+   621→   621→                  onClick={() => setActiveTab("services")}
+   622→   622→                  className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary text-sm font-medium text-primary-foreground hover:bg-primary/90"
+   623→   623→                >
+   624→   624→                  <Crown className="h-4 w-4" /> Xem gói dịch vụ VIP
+   625→   625→                </Button>
+   626→   626→              </div>
+   627→   627→            </div>
+   628→   628→          )}
+   629→   629→        </div>
+   630→   630→      )}
+   631→   631→
+   632→   632→      {/* 5. TAB: REPORTS (Premium) */}
+   633→   633→      {activeTab === "reports" && (
+   634→   634→        <div className="relative z-10 min-h-[450px] space-y-6 animate-in fade-in duration-300">
+   635→   635→          <h1 className="text-xl font-semibold text-foreground sm:text-2xl">Báo cáo & Phân tích chuyên sâu</h1>
+   636→   636→
+   637→   637→          <div className={`space-y-6 ${!isPremium ? "pointer-events-none select-none blur-sm" : ""}`}>
+   638→   638→            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+   639→   639→              <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+   640→   640→                <h4 className="text-xs font-medium text-muted-foreground">Tỷ lệ hoàn thành hồ sơ</h4>
+   641→   641→                <div className="mt-2 text-2xl font-semibold text-foreground">92.5%</div>
+   642→   642→              </div>
+   643→   643→              <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+   644→   644→                <h4 className="text-xs font-medium text-muted-foreground">Thời gian phản hồi CV TB</h4>
+   645→   645→                <div className="mt-2 text-2xl font-semibold text-foreground">1.8 ngày</div>
+   646→   646→              </div>
+   647→   647→              <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+   648→   648→                <h4 className="text-xs font-medium text-muted-foreground">Kênh tiếp cận hiệu quả</h4>
+   649→   649→                <div className="mt-2 text-2xl font-semibold text-foreground">Facebook & Web</div>
+   650→   650→              </div>
+   651→   651→            </div>
+   652→   652→
+   653→   653→            {/* Daily reach / applications chart */}
+   654→   654→            <div className="space-y-4 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6">
+   655→   655→              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+   656→   656→                <h3 className="text-base font-semibold text-foreground">Lượt tiếp cận & Đơn đăng ký theo ngày</h3>
+   657→   657→                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+   658→   658→                  <span className="flex items-center gap-1.5">
+   659→   659→                    <span className="h-2 w-2 rounded-full bg-muted-foreground/40" /> Lượt xem
+   660→   660→                  </span>
+   661→   661→                  <span className="flex items-center gap-1.5">
+   662→   662→                    <span className="h-2 w-2 rounded-full bg-primary" /> Đơn đăng ký
+   663→   663→                  </span>
+   664→   664→                </div>
+   665→   665→              </div>
+   666→   666→              <div className="flex h-56 w-full items-end justify-between gap-2 border-b border-l border-border pl-3 pt-6 sm:h-64">
+   667→   667→                {[
+   668→   668→                  { day: "T2", views: 120, apps: 15 },
+   669→   669→                  { day: "T3", views: 160, apps: 24 },
+   670→   670→                  { day: "T4", views: 200, apps: 35 },
+   671→   671→                  { day: "T5", views: 140, apps: 18 },
+   672→   672→                  { day: "T6", views: 220, apps: 50 },
+   673→   673→                  { day: "T7", views: 260, apps: 68 },
+   674→   674→                  { day: "CN", views: 180, apps: 40 },
+   675→   675→                ].map((d) => {
+   676→   676→                  const maxV = 280
+   677→   677→                  return (
+   678→   678→                    <div key={d.day} className="flex flex-1 flex-col items-center gap-1.5">
+   679→   679→                      <div className="flex h-full items-end gap-1">
+   680→   680→                        <div
+   681→   681→                          className="w-2.5 rounded-t bg-muted-foreground/40 transition-colors hover:bg-muted-foreground/60 sm:w-3"
+   682→   682→                          style={{ height: `${(d.views / maxV) * 200}px` }}
+   683→   683→                          title={`${d.views} lượt xem`}
+   684→   684→                        />
+   685→   685→                        <div
+   686→   686→                          className="w-2.5 rounded-t bg-primary transition-colors hover:bg-primary/80 sm:w-3"
+   687→   687→                          style={{ height: `${(d.apps / maxV) * 200}px` }}
+   688→   688→                          title={`${d.apps} đăng ký`}
+   689→   689→                        />
+   690→   690→                      </div>
+   691→   691→                      <span className="text-xs text-muted-foreground">{d.day}</span>
+   692→   692→                    </div>
+   693→   693→                  )
+   694→   694→                })}
+   695→   695→              </div>
+   696→   696→            </div>
+   697→   697→          </div>
+   698→   698→
+   699→   699→          {/* Premium lock overlay */}
+   700→   700→          {!isPremium && (
+   701→   701→            <div className="absolute inset-0 z-10 flex items-center justify-center bg-muted/20 p-6">
+   702→   702→              <div className="w-full max-w-md space-y-5 rounded-xl border border-border bg-card p-6 text-center shadow-md sm:p-8 animate-in zoom-in-95">
+   703→   703→                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+   704→   704→                  <Lock className="h-7 w-7" />
+   705→   705→                </div>
+   706→   706→                <div className="space-y-2">
+   707→   707→                  <h3 className="text-lg font-semibold text-foreground">Mở khóa Báo cáo tuyển nhân sự</h3>
+   708→   708→                  <p className="text-sm leading-relaxed text-muted-foreground">
+   709→   709→                    Xem biểu đồ tương tác, số lượt xem bài tuyển nhân sự nhân sự chi tiết theo ngày và xuất các báo cáo thống kê phục vụ hoạt động quản trị của tổ chức.
+   710→   710→                  </p>
+   711→   711→                </div>
+   712→   712→                <Button
+   713→   713→                  onClick={() => setActiveTab("services")}
+   714→   714→                  className="flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary text-sm font-medium text-primary-foreground hover:bg-primary/90"
+   715→   715→                >
+   716→   716→                  <Crown className="h-4 w-4" /> Xem gói dịch vụ VIP
+   717→   717→                </Button>
+   718→   718→              </div>
+   719→   719→            </div>
+   720→   720→          )}
+   721→   721→        </div>
+   722→   722→      )}
+   723→   723→
+   724→   724→      {/* 6. TAB: SERVICES */}
+   725→   725→      {activeTab === "services" && (
+   726→   726→        <div className="space-y-6 animate-in fade-in duration-300">
+   727→   727→          <div className="mx-auto max-w-2xl space-y-2 text-center">
+   728→   728→            <h1 className="text-xl font-semibold text-foreground sm:text-2xl">Bảng giá dịch vụ VIP</h1>
+   729→   729→            <p className="text-sm text-muted-foreground">
+   730→   730→              Lựa chọn gói dịch vụ tối ưu để tối đa hóa hiệu quả tuyển nhân sự tình nguyện viên của bạn.
+   731→   731→            </p>
+   732→   732→          </div>
+   733→   733→
+   734→   734→          <div className="mx-auto grid max-w-4xl grid-cols-1 gap-6 pt-2 md:grid-cols-2">
+   735→   735→            {/* VIP Plan */}
+   736→   736→            <div className="relative flex flex-col justify-between rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8">
+   737→   737→              {isPremium && (
+   738→   738→                <span className="absolute right-4 top-4 rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-foreground">
+   739→   739→                  Đang sử dụng
+   740→   740→                </span>
+   741→   741→              )}
+   742→   742→              <div className="space-y-5">
+   743→   743→                <div>
+   744→   744→                  <h3 className="flex items-center gap-1.5 text-lg font-semibold text-foreground">
+   745→   745→                    <Crown className="h-5 w-5 text-slate-600" /> VIP Recruiter
+   746→   746→                  </h3>
+   747→   747→                  <p className="mt-1 text-xs text-muted-foreground">Giải pháp tối ưu cho Nhà tuyển nhân sự chuyên nghiệp</p>
+   748→   748→                </div>
+   749→   749→
+   750→   750→                <div className="flex items-baseline gap-1">
+   751→   751→                  <span className="text-2xl font-semibold text-foreground sm:text-3xl">990.000đ</span>
+   752→   752→                  <span className="text-xs text-muted-foreground">/ tháng</span>
+   753→   753→                </div>
+   754→   754→
+   755→   755→                <ul className="space-y-2.5">
+   756→   756→                  {[
+   757→   757→                    "Mở khóa đề xuất người tham gia AI phù hợp",
+   758→   758→                    "Xem Báo cáo tuyển nhân sự chuyên sâu",
+   759→   759→                    "Đẩy tin nổi bật không giới hạn",
+   760→   760→                    "Hỗ trợ ưu tiên 24/7 từ EventMate"
+   761→   761→                  ].map((feat, i) => (
+   762→   762→                    <li key={i} className="flex items-center gap-2 text-sm text-foreground">
+   763→   763→                      <Check className="h-4 w-4 shrink-0 text-slate-600" /> {feat}
+   764→   764→                    </li>
+   765→   765→                  ))}
+   766→   766→                </ul>
+   767→   767→              </div>
+   768→   768→
+   769→   769→              <Button
+   770→   770→                onClick={handleBuyPremiumService}
+   771→   771→                disabled={isPremium}
+   772→   772→                className={`mt-6 h-11 w-full rounded-lg text-sm font-medium ${
+   773→   773→                  isPremium
+   774→   774→                    ? "bg-muted text-muted-foreground"
+   775→   775→                    : "bg-primary text-primary-foreground hover:bg-primary/90"
+   776→   776→                }`}
+   777→   777→              >
+   778→   778→                {isPremium ? "Đã được kích hoạt" : "Kích hoạt ngay"}
+   779→   779→              </Button>
+   780→   780→            </div>
+   781→   781→
+   782→   782→            {/* Push Plan */}
+   783→   783→            <div className="flex flex-col justify-between rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8">
+   784→   784→              <div className="space-y-5">
+   785→   785→                <div>
+   786→   786→                  <h3 className="text-lg font-semibold text-foreground">Đẩy tin VIP bài đăng</h3>
+   787→   787→                  <p className="mt-1 text-xs text-muted-foreground">Tăng độ tiếp cận của bài tuyển nhân sự</p>
+   788→   788→                </div>
+   789→   789→
+   790→   790→                <div className="flex items-baseline gap-1">
+   791→   791→                  <span className="text-2xl font-semibold text-foreground sm:text-3xl">290.000đ</span>
+   792→   792→                  <span className="text-xs text-muted-foreground">/ 7 ngày</span>
+   793→   793→                </div>
+   794→   794→
+   795→   795→                <ul className="space-y-2.5">
+   796→   796→                  {[
+   797→   797→                    "Ghim bài đăng lên top 1 trang chủ sinh viên",
+   798→   798→                    "Hiển thị nhãn VIP nổi bật trên bài đăng",
+   799→   799→                    "Đẩy tin tự động mỗi 24 giờ"
+   800→   800→                  ].map((feat, i) => (
+   801→   801→                    <li key={i} className="flex items-center gap-2 text-sm text-foreground">
+   802→   802→                      <Check className="h-4 w-4 shrink-0 text-slate-600" /> {feat}
+   803→   803→                    </li>
+   804→   804→                  ))}
+   805→   805→                </ul>
+   806→   806→              </div>
+   807→   807→
+   808→   808→              <Button
+   809→   809→                onClick={() => showToast({ title: "Dịch vụ giả lập", message: "Gói đẩy tin VIP đã được mô phỏng kích hoạt thành công cho chiến dịch!", type: "info" })}
+   810→   810→                className="mt-6 h-11 w-full rounded-lg bg-foreground text-sm font-medium text-background hover:bg-foreground/90"
+   811→   811→              >
+   812→   812→                Mua gói đẩy tin
+   813→   813→              </Button>
+   814→   814→            </div>
+   815→   815→          </div>
+   816→   816→        </div>
+   817→   817→      )}
+   818→   818→
+   819→   819→      {/* 7. TAB: CHAT */}
+   820→   820→      {activeTab === "chat" && (
+   821→   821→        <div className="space-y-6 animate-in fade-in duration-300">
+   822→   822→          <h1 className="text-xl font-semibold text-foreground sm:text-2xl">Danh sách cuộc trò chuyện</h1>
+   823→   823→
+   824→   824→          {loadingChats ? (
+   825→   825→            <div className="py-12 text-center text-sm text-muted-foreground">Đang tải cuộc trò chuyện...</div>
+   826→   826→          ) : activeChats.length === 0 ? (
+   827→   827→            <div className="rounded-xl border border-dashed border-border bg-card py-12 text-center sm:py-16">
+   828→   828→              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+   829→   829→                <MessageSquare className="h-7 w-7" />
+   830→   830→              </div>
+   831→   831→              <h3 className="text-base font-semibold text-foreground">Chưa có cuộc trò chuyện nào</h3>
+   832→   832→              <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
+   833→   833→                Nhấp vào nút nhắn tin trên hồ sơ người tham gia để bắt đầu cuộc hội thoại.
+   834→   834→              </p>
+   835→   835→            </div>
+   836→   836→          ) : (
+   837→   837→            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+   838→   838→              {activeChats.map((chat) => {
+   839→   839→                const student = chat.profiles
+   840→   840→                const event = chat.events
+   841→   841→                return (
+   842→   842→                  <button
+   843→   843→                    key={chat.id}
+   844→   844→                    onClick={() => handleStartChatWithStudent(event?.id, student?.id)}
+   845→   845→                    className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 text-left transition-colors hover:border-slate-300 hover:shadow-sm sm:p-5"
+   846→   846→                  >
+   847→   847→                    <div className="flex min-w-0 items-center gap-3">
+   848→   848→                      <img
+   849→   849→                        src={student?.avatar_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=80&h=80&q=80"}
+   850→   850→                        alt={student?.full_name}
+   851→   851→                        loading="lazy"
+   852→   852→                        className="h-11 w-11 shrink-0 rounded-lg border border-border object-cover"
+   853→   853→                      />
+   854→   854→                      <div className="min-w-0">
+   855→   855→                        <h4 className="truncate text-sm font-semibold text-foreground">{student?.full_name}</h4>
+   856→   856→                        <p className="mt-0.5 truncate text-xs text-muted-foreground">{student?.university || "Sinh viên"}</p>
+   857→   857→                        <span className="mt-1.5 inline-block rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+   858→   858→                          {event?.title}
+   859→   859→                        </span>
+   860→   860→                      </div>
+   861→   861→                    </div>
+   862→   862→                    <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground" />
+   863→   863→                  </button>
+   864→   864→                )
+   865→   865→              })}
+   866→   866→            </div>
+   867→   867→          )}
+   868→   868→        </div>
+   869→   869→      )}
+   870→   870→
+   871→   871→      {/* 8. TAB: ACCOUNT */}
+   872→   872→      {activeTab === "account" && (
+   873→   873→        <AccountTab
+   874→   874→          activeSubTab={activeSubTab}
+   875→   875→          setActiveSubTab={setActiveSubTab}
+   876→   876→          profileData={profileData}
+   877→   877→          setProfileData={setProfileData}
+   878→   878→          handleUpdateProfile={handleUpdateProfile}
+   879→   879→          isUpdatingProfile={isUpdatingProfile}
+   880→   880→          handleUploadLogo={handleUploadLogo}
+   881→   881→          uploadingAvatar={uploadingAvatar}
+   882→   882→          handleUploadCompanyImage={handleUploadCompanyImage}
+   883→   883→          handleDeleteCompanyImage={handleDeleteCompanyImage}
+   884→   884→          uploadingCompanyImage={uploadingCompanyImage}
+   885→   885→          passwordState={passwordState}
+   886→   886→          setPasswordState={setPasswordState}
+   887→   887→          handleChangePassword={handleChangePassword}
+   888→   888→          isUpdatingPassword={isUpdatingPassword}
+   889→   889→        />
+   890→   890→      )}
+   891→   891→
+   892→   892→      {/* MODALS */}
+   893→   893→      <EventFormModal
+   894→   894→        showForm={showForm}
+   895→   895→        editingId={editingId}
+   896→   896→        resetForm={resetForm}
+   897→   897→        handleSubmitEvent={handleSubmitEvent}
+   898→   898→        title={title}
+   899→   899→        setTitle={setTitle}
+   900→   900→        location={location}
+   901→   901→        setLocation={setLocation}
+   902→   902→        wardId={wardId}
+   903→   903→        setWardId={setWardId}
+   904→   904→        wards={wards}
+   905→   905→        eventDate={eventDate}
+   906→   906→        setEventDate={setEventDate}
+   907→   907→        applicationDeadline={applicationDeadline}
+   908→   908→        setApplicationDeadline={setApplicationDeadline}
+   909→   909→        positionType={positionType}
+   910→   910→        setPositionType={setPositionType}
+   911→   911→        category={category}
+   912→   912→        setCategory={setCategory}
+   913→   913→        benefits={benefits}
+   914→   914→        setBenefits={setBenefits}
+   915→   915→        slotsNeeded={slotsNeeded}
+   916→   916→        setSlotsNeeded={setSlotsNeeded}
+   917→   917→        desc={desc}
+   918→   918→        setDesc={setDesc}
+   919→   919→        loading={loading}
+   920→   920→      />
+   921→   921→
+   922→   922→      {reviewingStudent && userId && (
+   923→   923→        <ReviewModal
+   924→   924→          isOpen={!!reviewingStudent}
+   925→   925→          onClose={() => setReviewingStudent(null)}
+   926→   926→          eventId={reviewingStudent.eventId}
+   927→   927→          reviewerId={userId}
+   928→   928→          revieweeId={reviewingStudent.studentId}
+   929→   929→          revieweeName={reviewingStudent.studentName}
+   930→   930→        />
+   931→   931→      )}
+   932→   932→
+   933→   933→      <CVViewModal viewingCV={viewingCV} onClose={() => setViewingCV(null)} />
+   934→   934→    </OrgLayout>
+   935→   935→  )
+   936→   936→}
+   937→   937→
+   938→   938→/* ---------- small local helper component ---------- */
+   939→   939→
+   940→   940→function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+   941→   941→  return (
+   942→   942→    <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
+   943→   943→      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 sm:h-12 sm:w-12">
+   944→   944→        {icon}
+   945→   945→      </div>
+   946→   946→      <div className="min-w-0">
+   947→   947→        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+   948→   948→        <p className="mt-0.5 truncate text-xl font-semibold text-foreground sm:text-2xl">{value}</p>
+   949→   949→      </div>
+   950→   950→    </div>
+   951→   951→  )
+   952→   952→}

@@ -420,7 +420,7 @@ export default function AdminDashboard() {
                         <h3 className="text-base font-semibold text-foreground">Lịch sử giao dịch VIP</h3>
                         <p className="mt-0.5 text-xs text-muted-foreground">Các giao dịch mua gói VIP Recruiter</p>
                       </div>
-                      <Badge className="bg-primary font-medium text-primary-foreground">
+                      <Badge className="bg-slate-100 font-medium text-slate-600">
                         Doanh thu: {stats.totalRevenue.toLocaleString("vi-VN")}đ
                       </Badge>
                     </div>

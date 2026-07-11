@@ -106,8 +106,8 @@ export default function OrgLayout({
               className="w-10 h-10 rounded-lg object-cover border border-border"
             />
             {isPremium && (
-              <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground p-0.5 rounded-full border border-card shadow-sm">
-                <Crown className="w-3 h-3 fill-current text-primary-foreground" />
+              <span className="absolute -top-1 -right-1 bg-slate-100 text-slate-600 p-0.5 rounded-full border border-card shadow-sm">
+                <Crown className="w-3 h-3 fill-current text-slate-600" />
               </span>
             )}
           </div>
@@ -209,7 +209,7 @@ export default function OrgLayout({
             ) : (
               <button
                 onClick={() => setActiveTab("services")}
-                className="inline-flex items-center gap-1.5 bg-slate-100 text-slate-600 border border-slate-200 hover:bg-primary hover:text-slate-900-foreground rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
+                className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground border border-primary hover:bg-primary/90 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
               >
                 <Crown className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Lên VIP Tuyển nhân sự</span>

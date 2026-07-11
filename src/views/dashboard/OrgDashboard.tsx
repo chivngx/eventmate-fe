@@ -470,7 +470,7 @@ export default function OrgDashboard() {
                     <div key={i} className="flex flex-1 flex-col items-center gap-2">
                       <span className="text-xs font-medium text-foreground">{count}</span>
                       <div
-                        className={`w-full max-w-12 rounded-t-md transition-colors ${i === 2 ? "bg-primary" : "bg-muted-foreground/30 hover:bg-muted-foreground/50"}`}
+                        className={`w-full max-w-12 rounded-t-md transition-colors ${i === 2 ? "bg-foreground" : "bg-muted-foreground/30 hover:bg-muted-foreground/50"}`}
                         style={{ height: `${Math.max(8, (count / max) * 140)}px` }}
                         title={`${count} người tham gia`}
                       />
@@ -659,7 +659,7 @@ export default function OrgDashboard() {
                     <span className="h-2 w-2 rounded-full bg-muted-foreground/40" /> Lượt xem
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-primary" /> Đơn đăng ký
+                    <span className="h-2 w-2 rounded-full bg-foreground" /> Đơn đăng ký
                   </span>
                 </div>
               </div>
@@ -683,7 +683,7 @@ export default function OrgDashboard() {
                           title={`${d.views} lượt xem`}
                         />
                         <div
-                          className="w-2.5 rounded-t bg-primary transition-colors hover:bg-primary/80 sm:w-3"
+                          className="w-2.5 rounded-t bg-foreground transition-colors hover:bg-foreground/80 sm:w-3"
                           style={{ height: `${(d.apps / maxV) * 200}px` }}
                           title={`${d.apps} đăng ký`}
                         />
@@ -735,7 +735,7 @@ export default function OrgDashboard() {
             {/* VIP Plan */}
             <div className="relative flex flex-col justify-between rounded-xl border border-border bg-card p-6 shadow-sm sm:p-8">
               {isPremium && (
-                <span className="absolute right-4 top-4 rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-foreground">
+                <span className="absolute right-4 top-4 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
                   Đang sử dụng
                 </span>
               )}

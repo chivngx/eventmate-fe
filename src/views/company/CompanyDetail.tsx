@@ -211,7 +211,7 @@ export default function CompanyDetail() {
 
   const renderSearchBar = () => (
     <div className="flex flex-col sm:flex-row gap-2">
-      <div className="flex-1 flex items-center gap-2 border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 focus-within:border-primary transition-colors">
+      <div className="flex-1 flex items-center gap-2 border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 focus-within:border-slate-400 transition-colors">
         <Search className="w-4 h-4 text-slate-400 shrink-0" />
         <input
           type="text"
@@ -224,7 +224,7 @@ export default function CompanyDetail() {
       <select
         value={selectedLocation}
         onChange={(e) => setSelectedLocation(e.target.value)}
-        className="border border-slate-200 rounded-lg px-3 py-2 bg-white text-sm font-medium text-slate-600 focus:outline-none focus:border-primary"
+        className="border border-slate-200 rounded-lg px-3 py-2 bg-white text-sm font-medium text-slate-600 focus:outline-none focus:border-slate-400"
       >
         <option value="">Tất cả khu vực</option>
         {locationsList.map(loc => (
@@ -317,7 +317,7 @@ export default function CompanyDetail() {
             >
               Sự kiện
               <span className={`text-xs px-1.5 py-0.5 rounded ${
-                activeTab === "jobs" ? "bg-primary/10 text-slate-600" : "bg-slate-100 text-slate-500"
+                activeTab === "jobs" ? "bg-slate-200 text-slate-700" : "bg-slate-100 text-slate-500"
               }`}>
                 {companyEvents.length}
               </span>
@@ -335,7 +335,7 @@ export default function CompanyDetail() {
               {/* Bio */}
               <section className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
                 <h2 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
-                  <span className="w-1 h-5 bg-primary rounded"></span>
+                  <span className="w-1 h-5 bg-slate-300 rounded-full"></span>
                   Giới thiệu công ty
                 </h2>
                 <div className="relative">
@@ -359,7 +359,7 @@ export default function CompanyDetail() {
               <section className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
                 <div className="flex items-center justify-between mb-3">
                   <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-                    <span className="w-1 h-5 bg-primary rounded"></span>
+                    <span className="w-1 h-5 bg-slate-300 rounded-full"></span>
                     Hình ảnh hoạt động
                   </h2>
                   <div className="flex items-center gap-1.5">
@@ -386,7 +386,7 @@ export default function CompanyDetail() {
                     <div
                       key={imgUrl + idx}
                       className={`relative aspect-[4/3] rounded-lg overflow-hidden group border ${
-                        idx === currentImageIndex ? "border-primary ring-2 ring-primary/20" : "border-slate-200"
+                        idx === currentImageIndex ? "border-slate-400 ring-2 ring-slate-200" : "border-slate-200"
                       }`}
                     >
                       <img
@@ -402,7 +402,7 @@ export default function CompanyDetail() {
               {/* Latest jobs preview */}
               <section className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 space-y-4">
                 <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-                  <span className="w-1 h-5 bg-primary rounded"></span>
+                  <span className="w-1 h-5 bg-slate-300 rounded-full"></span>
                   Tuyển nhân sự mới nhất
                 </h2>
 
@@ -435,7 +435,7 @@ export default function CompanyDetail() {
               {/* Thông tin chung */}
               <section className="bg-white border border-slate-200 rounded-2xl p-5">
                 <h2 className="text-base font-bold text-foreground mb-4 flex items-center gap-2">
-                  <span className="w-1 h-5 bg-primary rounded"></span>
+                  <span className="w-1 h-5 bg-slate-300 rounded-full"></span>
                   Thông tin chung
                 </h2>
                 <div className="space-y-3">
@@ -463,7 +463,7 @@ export default function CompanyDetail() {
               {/* Location — clean placeholder (no mock Google Maps image) */}
               <section className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
                 <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-                  <span className="w-1 h-5 bg-primary rounded"></span>
+                  <span className="w-1 h-5 bg-slate-300 rounded-full"></span>
                   Địa điểm công ty
                 </h2>
                 <p className="text-sm text-slate-600 flex items-start gap-2">
@@ -487,7 +487,7 @@ export default function CompanyDetail() {
               {/* Share */}
               <section className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
                 <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-                  <span className="w-1 h-5 bg-primary rounded"></span>
+                  <span className="w-1 h-5 bg-slate-300 rounded-full"></span>
                   Chia sẻ công ty
                 </h2>
                 <div>
@@ -539,7 +539,7 @@ export default function CompanyDetail() {
             <aside className="space-y-5">
               <section className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4">
                 <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-                  <span className="w-1 h-5 bg-primary rounded"></span>
+                  <span className="w-1 h-5 bg-slate-300 rounded-full"></span>
                   Bộ lọc
                 </h3>
                 <div>
@@ -551,7 +551,7 @@ export default function CompanyDetail() {
                         name="location-filter"
                         checked={selectedLocation === ""}
                         onChange={() => setSelectedLocation("")}
-                        className="text-slate-600 focus:ring-primary"
+                        className="text-slate-600 focus:ring-slate-400"
                       />
                       <span>Tất cả khu vực ({companyEvents.length})</span>
                     </label>
@@ -564,7 +564,7 @@ export default function CompanyDetail() {
                             name="location-filter"
                             checked={selectedLocation === loc}
                             onChange={() => setSelectedLocation(loc)}
-                            className="text-slate-600 focus:ring-primary"
+                            className="text-slate-600 focus:ring-slate-400"
                           />
                           <span className="truncate">{loc}</span>
                           <span className="text-xs text-slate-400 ml-auto">({count})</span>
@@ -581,7 +581,7 @@ export default function CompanyDetail() {
               <section className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 space-y-4">
                 <div className="flex items-center justify-between gap-2">
                   <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-                    <span className="w-1 h-5 bg-primary rounded"></span>
+                    <span className="w-1 h-5 bg-slate-300 rounded-full"></span>
                     Tuyển nhân sự tại {company.full_name}
                   </h2>
                   <span className="text-xs text-slate-500 font-medium shrink-0">
@@ -607,7 +607,7 @@ export default function CompanyDetail() {
 
         {/* Floating follow banner */}
         {showFloatingBanner && (
-          <div className="fixed bottom-4 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:w-full sm:max-w-md bg-white border border-slate-200 rounded-2xl p-3 shadow-md z-50 flex items-center justify-between gap-3 animate-in slide-in-from-bottom-5 duration-300 border-t-4 border-t-primary">
+          <div className="fixed bottom-4 left-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 sm:w-full sm:max-w-md bg-white border border-slate-200 rounded-2xl p-3 shadow-md z-50 flex items-center justify-between gap-3 animate-in slide-in-from-bottom-5 duration-300 border-t-4 border-t-slate-300">
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-11 h-11 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0">
                 <Avatar className="h-full w-full rounded-lg">

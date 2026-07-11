@@ -84,7 +84,7 @@ export default function CompanyList() {
               placeholder="Tìm kiếm ban tổ chức, trường học, mô tả..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 h-11 rounded-lg border-slate-200 bg-white focus:border-primary font-medium text-sm"
+              className="pl-10 h-11 rounded-lg border-slate-200 bg-white focus:border-slate-400 font-medium text-sm"
             />
           </div>
         </header>
