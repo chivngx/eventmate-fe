@@ -16,7 +16,7 @@ export default function NotificationDropdown({
 }: NotificationDropdownProps) {
  return (
  <DropdownMenu onOpenChange={(open) => { if (open) markAsRead() }}>
- <DropdownMenuTrigger className="relative p-2 text-slate-400 hover:text-emerald-600 transition-colors outline-none">
+ <DropdownMenuTrigger className="relative p-2 text-slate-400 hover:text-primary transition-colors outline-none">
  <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
  {unreadCount > 0 && (
  <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white animate-pulse"></span>
@@ -26,7 +26,7 @@ export default function NotificationDropdown({
  <div className="p-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
  <h4 className="font-bold text-slate-900">Thông báo</h4>
  {unreadCount > 0 && (
- <span className="text-xs font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
+ <span className="text-xs font-bold bg-emerald-100 text-primary px-2 py-0.5 rounded-full">
  {unreadCount} mới
  </span>
  )}
@@ -41,7 +41,7 @@ export default function NotificationDropdown({
  <div
  key={n.id}
  className={`p-4 border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors ${
- !n.is_read ? 'bg-emerald-50/30' : 'bg-white'
+ !n.is_read ? 'bg-accent/30' : 'bg-white'
  }`}
  >
  <h5 className="text-sm font-bold text-slate-900 flex items-center gap-2">
@@ -51,7 +51,7 @@ export default function NotificationDropdown({
  <p className="text-xs text-slate-600 mt-1.5 leading-relaxed">
  {n.message}
  </p>
- <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-wider">
+ <p className="text-xs font-bold text-slate-400 mt-2 uppercase tracking-wider">
  {new Date(n.created_at).toLocaleString('vi-VN')}
  </p>
  </div>

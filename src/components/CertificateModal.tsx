@@ -235,7 +235,7 @@ export default function CertificateModal({
  <div className="p-8 flex justify-center items-center bg-slate-100 overflow-x-auto">
  <div
  id="certificate-print-area"
- className="w-[842px] h-[595px] p-10 bg-amber-50 border-[20px] border-foreground shadow-md relative flex flex-col justify-between items-center text-center shrink-0"
+ className="w-[842px] h-[595px] p-10 bg-accent border-[20px] border-foreground shadow-md relative flex flex-col justify-between items-center text-center shrink-0"
  >
  <div className="border border-amber-700 w-full h-full p-8 flex flex-col justify-between items-center">
  {/* Header */}
@@ -267,7 +267,7 @@ export default function CertificateModal({
  <div className="flex justify-between w-full px-10">
  <div className="flex flex-col items-center select-none">
  <span className="font-serif italic text-amber-700 text-sm font-bold">EVENTMATE</span>
- <div className="w-40 border-t border-slate-300 mt-8 pt-1.5 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
+ <div className="w-40 border-t border-slate-300 mt-8 pt-1.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">
  BAN TỔ CHỨC EVENTMATE
  </div>
  <span className="text-[9px] text-slate-500 mt-0.5">Hệ thống Quản lý Sự kiện</span>
@@ -275,7 +275,7 @@ export default function CertificateModal({
 
  <div className="flex flex-col items-center select-none">
  <span className="font-serif italic text-slate-800 text-sm font-bold">{organizerName}</span>
- <div className="w-40 border-t border-slate-300 mt-8 pt-1.5 text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
+ <div className="w-40 border-t border-slate-300 mt-8 pt-1.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">
  ĐƠN VỊ TỔ CHỨC
  </div>
  <span className="text-[9px] text-slate-500 mt-0.5">Đại diện Đơn vị Đối tác</span>

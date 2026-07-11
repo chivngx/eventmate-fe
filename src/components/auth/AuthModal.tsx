@@ -128,11 +128,11 @@ function LoginForm({
  <label className="flex items-center gap-1.5 text-slate-600 cursor-pointer">
  <input
  type="checkbox"
- className="w-3.5 h-3.5 rounded text-emerald-600 border-slate-300 bg-transparent focus:ring-emerald-500"
+ className="w-3.5 h-3.5 rounded text-primary border-slate-300 bg-transparent focus:ring-emerald-500"
  />
  <span>Ghi nhớ tôi</span>
  </label>
- <a href="#" className="text-emerald-600 hover:underline">
+ <a href="#" className="text-primary hover:underline">
  Quên mật khẩu?
  </a>
  </div>
@@ -150,7 +150,7 @@ function LoginForm({
  <button
  type="button"
  onClick={onSwitchToRegister}
- className="text-emerald-600 font-bold hover:underline"
+ className="text-primary font-bold hover:underline"
  >
  Đăng ký ngay
  </button>
@@ -503,7 +503,7 @@ export default function AuthModal({ isOpen, initialMode ="login", onClose }: Aut
  setError(null)
  setSuccess(null)
  }}
- className="text-emerald-600 font-bold hover:underline"
+ className="text-primary font-bold hover:underline"
  >
  Đăng nhập ngay
  </button>
@@ -511,13 +511,13 @@ export default function AuthModal({ isOpen, initialMode ="login", onClose }: Aut
  </div>
  )}
 
- <p className="px-4 text-center text-[10px] text-slate-400 leading-relaxed mt-2 font-semibold">
+ <p className="px-4 text-center text-xs text-slate-400 leading-relaxed mt-2 font-semibold">
  Bằng việc tiếp tục, bạn đồng ý với{""}
- <a href="#" className="underline hover:text-emerald-600 transition-colors">
+ <a href="#" className="underline hover:text-primary transition-colors">
  Điều khoản dịch vụ
  </a>{""}
  và{""}
- <a href="#" className="underline hover:text-emerald-600 transition-colors">
+ <a href="#" className="underline hover:text-primary transition-colors">
  Chính sách bảo mật
  </a>{""}
  của chúng tôi.

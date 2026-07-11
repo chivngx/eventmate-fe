@@ -34,7 +34,7 @@ export default function UserProfileDropdown({
  <DropdownMenuTrigger className="rounded-full outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 shrink-0">
  <Avatar className="h-9 w-9 sm:h-10 sm:w-10 cursor-pointer border-2 border-white shadow-sm transition-transform hover:scale-105">
  <AvatarImage src={avatarUrl} />
- <AvatarFallback className="bg-emerald-50 text-emerald-600 font-bold text-sm">
+ <AvatarFallback className="bg-accent text-primary font-bold text-sm">
  {getInitial(fullName)}
  </AvatarFallback>
  </Avatar>
@@ -44,16 +44,16 @@ export default function UserProfileDropdown({
  <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
  <Avatar className="h-12 w-12 rounded-full border border-slate-100 shrink-0">
  <AvatarImage src={avatarUrl} />
- <AvatarFallback className="bg-emerald-50 text-emerald-600 font-bold text-lg">
+ <AvatarFallback className="bg-accent text-primary font-bold text-lg">
  {getInitial(fullName)}
  </AvatarFallback>
  </Avatar>
  <div className="min-w-0 flex-1">
  <p className="text-sm font-bold text-slate-800 truncate" title={fullName}>{fullName}</p>
- <p className="text-[11px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full inline-block mt-0.5">
+ <p className="text-xs text-primary font-semibold bg-accent px-2 py-0.5 rounded-full inline-block mt-0.5">
  {role === 'organizer' ?"Nhà tuyển dụng" :"Sinh viên"}
  </p>
- <p className="text-[10px] text-slate-400 mt-1 truncate">
+ <p className="text-xs text-slate-400 mt-1 truncate">
  {user?.id ? `ID ${user.id.substring(0, 7).toUpperCase()}` :"ID 123456"} <span className="text-slate-300">|</span> {email}
  </p>
  </div>
@@ -356,7 +356,7 @@ export default function UserProfileDropdown({
  <button
  type="button"
  onClick={handleLogout}
- className="w-full py-2.5 rounded-lg bg-slate-50 hover:bg-rose-50 text-slate-700 hover:text-rose-600 font-bold text-xs flex items-center justify-center gap-2 border border-slate-100 hover:border-rose-100 transition-all active:scale-[0.98]"
+ className="w-full py-2.5 rounded-lg bg-slate-50 hover:bg-destructive/10 text-slate-700 hover:text-destructive font-bold text-xs flex items-center justify-center gap-2 border border-slate-100 hover:border-destructive/20 transition-all active:scale-[0.98]"
  >
  <LogOut className="w-4 h-4" />
  Đăng xuất

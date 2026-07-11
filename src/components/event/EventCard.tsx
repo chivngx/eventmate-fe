@@ -55,7 +55,7 @@ function EventCard({
               <span className="text-lg font-extrabold leading-none text-primary mt-1">
                 {eventDate.day}
               </span>
-              <span className="text-[10px] font-bold text-primary/70 uppercase mb-1">
+              <span className="text-xs font-bold text-primary/70 uppercase mb-1">
                 {eventDate.month}
               </span>
             </>
@@ -85,12 +85,12 @@ function EventCard({
           {/* Category + position tags */}
           <div className="flex items-center gap-1.5 mt-2 flex-wrap">
             {job.category && (
-              <span className="text-[10px] font-semibold text-primary bg-accent px-2 py-0.5 rounded">
+              <span className="text-xs font-semibold text-primary bg-accent px-2 py-0.5 rounded">
                 {job.category}
               </span>
             )}
             {job.position_type && (
-              <span className="text-[10px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded truncate max-w-[120px]">
+              <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded truncate max-w-[120px]">
                 {job.position_type}
               </span>
             )}
@@ -108,8 +108,8 @@ function EventCard({
           className={cn(
             "w-8 h-8 flex items-center justify-center rounded-lg transition-all shrink-0 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
             isBookmarked
-              ? "bg-rose-50 text-rose-500 hover:bg-rose-100"
-              : "text-slate-400 hover:bg-slate-100 hover:text-rose-500"
+              ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
+              : "text-slate-400 hover:bg-slate-100 hover:text-destructive"
           )}
         >
           <Heart className={cn("w-4 h-4", isBookmarked && "fill-current")} />
@@ -129,7 +129,7 @@ function EventCard({
           </span>
         )}
         {isDeadlineSoon && (
-          <span className="flex items-center gap-1 shrink-0 ml-auto text-amber-600 font-semibold">
+          <span className="flex items-center gap-1 shrink-0 ml-auto text-primary font-semibold">
             <Clock className="w-3.5 h-3.5" />
             <span>Sắp hết hạn</span>
           </span>

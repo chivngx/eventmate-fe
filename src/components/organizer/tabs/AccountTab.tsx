@@ -74,7 +74,7 @@ export default function AccountTab({
  <button
  onClick={() => setActiveSubTab("info")}
  className={`flex-1 py-3 px-4 rounded-xl text-sm font-black transition-all ${activeSubTab ==="info"
- ?"bg-white text-emerald-600 shadow-sm"
+ ?"bg-white text-primary shadow-sm"
  :"text-slate-500 hover:text-slate-800"
  }`}
  >
@@ -83,7 +83,7 @@ export default function AccountTab({
  <button
  onClick={() => setActiveSubTab("password")}
  className={`flex-1 py-3 px-4 rounded-xl text-sm font-black transition-all ${activeSubTab ==="password"
- ?"bg-white text-emerald-600 shadow-sm"
+ ?"bg-white text-primary shadow-sm"
  :"text-slate-500 hover:text-slate-800"
  }`}
  >
@@ -128,7 +128,7 @@ export default function AccountTab({
  >
  {uploadingAvatar ?"Đang tải lên..." :"Tải ảnh mới"}
  </button>
- <p className="text-[10px] text-slate-400 mt-2 font-semibold">Khuyến nghị: Tỉ lệ 1:1, tối đa 2MB.</p>
+ <p className="text-xs text-slate-400 mt-2 font-semibold">Khuyến nghị: Tỉ lệ 1:1, tối đa 2MB.</p>
  </div>
 
  {/* COMPANY IMAGES GALLERY & UPLOAD */}
@@ -145,7 +145,7 @@ export default function AccountTab({
  aria-label={`Xóa ảnh ${idx + 1}`}
  className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-all shadow-sm"
  >
- <span className="text-[10px] font-bold block px-1">Xóa</span>
+ <span className="text-xs font-bold block px-1">Xóa</span>
  </button>
  </div>
  ))
@@ -166,7 +166,7 @@ export default function AccountTab({
  <button
  type="button"
  onClick={() => document.getElementById("company-image-upload")?.click()}
- className="w-full py-2.5 border-2 border-dashed border-slate-200 hover:border-emerald-500 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 text-slate-500 hover:text-emerald-600"
+ className="w-full py-2.5 border-2 border-dashed border-slate-200 hover:border-emerald-500 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 text-slate-500 hover:text-primary"
  >
  {uploadingCompanyImage ?"Đang tải ảnh..." :"Thêm ảnh hoạt động"}
  </button>

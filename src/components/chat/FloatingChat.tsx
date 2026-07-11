@@ -290,7 +290,7 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
  >
  <Avatar className="h-9 w-9 border border-white shadow-sm shrink-0">
  <AvatarImage src={partner.avatar_url} />
- <AvatarFallback className="bg-emerald-50 text-primary font-bold text-xs">
+ <AvatarFallback className="bg-accent text-primary font-bold text-xs">
  {partner.full_name?.charAt(0).toUpperCase() || <User className="w-3.5 h-3.5" />}
  </AvatarFallback>
  </Avatar>

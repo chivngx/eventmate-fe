@@ -1,0 +1,653 @@
+     1→     1→     1→"use client"
+     2→     2→     2→
+     3→     3→     3→import { useState, useEffect } from"react"
+     4→     4→     4→import { useParams, useNavigate } from"@/lib/router"
+     5→     5→     5→import { supabase } from"@/lib/supabase"
+     6→     6→     6→import { useUser } from"@/components/providers/AuthProvider"
+     7→     7→     7→import MainLayout from"@/components/layout/MainLayout"
+     8→     8→     8→import { Link as LinkIcon, Users, MapPin, Search, ChevronDown, ChevronUp, Copy, Bookmark, FileText, CheckCircle } from"lucide-react"
+     9→     9→     9→import { Button } from"@/components/ui/button"
+    10→    10→    10→import { Avatar, AvatarFallback, AvatarImage } from"@/components/ui/avatar"
+    11→    11→    11→import { SkeletonCompanyDetail } from"@/components/ui/Skeleton"
+    12→    12→    12→
+    13→    13→    13→export default function CompanyDetail() {
+    14→    14→    14→ const { id } = useParams<{ id: string }>()
+    15→    15→    15→ const navigate = useNavigate()
+    16→    16→    16→
+    17→    17→    17→ // 🔒 P1.1: user + role từ context (thay getUser() + profiles.select lặp)
+    18→    18→    18→ const { user, role, loading: authLoading } = useUser()
+    19→    19→    19→
+    20→    20→    20→ const [company, setCompany] = useState<any>(null)
+    21→    21→    21→ const [companyEvents, setCompanyEvents] = useState<any[]>([])
+    22→    22→    22→ const [loading, setLoading] = useState(true)
+    23→    23→    23→ const [isFollowed, setIsFollowed] = useState(false)
+    24→    24→    24→ const [activeTab, setActiveTab] = useState<"about" |"jobs">("about")
+    25→    25→    25→
+    26→    26→    26→ // States for Trang chủ
+    27→    27→    27→ const [isIntroExpanded, setIsIntroExpanded] = useState(false)
+    28→    28→    28→ const [currentImageIndex, setCurrentImageIndex] = useState(0)
+    29→    29→    29→ const [jobSearchTerm, setJobSearchTerm] = useState("")
+    30→    30→    30→ const [selectedLocation, setSelectedLocation] = useState("")
+    31→    31→    31→
+    32→    32→    32→ // Floating banner trigger
+    33→    33→    33→ const [showFloatingBanner, setShowFloatingBanner] = useState(false)
+    34→    34→    34→
+    35→    35→    35→ // Bookmarks state for job cards inside company details
+    36→    36→    36→ const [bookmarkedJobs, setBookmarkedJobs] = useState<Record<string, boolean>>({})
+    37→    37→    37→
+    38→    38→    38→ useEffect(() => {
+    39→    39→    39→ if (authLoading) return
+    40→    40→    40→ const fetchCompanyDetails = async () => {
+    41→    41→    41→ setLoading(true)
+    42→    42→    42→ if (user) {
+    43→    43→    43→ // Fetch student bookmarks to show on job cards
+    44→    44→    44→ const { data: bookmarks } = await supabase
+    45→    45→    45→ .from("event_bookmarks")
+    46→    46→    46→ .select("event_id")
+    47→    47→    47→ .eq("student_id", user.id)
+    48→    48→    48→ if (bookmarks) {
+    49→    49→    49→ const bmMap: Record<string, boolean> = {}
+    50→    50→    50→ bookmarks.forEach(bm => { bmMap[bm.event_id] = true })
+    51→    51→    51→ setBookmarkedJobs(bmMap)
+    52→    52→    52→ }
+    53→    53→    53→ }
+    54→    54→    54→
+    55→    55→    55→ // Fetch company profile details
+    56→    56→    56→ const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id ||"")
+    57→    57→    57→ let profileQuery = supabase.from("profiles").select("*")
+    58→    58→    58→ if (isUuid) {
+    59→    59→    59→ profileQuery = profileQuery.eq("id", id)
+    60→    60→    60→ } else {
+    61→    61→    61→ profileQuery = profileQuery.eq("slug", id)
+    62→    62→    62→ }
+    63→    63→    63→ const { data: profileData } = await profileQuery.maybeSingle()
+    64→    64→    64→
+    65→    65→    65→ if (profileData) {
+    66→    66→    66→ setCompany(profileData)
+    67→    67→    67→
+    68→    68→    68→ // Tự động chuyển hướng URL từ ID dạng UUID sang dạng Slug SEO thân thiện
+    69→    69→    69→ if (isUuid && profileData.slug) {
+    70→    70→    70→ navigate(`/companies/${profileData.slug}`, { replace: true })
+    71→    71→    71→ }
+    72→    72→    72→
+    73→    73→    73→ // Fetch events/jobs posted by this company
+    74→    74→    74→ const { data: eventsData } = await supabase
+    75→    75→    75→ .from("events")
+    76→    76→    76→ .select("*, danang_wards(name)")
+    77→    77→    77→ .eq("organizer_id", profileData.id)
+    78→    78→    78→ .order("created_at", { ascending: false })
+    79→    79→    79→
+    80→    80→    80→ if (eventsData) {
+    81→    81→    81→ setCompanyEvents(eventsData)
+    82→    82→    82→ }
+    83→    83→    83→ }
+    84→    84→    84→
+    85→    85→    85→ setLoading(false)
+    86→    86→    86→ }
+    87→    87→    87→
+    88→    88→    88→ fetchCompanyDetails()
+    89→    89→    89→ }, [id, user, authLoading])
+    90→    90→    90→
+    91→    91→    91→ // Scroll listener for floating follow banner
+    92→    92→    92→ useEffect(() => {
+    93→    93→    93→ const handleScroll = () => {
+    94→    94→    94→ if (window.scrollY > 280) {
+    95→    95→    95→ setShowFloatingBanner(true)
+    96→    96→    96→ } else {
+    97→    97→    97→ setShowFloatingBanner(false)
+    98→    98→    98→ }
+    99→    99→    99→ }
+   100→   100→   100→ window.addEventListener("scroll", handleScroll)
+   101→   101→   101→ return () => window.removeEventListener("scroll", handleScroll)
+   102→   102→   102→ }, [])
+   103→   103→   103→
+   104→   104→   104→ if (loading) {
+   105→   105→   105→ return <SkeletonCompanyDetail />
+   106→   106→   106→ }
+   107→   107→   107→
+   108→   108→   108→ if (!company) {
+   109→   109→   109→ return (
+   110→   110→   110→ <MainLayout role="guest">
+   111→   111→   111→ <div className="text-center py-20 font-sans">
+   112→   112→   112→ <h2 className="text-2xl font-black text-slate-900">Không tìm thấy công ty</h2>
+   113→   113→   113→ <p className="text-slate-500 mt-2">Công ty này có thể đã ngừng hoạt động hoặc không tồn tại.</p>
+   114→   114→   114→ <Button onClick={() => navigate(-1)} className="mt-4 rounded-xl bg-slate-900 text-white">Quay lại</Button>
+   115→   115→   115→ </div>
+   116→   116→   116→ </MainLayout>
+   117→   117→   117→ )
+   118→   118→   118→ }
+   119→   119→   119→
+   120→   120→   120→ const galleryImages = company.company_images
+   121→   121→   121→ ? company.company_images.split(',').filter(Boolean)
+   122→   122→   122→ : ["https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600&h=350&q=80","https://images.unsplash.com/photo-1542744094-3a31f103e35f?auto=format&fit=crop&w=600&h=350&q=80","https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=600&h=350&q=80"
+   123→   123→   123→ ]
+   124→   124→   124→
+   125→   125→   125→ const toggleBookmark = async (eventId: string, e: React.MouseEvent) => {
+   126→   126→   126→ e.stopPropagation()
+   127→   127→   127→ if (!user) {
+   128→   128→   128→ window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { mode:"login" } }))
+   129→   129→   129→ return
+   130→   130→   130→ }
+   131→   131→   131→
+   132→   132→   132→ const isCurrentlyBookmarked = !!bookmarkedJobs[eventId]
+   133→   133→   133→ if (isCurrentlyBookmarked) {
+   134→   134→   134→ const { error } = await supabase
+   135→   135→   135→ .from("event_bookmarks")
+   136→   136→   136→ .delete()
+   137→   137→   137→ .eq("student_id", user.id)
+   138→   138→   138→ .eq("event_id", eventId)
+   139→   139→   139→ if (!error) setBookmarkedJobs(prev => ({ ...prev, [eventId]: false }))
+   140→   140→   140→ } else {
+   141→   141→   141→ const { error } = await supabase
+   142→   142→   142→ .from("event_bookmarks")
+   143→   143→   143→ .insert([{ student_id: user.id, event_id: eventId }])
+   144→   144→   144→ if (!error) setBookmarkedJobs(prev => ({ ...prev, [eventId]: true }))
+   145→   145→   145→ }
+   146→   146→   146→ }
+   147→   147→   147→
+   148→   148→   148→ const handleCopyLink = () => {
+   149→   149→   149→ navigator.clipboard.writeText(window.location.href)
+   150→   150→   150→ alert("Đã sao chép liên kết chia sẻ công ty thành công!")
+   151→   151→   151→ }
+   152→   152→   152→
+   153→   153→   153→ const filteredJobs = companyEvents.filter((job) => {
+   154→   154→   154→ const matchesSearch = job.title.toLowerCase().includes(jobSearchTerm.toLowerCase())
+   155→   155→   155→ const matchesLocation = selectedLocation ? (job.danang_wards?.name ||"").includes(selectedLocation) : true
+   156→   156→   156→ return matchesSearch && matchesLocation
+   157→   157→   157→ })
+   158→   158→   158→
+   159→   159→   159→ const locationsList = Array.from(new Set(companyEvents.map(job => job.danang_wards?.name).filter(Boolean))) as string[]
+   160→   160→   160→
+   161→   161→   161→ return (
+   162→   162→   162→ <MainLayout role={role ||"guest"}>
+   163→   163→   163→ <div className="max-w-6xl mx-auto pt-1 pb-6 px-4 font-sans text-foreground selection:bg-emerald-100 animate-in fade-in slide-in-from-bottom-4 duration-500">
+   164→   164→   164→ {/* Company Header Box (Matching EventDetail header style) */}
+   165→   165→   165→ <div className="wrapper-company-cover bg-white rounded-lg border border-slate-200 p-6 md:p-8 shadow-sm flex flex-col md:flex-row items-center md:items-start justify-between gap-6 relative">
+   166→   166→   166→ <div className="company-cover-inner_header flex flex-col md:flex-row items-center md:items-start gap-6 w-full md:w-auto">
+   167→   167→   167→ {/* Company Logo wrapper matching event details page */}
+   168→   168→   168→ <div className="company-logo flex items-center justify-center bg-white border border-muted rounded-lg border-[0.8px] p-2 w-[110px] h-[110px] shrink-0">
+   169→   169→   169→ <Avatar className="h-full w-full rounded-md">
+   170→   170→   170→ <AvatarImage src={company.avatar_url} className="object-contain" />
+   171→   171→   171→ <AvatarFallback className="rounded-md bg-emerald-50 text-primary text-4xl font-black">
+   172→   172→   172→ {company.full_name?.charAt(0).toUpperCase() ||"O"}
+   173→   173→   173→ </AvatarFallback>
+   174→   174→   174→ </Avatar>
+   175→   175→   175→ </div>
+   176→   176→   176→
+   177→   177→   177→ {/* Title, website link, followers count */}
+   178→   178→   178→ <div className="company-detail-overview flex-1 flex flex-col md:flex-row md:items-center justify-between gap-6 w-full">
+   179→   179→   179→ <div className="box-detail text-center md:text-left pt-2 flex flex-col items-center md:items-start gap-2.5">
+   180→   180→   180→ <h1 className="box-detail_company-name text-xl md:text-2xl font-bold text-foreground leading-tight">
+   181→   181→   181→ {company.full_name}
+   182→   182→   182→ </h1>
+   183→   183→   183→ <div className="box-company-info flex flex-wrap items-center justify-center md:justify-start gap-x-4 gap-y-2 mt-1 text-xs font-bold text-slate-400">
+   184→   184→   184→ <div className="box-company-info_item flex items-center gap-1.5">
+   185→   185→   185→ <a href={company.website ||"#"} target="_blank" rel="noreferrer" className="box-company-info_item hover:text-primary flex items-center gap-1.5 transition-colors">
+   186→   186→   186→ <LinkIcon className="w-3.5 h-3.5 shrink-0" /> {company.website ||"Chưa cập nhật website"}
+   187→   187→   187→ </a>
+   188→   188→   188→ </div>
+   189→   189→   189→ <span className="text-slate-200">|</span>
+   190→   190→   190→ <div className="box-company-info_item flex items-center gap-1.5">
+   191→   191→   191→ <span className="flex items-center gap-1.5 hover:text-primary transition-colors">
+   192→   192→   192→ <Users className="w-3.5 h-3.5 shrink-0" /> {isFollowed ?"3" :"2"} người theo dõi
+   193→   193→   193→ </span>
+   194→   194→   194→ </div>
+   195→   195→   195→ </div>
+   196→   196→   196→ </div>
+   197→   197→   197→
+   198→   198→   198→ {/* Follow Button styled like EventDetail apply buttons */}
+   199→   199→   199→ <div className="box-follow flex items-center gap-3 pt-2 md:pt-0 shrink-0">
+   200→   200→   200→ <Button
+   201→   201→   201→ onClick={() => setIsFollowed(!isFollowed)}
+   202→   202→   202→ className={`w-full md:w-auto h-[40px] px-6 rounded-md font-semibold transition-all active:scale-95 border cursor-pointer ${isFollowed
+   203→   203→   203→ ?"bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200"
+   204→   204→   204→ :"bg-primary hover:bg-primary/90 border-primary text-white"
+   205→   205→   205→ }`}
+   206→   206→   206→ >
+   207→   207→   207→ {isFollowed ? (
+   208→   208→   208→ <span className="flex items-center justify-center gap-1.5"><CheckCircle className="w-4 h-4 shrink-0" /> Đang theo dõi</span>
+   209→   209→   209→ ) : (
+   210→   210→   210→ <span>+ Theo dõi công ty</span>
+   211→   211→   211→ )}
+   212→   212→   212→ </Button>
+   213→   213→   213→ </div>
+   214→   214→   214→ </div>
+   215→   215→   215→ </div>
+   216→   216→   216→
+   217→   217→   217→ {/* Tabs inside Header Box at bottom left */}
+   218→   218→   218→ <div className="box-tab-link absolute bottom-0 left-6 md:left-8 flex gap-6">
+   219→   219→   219→ <button
+   220→   220→   220→ onClick={() => setActiveTab("about")}
+   221→   221→   221→ className={`box-tab-link_item pb-3 font-extrabold text-xs relative transition-colors ${activeTab ==="about" ?"active-link text-primary" :"text-slate-500 hover:text-primary"
+   222→   222→   222→ }`}
+   223→   223→   223→ >
+   224→   224→   224→ Trang chủ
+   225→   225→   225→ {activeTab ==="about" && <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-primary rounded-t-full" />}
+   226→   226→   226→ </button>
+   227→   227→   227→ <button
+   228→   228→   228→ onClick={() => setActiveTab("jobs")}
+   229→   229→   229→ className={`box-tab-link_item pb-3 font-extrabold text-xs relative transition-colors flex items-center gap-1 ${activeTab ==="jobs" ?"active-link text-primary" :"text-slate-500 hover:text-primary"
+   230→   230→   230→ }`}
+   231→   231→   231→ >
+   232→   232→   232→ Tin tuyển dụng ({companyEvents.length})
+   233→   233→   233→ {activeTab ==="jobs" && <span className="absolute bottom-0 left-0 right-0 h-[3px] bg-primary rounded-t-full" />}
+   234→   234→   234→ </button>
+   235→   235→   235→ </div>
+   236→   236→   236→ </div>
+   237→   237→   237→
+   238→   238→   238→ {/* Subtitle heading when tab is Recruitment */}
+   239→   239→   239→ {activeTab ==="jobs" && (
+   240→   240→   240→ <h2 className="text-md font-bold text-slate-800 mt-8 mb-4">
+   241→   241→   241→ Việc làm tại {company.full_name.toUpperCase()}
+   242→   242→   242→ </h2>
+   243→   243→   243→ )}
+   244→   244→   244→
+   245→   245→   245→ {/* Tab Contents */}
+   246→   246→   246→ {activeTab ==="about" ? (
+   247→   247→   247→ <div className="company-detail_body flex flex-col lg:flex-row gap-6 items-start mt-6 w-full">
+   248→   248→   248→ 
+   249→   249→   249→ {/* Left Column ( Giới thiệu, Hình ảnh, Tin tuyển dụng ) */}
+   250→   250→   250→ <div className="company-detail_body-left flex-1 w-full lg:max-w-[760px] space-y-6">
+   251→   251→   251→ 
+   252→   252→   252→ {/* Giới thiệu công ty */}
+   253→   253→   253→ <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm space-y-6">
+   254→   254→   254→ <h2 className="text-lg font-bold text-foreground border-l-[4px] border-primary pl-3 leading-none flex items-center">
+   255→   255→   255→ Giới thiệu công ty
+   256→   256→   256→ </h2>
+   257→   257→   257→ <div className="relative">
+   258→   258→   258→ <div className={`text-sm text-slate-700 leading-relaxed font-medium whitespace-pre-wrap transition-all duration-300 ${isIntroExpanded ?"" :"line-clamp-4"}`}>
+   259→   259→   259→ {company.bio || `${company.full_name} là đối tác chiến dịch tuyển dụng và quản lý nhân sự tình nguyện chuyên biệt, hỗ trợ tổ chức và vận hành các sự kiện cộng đồng chất lượng cao tại khu vực miền Trung nói chung và thành phố Đà Nẵng nói riêng. Chúng tôi liên kết chặt chẽ với các câu lạc bộ sinh viên, các tổ chức giáo dục để mang đến lực lượng tình nguyện viên trẻ trung, năng động và giàu kinh nghiệm nhất.`}
+   260→   260→   260→ </div>
+   261→   261→   261→ <button
+   262→   262→   262→ onClick={() => setIsIntroExpanded(!isIntroExpanded)}
+   263→   263→   263→ className="text-xs font-bold text-primary hover:text-primary/80 mt-3 flex items-center gap-1 transition-colors"
+   264→   264→   264→ >
+   265→   265→   265→ {isIntroExpanded ? (
+   266→   266→   266→ <>Thu gọn <ChevronUp className="w-3.5 h-3.5" /></>
+   267→   267→   267→ ) : (
+   268→   268→   268→ <>Xem thêm <ChevronDown className="w-3.5 h-3.5" /></>
+   269→   269→   269→ )}
+   270→   270→   270→ </button>
+   271→   271→   271→ </div>
+   272→   272→   272→ </div>
+   273→   273→   273→
+   274→   274→   274→ {/* Hình ảnh công ty */}
+   275→   275→   275→ <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm space-y-6">
+   276→   276→   276→ <div className="flex items-center justify-between">
+   277→   277→   277→ <h2 className="text-lg font-bold text-foreground border-l-[4px] border-primary pl-3 leading-none flex items-center">
+   278→   278→   278→ Hình ảnh hoạt động
+   279→   279→   279→ </h2>
+   280→   280→   280→ <div className="flex items-center gap-2">
+   281→   281→   281→ <button
+   282→   282→   282→ onClick={() => setCurrentImageIndex(prev => Math.max(0, prev - 1))}
+   283→   283→   283→ disabled={currentImageIndex === 0}
+   284→   284→   284→ className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary disabled:opacity-30 disabled:hover:text-slate-400 disabled:hover:border-slate-200 transition-all cursor-pointer"
+   285→   285→   285→ >
+   286→   286→   286→ &lt;
+   287→   287→   287→ </button>
+   288→   288→   288→ <button
+   289→   289→   289→ onClick={() => setCurrentImageIndex(prev => Math.min(galleryImages.length - 1, prev + 1))}
+   290→   290→   290→ disabled={currentImageIndex === galleryImages.length - 1}
+   291→   291→   291→ className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-primary hover:border-primary disabled:opacity-30 disabled:hover:text-slate-400 disabled:hover:border-slate-200 transition-all cursor-pointer"
+   292→   292→   292→ >
+   293→   293→   293→ &gt;
+   294→   294→   294→ </button>
+   295→   295→   295→ </div>
+   296→   296→   296→ </div>
+   297→   297→   297→ <div className="grid grid-cols-3 gap-3 overflow-hidden rounded-xl">
+   298→   298→   298→ {galleryImages.map((imgUrl: string, idx: number) => (
+   299→   299→   299→ <div key={imgUrl} className="relative aspect-[4/3] rounded-lg overflow-hidden group border border-slate-100">
+   300→   300→   300→ <img
+   301→   301→   301→ src={imgUrl}
+   302→   302→   302→ alt={`Company Gallery ${idx + 1}`}
+   303→   303→   303→ className={`w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 ${idx === currentImageIndex ?"ring-2 ring-primary" :""}`}
+   304→   304→   304→ />
+   305→   305→   305→ </div>
+   306→   306→   306→ ))}
+   307→   307→   307→ </div>
+   308→   308→   308→ </div>
+   309→   309→   309→
+   310→   310→   310→ {/* Tuyển dụng tại công ty */}
+   311→   311→   311→ <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm space-y-6">
+   312→   312→   312→ <h2 className="text-lg font-bold text-foreground border-l-[4px] border-primary pl-3 leading-none flex items-center">
+   313→   313→   313→ Tuyển dụng mới nhất
+   314→   314→   314→ </h2>
+   315→   315→   315→
+   316→   316→   316→ {/* Search filter */}
+   317→   317→   317→ <div className="flex flex-col md:flex-row gap-3 pt-1">
+   318→   318→   318→ <div className="flex-1 flex items-center gap-2 border border-slate-200 rounded-xl px-4 py-2 bg-slate-50/50">
+   319→   319→   319→ <Search className="w-4 h-4 text-slate-400" />
+   320→   320→   320→ <input
+   321→   321→   321→ type="text"
+   322→   322→   322→ placeholder="Tên công việc, vị trí tuyển dụng..."
+   323→   323→   323→ value={jobSearchTerm}
+   324→   324→   324→ onChange={(e) => setJobSearchTerm(e.target.value)}
+   325→   325→   325→ className="bg-transparent text-xs text-slate-700 outline-none w-full font-medium"
+   326→   326→   326→ />
+   327→   327→   327→ </div>
+   328→   328→   328→ <select
+   329→   329→   329→ value={selectedLocation}
+   330→   330→   330→ onChange={(e) => setSelectedLocation(e.target.value)}
+   331→   331→   331→ className="border border-slate-200 rounded-xl px-4 py-2 bg-white text-xs font-bold text-slate-600 focus:outline-none focus:border-primary max-w-full md:max-w-[200px]"
+   332→   332→   332→ >
+   333→   333→   333→ <option value="">Tất cả khu vực</option>
+   334→   334→   334→ {locationsList.map(loc => (
+   335→   335→   335→ <option key={loc} value={loc}>{loc}</option>
+   336→   336→   336→ ))}
+   337→   337→   337→ </select>
+   338→   338→   338→ <button className="bg-primary hover:bg-primary/90 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all flex items-center justify-center shrink-0">
+   339→   339→   339→ Tìm kiếm
+   340→   340→   340→ </button>
+   341→   341→   341→ </div>
+   342→   342→   342→
+   343→   343→   343→ {/* Openings lists */}
+   344→   344→   344→ {filteredJobs.length === 0 ? (
+   345→   345→   345→ <div className="py-8 text-center text-slate-450 font-semibold text-xs">Hiện tại không tìm thấy tin tuyển dụng nào phù hợp.</div>
+   346→   346→   346→ ) : (
+   347→   347→   347→ <div className="space-y-4">
+   348→   348→   348→ {filteredJobs.map((job) => (
+   349→   349→   349→ <div
+   350→   350→   350→ key={job.id}
+   351→   351→   351→ onClick={() => navigate(`/jobs/${job.slug || job.id}`)}
+   352→   352→   352→ className="p-4 rounded-xl border border-slate-100 hover:border-primary hover:shadow-md transition-all flex items-start justify-between gap-4 cursor-pointer group bg-white"
+   353→   353→   353→ >
+   354→   354→   354→ <div className="flex gap-3">
+   355→   355→   355→ <div className="company-logo flex items-center justify-center bg-white border border-muted rounded-lg border-[0.8px] p-1.5 w-[72px] h-[72px] shrink-0 cursor-pointer">
+   356→   356→   356→ <Avatar className="h-full w-full rounded-md">
+   357→   357→   357→ <AvatarImage src={company.avatar_url} className="object-contain" />
+   358→   358→   358→ <AvatarFallback className="rounded-md bg-emerald-50 text-primary text-xl font-black">
+   359→   359→   359→ {company.full_name?.charAt(0).toUpperCase() ||"O"}
+   360→   360→   360→ </AvatarFallback>
+   361→   361→   361→ </Avatar>
+   362→   362→   362→ </div>
+   363→   363→   363→ <div className="space-y-1">
+   364→   364→   364→ <h3 className="text-sm md:text-base font-bold text-foreground group-hover:text-primary transition-colors leading-snug cursor-pointer font-sans tracking-[-0.16px]">
+   365→   365→   365→ {job.title}
+   366→   366→   366→ </h3>
+   367→   367→   367→ <p className="text-xs text-slate-400 font-bold mt-1">{company.full_name}</p>
+   368→   368→   368→ <div className="flex items-center gap-1.5 flex-wrap pt-1">
+   369→   369→   369→ <span className="text-[10px] md:text-xs font-bold bg-muted text-slate-500 px-2 py-0.5 rounded">
+   370→   370→   370→ {job.danang_wards?.name ? `P. ${job.danang_wards.name}` : (job.location ||"Đà Nẵng")}
+   371→   371→   371→ </span>
+   372→   372→   372→ </div>
+   373→   373→   373→ </div>
+   374→   374→   374→ </div>
+   375→   375→   375→ <div className="flex flex-col items-end justify-between h-[72px] shrink-0">
+   376→   376→   376→ <span className="text-xs md:text-sm font-bold text-primary">{job.benefits ||"Thỏa thuận"}</span>
+   377→   377→   377→ <button
+   378→   378→   378→ onClick={(e) => toggleBookmark(job.id, e)}
+   379→   379→   379→ aria-label="Lưu tin"
+   380→   380→   380→ aria-pressed={!!bookmarkedJobs[job.id]}
+   381→   381→   381→ className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 ${bookmarkedJobs[job.id]
+   382→   382→   382→ ?"bg-emerald-50 border-emerald-200 text-primary"
+   383→   383→   383→ :"bg-white border-slate-200 text-slate-350 hover:text-primary hover:border-emerald-200"
+   384→   384→   384→ }`}
+   385→   385→   385→ >
+   386→   386→   386→ <Bookmark className={`w-4 h-4 ${bookmarkedJobs[job.id] ?"fill-current text-primary" :"text-slate-400"}`} />
+   387→   387→   387→ </button>
+   388→   388→   388→ </div>
+   389→   389→   389→ </div>
+   390→   390→   390→ ))}
+   391→   391→   391→ </div>
+   392→   392→   392→ )}
+   393→   393→   393→ </div>
+   394→   394→   394→ </div>
+   395→   395→   395→
+   396→   396→   396→ {/* Right Column ( Thông tin chung, Địa điểm, Chia sẻ ) */}
+   397→   397→   397→ <div className="company-detail_body-right w-full lg:w-[350px] shrink-0 flex flex-col gap-6 items-center text-foreground text-sm leading-5">
+   398→   398→   398→ 
+   399→   399→   399→ {/* Thông tin chung matching EventDetail styles */}
+   400→   400→   400→ <div className="job-detail_body-right--box-general bg-white rounded-lg border border-slate-200 p-5 shadow-sm text-foreground text-sm leading-5 w-full">
+   401→   401→   401→ <div className="box-title text-lg font-bold text-foreground mb-4">
+   402→   402→   402→ Thông tin chung
+   403→   403→   403→ </div>
+   404→   404→   404→ <div className="box-general-content flex flex-col gap-4 text-foreground text-sm leading-5 w-full">
+   405→   405→   405→ 
+   406→   406→   406→ <div className="box-general-group flex items-center gap-4 text-foreground text-sm leading-5 w-full">
+   407→   407→   407→ <div className="box-general-group-icon flex items-center justify-center bg-muted rounded-xl p-2 text-foreground text-sm leading-5 w-10 h-10 shrink-0">
+   408→   408→   408→ <FileText className="w-5 h-5 text-foreground fill-none" />
+   409→   409→   409→ </div>
+   410→   410→   410→ <div className="box-general-group-info flex flex-col gap-1 text-foreground text-sm leading-5 w-full">
+   411→   411→   411→ <div className="box-general-group-info-title text-foreground text-[14px] tracking-[0.14px] leading-[22px] whitespace-nowrap">
+   412→   412→   412→ Mã số thuế
+   413→   413→   413→ </div>
+   414→   414→   414→ <div className="box-general-group-info-value text-foreground text-[14px] font-semibold tracking-[0.175px] leading-[22px] whitespace-nowrap">
+   415→   415→   415→ {company.mst ||"Chưa cập nhật"}
+   416→   416→   416→ </div>
+   417→   417→   417→ </div>
+   418→   418→   418→ </div>
+   419→   419→   419→
+   420→   420→   420→ <div className="box-general-group flex items-center gap-4 text-foreground text-sm leading-5 w-full">
+   421→   421→   421→ <div className="box-general-group-icon flex items-center justify-center bg-muted rounded-xl p-2 text-foreground text-sm leading-5 w-10 h-10 shrink-0">
+   422→   422→   422→ <Users className="w-5 h-5 text-foreground fill-none" />
+   423→   423→   423→ </div>
+   424→   424→   424→ <div className="box-general-group-info flex flex-col gap-1 text-foreground text-sm leading-5 w-full">
+   425→   425→   425→ <div className="box-general-group-info-title text-foreground text-[14px] tracking-[0.14px] leading-[22px] whitespace-nowrap">
+   426→   426→   426→ Quy mô
+   427→   427→   427→ </div>
+   428→   428→   428→ <div className="box-general-group-info-value text-foreground text-[14px] font-semibold tracking-[0.175px] leading-[22px] whitespace-nowrap">
+   429→   429→   429→ {company.scale ||"Chưa cập nhật"}
+   430→   430→   430→ </div>
+   431→   431→   431→ </div>
+   432→   432→   432→ </div>
+   433→   433→   433→
+   434→   434→   434→ </div>
+   435→   435→   435→ </div>
+   436→   436→   436→
+   437→   437→   437→ {/* Địa điểm công ty */}
+   438→   438→   438→ <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm space-y-4 w-full">
+   439→   439→   439→ <div className="text-lg font-bold text-foreground">
+   440→   440→   440→ Địa điểm công ty
+   441→   441→   441→ </div>
+   442→   442→   442→ <div className="space-y-3">
+   443→   443→   443→ <div className="flex items-start gap-2 text-sm font-semibold text-slate-700 leading-snug">
+   444→   444→   444→ <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+   445→   445→   445→ <span>{company.address ||"Chưa cập nhật địa chỉ"}</span>
+   446→   446→   446→ </div>
+   447→   447→   447→ {/* Mock Google Maps block */}
+   448→   448→   448→ <div className="border border-slate-100 rounded-xl overflow-hidden shadow-inner aspect-[4/3] bg-slate-50 relative flex items-center justify-center">
+   449→   449→   449→ <img
+   450→   450→   450→ src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&w=350&h=260&q=80"
+   451→   451→   451→ alt="Map placeholder"
+   452→   452→   452→ className="w-full h-full object-cover opacity-80"
+   453→   453→   453→ />
+   454→   454→   454→ <a
+   455→   455→   455→ href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(company.address || company.full_name)}`}
+   456→   456→   456→ target="_blank"
+   457→   457→   457→ rel="noreferrer"
+   458→   458→   458→ className="absolute bg-white/95 text-[10px] font-bold text-primary px-3 py-1.5 rounded-lg shadow border border-slate-200 hover:bg-white transition-colors"
+   459→   459→   459→ >
+   460→   460→   460→ 🗺️ Mở trong Maps
+   461→   461→   461→ </a>
+   462→   462→   462→ </div>
+   463→   463→   463→ </div>
+   464→   464→   464→ </div>
+   465→   465→   465→
+   466→   466→   466→ {/* Chia sẻ công ty */}
+   467→   467→   467→ <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm space-y-4 w-full">
+   468→   468→   468→ <div className="text-lg font-bold text-foreground">
+   469→   469→   469→ Chia sẻ công ty
+   470→   470→   470→ </div>
+   471→   471→   471→ <div className="space-y-4">
+   472→   472→   472→ <div>
+   473→   473→   473→ <p className="text-[10px] text-slate-400 font-bold mb-1.5 uppercase">Sao chép đường dẫn</p>
+   474→   474→   474→ <div className="flex items-center gap-2 border border-slate-200 rounded-lg p-2 bg-slate-50/50">
+   475→   475→   475→ <input
+   476→   476→   476→ type="text"
+   477→   477→   477→ readOnly
+   478→   478→   478→ value={window.location.href}
+   479→   479→   479→ className="bg-transparent text-[11px] text-slate-400 font-medium select-all outline-none w-full truncate"
+   480→   480→   480→ />
+   481→   481→   481→ <button
+   482→   482→   482→ onClick={handleCopyLink}
+   483→   483→   483→ aria-label="Sao chép liên kết"
+   484→   484→   484→ className="p-1 text-slate-400 hover:text-primary hover:bg-primary/5 rounded transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
+   485→   485→   485→ >
+   486→   486→   486→ <Copy className="w-3.5 h-3.5" />
+   487→   487→   487→ </button>
+   488→   488→   488→ </div>
+   489→   489→   489→ </div>
+   490→   490→   490→ <div>
+   491→   491→   491→ <p className="text-[10px] text-slate-400 font-bold mb-2 uppercase">Chia sẻ qua mạng xã hội</p>
+   492→   492→   492→ <div className="flex items-center gap-2.5">
+   493→   493→   493→ <button className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:text-blue-650 hover:bg-blue-50 transition-colors cursor-pointer">
+   494→   494→   494→ <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+   495→   495→   495→ <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+   496→   496→   496→ </svg>
+   497→   497→   497→ </button>
+   498→   498→   498→ <button className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:text-black hover:bg-slate-50 transition-colors cursor-pointer">
+   499→   499→   499→ <span className="font-bold text-sm">𝕏</span>
+   500→   500→   500→ </button>
+   501→   501→   501→ <button className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:text-blue-700 hover:bg-blue-50 transition-colors cursor-pointer">
+   502→   502→   502→ <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+   503→   503→   503→ <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+   504→   504→   504→ <rect x="2" y="9" width="4" height="12" />
+   505→   505→   505→ <circle cx="4" cy="4" r="2" />
+   506→   506→   506→ </svg>
+   507→   507→   507→ </button>
+   508→   508→   508→ </div>
+   509→   509→   509→ </div>
+   510→   510→   510→ </div>
+   511→   511→   511→ </div>
+   512→   512→   512→
+   513→   513→   513→ </div>
+   514→   514→   514→ </div>
+   515→   515→   515→ ) : (
+   516→   516→   516→ /* Tin tuyển dụng Tab Content matching EventDetail structures */
+   517→   517→   517→ <div className="company-detail_body flex flex-col lg:flex-row gap-6 items-start mt-6 w-full animate-in fade-in">
+   518→   518→   518→ 
+   519→   519→   519→ {/* Left Side ( Filters Sidebar ) - width 350px */}
+   520→   520→   520→ <div className="w-full lg:w-[350px] shrink-0 space-y-6">
+   521→   521→   521→ <div className="bg-white rounded-lg border border-slate-200 p-5 shadow-sm space-y-4">
+   522→   522→   522→ <h3 className="text-lg font-bold text-foreground border-b border-slate-100 pb-3">
+   523→   523→   523→ Danh mục vị trí
+   524→   524→   524→ </h3>
+   525→   525→   525→ <div className="space-y-2 pt-1">
+   526→   526→   526→ <label className="flex items-center gap-2 text-sm font-semibold text-slate-600 hover:text-primary cursor-pointer">
+   527→   527→   527→ <input type="checkbox" defaultChecked className="rounded border-slate-300 text-primary focus:ring-primary" />
+   528→   528→   528→ <span>Tất cả vị trí ({companyEvents.length})</span>
+   529→   529→   529→ </label>
+   530→   530→   530→ </div>
+   531→   531→   531→ </div>
+   532→   532→   532→ </div>
+   533→   533→   533→
+   534→   534→   534→ {/* Right Side ( Search & Listings ) - width max-w-[760px] */}
+   535→   535→   535→ <div className="flex-1 w-full lg:max-w-[760px] space-y-6">
+   536→   536→   536→ <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm space-y-6">
+   537→   537→   537→ 
+   538→   538→   538→ {/* Search bar */}
+   539→   539→   539→ <div className="flex flex-col md:flex-row gap-3 pt-1">
+   540→   540→   540→ <div className="flex-1 flex items-center gap-2 border border-slate-200 rounded-xl px-4 py-2 bg-slate-50/50">
+   541→   541→   541→ <Search className="w-4 h-4 text-slate-400" />
+   542→   542→   542→ <input
+   543→   543→   543→ type="text"
+   544→   544→   544→ placeholder="Tên công việc, vị trí ứng tuyển..."
+   545→   545→   545→ value={jobSearchTerm}
+   546→   546→   546→ onChange={(e) => setJobSearchTerm(e.target.value)}
+   547→   547→   547→ className="bg-transparent text-xs text-slate-700 outline-none w-full font-medium"
+   548→   548→   548→ />
+   549→   549→   549→ </div>
+   550→   550→   550→ <select
+   551→   551→   551→ value={selectedLocation}
+   552→   552→   552→ onChange={(e) => setSelectedLocation(e.target.value)}
+   553→   553→   553→ className="border border-slate-200 rounded-xl px-4 py-2 bg-white text-xs font-bold text-slate-600 focus:outline-none focus:border-primary max-w-full md:max-w-[200px]"
+   554→   554→   554→ >
+   555→   555→   555→ <option value="">Tất cả khu vực</option>
+   556→   556→   556→ {locationsList.map(loc => (
+   557→   557→   557→ <option key={loc} value={loc}>{loc}</option>
+   558→   558→   558→ ))}
+   559→   559→   559→ </select>
+   560→   560→   560→ <button className="bg-primary hover:bg-primary/90 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all flex items-center justify-center shrink-0">
+   561→   561→   561→ Tìm kiếm
+   562→   562→   562→ </button>
+   563→   563→   563→ </div>
+   564→   564→   564→
+   565→   565→   565→ {/* Full list */}
+   566→   566→   566→ {filteredJobs.length === 0 ? (
+   567→   567→   567→ <div className="py-16 text-center text-slate-450 font-semibold text-xs">Không tìm thấy tin tuyển dụng nào phù hợp.</div>
+   568→   568→   568→ ) : (
+   569→   569→   569→ <div className="space-y-4">
+   570→   570→   570→ {filteredJobs.map((job) => (
+   571→   571→   571→ <div
+   572→   572→   572→ key={job.id}
+   573→   573→   573→ onClick={() => navigate(`/jobs/${job.slug || job.id}`)}
+   574→   574→   574→ className="p-4 rounded-xl border border-slate-100 hover:border-primary hover:shadow-md transition-all flex items-start justify-between gap-4 cursor-pointer group bg-white"
+   575→   575→   575→ >
+   576→   576→   576→ <div className="flex gap-3">
+   577→   577→   577→ <div className="company-logo flex items-center justify-center bg-white border border-muted rounded-lg border-[0.8px] p-1.5 w-[72px] h-[72px] shrink-0 cursor-pointer">
+   578→   578→   578→ <Avatar className="h-full w-full rounded-md">
+   579→   579→   579→ <AvatarImage src={company.avatar_url} className="object-contain" />
+   580→   580→   580→ <AvatarFallback className="rounded-md bg-emerald-50 text-primary text-xl font-black">
+   581→   581→   581→ {company.full_name?.charAt(0).toUpperCase() ||"O"}
+   582→   582→   582→ </AvatarFallback>
+   583→   583→   583→ </Avatar>
+   584→   584→   584→ </div>
+   585→   585→   585→ <div className="space-y-1">
+   586→   586→   586→ <h3 className="text-sm md:text-base font-bold text-foreground group-hover:text-primary transition-colors leading-snug cursor-pointer font-sans tracking-[-0.16px]">
+   587→   587→   587→ {job.title}
+   588→   588→   588→ </h3>
+   589→   589→   589→ <p className="text-xs text-slate-400 font-bold mt-1">{company.full_name}</p>
+   590→   590→   590→ <div className="flex items-center gap-1.5 flex-wrap pt-1">
+   591→   591→   591→ <span className="text-[10px] md:text-xs font-bold bg-muted text-slate-500 px-2 py-0.5 rounded">
+   592→   592→   592→ {job.danang_wards?.name ? `P. ${job.danang_wards.name}` : (job.location ||"Đà Nẵng")}
+   593→   593→   593→ </span>
+   594→   594→   594→ </div>
+   595→   595→   595→ </div>
+   596→   596→   596→ </div>
+   597→   597→   597→ <div className="flex flex-col items-end justify-between h-[72px] shrink-0">
+   598→   598→   598→ <span className="text-xs md:text-sm font-bold text-primary">{job.benefits ||"Thỏa thuận"}</span>
+   599→   599→   599→ <button
+   600→   600→   600→ onClick={(e) => toggleBookmark(job.id, e)}
+   601→   601→   601→ aria-label="Lưu tin"
+   602→   602→   602→ aria-pressed={!!bookmarkedJobs[job.id]}
+   603→   603→   603→ className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 ${bookmarkedJobs[job.id]
+   604→   604→   604→ ?"bg-emerald-50 border-emerald-200 text-primary"
+   605→   605→   605→ :"bg-white border-slate-200 text-slate-350 hover:text-primary hover:border-emerald-200"
+   606→   606→   606→ }`}
+   607→   607→   607→ >
+   608→   608→   608→ <Bookmark className={`w-4 h-4 ${bookmarkedJobs[job.id] ?"fill-current text-primary" :"text-slate-400"}`} />
+   609→   609→   609→ </button>
+   610→   610→   610→ </div>
+   611→   611→   611→ </div>
+   612→   612→   612→ ))}
+   613→   613→   613→ </div>
+   614→   614→   614→ )}
+   615→   615→   615→ </div>
+   616→   616→   616→ </div>
+   617→   617→   617→
+   618→   618→   618→ </div>
+   619→   619→   619→ )}
+   620→   620→   620→
+   621→   621→   621→ {/* Bottom Floating Follow Banner */}
+   622→   622→   622→ {showFloatingBanner && (
+   623→   623→   623→ <div className="fixed bottom-4 left-4 right-4 bg-white border border-slate-200 rounded-2xl p-4 shadow-md z-[100] flex items-center justify-between gap-4 animate-in slide-in-from-bottom-5 duration-300 max-w-4xl mx-auto border-t-4 border-primary">
+   624→   624→   624→ <div className="flex items-center gap-3 min-w-0">
+   625→   625→   625→ <div className="border border-slate-200 rounded-xl p-1 w-12 h-12 flex items-center justify-center bg-white shrink-0">
+   626→   626→   626→ <Avatar className="h-full w-full rounded-lg">
+   627→   627→   627→ <AvatarImage src={company.avatar_url} className="object-contain" />
+   628→   628→   628→ <AvatarFallback className="rounded-lg bg-emerald-50 text-primary text-lg font-black">
+   629→   629→   629→ {company.full_name?.charAt(0).toUpperCase() ||"O"}
+   630→   630→   630→ </AvatarFallback>
+   631→   631→   631→ </Avatar>
+   632→   632→   632→ </div>
+   633→   633→   633→ <div className="min-w-0">
+   634→   634→   634→ <p className="text-xs font-medium text-slate-500">Theo dõi để nhận thông báo việc làm mới nhất từ</p>
+   635→   635→   635→ <p className="text-sm font-bold text-slate-800 truncate" title={company.full_name}>{company.full_name}</p>
+   636→   636→   636→ </div>
+   637→   637→   637→ </div>
+   638→   638→   638→ <Button
+   639→   639→   639→ onClick={() => setIsFollowed(!isFollowed)}
+   640→   640→   640→ className={`rounded-lg font-bold h-10 px-5 text-xs transition-all shrink-0 ${isFollowed
+   641→   641→   641→ ?"bg-primary hover:bg-primary/90 text-white border-primary"
+   642→   642→   642→ :"bg-primary hover:bg-primary/90 text-white border-primary"
+   643→   643→   643→ }`}
+   644→   644→   644→ >
+   645→   645→   645→ {isFollowed ?"✓ Đang theo dõi" :"+ Theo dõi ngay"}
+   646→   646→   646→ </Button>
+   647→   647→   647→ </div>
+   648→   648→   648→ )}
+   649→   649→   649→ </div>
+   650→   650→   650→ </MainLayout>
+   651→   651→   651→ )
+   652→   652→   652→}
+   653→   653→   653→

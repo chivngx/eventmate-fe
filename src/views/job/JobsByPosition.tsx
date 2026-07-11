@@ -1,378 +1,329 @@
 "use client"
 
-import { useEffect, useState } from"react"
-import { useSearchParams, useNavigate, useParams } from"@/lib/router"
-import { supabase } from"@/lib/supabase"
-import { useUser } from"@/components/providers/AuthProvider"
-import { slugify } from"@/lib/slugify"
-import MainLayout from"@/components/layout/MainLayout"
-import { Search, MapPin, Briefcase, Tag, Clock, ChevronLeft, ChevronRight, Building2, Heart } from"lucide-react"
-import { Button } from"@/components/ui/button"
-import { Badge } from"@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from"@/components/ui/avatar"
+import { useEffect, useState } from "react"
+import { useSearchParams, useNavigate, useParams } from "@/lib/router"
+import { supabase } from "@/lib/supabase"
+import { useUser } from "@/components/providers/AuthProvider"
+import { slugify } from "@/lib/slugify"
+import MainLayout from "@/components/layout/MainLayout"
+import EventCard from "@/components/event/EventCard"
+import { Search, Briefcase, ChevronLeft, ChevronRight } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 export default function JobsByPosition() {
- const navigate = useNavigate()
- const [searchParams] = useSearchParams()
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
 
- const { position: positionRouteParam } = useParams<{ position: string }>()
- const positionParam = positionRouteParam || searchParams.get("position") ||"Tình nguyện viên"
+  const { position: positionRouteParam } = useParams<{ position: string }>()
+  const positionParam = positionRouteParam || searchParams.get("position") || "Tình nguyện viên"
 
- // 🔒 P1.1: user từ context (thay getUser() lặp)
- const { user, loading: authLoading } = useUser()
+  // 🔒 P1.1: user từ context (thay getUser() lặp)
+  const { user, loading: authLoading } = useUser()
 
- const [loading, setLoading] = useState(true)
- const [events, setEvents] = useState<any[]>([])
- const [wards, setWards] = useState<any[]>([])
- 
- // Trạng thái tìm kiếm & lọc
- const [keyword, setKeyword] = useState("")
- const [selectedWard, setSelectedWard] = useState("")
- const [selectedBenefits, setSelectedBenefits] = useState<string[]>([])
- const [selectedExperiences, setSelectedExperiences] = useState<string[]>([])
- const [bookmarkedEvents, setBookmarkedEvents] = useState<Record<string, boolean>>({})
+  const [loading, setLoading] = useState(true)
+  const [events, setEvents] = useState<any[]>([])
+  const [wards, setWards] = useState<any[]>([])
 
- // Phân trang
- const [currentPage, setCurrentPage] = useState(1)
- const [totalPages, setTotalPages] = useState(1)
- const itemsPerPage = 8
+  // Trạng thái tìm kiếm & lọc
+  const [keyword, setKeyword] = useState("")
+  const [selectedWard, setSelectedWard] = useState("")
+  const [selectedBenefits, setSelectedBenefits] = useState<string[]>([])
+  const [selectedExperiences, setSelectedExperiences] = useState<string[]>([])
+  const [bookmarkedEvents, setBookmarkedEvents] = useState<Record<string, boolean>>({})
 
- // Phụ cấp & quyền lợi phổ biến
- const benefitOptions = ["Cấp chứng nhận","Có phụ cấp ăn uống","Hỗ trợ lương cứng","Thỏa thuận"]
- const experienceOptions = ["Không yêu cầu kinh nghiệm","Dưới 1 năm","1 - 2 năm","Trên 2 năm"]
+  // Phân trang
+  const [currentPage, setCurrentPage] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const itemsPerPage = 8
 
- useEffect(() => {
- if (authLoading) return
- const fetchInitialData = async () => {
- // 1. Tải danh sách Phường/Xã Đà Nẵng
- const { data: wardsData } = await supabase
- .from("danang_wards")
- .select("*")
- .order("name", { ascending: true })
- if (wardsData) setWards(wardsData)
+  // Phụ cấp & quyền lợi phổ biến
+  const benefitOptions = ["Cấp chứng nhận", "Có phụ cấp ăn uống", "Hỗ trợ lương cứng", "Thỏa thuận"]
+  const experienceOptions = ["Không yêu cầu kinh nghiệm", "Dưới 1 năm", "1 - 2 năm", "Trên 2 năm"]
 
- // 2. Lấy bookmarks nếu đã đăng nhập
- if (user) {
- const { data: bookmarks } = await supabase
- .from("event_bookmarks")
- .select("event_id")
- .eq("student_id", user.id)
- if (bookmarks) {
- const map: Record<string, boolean> = {}
- bookmarks.forEach((b) => {
- map[b.event_id] = true
- })
- setBookmarkedEvents(map)
- }
- }
- }
- fetchInitialData()
- }, [user, authLoading])
+  useEffect(() => {
+    if (authLoading) return
+    const fetchInitialData = async () => {
+      // 1. Tải danh sách Phường/Xã Đà Nẵng
+      const { data: wardsData } = await supabase
+        .from("danang_wards")
+        .select("*")
+        .order("name", { ascending: true })
+      if (wardsData) setWards(wardsData)
 
- const fetchEvents = async () => {
- setLoading(true)
- let posName = positionParam
- // 🔧 Fix: slug có thể null trong DB (trigger chưa chạy) — fetch all + match client-side
- const { data: allPositions } = await supabase.from("job_positions").select("name, slug")
- const match = (allPositions || []).find((p: any) =>
- p.slug === positionParam || (p.slug === null && slugify(p.name) === positionParam)
- )
- if (match) {
- posName = match.name
- }
+      // 2. Lấy bookmarks nếu đã đăng nhập
+      if (user) {
+        const { data: bookmarks } = await supabase
+          .from("event_bookmarks")
+          .select("event_id")
+          .eq("student_id", user.id)
+        if (bookmarks) {
+          const map: Record<string, boolean> = {}
+          bookmarks.forEach((b) => {
+            map[b.event_id] = true
+          })
+          setBookmarkedEvents(map)
+        }
+      }
+    }
+    fetchInitialData()
+  }, [user, authLoading])
 
- let query = supabase
- .from("events")
- .select("*, profiles(id, full_name, avatar_url, slug), danang_wards(name)", { count:"exact" })
- .eq("position_type", posName)
+  const fetchEvents = async () => {
+    setLoading(true)
+    let posName = positionParam
+    // 🔧 Fix: slug có thể null trong DB (trigger chưa chạy) — fetch all + match client-side
+    const { data: allPositions } = await supabase.from("job_positions").select("name, slug")
+    const match = (allPositions || []).find((p: any) =>
+      p.slug === positionParam || (p.slug === null && slugify(p.name) === positionParam)
+    )
+    if (match) {
+      posName = match.name
+    }
 
- if (keyword) {
- query = query.ilike("title", `%${keyword}%`)
- }
- if (selectedWard) {
- query = query.eq("ward_id", Number(selectedWard))
- }
- if (selectedBenefits.length > 0) {
- query = query.in("benefits", selectedBenefits)
- }
+    let query = supabase
+      .from("events")
+      .select("*, profiles(id, full_name, avatar_url, slug), danang_wards(name)", { count: "exact" })
+      .eq("position_type", posName)
 
- const from = (currentPage - 1) * itemsPerPage
- const to = from + itemsPerPage - 1
+    if (keyword) {
+      query = query.ilike("title", `%${keyword}%`)
+    }
+    if (selectedWard) {
+      query = query.eq("ward_id", Number(selectedWard))
+    }
+    if (selectedBenefits.length > 0) {
+      query = query.in("benefits", selectedBenefits)
+    }
 
- query = query
- .order("created_at", { ascending: false })
- .range(from, to)
+    const from = (currentPage - 1) * itemsPerPage
+    const to = from + itemsPerPage - 1
 
- const { data, count, error } = await query
+    query = query
+      .order("created_at", { ascending: false })
+      .range(from, to)
 
- if (!error && data) {
- setEvents(data)
- if (count !== null) {
- setTotalPages(Math.ceil(count / itemsPerPage) || 1)
- }
- }
- setLoading(false)
- }
+    const { data, count, error } = await query
 
- useEffect(() => {
- fetchEvents()
- }, [positionParam, selectedWard, selectedBenefits, currentPage])
+    if (!error && data) {
+      setEvents(data)
+      if (count !== null) {
+        setTotalPages(Math.ceil(count / itemsPerPage) || 1)
+      }
+    }
+    setLoading(false)
+  }
 
- const handleSearchSubmit = (e: React.FormEvent) => {
- e.preventDefault()
- setCurrentPage(1)
- fetchEvents()
- }
+  useEffect(() => {
+    fetchEvents()
+  }, [positionParam, selectedWard, selectedBenefits, currentPage])
 
- const handleToggleBookmark = async (eventId: string) => {
- if (!user) {
- window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { mode:"login" } }))
- return
- }
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setCurrentPage(1)
+    fetchEvents()
+  }
 
- const isBookmarked = !!bookmarkedEvents[eventId]
- if (isBookmarked) {
- const { error } = await supabase
- .from("event_bookmarks")
- .delete()
- .eq("student_id", user.id)
- .eq("event_id", eventId)
- if (!error) setBookmarkedEvents(prev => ({ ...prev, [eventId]: false }))
- } else {
- const { error } = await supabase
- .from("event_bookmarks")
- .insert([{ student_id: user.id, event_id: eventId }])
- if (!error) setBookmarkedEvents(prev => ({ ...prev, [eventId]: true }))
- }
- }
+  const handleToggleBookmark = async (eventId: string) => {
+    if (!user) {
+      window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { mode: "login" } }))
+      return
+    }
 
- const handleBenefitChange = (benefit: string) => {
- setSelectedBenefits(prev =>
- prev.includes(benefit) ? prev.filter(b => b !== benefit) : [...prev, benefit]
- )
- setCurrentPage(1)
- }
+    const isBookmarked = !!bookmarkedEvents[eventId]
+    if (isBookmarked) {
+      const { error } = await supabase
+        .from("event_bookmarks")
+        .delete()
+        .eq("student_id", user.id)
+        .eq("event_id", eventId)
+      if (!error) setBookmarkedEvents(prev => ({ ...prev, [eventId]: false }))
+    } else {
+      const { error } = await supabase
+        .from("event_bookmarks")
+        .insert([{ student_id: user.id, event_id: eventId }])
+      if (!error) setBookmarkedEvents(prev => ({ ...prev, [eventId]: true }))
+    }
+  }
 
- return (
- <MainLayout>
- <div className="space-y-6 pb-12 animate-in fade-in duration-300">
- 
- {/* BANNER TÌM KIẾM TRÊN CÙNG (DẠNG TOPCV) */}
- <div className="p-8 rounded-2xl text-white shadow-md relative overflow-hidden">
- <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
- <div className="max-w-3xl space-y-4 relative z-10">
- <h1 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">
- Tìm việc làm <span className="text-emerald-400">{positionParam}</span> tại Đà Nẵng
- </h1>
- <p className="text-xs sm:text-sm text-slate-300 font-medium">
- Khám phá cơ hội hợp tác và tích lũy kỹ năng xã hội cùng các chiến dịch uy tín.
- </p>
+  const handleBenefitChange = (benefit: string) => {
+    setSelectedBenefits(prev =>
+      prev.includes(benefit) ? prev.filter(b => b !== benefit) : [...prev, benefit]
+    )
+    setCurrentPage(1)
+  }
 
- {/* THANH TÌM KIẾM CHI TIẾT */}
- <form onSubmit={handleSearchSubmit} className="bg-white p-2 rounded-2xl shadow-md flex flex-col md:flex-row gap-2">
- <div className="flex-1 flex items-center gap-2 px-3 bg-slate-50 rounded-xl">
- <Search className="w-5 h-5 text-slate-400 shrink-0" />
- <input
- type="text"
- placeholder="Nhập vị trí, tên công việc cần tìm..."
- value={keyword}
- onChange={e => setKeyword(e.target.value)}
- className="w-full h-11 bg-transparent text-sm font-semibold text-slate-850 outline-none placeholder:text-slate-400"
- />
- </div>
+  const handleNavigateToJob = (jobId: string) => {
+    const target = events.find(e => e.id === jobId)
+    navigate(`/jobs/${target?.slug || jobId}`)
+  }
 
- <div className="w-full md:w-56 flex items-center gap-2 px-3 bg-slate-50 rounded-xl">
- <MapPin className="w-5 h-5 text-slate-400 shrink-0" />
- <select
- value={selectedWard}
- onChange={e => {
- setSelectedWard(e.target.value)
- setCurrentPage(1)
- }}
- className="w-full h-11 bg-transparent text-sm font-bold text-slate-700 outline-none cursor-pointer"
- >
- <option value="">Tất cả Phường/Xã</option>
- {wards.map(w => (
- <option key={w.id} value={w.id}>{w.name}</option>
- ))}
- </select>
- </div>
+  return (
+    <MainLayout>
+      <div className="max-w-5xl mx-auto px-4 py-8 space-y-6 animate-in fade-in duration-300">
 
- <Button type="submit" className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black px-6 h-12 shadow-sm shrink-0">
- Tìm kiếm
- </Button>
- </form>
- </div>
- </div>
+        {/* HEADER — flat card with breadcrumb + title + search */}
+        <header className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-7 space-y-4">
+          {/* Breadcrumb */}
+          <nav className="text-xs text-slate-500 flex items-center gap-1.5 flex-wrap">
+            <button onClick={() => navigate("/")} className="hover:text-primary transition-colors">Trang chủ</button>
+            <ChevronRight className="w-3 h-3 shrink-0 text-slate-300" />
+            <span className="text-slate-400">Việc làm theo vị trí</span>
+            <ChevronRight className="w-3 h-3 shrink-0 text-slate-300" />
+            <span className="text-foreground font-medium truncate">{positionParam}</span>
+          </nav>
 
- {/* PHÂN TRANG CHI TIẾT DẠNG 2 CỘT */}
- <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
- 
- {/* CỘT TRÁI: BỘ LỌC TÌM KIẾM */}
- <div className="lg:col-span-3 space-y-6">
- <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm space-y-6">
- <div>
- <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider border-b pb-3 border-slate-100">
- Lọc theo Quyền lợi
- </h3>
- <div className="space-y-3 pt-3">
- {benefitOptions.map(benefit => (
- <label key={benefit} className="flex items-center gap-2.5 text-xs font-semibold text-slate-600 cursor-pointer hover:text-slate-900">
- <input
- type="checkbox"
- checked={selectedBenefits.includes(benefit)}
- onChange={() => handleBenefitChange(benefit)}
- className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4"
- />
- <span>{benefit}</span>
- </label>
- ))}
- </div>
- </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight">
+              Việc làm <span className="text-primary">{positionParam}</span> tại Đà Nẵng
+            </h1>
+            <p className="text-sm text-slate-500 mt-1.5">
+              Khám phá cơ hội hợp tác và tích lũy kỹ năng xã hội cùng các chiến dịch uy tín.
+            </p>
+          </div>
 
- <div>
- <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider border-b pb-3 border-slate-100">
- Yêu cầu kinh nghiệm
- </h3>
- <div className="space-y-3 pt-3">
- {experienceOptions.map(exp => (
- <label key={exp} className="flex items-center gap-2.5 text-xs font-semibold text-slate-600 cursor-pointer hover:text-slate-900">
- <input
- type="checkbox"
- checked={selectedExperiences.includes(exp)}
- onChange={() => setSelectedExperiences(prev => prev.includes(exp) ? prev.filter(e => e !== exp) : [...prev, exp])}
- className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 w-4 h-4"
- />
- <span>{exp}</span>
- </label>
- ))}
- </div>
- </div>
- </div>
- </div>
+          {/* Search bar */}
+          <form onSubmit={handleSearchSubmit} className="flex flex-col sm:flex-row gap-2">
+            <div className="flex-1 flex items-center gap-2 border border-slate-200 rounded-lg px-3 py-2.5 bg-slate-50 focus-within:border-primary transition-colors">
+              <Search className="w-4 h-4 text-slate-400 shrink-0" />
+              <input
+                type="text"
+                placeholder="Nhập vị trí, tên công việc cần tìm..."
+                value={keyword}
+                onChange={e => setKeyword(e.target.value)}
+                className="w-full bg-transparent text-sm text-foreground outline-none font-medium"
+              />
+            </div>
+            <select
+              value={selectedWard}
+              onChange={e => {
+                setSelectedWard(e.target.value)
+                setCurrentPage(1)
+              }}
+              className="border border-slate-200 rounded-lg px-3 py-2.5 bg-white text-sm font-medium text-slate-600 focus:outline-none focus:border-primary sm:w-48"
+            >
+              <option value="">Tất cả Phường/Xã</option>
+              {wards.map(w => (
+                <option key={w.id} value={w.id}>{w.name}</option>
+              ))}
+            </select>
+            <Button type="submit" className="rounded-lg bg-primary hover:bg-primary/90 text-white font-semibold h-11 px-6 shrink-0">
+              Tìm kiếm
+            </Button>
+          </form>
+        </header>
 
- {/* CỘT PHẢI: DANH SÁCH VIỆC LÀM */}
- <div className="lg:col-span-9 space-y-6">
- <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
- <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
- <h3 className="text-base font-black text-slate-900">
- Kết quả tìm kiếm Vị trí
- </h3>
- <span className="text-xs font-bold bg-slate-50 px-3 py-1 rounded-full text-slate-500">
- Phân trang {currentPage} / {totalPages}
- </span>
- </div>
+        {/* GRID: filters sidebar + main list */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
 
- {loading ? (
- <div className="text-center py-20">
- <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent mx-auto"></div>
- <p className="text-xs font-bold text-slate-400 mt-2">Đang tải dữ liệu...</p>
- </div>
- ) : events.length === 0 ? (
- <div className="text-center py-20 border border-dashed border-slate-100 rounded-2xl">
- <Briefcase className="w-12 h-12 text-slate-300 mx-auto mb-3" />
- <p className="text-slate-500 font-bold text-base">Không tìm thấy việc làm phù hợp.</p>
- <p className="text-slate-400 text-xs mt-1">Hãy thử đổi bộ lọc hoặc nhập từ khóa tìm kiếm khác nhé.</p>
- </div>
- ) : (
- <div className="grid grid-cols-1 gap-4">
- {events.map(job => (
- <div key={job.id} className="border border-slate-200 hover:border-primary/30 rounded-2xl p-5 hover:shadow-md hover:shadow-emerald-950/5 transition-all duration-300 flex gap-4 bg-slate-50/10 relative">
- <Avatar className="h-16 w-16 border rounded-2xl shrink-0 bg-white shadow-sm">
- <AvatarImage src={job.profiles?.avatar_url} className="object-cover rounded-2xl" />
- <AvatarFallback className="bg-emerald-50 text-emerald-600 font-black rounded-2xl text-lg">
- {job.profiles?.full_name?.charAt(0).toUpperCase() || <Building2 />}
- </AvatarFallback>
- </Avatar>
+          {/* FILTERS SIDEBAR */}
+          <aside className="space-y-4">
+            <section className="bg-white border border-slate-200 rounded-2xl p-5 space-y-5 lg:sticky lg:top-4">
+              <div>
+                <h3 className="text-sm font-bold text-foreground uppercase tracking-wide mb-3">Quyền lợi</h3>
+                <div className="flex flex-wrap gap-2">
+                  {benefitOptions.map(benefit => (
+                    <button
+                      key={benefit}
+                      type="button"
+                      onClick={() => handleBenefitChange(benefit)}
+                      className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${
+                        selectedBenefits.includes(benefit)
+                          ? "bg-accent text-primary border-primary/30"
+                          : "bg-white text-slate-600 border-slate-200 hover:border-primary/40 hover:text-foreground"
+                      }`}
+                    >
+                      {benefit}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
- <div className="flex-1 min-w-0 space-y-1.5">
- <div className="flex justify-between items-start gap-2">
- <h4 
- onClick={() => navigate(`/jobs/${job.slug || job.id}`)}
- className="font-extrabold text-slate-900 text-base leading-snug truncate hover:text-emerald-600 cursor-pointer"
- >
- {job.title}
- </h4>
- <span className="text-emerald-600 text-sm font-black shrink-0">
- {job.benefits}
- </span>
- </div>
+              <div>
+                <h3 className="text-sm font-bold text-foreground uppercase tracking-wide mb-3">Kinh nghiệm</h3>
+                <div className="flex flex-wrap gap-2">
+                  {experienceOptions.map(exp => (
+                    <button
+                      key={exp}
+                      type="button"
+                      onClick={() => setSelectedExperiences(prev => prev.includes(exp) ? prev.filter(e => e !== exp) : [...prev, exp])}
+                      className={`text-xs font-medium px-3 py-1.5 rounded-full border transition-colors ${
+                        selectedExperiences.includes(exp)
+                          ? "bg-accent text-primary border-primary/30"
+                          : "bg-white text-slate-600 border-slate-200 hover:border-primary/40 hover:text-foreground"
+                      }`}
+                    >
+                      {exp}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </section>
+          </aside>
 
- <p className="text-xs font-bold text-slate-500 flex items-center gap-1">
- <Building2 className="w-3.5 h-3.5 text-slate-400 shrink-0" />
- {job.profiles?.full_name ||"Nhà tuyển dụng"}
- </p>
+          {/* MAIN LIST */}
+          <div className="lg:col-span-3 space-y-4">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-slate-500">
+                {loading ? "Đang tải..." : `${events.length} việc làm phù hợp`}
+              </p>
+              <span className="text-xs text-slate-500">Trang {currentPage} / {totalPages}</span>
+            </div>
 
- <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-slate-450 font-semibold pt-1">
- <span className="flex items-center gap-1">
- <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
- {job.danang_wards?.name ? `P. ${job.danang_wards.name}` : job.location}
- </span>
- <span className="flex items-center gap-1">
- <Tag className="w-3.5 h-3.5 text-slate-400 shrink-0" />
- {job.category}
- </span>
- <span className="flex items-center gap-1 text-rose-600 font-bold">
- <Clock className="w-3.5 h-3.5 text-rose-400 shrink-0" />
- Hạn nộp: {job.application_deadline ? new Date(job.application_deadline).toLocaleDateString("vi-VN") :"Hôm nay"}
- </span>
- </div>
+            {loading ? (
+              <div className="text-center py-20 bg-white border border-slate-200 rounded-2xl">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
+                <p className="text-xs text-slate-500 mt-3">Đang tải dữ liệu...</p>
+              </div>
+            ) : events.length === 0 ? (
+              <div className="text-center py-20 bg-white border border-dashed border-slate-300 rounded-2xl">
+                <Briefcase className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+                <p className="text-base font-bold text-foreground">Không tìm thấy việc làm phù hợp.</p>
+                <p className="text-slate-500 text-sm mt-1">Hãy thử đổi bộ lọc hoặc nhập từ khóa tìm kiếm khác.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {events.map((job, idx) => (
+                  <EventCard
+                    key={job.id}
+                    job={job}
+                    idx={idx}
+                    isBookmarked={!!bookmarkedEvents[job.id]}
+                    onToggleBookmark={handleToggleBookmark}
+                    onNavigateToJob={handleNavigateToJob}
+                  />
+                ))}
+              </div>
+            )}
 
- <div className="flex justify-between items-center pt-2">
- <Badge className="bg-slate-100 text-slate-600 hover:bg-slate-100 border-none font-bold text-[10px]">
- Cần {job.slots_needed} vị trí
- </Badge>
-
- <div className="flex gap-2">
- <Button 
- onClick={() => handleToggleBookmark(job.id)}
- variant="ghost" 
- className="h-9 w-9 p-0 rounded-xl"
- >
- <Heart className={`w-4 h-4 ${bookmarkedEvents[job.id] ?"fill-rose-500 text-rose-500" :"text-slate-400"}`} />
- </Button>
- <Button 
- onClick={() => navigate(`/jobs/${job.slug || job.id}`)}
- className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl h-9 px-4 shadow-sm"
- >
- Ứng tuyển ngay
- </Button>
- </div>
- </div>
- </div>
- </div>
- ))}
- </div>
- )}
-
- {/* PHÂN TRANG BUTTONS */}
- {totalPages > 1 && (
- <div className="flex justify-center items-center gap-3 pt-8">
- <Button
- onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
- disabled={currentPage === 1}
- variant="outline"
- className="rounded-xl h-10 w-10 p-0"
- >
- <ChevronLeft className="w-4 h-4" />
- </Button>
- <span className="text-xs font-black text-slate-800">
- Trang {currentPage} / {totalPages}
- </span>
- <Button
- onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
- disabled={currentPage === totalPages}
- variant="outline"
- className="rounded-xl h-10 w-10 p-0"
- >
- <ChevronRight className="w-4 h-4" />
- </Button>
- </div>
- )}
- </div>
- </div>
- </div>
- </div>
- </MainLayout>
- )
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-3 pt-4">
+                <Button
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                  variant="outline"
+                  className="rounded-lg h-10 w-10 p-0"
+                  aria-label="Trang trước"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <span className="text-sm font-semibold text-foreground">
+                  Trang {currentPage} / {totalPages}
+                </span>
+                <Button
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  variant="outline"
+                  className="rounded-lg h-10 w-10 p-0"
+                  aria-label="Trang sau"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </MainLayout>
+  )
 }

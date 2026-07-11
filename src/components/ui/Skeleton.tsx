@@ -140,7 +140,7 @@ export function SkeletonEventDetail() {
  <main className="max-w-6xl mx-auto py-6 px-4 w-full flex-1">
  <div className="flex flex-col lg:flex-row gap-6 items-start">
  {/* Left Column */}
- <div className="flex-1 w-full lg:max-w-[760px] space-y-6">
+ <div className="flex-1 w-full lg:max-w-3xl space-y-6">
  <div className="bg-white rounded-lg border border-slate-200 p-6 space-y-6">
  <SkeletonBase className="h-8 w-3/4" />
  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-100 pt-5 pb-6">
@@ -182,10 +182,10 @@ export function SkeletonEventDetail() {
  </div>
 
  {/* Right Column */}
- <div className="w-full lg:w-[350px] shrink-0 space-y-6">
+ <div className="w-full lg:w-80 shrink-0 space-y-6">
  <div className="bg-white rounded-lg border border-slate-200 p-5 space-y-4">
  <div className="flex items-start gap-4">
- <SkeletonBase className="w-[88px] h-[88px] rounded-lg shrink-0" />
+ <SkeletonBase className="w-16 h-16 rounded-lg shrink-0" />
  <div className="space-y-2 flex-1">
  <SkeletonBase className="h-5 w-full" />
  <SkeletonBase className="h-4 w-20" />

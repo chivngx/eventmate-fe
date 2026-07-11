@@ -6,7 +6,7 @@ import Link from"next/link"
 export default function NotFound() {
  return (
  <div className="flex min-h-screen flex-col items-center justify-center gap-4 px-4 text-center">
- <div className="text-7xl font-black text-emerald-600">404</div>
+ <div className="text-7xl font-black text-primary">404</div>
  <h1 className="text-xl font-bold text-slate-900">
  Không tìm thấy trang
  </h1>

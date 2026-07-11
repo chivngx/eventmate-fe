@@ -99,7 +99,7 @@ export default function EventFormModal({
  <form onSubmit={handleSubmitEvent} className="p-6 sm:p-8 space-y-5 overflow-y-auto flex-1">
  <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
  <div className="space-y-2 sm:col-span-1">
- <label className="text-sm font-bold text-slate-700 flex items-center gap-1"><MapPin className="w-4 h-4 text-emerald-600" /> Phường / Xã (Đà Nẵng)</label>
+ <label className="text-sm font-bold text-slate-700 flex items-center gap-1"><MapPin className="w-4 h-4 text-primary" /> Phường / Xã (Đà Nẵng)</label>
  <select
  value={wardId}
  onChange={e => setWardId(e.target.value)}
@@ -126,13 +126,13 @@ export default function EventFormModal({
  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
  <div className="space-y-2">
  <label className="text-sm font-bold text-slate-700 flex items-center gap-1.5">
- <Calendar className="w-4 h-4 text-emerald-600" /> Ngày diễn ra sự kiện
+ <Calendar className="w-4 h-4 text-primary" /> Ngày diễn ra sự kiện
  </label>
  <Input type="date" value={eventDate} onChange={e => setEventDate(e.target.value)} className="h-12 rounded-xl bg-slate-50 border-slate-200 text-sm font-bold text-slate-700 focus-visible:ring-emerald-500" />
  </div>
  <div className="space-y-2">
  <label className="text-sm font-bold text-slate-700 flex items-center gap-1.5">
- <Clock className="w-4 h-4 text-rose-500" /> Hạn chót nộp đơn
+ <Clock className="w-4 h-4 text-destructive" /> Hạn chót nộp đơn
  </label>
  <Input type="date" value={applicationDeadline} onChange={e => setApplicationDeadline(e.target.value)} className="h-12 rounded-xl bg-slate-50 border-slate-200 text-sm font-bold text-slate-700 focus-visible:ring-emerald-500" />
  </div>
@@ -185,7 +185,7 @@ export default function EventFormModal({
  onClick={handleToggle}
  className={`px-4 py-2.5 rounded-xl text-sm font-bold border transition-all cursor-pointer ${
  isSelected
- ?"bg-emerald-50 border-emerald-500 text-emerald-700"
+ ?"bg-accent border-emerald-500 text-primary"
  :"bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300"
  }`}
  >

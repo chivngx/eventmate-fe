@@ -27,7 +27,7 @@ export default function Pagination({
  setCurrentPage(prev => Math.max(prev - 1, 1))
  window.scrollTo({ top: 400, behavior: 'smooth' })
  }}
- className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:text-emerald-600 disabled:opacity-50 disabled:hover:text-slate-500 disabled:hover:border-slate-200 transition-colors"
+ className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:text-primary disabled:opacity-50 disabled:hover:text-slate-500 disabled:hover:border-slate-200 transition-colors"
  >
  <ChevronLeft className="w-4 h-4" />
  </button>
@@ -42,7 +42,7 @@ export default function Pagination({
  setCurrentPage(prev => Math.min(prev + 1, totalPages))
  window.scrollTo({ top: 400, behavior: 'smooth' })
  }}
- className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:text-emerald-600 disabled:opacity-50 disabled:hover:text-slate-500 disabled:hover:border-slate-200 transition-colors"
+ className="w-8 h-8 rounded-full border border-slate-200 flex items-center justify-center text-slate-500 hover:text-primary disabled:opacity-50 disabled:hover:text-slate-500 disabled:hover:border-slate-200 transition-colors"
  >
  <ChevronRight className="w-4 h-4" />
  </button>

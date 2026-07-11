@@ -38,7 +38,7 @@ export default function OrgEventsTab({
  Bắt đầu tạo bài tuyển dụng tình nguyện viên đầu tiên để tiếp cận hàng ngàn sinh viên tài năng tại Đà Nẵng!
  </p>
  </div>
- <p className="text-[10px] text-slate-400 font-bold">Hãy nhấp vào nút"Tạo chiến dịch mới" để tiếp tục.</p>
+ <p className="text-xs text-slate-400 font-bold">Hãy nhấp vào nút"Tạo chiến dịch mới" để tiếp tục.</p>
  </div>
  )
  }
@@ -60,18 +60,18 @@ export default function OrgEventsTab({
  {/* Header: Title and Status Badge */}
  <div className="flex items-start justify-between gap-3">
  <div className="space-y-1 min-w-0">
- <span className="text-[10px] font-black tracking-widest text-emerald-600 uppercase flex items-center gap-1">
+ <span className="text-xs font-black tracking-widest text-primary uppercase flex items-center gap-1">
  <Tag className="w-3 h-3" /> {job.category}
  </span>
- <h4 className="font-black text-slate-900 text-lg leading-snug line-clamp-2 group-hover:text-emerald-600 transition-colors">
+ <h4 className="font-black text-slate-900 text-lg leading-snug line-clamp-2 group-hover:text-primary transition-colors">
  {job.title}
  </h4>
  </div>
 
  <div className="flex flex-col items-end gap-1.5 shrink-0">
  <Badge
- className={`border-none font-black text-[10px] uppercase px-2.5 py-0.5 rounded-full ${job.status === 'upcoming'
- ? 'bg-emerald-50 text-emerald-700'
+ className={`border-none font-black text-xs uppercase px-2.5 py-0.5 rounded-full ${job.status === 'upcoming'
+ ? 'bg-accent text-primary'
  : 'bg-slate-100 text-slate-600'
  }`}
  >
@@ -79,7 +79,7 @@ export default function OrgEventsTab({
  </Badge>
 
  {candidateCount > 0 && (
- <Badge className="bg-indigo-50 text-indigo-700 border-none font-black text-[10px] rounded-full">
+ <Badge className="bg-accent text-indigo-700 border-none font-black text-xs rounded-full">
  {candidateCount} hồ sơ
  </Badge>
  )}
@@ -96,8 +96,8 @@ export default function OrgEventsTab({
  <Briefcase className="w-4 h-4 text-slate-400 shrink-0" />
  {job.position_type}
  </span>
- <span className="flex items-center gap-2 truncate col-span-2 text-rose-600">
- <Clock className="w-4 h-4 text-rose-500 shrink-0" />
+ <span className="flex items-center gap-2 truncate col-span-2 text-destructive">
+ <Clock className="w-4 h-4 text-destructive shrink-0" />
  Hạn ứng tuyển: {job.application_deadline ? new Date(job.application_deadline).toLocaleDateString('vi-VN') : 'Không giới hạn'}
  </span>
  </div>
@@ -107,7 +107,7 @@ export default function OrgEventsTab({
  <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-xl flex items-center gap-1">
  Cần tuyển: <strong className="text-slate-900 font-extrabold">{job.slots_needed}</strong>
  </span>
- <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-xl flex items-center gap-1 border border-primary/20/40">
+ <span className="bg-accent text-primary px-3 py-1 rounded-xl flex items-center gap-1 border border-primary/20/40">
  <Award className="w-3.5 h-3.5" /> {job.benefits}
  </span>
  </div>
@@ -117,7 +117,7 @@ export default function OrgEventsTab({
  <div className="flex items-center justify-between gap-3 border-t border-slate-100 pt-4 mt-2">
  <Button
  onClick={() => onViewApplications(job)}
- className="rounded-xl bg-emerald-50 hover:bg-emerald-100/80 text-emerald-700 font-black text-xs h-10 px-4 flex items-center gap-1.5 shadow-sm active:scale-98 transition-all border border-emerald-250/20"
+ className="rounded-xl bg-accent hover:bg-emerald-100/80 text-primary font-black text-xs h-10 px-4 flex items-center gap-1.5 shadow-sm active:scale-98 transition-all border border-emerald-250/20"
  >
  <Users className="w-4 h-4" />
  Xem hồ sơ ứng viên
@@ -137,7 +137,7 @@ export default function OrgEventsTab({
  onClick={() => onDeleteEvent(job.id)}
  variant="ghost"
  aria-label="Xóa"
- className="h-10 w-10 p-0 rounded-xl text-rose-500 hover:text-rose-700 hover:bg-rose-50 border border-transparent hover:border-rose-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
+ className="h-10 w-10 p-0 rounded-xl text-destructive hover:text-rose-700 hover:bg-destructive/10 border border-transparent hover:border-destructive/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
  >
  <Trash2 className="w-4 h-4" />
  </Button>

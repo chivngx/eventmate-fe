@@ -53,13 +53,13 @@ export default function OrgEventApplicationsDetail({
  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
  <div className="space-y-2 max-w-2xl">
  <div className="flex items-center gap-2 flex-wrap">
- <Badge className="bg-emerald-600 hover:bg-emerald-600 border-none font-bold text-[10px] uppercase tracking-wider px-2 py-0.5">
+ <Badge className="bg-emerald-600 hover:bg-emerald-600 border-none font-bold text-xs uppercase tracking-wider px-2 py-0.5">
  {event.position_type ||"Vị trí tuyển"}
  </Badge>
  {event.status === 'upcoming' ? (
- <Badge className="bg-blue-600 hover:bg-blue-600 border-none font-bold text-[10px] uppercase tracking-wider px-2 py-0.5">Đang mở tuyển</Badge>
+ <Badge className="bg-blue-600 hover:bg-blue-600 border-none font-bold text-xs uppercase tracking-wider px-2 py-0.5">Đang mở tuyển</Badge>
  ) : (
- <Badge className="bg-slate-700 hover:bg-slate-700 border-none font-bold text-[10px] uppercase tracking-wider px-2 py-0.5">Đã hoàn thành</Badge>
+ <Badge className="bg-slate-700 hover:bg-slate-700 border-none font-bold text-xs uppercase tracking-wider px-2 py-0.5">Đã hoàn thành</Badge>
  )}
  </div>
  <h1 className="text-2xl font-black tracking-tight text-white leading-tight">{event.title}</h1>
@@ -78,7 +78,7 @@ export default function OrgEventApplicationsDetail({
 
  <div className="bg-white/5 border border-white/10 rounded-2xl p-4 md:w-48 shrink-0 flex items-center justify-between">
  <div>
- <p className="text-[10px] font-black text-slate-450 uppercase tracking-wider">Cần tuyển</p>
+ <p className="text-xs font-black text-slate-450 uppercase tracking-wider">Cần tuyển</p>
  <h3 className="text-2xl font-black text-white mt-0.5">{event.slots_needed || 1} vị trí</h3>
  </div>
  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-450 shrink-0">
@@ -113,11 +113,11 @@ export default function OrgEventApplicationsDetail({
 
  let statusBadge = null
  if (app.status === 'pending') {
- statusBadge = <Badge className="bg-amber-55 text-amber-700 border-none shadow-none font-bold text-[10px]">Chờ duyệt</Badge>
+ statusBadge = <Badge className="bg-amber-55 text-amber-700 border-none shadow-none font-bold text-xs">Chờ duyệt</Badge>
  } else if (app.status === 'approved') {
- statusBadge = <Badge className="bg-emerald-50 text-emerald-700 border-none shadow-none font-bold text-[10px]">Trúng tuyển</Badge>
+ statusBadge = <Badge className="bg-accent text-primary border-none shadow-none font-bold text-xs">Trúng tuyển</Badge>
  } else {
- statusBadge = <Badge className="bg-rose-50 text-rose-700 border-none shadow-none font-bold text-[10px]">Chưa phù hợp</Badge>
+ statusBadge = <Badge className="bg-destructive/10 text-rose-700 border-none shadow-none font-bold text-xs">Chưa phù hợp</Badge>
  }
 
  // Match Score Calculation
@@ -160,7 +160,7 @@ export default function OrgEventApplicationsDetail({
  <div className="flex items-center gap-2 flex-wrap">
  <h4 className="text-base font-bold text-slate-900">{displayName}</h4>
  {candidateMatchScore !== null && (
- <span className="bg-emerald-50 text-emerald-700 text-[10px] font-black px-2 py-0.5 rounded border border-emerald-200">
+ <span className="bg-accent text-primary text-xs font-black px-2 py-0.5 rounded border border-primary/30">
  🔥 Match: {candidateMatchScore}%
  </span>
  )}
@@ -217,7 +217,7 @@ export default function OrgEventApplicationsDetail({
  <Button
  onClick={() => handleUpdateStatus(app.id, 'rejected')}
  variant="outline"
- className="rounded-xl border-rose-200 text-rose-600 hover:bg-rose-50 hover:text-rose-700 shadow-none h-10 font-bold px-4 flex items-center gap-1"
+ className="rounded-xl border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-rose-700 shadow-none h-10 font-bold px-4 flex items-center gap-1"
  >
  <XCircle className="w-4 h-4" /> Từ chối
  </Button>

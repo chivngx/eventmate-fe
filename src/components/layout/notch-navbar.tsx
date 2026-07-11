@@ -58,7 +58,7 @@ const JobsMegaMenu = ({ role }: { role?: string }) => {
  <div className="bg-white rounded-2xl shadow-md border border-slate-200 p-5 sm:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
  {/* Section: Quản lý việc làm */}
  <div className="space-y-3">
- <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Quản lý việc làm</h4>
+ <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Quản lý việc làm</h4>
  <div className="space-y-1">
  <Link href="/" className="flex items-center gap-2.5 text-sm text-slate-700 hover:text-primary hover:bg-accent rounded-lg p-2 transition-colors">
  <Search className="w-4 h-4 text-slate-400" /> Tìm việc sự kiện
@@ -70,7 +70,7 @@ const JobsMegaMenu = ({ role }: { role?: string }) => {
  <Briefcase className="w-4 h-4 text-slate-400" /> Việc đã ứng tuyển
  </Link>
  </div>
- <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider pt-2">Ban tổ chức</h4>
+ <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider pt-2">Ban tổ chức</h4>
  <Link href="/companies" className="flex items-center gap-2.5 text-sm text-slate-700 hover:text-primary hover:bg-accent rounded-lg p-2 transition-colors">
  <Building2 className="w-4 h-4 text-slate-400" /> Danh sách BTC
  </Link>
@@ -78,7 +78,7 @@ const JobsMegaMenu = ({ role }: { role?: string }) => {
 
  {/* Section: Theo vị trí */}
  <div className="space-y-3 sm:border-l sm:border-slate-100 sm:pl-5">
- <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Theo vị trí</h4>
+ <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Theo vị trí</h4>
  <div className="space-y-1">
  {positions.map(item => {
  const slug = resolveSlug(item)
@@ -93,7 +93,7 @@ const JobsMegaMenu = ({ role }: { role?: string }) => {
 
  {/* Section: Theo sự kiện */}
  <div className="space-y-3 sm:border-l sm:border-slate-100 sm:pl-5 hidden lg:block">
- <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Theo sự kiện</h4>
+ <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Theo sự kiện</h4>
  <div className="space-y-1">
  {categories.map(item => {
  const slug = resolveSlug(item)

@@ -32,10 +32,10 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  case"blue":
  return {
  bg:"bg-blue-600",
- text:"text-blue-600",
+ text:"text-primary",
  border:"border-blue-600",
- lightBg:"bg-blue-50",
- badge:"bg-blue-50 text-blue-700 border-blue-100",
+ lightBg:"bg-accent",
+ badge:"bg-accent text-blue-700 border-blue-100",
  }
  case"violet":
  return {
@@ -48,10 +48,10 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  default:
  return {
  bg:"bg-emerald-600",
- text:"text-emerald-600",
+ text:"text-primary",
  border:"border-emerald-600",
- lightBg:"bg-emerald-50",
- badge:"bg-emerald-50 text-emerald-700 border-primary/20",
+ lightBg:"bg-accent",
+ badge:"bg-accent text-primary border-primary/20",
  }
  }
  }
@@ -185,7 +185,7 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  {skillList.map((skill, index) => (
  <span
  key={index}
- className={`text-[10px] font-black px-2 py-0.5 rounded border ${classes.badge}`}
+ className={`text-xs font-black px-2 py-0.5 rounded border ${classes.badge}`}
  >
  {skill}
  </span>
@@ -241,7 +241,7 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  </div>
 
  {/* Footer CV */}
- <div className="mt-auto border-t pt-4 border-slate-100 flex items-center justify-between text-[10px] font-bold text-slate-500">
+ <div className="mt-auto border-t pt-4 border-slate-100 flex items-center justify-between text-xs font-bold text-slate-500">
  <p>Hồ sơ trực tuyến được tạo bởi EventMate</p>
  <p>Trang 1 / 1</p>
  </div>

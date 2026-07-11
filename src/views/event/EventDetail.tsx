@@ -6,7 +6,7 @@ import { supabase } from"@/lib/supabase"
 import { getUserFacingMessage } from"@/lib/error"
 import { useUser } from"@/components/providers/AuthProvider"
 import MainLayout from"@/components/layout/MainLayout"
-import { MapPin, Calendar, CheckCircle, XCircle, Clock3, Bookmark, Briefcase, Tag, DollarSign, Users, ExternalLink } from"lucide-react"
+import { MapPin, Calendar, CheckCircle, XCircle, Clock3, Bookmark, DollarSign, Users, ExternalLink, Building2 } from"lucide-react"
 import { Button } from"@/components/ui/button"
 import { useToast } from"@/components/ui/ToastProvider"
 import { SkeletonEventDetail } from"@/components/ui/Skeleton"
@@ -150,21 +150,21 @@ export default function EventDetail() {
 
  if (applyStatus === 'approved') {
  return (
- <button disabled className="job-detail_info--actions-button button-primary btn-apply-job flex items-center justify-center rounded-md font-semibold bg-emerald-100 border border-emerald-200 text-emerald-700 h-[40px] px-6">
+ <button disabled className="job-detail_info--actions-button button-primary btn-apply-job flex items-center justify-center rounded-md font-semibold bg-emerald-100 border border-primary/30 text-primary h-[40px] px-6">
  <CheckCircle className="w-4 h-4 mr-2" /> Trúng tuyển
  </button>
  )
  }
  if (applyStatus === 'rejected') {
  return (
- <button disabled className="job-detail_info--actions-button button-primary btn-apply-job flex items-center justify-center rounded-md font-semibold bg-rose-50 border border-rose-100 text-rose-500 h-[40px] px-6">
+ <button disabled className="job-detail_info--actions-button button-primary btn-apply-job flex items-center justify-center rounded-md font-semibold bg-destructive/10 border border-destructive/20 text-destructive h-[40px] px-6">
  <XCircle className="w-4 h-4 mr-2" /> Chưa phù hợp
  </button>
  )
  }
  if (applyStatus === 'pending') {
  return (
- <button disabled className="job-detail_info--actions-button button-primary btn-apply-job flex items-center justify-center rounded-md font-semibold bg-amber-50 border border-amber-100 text-amber-600 h-[40px] px-6">
+ <button disabled className="job-detail_info--actions-button button-primary btn-apply-job flex items-center justify-center rounded-md font-semibold bg-accent border border-amber-100 text-primary h-[40px] px-6">
  <Clock3 className="w-4 h-4 mr-2" /> Đang chờ duyệt
  </button>
  )
@@ -183,246 +183,209 @@ export default function EventDetail() {
 
  return (
  <MainLayout role={role ||"guest"}>
- <div className="max-w-6xl mx-auto pt-1 pb-6 px-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
- {/* Two Column Layout */}
- <div className="job-detail_body flex flex-col lg:flex-row gap-6 items-start">
- {/* Left Column (Width: approx 760px on large screen) */}
- <div className="job-detail_body-left flex-1 w-full lg:max-w-[760px] space-y-6">
- {/* Box 1: Header / General Summary */}
- <div id="header-job-info" className="job-detail_box job-detail_info bg-white rounded-lg border border-slate-200 p-6 shadow-sm">
- <h1 className="job-detail_info--title text-xl md:text-2xl font-bold text-foreground leading-tight mb-4">
- {event.title}
- </h1>
+ <div className="max-w-5xl mx-auto pb-8 animate-in fade-in slide-in-from-bottom-3 duration-300">
 
- {/* Quick Info Grid */}
- <div className="job-detail_info--sections grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-100 pt-5 pb-6">
- <div className="job-detail_info--section section-salary flex items-center gap-3">
- <div className="job-detail_info--section-icon w-9 h-9 rounded-full bg-primary/5 flex items-center justify-center shrink-0">
- <DollarSign className="w-4 h-4 text-primary" />
- </div>
- <div>
- <p className="job-detail_info--section-content-title text-[12px] text-slate-400 font-medium">Quyền lợi / Lương</p>
- <p className="job-detail_info--section-content-value text-[13px] text-foreground font-semibold truncate max-w-[180px]" title={event.benefits ||"Thỏa thuận"}>
- {event.benefits ||"Thỏa thuận"}
- </p>
- </div>
- </div>
- <div className="job-detail_info--section section-location flex items-center gap-3">
- <div className="job-detail_info--section-icon w-9 h-9 rounded-full bg-primary/5 flex items-center justify-center shrink-0">
- <MapPin className="w-4 h-4 text-primary" />
- </div>
- <div>
- <p className="job-detail_info--section-content-title text-[12px] text-slate-400 font-medium">Khu vực</p>
- <p className="job-detail_info--section-content-value text-[13px] text-foreground font-semibold truncate" title={event.danang_wards?.name ? `P. ${event.danang_wards.name}` :"Đà Nẵng"}>
- {event.danang_wards?.name ? `${event.danang_wards.name}` :"Đà Nẵng"}
- </p>
- </div>
- </div>
- <div className="job-detail_info--section section-eventdate flex items-center gap-3">
- <div className="job-detail_info--section-icon w-9 h-9 rounded-full bg-primary/5 flex items-center justify-center shrink-0">
- <Calendar className="w-4 h-4 text-primary" />
- </div>
- <div>
- <p className="job-detail_info--section-content-title text-[12px] text-slate-400 font-medium">Ngày diễn ra</p>
- <p className="job-detail_info--section-content-value text-[13px] text-foreground font-semibold">
- {event.event_date ? new Date(event.event_date).toLocaleDateString('vi-VN') :"Đang cập nhật"}
- </p>
- </div>
- </div>
- </div>
-
- {/* Hạn chót nộp hồ sơ */}
- <div className="job-detail_info--flex flex items-center text-sm text-foreground gap-2 mt-4 mb-6">
- <div className="job-detail_info--deadline flex items-center gap-1 text-sm text-muted-foreground bg-slate-50 px-2.5 py-1.5 md:px-2 md:py-1 rounded">
- <span>Hạn nộp hồ sơ</span>
- </div>
- <div className="job-detail_info--deadline-date text-sm font-semibold text-foreground">
- {event.application_deadline ? new Date(event.application_deadline).toLocaleDateString('vi-VN') :"Không giới hạn"}
- </div>
- {event.application_deadline && (
- <span className="deadline text-sm font-semibold text-foreground">
- {(() => {
- const diff = new Date(event.application_deadline).getTime() - new Date().getTime();
- const diffDays = Math.ceil(diff / (1000 * 60 * 60 * 24));
- return diffDays > 0 ? `(Còn ${diffDays} ngày)` :"(Đã hết hạn)";
- })()}
+ {/* EVENT HERO — title + date prominent + status badge */}
+ <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-7 mb-5">
+ <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+ {/* Date block — event ticket style */}
+ <div className="flex flex-col items-center justify-center w-16 shrink-0 bg-primary text-white rounded-xl py-2">
+ {event.event_date ? (
+ <>
+ <span className="text-xl font-extrabold leading-none">
+ {new Date(event.event_date).getDate()}
  </span>
+ <span className="text-xs font-bold uppercase mt-0.5">
+ Th{new Date(event.event_date).getMonth() + 1}
+ </span>
+ </>
+ ) : (
+ <Calendar className="w-6 h-6 my-1" />
  )}
  </div>
 
- {/* Action Buttons Row */}
- <div className="job-detail_info--actions box-apply-current flex flex-wrap items-center gap-3 border-t border-slate-100 pt-5">
+ <div className="flex-1 min-w-0">
+ <div className="flex items-center gap-2 mb-2 flex-wrap">
+ {event.category && (
+ <span className="text-xs font-semibold text-primary bg-accent px-2 py-0.5 rounded">{event.category}</span>
+ )}
+ {event.position_type && (
+ <span className="text-xs font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded">{event.position_type}</span>
+ )}
+ <span className={`text-xs font-semibold px-2 py-0.5 rounded ${
+ event.status === 'upcoming' ? 'bg-accent text-primary' :
+ event.status === 'ongoing' ? 'bg-accent text-primary' :
+ 'bg-slate-100 text-slate-500'
+ }`}>
+ {event.status === 'upcoming' ? 'Đang mở đăng ký' : event.status === 'ongoing' ? 'Đang diễn ra' : 'Đã kết thúc'}
+ </span>
+ </div>
+ <h1 className="text-xl sm:text-2xl font-bold text-foreground leading-tight mb-2">
+ {event.title}
+ </h1>
+ <button
+ onClick={() => navigate(`/companies/${event.profiles?.slug || event.organizer_id}`)}
+ className="text-sm text-slate-500 hover:text-primary transition-colors inline-flex items-center gap-1.5"
+ >
+ <Building2 className="w-4 h-4" />
+ {event.profiles?.full_name || "Đơn vị ẩn danh"}
+ </button>
+ </div>
+ </div>
+
+ {/* Quick info grid — 3 cols responsive */}
+ <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 pt-5 border-t border-slate-100">
+ <div className="flex items-center gap-2.5">
+ <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center shrink-0">
+ <MapPin className="w-4 h-4 text-primary" />
+ </div>
+ <div className="min-w-0">
+ <p className="text-xs text-slate-500">Khu vực</p>
+ <p className="text-sm font-semibold text-foreground truncate">{event.danang_wards?.name || "Đà Nẵng"}</p>
+ </div>
+ </div>
+ <div className="flex items-center gap-2.5">
+ <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center shrink-0">
+ <Calendar className="w-4 h-4 text-primary" />
+ </div>
+ <div className="min-w-0">
+ <p className="text-xs text-slate-500">Ngày diễn ra</p>
+ <p className="text-sm font-semibold text-foreground truncate">
+ {event.event_date ? new Date(event.event_date).toLocaleDateString('vi-VN') : "Đang cập nhật"}
+ </p>
+ </div>
+ </div>
+ <div className="flex items-center gap-2.5">
+ <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center shrink-0">
+ <DollarSign className="w-4 h-4 text-primary" />
+ </div>
+ <div className="min-w-0">
+ <p className="text-xs text-slate-500">Quyền lợi</p>
+ <p className="text-sm font-semibold text-foreground truncate" title={event.benefits}>{event.benefits || "Thỏa thuận"}</p>
+ </div>
+ </div>
+ <div className="flex items-center gap-2.5">
+ <div className="w-9 h-9 rounded-lg bg-accent flex items-center justify-center shrink-0">
+ <Users className="w-4 h-4 text-primary" />
+ </div>
+ <div className="min-w-0">
+ <p className="text-xs text-slate-500">Số lượng</p>
+ <p className="text-sm font-semibold text-foreground">{event.slots_needed || 1} vị trí</p>
+ </div>
+ </div>
+ </div>
+
+ {/* Deadline + actions */}
+ <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-5 pt-5 border-t border-slate-100">
+ <div className="text-sm text-slate-500 flex items-center gap-2">
+ <Clock3 className="w-4 h-4" />
+ <span>Hạn nộp: </span>
+ <span className="font-semibold text-foreground">
+ {event.application_deadline ? new Date(event.application_deadline).toLocaleDateString('vi-VN') : "Không giới hạn"}
+ </span>
+ {event.application_deadline && (() => {
+ const diff = new Date(event.application_deadline).getTime() - Date.now()
+ const days = Math.ceil(diff / 86400000)
+ return days > 0 ? <span className="text-primary font-semibold">({days} ngày nữa)</span> : null
+ })()}
+ </div>
+ <div className="flex items-center gap-2">
  {renderApplyAction()}
  {role === 'student' && (
  <button
- id="save-job"
  onClick={toggleBookmark}
- className={`job-detail_info--actions-button button-white btn-save-job flex items-center justify-center rounded-md font-semibold font-sans h-[40px] px-6 border transition-all cursor-pointer ${isBookmarked
- ?"bg-primary border-primary text-white hover:bg-primary/90"
- :"bg-white border-primary text-primary hover:bg-primary/5"
+ aria-label={isBookmarked ? "Bỏ lưu" : "Lưu sự kiện"}
+ className={`flex items-center justify-center rounded-lg font-semibold h-10 px-5 border transition-all cursor-pointer ${
+ isBookmarked ? "bg-primary border-primary text-white hover:bg-primary/90" : "bg-white border-slate-300 text-slate-600 hover:border-primary hover:text-primary"
  }`}
  >
- <Bookmark className={`w-4 h-4 mr-1.5 ${isBookmarked ?"fill-current" :""}`} />
- {isBookmarked ?"Đã lưu" :"Lưu tin"}
+ <Bookmark className={`w-4 h-4 mr-1.5 ${isBookmarked ? "fill-current" : ""}`} />
+ {isBookmarked ? "Đã lưu" : "Lưu"}
  </button>
  )}
  </div>
  </div>
+ </div>
 
- {/* Box 2: Job Description Box */}
- <div className="bg-white rounded-lg border border-slate-200 p-6 shadow-sm space-y-6">
- <h2 className="text-lg font-bold text-foreground border-l-[4px] border-primary pl-3 leading-none flex items-center">
- Chi tiết tin tuyển dụng
+ {/* MAIN CONTENT — 2 col: description (2/3) + sidebar (1/3) */}
+ <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+ {/* Left: description + location */}
+ <div className="lg:col-span-2 space-y-5">
+ {/* Description */}
+ <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
+ <h2 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
+ <span className="w-1 h-5 bg-primary rounded"></span>
+ Mô tả công việc
  </h2>
-
- {/* Detailed Description */}
- <div className="space-y-4">
- <h3 className="text-[15px] font-bold text-foreground">Mô tả công việc</h3>
- <div className="text-sm text-slate-700 leading-relaxed font-medium whitespace-pre-wrap">
- {event.description ||"Chưa có mô tả chi tiết cho sự kiện này."}
+ <div className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">
+ {event.description || "Chưa có mô tả chi tiết cho sự kiện này."}
  </div>
  </div>
 
- {/* Specific Location Details */}
- <div className="border-t border-slate-100 pt-5 space-y-3">
- <h3 className="text-[15px] font-bold text-foreground">Địa điểm làm việc cụ thể</h3>
- <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50 p-4 rounded-xl border border-slate-100">
- <div className="text-sm text-slate-700 font-medium flex items-center gap-2">
+ {/* Location */}
+ <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
+ <h2 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
+ <span className="w-1 h-5 bg-primary rounded"></span>
+ Địa điểm làm việc
+ </h2>
+ <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 p-4 rounded-xl">
+ <div className="text-sm text-slate-600 flex items-center gap-2 min-w-0">
  <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
- <span>
- {event.location ? `${event.location}, ` :""}
- {event.danang_wards?.name ? `Phường ${event.danang_wards.name}, ` :""}
+ <span className="truncate">
+ {event.location ? `${event.location}, ` : ""}
+ {event.danang_wards?.name ? `${event.danang_wards.name}, ` : ""}
  Đà Nẵng
  </span>
  </div>
  <a
- href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((event.location ? event.location + ', ' : '') + (event.danang_wards?.name ? 'Phường ' + event.danang_wards.name + ', ' : '') + 'Đà Nẵng')}`}
+ href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent((event.location || '') + ' Đà Nẵng')}`}
  target="_blank"
  rel="noreferrer"
- className="text-xs font-bold text-primary bg-primary/5 px-3 py-2 rounded-lg border border-primary/20 inline-flex items-center gap-1.5 hover:bg-primary/10 transition-all hover:border-primary/30 shrink-0"
+ className="text-xs font-semibold text-primary bg-white px-3 py-2 rounded-lg border border-primary/20 inline-flex items-center gap-1.5 hover:bg-accent transition-colors shrink-0"
  >
  <MapPin className="w-3.5 h-3.5" />
- Xem vị trí trên Google Maps
+ Xem trên Google Maps
  </a>
  </div>
  </div>
  </div>
- </div>
 
- {/* Right Column (Sidebar, Width: approx 350px on large screen) */}
- <div className="job-detail_body-right w-full lg:w-[350px] shrink-0 flex flex-col gap-6 items-center text-foreground text-sm leading-5">
- {/* Company Card */}
- <div
- className="job-detail_box right job-detail_company bg-white rounded-lg border border-slate-200 p-5 shadow-sm flex flex-col gap-4 items-start text-foreground text-sm leading-5"
- >
- <div className="job-detail_company--information w-full flex flex-col gap-3">
- <div className="job-detail_company--information-item company-name flex items-start text-foreground text-[14px] gap-[16px] leading-[20px] mb-3">
+ {/* Right: organizer card + info */}
+ <div className="space-y-5">
+ {/* Organizer */}
+ <div className="bg-white border border-slate-200 rounded-2xl p-5">
+ <h2 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Đơn vị tổ chức</h2>
  <div
  onClick={() => navigate(`/companies/${event.profiles?.slug || event.organizer_id}`)}
- className="company-logo flex items-center justify-center bg-white border border-muted rounded-lg border-[0.8px] text-primary text-sm leading-5 p-[7.04px] w-[88px] h-[88px] shrink-0 cursor-pointer"
+ className="flex items-start gap-3 cursor-pointer"
  >
+ <div className="w-14 h-14 rounded-lg border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden shrink-0">
  <img
- src={event.profiles?.avatar_url ||"https://images.unsplash.com/photo-1542744094-3a31f103e35f?auto=format&fit=crop&w=88&h=88&q=80"}
+ src={event.profiles?.avatar_url || "https://images.unsplash.com/photo-1542744094-3a31f103e35f?auto=format&fit=crop&w=120&h=120&q=80"}
  alt={event.profiles?.full_name}
- className="w-full h-full object-contain rounded"
- onError={(e: any) => {
- e.target.onerror = null;
- e.target.src ="https://images.unsplash.com/photo-1542744094-3a31f103e35f?auto=format&fit=crop&w=88&h=88&q=80";
- }}
+ className="w-full h-full object-cover"
+ onError={(e: any) => { e.target.onerror = null; e.target.src = "https://images.unsplash.com/photo-1542744094-3a31f103e35f?auto=format&fit=crop&w=120&h=120&q=80" }}
  />
  </div>
- <div className="company-name-label flex flex-col gap-1 text-foreground text-sm leading-5 w-full">
- <a
+ <div className="min-w-0 flex-1">
+ <p className="text-sm font-semibold text-foreground hover:text-primary transition-colors truncate">
+ {event.profiles?.full_name || "Đơn vị ẩn danh"}
+ </p>
+ <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
+ <Users className="w-3 h-3" /> {event.profiles?.scale || "Chưa cập nhật"}
+ </p>
+ <p className="text-xs text-slate-500 mt-0.5 flex items-center gap-1 truncate">
+ <MapPin className="w-3 h-3 shrink-0" /> {event.profiles?.address || "Chưa cập nhật"}
+ </p>
+ </div>
+ </div>
+ <button
  onClick={() => navigate(`/companies/${event.profiles?.slug || event.organizer_id}`)}
- className="name text-[14px] font-semibold text-foreground font-sans tracking-[-0.16px] leading-[24px] cursor-pointer hover:text-primary transition-colors"
+ className="w-full mt-3 text-sm font-semibold text-primary hover:underline flex items-center justify-center gap-1.5"
  >
- {event.profiles?.full_name ||"Đơn vị ẩn danh"}
- </a>
- </div>
- </div>
-
- <div className="job-detail_company--information-item company-scale flex items-start text-foreground text-[14px] gap-[16px] leading-[20px] mb-2">
- <div className="company-title flex items-center gap-[8px] text-muted-foreground text-[14px] leading-[22px] tracking-[0.14px] w-[88px] shrink-0">
- <Users className="w-4 h-4 text-muted-foreground fill-none text-[14px] leading-[22px] tracking-[0.14px]" />
- <span>Quy mô:</span>
- </div>
- <div className="company-value text-foreground text-[14px] font-medium leading-[22px] tracking-[0.14px] w-full">
- {event.profiles?.scale ||"Chưa cập nhật"}
- </div>
- </div>
-
- <div className="job-detail_company--information-item company-address flex items-start text-foreground text-[14px] gap-[16px] leading-[20px] mb-2">
- <div className="company-title flex items-center gap-[8px] text-muted-foreground text-[14px] leading-[22px] tracking-[0.14px] w-[88px] shrink-0">
- <MapPin className="w-4 h-4 text-muted-foreground fill-none text-[14px] leading-[22px] tracking-[0.14px]" />
- <span>Địa điểm:</span>
- </div>
- <div className="company-value text-foreground text-[14px] font-medium leading-[22px] tracking-[0.14px] w-full">
- {event.profiles?.address ||"Chưa cập nhật"}
- </div>
- </div>
- </div>
-
- <div className="job-detail_company--link w-full flex justify-center text-foreground text-sm leading-5 mt-1">
- <a
- onClick={() => navigate(`/companies/${event.profiles?.slug || event.organizer_id}`)}
- className="flex items-center justify-center gap-2.5 text-primary text-[14px] font-semibold leading-[22px] tracking-[0.175px] font-sans hover:underline cursor-pointer"
- >
- Xem trang công ty
- <ExternalLink className="text-[15px] text-primary w-4 h-4 flex items-center justify-center leading-[20px] text-center shrink-0" />
- </a>
- </div>
- </div>
-
-
- {/* General Info Box */}
- <div className="job-detail_body-right--box-general bg-white rounded-lg border border-slate-200 p-5 shadow-sm text-foreground text-sm leading-5 w-full">
- <div className="box-title text-lg font-bold text-foreground mb-4">
- Thông tin chung
- </div>
-
- <div className="box-general-content flex flex-col gap-4 text-foreground text-sm leading-5 w-full">
- <div className="box-general-group flex items-center gap-4 text-foreground text-sm leading-5 w-full">
- <div className="box-general-group-icon flex items-center justify-center bg-muted rounded-xl p-2 text-foreground text-sm leading-5 w-10 h-10 shrink-0">
- <Briefcase className="w-5 h-5 text-foreground fill-none text-sm leading-5" />
- </div>
- <div className="box-general-group-info flex flex-col gap-1 text-foreground text-sm leading-5 w-full">
- <div className="box-general-group-info-title text-foreground text-[14px] tracking-[0.14px] leading-[22px] whitespace-nowrap">
- Vị trí tuyển
- </div>
- <div className="box-general-group-info-value text-foreground text-[14px] font-semibold tracking-[0.175px] leading-[22px] whitespace-nowrap">
- {event.position_type ||"Tình nguyện viên"}
- </div>
- </div>
- </div>
-
- <div className="box-general-group flex items-center gap-4 text-foreground text-sm leading-5 w-full">
- <div className="box-general-group-icon flex items-center justify-center bg-muted rounded-xl p-2 text-foreground text-sm leading-5 w-10 h-10 shrink-0">
- <Tag className="w-5 h-5 text-foreground fill-none text-sm leading-5" />
- </div>
- <div className="box-general-group-info flex flex-col gap-1 text-foreground text-sm leading-5 w-full">
- <div className="box-general-group-info-title text-foreground text-[14px] tracking-[0.14px] leading-[22px] whitespace-nowrap">
- Loại hình
- </div>
- <div className="box-general-group-info-value text-foreground text-[14px] font-semibold tracking-[0.175px] leading-[22px] whitespace-nowrap">
- {event.category ||"Chưa phân loại"}
- </div>
- </div>
- </div>
-
- <div className="box-general-group flex items-center gap-4 text-foreground text-sm leading-5 w-full">
- <div className="box-general-group-icon flex items-center justify-center bg-muted rounded-xl p-2 text-foreground text-sm leading-5 w-10 h-10 shrink-0">
- <Users className="w-5 h-5 text-foreground fill-none text-sm leading-5" />
- </div>
- <div className="box-general-group-info flex flex-col gap-1 text-foreground text-sm leading-5 w-full">
- <div className="box-general-group-info-title text-foreground text-[14px] tracking-[0.14px] leading-[22px] whitespace-nowrap">
- Số lượng tuyển
- </div>
- <div className="box-general-group-info-value text-foreground text-[14px] font-semibold tracking-[0.175px] leading-[22px] whitespace-nowrap">
- {event.slots_needed || 1} nhân sự
- </div>
- </div>
- </div>
- </div>
+ Xem trang công ty <ExternalLink className="w-3.5 h-3.5" />
+ </button>
  </div>
  </div>
  </div>
