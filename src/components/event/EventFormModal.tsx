@@ -89,7 +89,7 @@ export default function EventFormModal({
  <div className="bg-white rounded-2xl w-full max-w-4xl shadow-md overflow-hidden animate-in zoom-in-95 duration-200 flex flex-col max-h-[90vh] border border-slate-200">
  <div className="bg-slate-50 p-6 flex items-center justify-between border-b border-slate-200 shrink-0">
  <h2 className="text-xl font-extrabold text-slate-900">
- {editingId ?"✏️ Chỉnh sửa sự kiện" :"✨ Tạo sự kiện & Tuyển dụng mới"}
+ {editingId ?"✏️ Chỉnh sửa sự kiện" :"✨ Tạo sự kiện & Tuyển nhân sự mới"}
  </h2>
  <button onClick={resetForm} aria-label="Đóng" className="p-2 text-slate-500 hover:text-slate-700 bg-white rounded-full border border-slate-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40">
  <X className="w-5 h-5" />
@@ -132,7 +132,7 @@ export default function EventFormModal({
  </div>
  <div className="space-y-2">
  <label className="text-sm font-bold text-slate-700 flex items-center gap-1.5">
- <Clock className="w-4 h-4 text-destructive" /> Hạn chót nộp đơn
+ <Clock className="w-4 h-4 text-destructive" /> Hạn chót đăng ký
  </label>
  <Input type="date" value={applicationDeadline} onChange={e => setApplicationDeadline(e.target.value)} className="h-12 rounded-xl bg-slate-50 border-slate-200 text-sm font-bold text-slate-700 focus-visible:ring-emerald-500" />
  </div>
@@ -140,7 +140,7 @@ export default function EventFormModal({
 
  <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
  <div className="space-y-2">
- <label className="text-sm font-bold text-slate-700">Vị trí tuyển dụng</label>
+ <label className="text-sm font-bold text-slate-700">Vị trí tuyển nhân sự</label>
  <select value={positionType} onChange={e => setPositionType(e.target.value)} className="h-12 rounded-xl bg-slate-50 border border-slate-200 p-2 text-sm font-bold text-slate-700 w-full focus:outline-none focus:border-emerald-500">
  {positions.map(t => (
  <option key={t} value={t}>{t}</option>
@@ -197,7 +197,7 @@ export default function EventFormModal({
  </div>
 
  <div className="space-y-2">
- <label className="text-sm font-bold text-slate-700">Mô tả công việc & Yêu cầu cụ thể</label>
+ <label className="text-sm font-bold text-slate-700">Chi tiết sự kiện & Yêu cầu cụ thể</label>
  <textarea placeholder="Nhập mô tả chi tiết..." value={desc} onChange={e => setDesc(e.target.value)} rows={5} className="w-full rounded-xl bg-slate-50 border border-slate-200 p-4 text-sm font-medium focus:outline-none focus:border-emerald-500 resize-none whitespace-pre-wrap text-slate-900" />
  </div>
  <div className="flex justify-end pt-2 gap-3">

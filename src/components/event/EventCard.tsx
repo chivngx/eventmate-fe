@@ -103,7 +103,7 @@ function EventCard({
             e.stopPropagation()
             onToggleBookmark(job.id)
           }}
-          aria-label={isBookmarked ? "Bỏ lưu việc làm này" : "Lưu việc làm này"}
+          aria-label={isBookmarked ? "Bỏ lưu sự kiện này" : "Lưu sự kiện này"}
           aria-pressed={isBookmarked}
           className={cn(
             "w-8 h-8 flex items-center justify-center rounded-lg transition-all shrink-0 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40",

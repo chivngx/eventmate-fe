@@ -25,7 +25,7 @@ export default function CVViewModal({ viewingCV, onClose }: CVViewModalProps) {
  </AvatarFallback>
  </Avatar>
  <div>
- <h3 className="text-xl font-black text-slate-900">{viewingCV.full_name ||"Ứng viên ẩn danh"}</h3>
+ <h3 className="text-xl font-black text-slate-900">{viewingCV.full_name ||"Người tham gia ẩn danh"}</h3>
  <p className="text-sm font-medium text-slate-500 mt-0.5">{viewingCV.email}</p>
  </div>
  </div>
@@ -64,7 +64,7 @@ export default function CVViewModal({ viewingCV, onClose }: CVViewModalProps) {
  </Badge>
  ))
  ) : (
- <p className="text-sm font-medium text-slate-500 italic">Ứng viên chưa nhập kỹ năng.</p>
+ <p className="text-sm font-medium text-slate-500 italic">Người tham gia chưa nhập kỹ năng.</p>
  )}
  </div>
  </div>

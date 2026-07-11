@@ -94,7 +94,7 @@ export default function EventDetail() {
  showToast({ title:"Đã xảy ra lỗi", message: getUserFacingMessage(error,"Vui lòng thử lại."), type:"error" })
  } else {
  setApplyStatus('pending')
- showToast({ title:"Ứng tuyển thành công", message:"Đơn ứng tuyển của bạn đã được gửi. Vui lòng chờ BTC phê duyệt.", type:"success" })
+ showToast({ title:"Đăng ký thành công", message:"Đơn đăng ký của bạn đã được gửi. Vui lòng chờ BTC phê duyệt.", type:"success" })
  }
  setIsApplying(false)
  }
@@ -114,7 +114,7 @@ export default function EventDetail() {
 
  if (!error) {
  setIsBookmarked(false)
- showToast({ title:"Đã hủy lưu", message:"Đã hủy lưu tin tuyển dụng thành công.", type:"info" })
+ showToast({ title:"Đã hủy lưu", message:"Đã hủy lưu sự kiện thành công.", type:"info" })
  }
  else showToast({ title:"Đã xảy ra lỗi", message: getUserFacingMessage(error,"Vui lòng thử lại."), type:"error" })
  } else {
@@ -124,7 +124,7 @@ export default function EventDetail() {
 
  if (!error) {
  setIsBookmarked(true)
- showToast({ title:"Đã lưu tin", message:"Đã lưu tin tuyển dụng thành công.", type:"success" })
+ showToast({ title:"Đã lưu tin", message:"Đã lưu sự kiện thành công.", type:"success" })
  }
  else showToast({ title:"Đã xảy ra lỗi", message: getUserFacingMessage(error,"Vui lòng thử lại."), type:"error" })
  }
@@ -176,7 +176,7 @@ export default function EventDetail() {
  disabled={disabledApply || isPastDeadline}
  className="job-detail_info--actions-button button-primary open-apply-modal btn-apply-job flex items-center justify-center bg-primary hover:bg-primary/90 text-white font-semibold font-sans rounded-md transition-all active:scale-95 disabled:opacity-50 h-[40px] px-6 text-sm flex-1 cursor-pointer"
  >
- {isApplying ?"Đang xử lý..." : isPastDeadline ?"Đã hết hạn nộp đơn" : event.status !== 'upcoming' ?"Đã đóng đăng ký" :"Ứng tuyển ngay"}
+ {isApplying ?"Đang xử lý..." : isPastDeadline ?"Đã hết hạn đăng ký đơn" : event.status !== 'upcoming' ?"Đã đóng đăng ký" :"Đăng ký ngay"}
  </button>
  )
  }
@@ -279,7 +279,7 @@ export default function EventDetail() {
  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mt-5 pt-5 border-t border-slate-100">
  <div className="text-sm text-slate-500 flex items-center gap-2">
  <Clock3 className="w-4 h-4" />
- <span>Hạn nộp: </span>
+ <span>Hạn đăng ký: </span>
  <span className="font-semibold text-foreground">
  {event.application_deadline ? new Date(event.application_deadline).toLocaleDateString('vi-VN') : "Không giới hạn"}
  </span>
@@ -316,7 +316,7 @@ export default function EventDetail() {
  <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
  <h2 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
  <span className="w-1 h-5 bg-primary rounded"></span>
- Mô tả công việc
+ Chi tiết sự kiện
  </h2>
  <div className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">
  {event.description || "Chưa có mô tả chi tiết cho sự kiện này."}
@@ -327,7 +327,7 @@ export default function EventDetail() {
  <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6">
  <h2 className="text-base font-bold text-foreground mb-3 flex items-center gap-2">
  <span className="w-1 h-5 bg-primary rounded"></span>
- Địa điểm làm việc
+ Địa điểm tổ chức
  </h2>
  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50 p-4 rounded-xl">
  <div className="text-sm text-slate-600 flex items-center gap-2 min-w-0">

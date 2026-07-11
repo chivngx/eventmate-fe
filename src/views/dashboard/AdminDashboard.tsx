@@ -92,24 +92,24 @@ export default function AdminDashboard() {
     if (!window.confirm("Bạn có chắc chắn muốn gỡ/xóa bài đăng này khỏi hệ thống?")) return
     const { error } = await supabase.from("events").delete().eq("id", id)
     if (!error) {
-      showToast({ title: "Thành công", message: "Đã gỡ bài đăng tuyển dụng thành công.", type: "success" })
+      showToast({ title: "Thành công", message: "Đã gỡ sự kiện tuyển nhân sự nhân sự thành công.", type: "success" })
       fetchAdminData()
     } else {
-      showToast({ title: "Lỗi gỡ bài", message: getUserFacingMessage(error, "Không thể gỡ bài. Vui lòng thử lại."), type: "error" })
+      showToast({ title: "Lỗi gỡ sự kiện", message: getUserFacingMessage(error, "Không thể gỡ sự kiện. Vui lòng thử lại."), type: "error" })
     }
   }
 
   const handleToggleOrganizerVerification = async () => {
     showToast({
       title: "Cập nhật thành công",
-      message: "Trạng thái phê duyệt nhà tuyển dụng đã được thay đổi thành công.",
+      message: "Trạng thái phê duyệt nhà tuyển nhân sự đã được thay đổi thành công.",
       type: "success"
     })
   }
 
   const menuItems = [
     { id: "overview", name: "Tổng quan", icon: LayoutDashboard },
-    { id: "organizers", name: "Nhà tuyển dụng", icon: Building2 },
+    { id: "organizers", name: "Nhà tuyển nhân sự", icon: Building2 },
     { id: "students", name: "Sinh viên", icon: Users },
     { id: "events", name: "Quản lý bài tuyển", icon: FileText },
     { id: "transactions", name: "Doanh thu & Giao dịch", icon: CreditCard }
@@ -240,7 +240,7 @@ export default function AdminDashboard() {
                     {/* Stat cards — 4 cols responsive, flat */}
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                       <StatCard icon={<Users className="h-5 w-5" />} label="Tổng Sinh Viên" value={stats.totalStudents.toString()} />
-                      <StatCard icon={<Building2 className="h-5 w-5" />} label="Nhà tuyển dụng" value={stats.totalOrganizers.toString()} />
+                      <StatCard icon={<Building2 className="h-5 w-5" />} label="Nhà tuyển nhân sự" value={stats.totalOrganizers.toString()} />
                       <StatCard icon={<FileText className="h-5 w-5" />} label="Tổng tin tuyển" value={stats.totalEvents.toString()} />
                       <StatCard icon={<CreditCard className="h-5 w-5" />} label="Tổng doanh thu" value={`${stats.totalRevenue.toLocaleString("vi-VN")}đ`} />
                     </div>
@@ -248,7 +248,7 @@ export default function AdminDashboard() {
                     {/* Recent events table */}
                     <div className="rounded-xl border border-border bg-card shadow-sm">
                       <div className="border-b border-border p-4 sm:p-5">
-                        <h3 className="text-base font-semibold text-foreground">Chiến dịch mới đăng tuyển gần đây</h3>
+                        <h3 className="text-base font-semibold text-foreground">Chiến dịch mới tuyển nhân sự gần đây</h3>
                         <p className="mt-0.5 text-xs text-muted-foreground">5 sự kiện gần nhất trên hệ thống</p>
                       </div>
                       <div className="overflow-x-auto">
@@ -256,7 +256,7 @@ export default function AdminDashboard() {
                           <thead>
                             <tr className="border-b border-border text-xs uppercase text-muted-foreground">
                               <th className="px-4 py-3 font-medium sm:px-5">Tên sự kiện</th>
-                              <th className="px-4 py-3 font-medium sm:px-5">Nhà tuyển dụng</th>
+                              <th className="px-4 py-3 font-medium sm:px-5">Nhà tuyển nhân sự</th>
                               <th className="px-4 py-3 font-medium sm:px-5">Vị trí</th>
                               <th className="px-4 py-3 font-medium sm:px-5">Ngày diễn ra</th>
                               <th className="px-4 py-3 font-medium sm:px-5">Trạng thái</th>
@@ -271,7 +271,7 @@ export default function AdminDashboard() {
                                 <td className="px-4 py-3 text-muted-foreground sm:px-5">{new Date(ev.event_date).toLocaleDateString("vi-VN")}</td>
                                 <td className="px-4 py-3 sm:px-5">
                                   <Badge className="bg-accent text-primary">
-                                    {ev.status === "upcoming" ? "Đang mở tuyển" : "Hoàn thành"}
+                                    {ev.status === "upcoming" ? "Đang mở đăng ký" : "Hoàn thành"}
                                   </Badge>
                                 </td>
                               </tr>
@@ -287,8 +287,8 @@ export default function AdminDashboard() {
                 {activeTab === "organizers" && (
                   <div className="rounded-xl border border-border bg-card shadow-sm animate-in fade-in">
                     <div className="border-b border-border p-4 sm:p-5">
-                      <h3 className="text-base font-semibold text-foreground">Danh sách nhà tuyển dụng</h3>
-                      <p className="mt-0.5 text-xs text-muted-foreground">{organizers.length} nhà tuyển dụng đã đăng ký</p>
+                      <h3 className="text-base font-semibold text-foreground">Danh sách nhà tuyển nhân sự</h3>
+                      <p className="mt-0.5 text-xs text-muted-foreground">{organizers.length} nhà tuyển nhân sự đã đăng ký</p>
                     </div>
                     <div className="overflow-x-auto">
                       <table className="w-full text-left text-sm">
@@ -374,7 +374,7 @@ export default function AdminDashboard() {
                 {activeTab === "events" && (
                   <div className="rounded-xl border border-border bg-card shadow-sm animate-in fade-in">
                     <div className="border-b border-border p-4 sm:p-5">
-                      <h3 className="text-base font-semibold text-foreground">Quản lý tin bài tuyển dụng</h3>
+                      <h3 className="text-base font-semibold text-foreground">Quản lý tin bài tuyển nhân sự</h3>
                       <p className="mt-0.5 text-xs text-muted-foreground">{events.length} bài đăng trên hệ thống</p>
                     </div>
                     <div className="overflow-x-auto">
@@ -401,7 +401,7 @@ export default function AdminDashboard() {
                                   className="h-8 rounded-lg text-xs text-destructive hover:bg-destructive/10"
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
-                                  Gỡ bài
+                                  Gỡ sự kiện
                                 </Button>
                               </td>
                             </tr>
@@ -429,7 +429,7 @@ export default function AdminDashboard() {
                         <thead>
                           <tr className="border-b border-border text-xs uppercase text-muted-foreground">
                             <th className="px-4 py-3 font-medium sm:px-5">Mã giao dịch</th>
-                            <th className="px-4 py-3 font-medium sm:px-5">Nhà tuyển dụng</th>
+                            <th className="px-4 py-3 font-medium sm:px-5">Nhà tuyển nhân sự</th>
                             <th className="px-4 py-3 font-medium sm:px-5">Loại dịch vụ</th>
                             <th className="px-4 py-3 font-medium sm:px-5">Số tiền</th>
                             <th className="px-4 py-3 font-medium sm:px-5">Ngày thanh toán</th>

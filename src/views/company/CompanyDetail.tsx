@@ -196,7 +196,7 @@ export default function CompanyDetail() {
         <span className="text-sm font-semibold text-primary">{job.benefits || "Thỏa thuận"}</span>
         <button
           onClick={(e) => toggleBookmark(job.id, e)}
-          aria-label="Lưu tin"
+          aria-label="Lưu sự kiện"
           aria-pressed={!!bookmarkedJobs[job.id]}
           className={`w-8 h-8 rounded-lg border flex items-center justify-center transition-all ${bookmarkedJobs[job.id]
             ? "bg-accent border-primary/30 text-primary"
@@ -215,7 +215,7 @@ export default function CompanyDetail() {
         <Search className="w-4 h-4 text-slate-400 shrink-0" />
         <input
           type="text"
-          placeholder="Tên công việc, vị trí tuyển dụng..."
+          placeholder="Tên công việc, vị trí tuyển nhân sự..."
           value={jobSearchTerm}
           onChange={(e) => setJobSearchTerm(e.target.value)}
           className="bg-transparent text-sm text-foreground outline-none w-full font-medium"
@@ -315,7 +315,7 @@ export default function CompanyDetail() {
                   : "text-slate-500 hover:text-foreground hover:bg-slate-50"
               }`}
             >
-              Tin tuyển dụng
+              Sự kiện
               <span className={`text-xs px-1.5 py-0.5 rounded ${
                 activeTab === "jobs" ? "bg-primary/10 text-primary" : "bg-slate-100 text-slate-500"
               }`}>
@@ -340,7 +340,7 @@ export default function CompanyDetail() {
                 </h2>
                 <div className="relative">
                   <p className={`text-sm text-slate-600 leading-relaxed whitespace-pre-wrap transition-all duration-300 ${isIntroExpanded ? "" : "line-clamp-4"}`}>
-                    {company.bio || `${company.full_name} là đối tác chiến dịch tuyển dụng và quản lý nhân sự tình nguyện chuyên biệt, hỗ trợ tổ chức và vận hành các sự kiện cộng đồng chất lượng cao tại khu vực miền Trung nói chung và thành phố Đà Nẵng nói riêng. Chúng tôi liên kết chặt chẽ với các câu lạc bộ sinh viên, các tổ chức giáo dục để mang đến lực lượng tình nguyện viên trẻ trung, năng động và giàu kinh nghiệm nhất.`}
+                    {company.bio || `${company.full_name} là đối tác chiến dịch tuyển nhân sự và quản lý nhân sự tình nguyện chuyên biệt, hỗ trợ tổ chức và vận hành các sự kiện cộng đồng chất lượng cao tại khu vực miền Trung nói chung và thành phố Đà Nẵng nói riêng. Chúng tôi liên kết chặt chẽ với các câu lạc bộ sinh viên, các tổ chức giáo dục để mang đến lực lượng tình nguyện viên trẻ trung, năng động và giàu kinh nghiệm nhất.`}
                   </p>
                   <button
                     onClick={() => setIsIntroExpanded(!isIntroExpanded)}
@@ -403,14 +403,14 @@ export default function CompanyDetail() {
               <section className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-6 space-y-4">
                 <h2 className="text-base font-bold text-foreground flex items-center gap-2">
                   <span className="w-1 h-5 bg-primary rounded"></span>
-                  Tuyển dụng mới nhất
+                  Tuyển nhân sự mới nhất
                 </h2>
 
                 {renderSearchBar()}
 
                 {filteredJobs.length === 0 ? (
                   <p className="py-10 text-center text-slate-500 text-sm">
-                    Hiện tại không tìm thấy tin tuyển dụng nào phù hợp.
+                    Hiện tại không tìm thấy sự kiện nào phù hợp.
                   </p>
                 ) : (
                   <div className="space-y-3">
@@ -423,7 +423,7 @@ export default function CompanyDetail() {
                     onClick={() => setActiveTab("jobs")}
                     className="w-full text-center text-sm font-semibold text-primary hover:text-primary/80 py-2 transition-colors"
                   >
-                    Xem tất cả {companyEvents.length} tin tuyển dụng →
+                    Xem tất cả {companyEvents.length} sự kiện →
                   </button>
                 )}
               </section>
@@ -582,10 +582,10 @@ export default function CompanyDetail() {
                 <div className="flex items-center justify-between gap-2">
                   <h2 className="text-base font-bold text-foreground flex items-center gap-2">
                     <span className="w-1 h-5 bg-primary rounded"></span>
-                    Tuyển dụng tại {company.full_name}
+                    Tuyển nhân sự tại {company.full_name}
                   </h2>
                   <span className="text-xs text-slate-500 font-medium shrink-0">
-                    {filteredJobs.length} việc làm
+                    {filteredJobs.length} sự kiện
                   </span>
                 </div>
 
@@ -593,7 +593,7 @@ export default function CompanyDetail() {
 
                 {filteredJobs.length === 0 ? (
                   <p className="py-16 text-center text-slate-500 text-sm">
-                    Không tìm thấy tin tuyển dụng nào phù hợp.
+                    Không tìm thấy sự kiện nào phù hợp.
                   </p>
                 ) : (
                   <div className="space-y-3">
@@ -618,7 +618,7 @@ export default function CompanyDetail() {
                 </Avatar>
               </div>
               <div className="min-w-0">
-                <p className="text-xs text-slate-500">Theo dõi để nhận việc làm mới từ</p>
+                <p className="text-xs text-slate-500">Theo dõi để nhận sự kiện mới từ</p>
                 <p className="text-sm font-semibold text-foreground truncate" title={company.full_name}>{company.full_name}</p>
               </div>
             </div>

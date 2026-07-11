@@ -167,14 +167,14 @@ export default function JobsByPosition() {
           <nav className="text-xs text-slate-500 flex items-center gap-1.5 flex-wrap">
             <button onClick={() => navigate("/")} className="hover:text-primary transition-colors">Trang chủ</button>
             <ChevronRight className="w-3 h-3 shrink-0 text-slate-300" />
-            <span className="text-slate-400">Việc làm theo vị trí</span>
+            <span className="text-slate-400">Sự kiện theo vị trí</span>
             <ChevronRight className="w-3 h-3 shrink-0 text-slate-300" />
             <span className="text-foreground font-medium truncate">{positionParam}</span>
           </nav>
 
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground leading-tight">
-              Việc làm <span className="text-primary">{positionParam}</span> tại Đà Nẵng
+              Sự kiện <span className="text-primary">{positionParam}</span> tại Đà Nẵng
             </h1>
             <p className="text-sm text-slate-500 mt-1.5">
               Khám phá cơ hội hợp tác và tích lũy kỹ năng xã hội cùng các chiến dịch uy tín.
@@ -264,7 +264,7 @@ export default function JobsByPosition() {
           <div className="lg:col-span-3 space-y-4">
             <div className="flex items-center justify-between">
               <p className="text-sm text-slate-500">
-                {loading ? "Đang tải..." : `${events.length} việc làm phù hợp`}
+                {loading ? "Đang tải..." : `${events.length} sự kiện phù hợp`}
               </p>
               <span className="text-xs text-slate-500">Trang {currentPage} / {totalPages}</span>
             </div>
@@ -277,7 +277,7 @@ export default function JobsByPosition() {
             ) : events.length === 0 ? (
               <div className="text-center py-20 bg-white border border-dashed border-slate-300 rounded-2xl">
                 <Briefcase className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                <p className="text-base font-bold text-foreground">Không tìm thấy việc làm phù hợp.</p>
+                <p className="text-base font-bold text-foreground">Không tìm thấy sự kiện phù hợp.</p>
                 <p className="text-slate-500 text-sm mt-1">Hãy thử đổi bộ lọc hoặc nhập từ khóa tìm kiếm khác.</p>
               </div>
             ) : (

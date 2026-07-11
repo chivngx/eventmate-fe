@@ -51,7 +51,7 @@ export default function UserProfileDropdown({
  <div className="min-w-0 flex-1">
  <p className="text-sm font-bold text-slate-800 truncate" title={fullName}>{fullName}</p>
  <p className="text-xs text-primary font-semibold bg-accent px-2 py-0.5 rounded-full inline-block mt-0.5">
- {role === 'organizer' ?"Nhà tuyển dụng" :"Sinh viên"}
+ {role === 'organizer' ?"Nhà tuyển nhân sự" :"Sinh viên"}
  </p>
  <p className="text-xs text-slate-400 mt-1 truncate">
  {user?.id ? `ID ${user.id.substring(0, 7).toUpperCase()}` :"ID 123456"} <span className="text-slate-300">|</span> {email}
@@ -62,7 +62,7 @@ export default function UserProfileDropdown({
  {/* Accordion Menu */}
  {role === 'organizer' ? (
  <div className="space-y-3.5">
- {/* 1. Quản lý tuyển dụng */}
+ {/* 1. Quản lý tuyển nhân sự */}
  <div className="space-y-1">
  <button
  type="button"
@@ -71,7 +71,7 @@ export default function UserProfileDropdown({
  >
  <div className="flex items-center gap-2.5 font-bold text-xs">
  <Briefcase className="w-4 h-4 text-slate-500" />
- <span>Quản lý tuyển dụng</span>
+ <span>Quản lý tuyển nhân sự</span>
  </div>
  {expandedSections.jobSearch ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
  </button>
@@ -82,14 +82,14 @@ export default function UserProfileDropdown({
  onClick={() => navigate('/dashboard')}
  className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
  >
- Danh sách tin tuyển dụng
+ Danh sách sự kiện
  </button>
  <button
  type="button"
  onClick={() => navigate('/dashboard')}
  className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
  >
- Quản lý hồ sơ ứng viên
+ Quản lý hồ sơ người tham gia
  </button>
  </div>
  )}
@@ -178,10 +178,10 @@ export default function UserProfileDropdown({
  <div className="pl-6.5 flex flex-col gap-2 pt-1 pb-2">
  <button
  type="button"
- onClick={() => alert("Chức năng mua gói VIP Tuyển dụng đang được phát triển!")}
+ onClick={() => alert("Chức năng mua gói VIP Tuyển nhân sự đang được phát triển!")}
  className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
  >
- Đăng ký gói VIP tuyển dụng
+ Đăng ký gói VIP tuyển nhân sự
  </button>
  </div>
  )}
@@ -189,7 +189,7 @@ export default function UserProfileDropdown({
  </div>
  ) : (
  <div className="space-y-3.5">
- {/* 1. Quản lý tìm việc */}
+ {/* 1. Quản lý tìm sự kiện */}
  <div className="space-y-1">
  <button
  type="button"
@@ -198,7 +198,7 @@ export default function UserProfileDropdown({
  >
  <div className="flex items-center gap-2.5 font-bold text-xs">
  <Briefcase className="w-4 h-4 text-slate-500" />
- <span>Quản lý tìm việc</span>
+ <span>Quản lý tìm sự kiện</span>
  </div>
  {expandedSections.jobSearch ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
  </button>
@@ -209,7 +209,7 @@ export default function UserProfileDropdown({
  onClick={() => navigate('/saved')}
  className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
  >
- Việc làm đã lưu
+ Sự kiện đã lưu
  </button>
  {role === 'student' && (
  <button
@@ -217,14 +217,14 @@ export default function UserProfileDropdown({
  onClick={() => navigate('/my-jobs')}
  className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
  >
- Việc làm đã ứng tuyển
+ Sự kiện đã đăng ký
  </button>
  )}
  </div>
  )}
  </div>
 
- {/* 2. Quản lý CV */}
+ {/* 2. Quản lý hồ sơ */}
  <div className="space-y-1">
  <button
  type="button"
@@ -233,7 +233,7 @@ export default function UserProfileDropdown({
  >
  <div className="flex items-center gap-2.5 font-bold text-xs">
  <FileText className="w-4 h-4 text-slate-500" />
- <span>Quản lý hồ sơ & CV</span>
+ <span>Quản lý hồ sơ</span>
  </div>
  {expandedSections.cvManage ? <ChevronUp className="w-3.5 h-3.5 text-slate-400" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
  </button>
@@ -251,7 +251,7 @@ export default function UserProfileDropdown({
  onClick={() => navigate('/settings')}
  className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
  >
- Mẫu CV cá nhân
+ Mẫu hồ sơ cá nhân
  </button>
  </div>
  )}
@@ -277,7 +277,7 @@ export default function UserProfileDropdown({
  onClick={() => navigate('/settings')}
  className="text-left text-xs font-semibold text-slate-500 hover:text-primary transition-colors"
  >
- Cài đặt thông báo việc làm
+ Cài đặt thông báo sự kiện
  </button>
  <button
  type="button"

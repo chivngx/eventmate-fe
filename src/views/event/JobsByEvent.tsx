@@ -219,7 +219,7 @@ export default function JobsByEvent() {
           <nav className="text-xs text-slate-500 flex items-center gap-1.5 flex-wrap">
             <button onClick={() => navigate("/")} className="hover:text-primary transition-colors">Trang chủ</button>
             <ChevronRight className="w-3 h-3 shrink-0 text-slate-300" />
-            <span className="text-slate-400">Việc làm theo sự kiện</span>
+            <span className="text-slate-400">Sự kiện theo sự kiện</span>
             <ChevronRight className="w-3 h-3 shrink-0 text-slate-300" />
             <span className="text-foreground font-medium truncate">{categoryParam}</span>
           </nav>

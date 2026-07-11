@@ -58,7 +58,7 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
  const formattedChats = data.map((item: any) => ({
  ...item,
  events: Array.isArray(item.events) ? item.events[0] || { title:"Sự kiện chung" } : item.events || { title:"Sự kiện chung" },
- student_profile: Array.isArray(item.student_profile) ? item.student_profile[0] || { id:"", full_name:"Ứng viên", avatar_url:"" } : item.student_profile || { id:"", full_name:"Ứng viên", avatar_url:"" },
+ student_profile: Array.isArray(item.student_profile) ? item.student_profile[0] || { id:"", full_name:"Người tham gia", avatar_url:"" } : item.student_profile || { id:"", full_name:"Người tham gia", avatar_url:"" },
  organizer_profile: Array.isArray(item.organizer_profile) ? item.organizer_profile[0] || { id:"", full_name:"Ban tổ chức", avatar_url:"" } : item.organizer_profile || { id:"", full_name:"Ban tổ chức", avatar_url:"" }
  })) as ChatItem[]
 

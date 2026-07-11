@@ -73,7 +73,7 @@ export const eventSchema = z.object({
  category: z.string().min(1,"Vui lòng chọn danh mục."),
  slotsNeeded: z.coerce.number().int().min(1,"Số lượng phải ≥ 1."),
  eventDate: z.string().min(1,"Vui lòng chọn ngày sự kiện."),
- applicationDeadline: z.string().min(1,"Vui lòng chọn hạn ứng tuyển."),
+ applicationDeadline: z.string().min(1,"Vui lòng chọn hạn đăng ký."),
 })
 export type EventFormValues = z.infer<typeof eventSchema>
 

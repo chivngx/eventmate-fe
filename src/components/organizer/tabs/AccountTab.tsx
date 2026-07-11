@@ -178,7 +178,7 @@ export default function AccountTab({
  <form onSubmit={handleUpdateProfile} className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm">
  <div>
  <h2 className="text-xl font-black text-slate-900">Thông tin công ty/CLB</h2>
- <p className="text-slate-400 text-xs font-semibold mt-0.5">Cập nhật và hoàn thiện hồ sơ tuyển dụng của bạn.</p>
+ <p className="text-slate-400 text-xs font-semibold mt-0.5">Cập nhật và hoàn thiện hồ sơ tuyển nhân sự của bạn.</p>
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

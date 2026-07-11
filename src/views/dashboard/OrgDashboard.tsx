@@ -304,13 +304,13 @@ export default function OrgDashboard() {
  handleBuyPremium()
  showToast({
  title:"Kích hoạt thành công",
- message:"Chúc mừng! Bạn đã nâng cấp tài khoản VIP Tuyển dụng thành công.",
+ message:"Chúc mừng! Bạn đã nâng cấp tài khoản VIP Tuyển nhân sự thành công.",
  type:"success"
  })
  }
 
  const userProfileCached = {
- fullName: profileData.fullName ||"Nhà tuyển dụng",
+ fullName: profileData.fullName ||"Nhà tuyển nhân sự",
  avatarUrl: profileData.avatarUrl ||"",
  email: profileData.email ||""
  }
@@ -433,10 +433,10 @@ export default function OrgDashboard() {
           <div className="flex flex-col gap-4 rounded-xl border border-border bg-card p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between sm:p-6">
             <div className="min-w-0">
               <h1 className="text-xl font-semibold text-foreground sm:text-2xl">
-                Xin chào, {profileData.fullName || "Nhà tuyển dụng"}!
+                Xin chào, {profileData.fullName || "Nhà tuyển nhân sự"}!
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                Tổng quan hiệu suất các chiến dịch tuyển dụng tình nguyện viên của bạn.
+                Tổng quan hiệu suất các chiến dịch tuyển nhân sự tình nguyện viên của bạn.
               </p>
             </div>
             <Button
@@ -450,16 +450,16 @@ export default function OrgDashboard() {
           {/* Stat cards — 4 cols responsive */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard icon={<Briefcase className="h-5 w-5" />} label="Tổng chiến dịch" value={String(totalEvents)} />
-            <StatCard icon={<Calendar className="h-5 w-5" />} label="Đang mở tuyển" value={String(activeEvents)} />
-            <StatCard icon={<Users className="h-5 w-5" />} label="Tỷ lệ duyệt hồ sơ" value={`${feedStats.approvalRate}%`} />
-            <StatCard icon={<TrendingUp className="h-5 w-5" />} label="Tổng đơn ứng tuyển" value={String(feedStats.weeklyApps.reduce((a: number, b: number) => a + b, 0))} />
+            <StatCard icon={<Calendar className="h-5 w-5" />} label="Đang mở đăng ký" value={String(activeEvents)} />
+            <StatCard icon={<Users className="h-5 w-5" />} label="Tỷ lệ duyệt đăng ký" value={`${feedStats.approvalRate}%`} />
+            <StatCard icon={<TrendingUp className="h-5 w-5" />} label="Tổng đơn đăng ký" value={String(feedStats.weeklyApps.reduce((a: number, b: number) => a + b, 0))} />
           </div>
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             {/* Weekly applications chart */}
             <div className="space-y-4 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6 lg:col-span-2">
               <div>
-                <h3 className="text-base font-semibold text-foreground">Biểu đồ ứng tuyển</h3>
+                <h3 className="text-base font-semibold text-foreground">Biểu đồ đăng ký</h3>
                 <p className="mt-0.5 text-xs text-muted-foreground">4 tuần gần nhất</p>
               </div>
               {/* 🔒 P2.8: real chart từ feedStats.weeklyApps */}
@@ -472,7 +472,7 @@ export default function OrgDashboard() {
                       <div
                         className={`w-full max-w-12 rounded-t-md transition-colors ${i === 2 ? "bg-primary" : "bg-muted-foreground/30 hover:bg-muted-foreground/50"}`}
                         style={{ height: `${Math.max(8, (count / max) * 140)}px` }}
-                        title={`${count} ứng viên`}
+                        title={`${count} người tham gia`}
                       />
                       <span className="text-xs text-muted-foreground">Tuần {i + 1}</span>
                     </div>
@@ -487,9 +487,9 @@ export default function OrgDashboard() {
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent text-primary">
                   <Crown className="h-5 w-5" />
                 </div>
-                <h3 className="text-base font-semibold text-foreground">Nâng cấp VIP Tuyển dụng</h3>
+                <h3 className="text-base font-semibold text-foreground">Nâng cấp VIP Tuyển nhân sự</h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">
-                  Tiếp cận trực tiếp hàng ngàn hồ sơ sinh viên tài năng tại Đà Nẵng, xem báo cáo thông minh và đẩy tin tuyển dụng lên vị trí nổi bật.
+                  Tiếp cận trực tiếp hàng ngàn hồ sơ sinh viên tài năng tại Đà Nẵng, xem báo cáo thông minh và đẩy sự kiện lên vị trí nổi bật.
                 </p>
               </div>
               <Button
@@ -542,9 +542,9 @@ export default function OrgDashboard() {
           ) : (
             <div className="space-y-5 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6">
               <div>
-                <h2 className="text-lg font-semibold text-foreground">Chọn tin tuyển dụng để xem ứng viên</h2>
+                <h2 className="text-lg font-semibold text-foreground">Chọn sự kiện để xem người tham gia</h2>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Chọn một trong những tin tuyển dụng dưới đây để xem danh sách hồ sơ chi tiết.
+                  Chọn một trong những sự kiện dưới đây để xem danh sách hồ sơ chi tiết.
                 </p>
               </div>
 
@@ -559,7 +559,7 @@ export default function OrgDashboard() {
                       <h4 className="truncate text-sm font-semibold text-foreground">{ev.title}</h4>
                       <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
                         <Users className="h-3.5 w-3.5" />
-                        Số lượng đơn ứng tuyển: {ev.applications?.length || 0}
+                        Số lượng đơn đăng ký: {ev.applications?.length || 0}
                       </p>
                     </div>
                     <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
@@ -574,12 +574,12 @@ export default function OrgDashboard() {
       {/* 4. TAB: RECOMMENDED (Premium) */}
       {activeTab === "recommended" && (
         <div className="relative z-10 min-h-[450px] space-y-6 animate-in fade-in duration-300">
-          <h1 className="text-xl font-semibold text-foreground sm:text-2xl">Đề xuất CV Thông minh</h1>
+          <h1 className="text-xl font-semibold text-foreground sm:text-2xl">Đề xuất người tham gia Thông minh</h1>
 
           <div className={`grid grid-cols-1 gap-4 md:grid-cols-2 ${!isPremium ? "pointer-events-none select-none blur-sm" : ""}`}>
             {recommendedCVs.length === 0 ? (
               <div className="py-12 text-center text-sm text-muted-foreground md:col-span-2">
-                Chưa có ứng viên nào ứng tuyển vào sự kiện của bạn.
+                Chưa có người tham gia nào đăng ký vào sự kiện của bạn.
               </div>
             ) : recommendedCVs.map((cv, i) => (
               <div key={i} className="flex items-start gap-4 rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
@@ -653,13 +653,13 @@ export default function OrgDashboard() {
             {/* Daily reach / applications chart */}
             <div className="space-y-4 rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <h3 className="text-base font-semibold text-foreground">Lượt tiếp cận & Đơn ứng tuyển theo ngày</h3>
+                <h3 className="text-base font-semibold text-foreground">Lượt tiếp cận & Đơn đăng ký theo ngày</h3>
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
                   <span className="flex items-center gap-1.5">
                     <span className="h-2 w-2 rounded-full bg-muted-foreground/40" /> Lượt xem
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-primary" /> Đơn ứng tuyển
+                    <span className="h-2 w-2 rounded-full bg-primary" /> Đơn đăng ký
                   </span>
                 </div>
               </div>
@@ -685,7 +685,7 @@ export default function OrgDashboard() {
                         <div
                           className="w-2.5 rounded-t bg-primary transition-colors hover:bg-primary/80 sm:w-3"
                           style={{ height: `${(d.apps / maxV) * 200}px` }}
-                          title={`${d.apps} ứng tuyển`}
+                          title={`${d.apps} đăng ký`}
                         />
                       </div>
                       <span className="text-xs text-muted-foreground">{d.day}</span>
@@ -704,9 +704,9 @@ export default function OrgDashboard() {
                   <Lock className="h-7 w-7" />
                 </div>
                 <div className="space-y-2">
-                  <h3 className="text-lg font-semibold text-foreground">Mở khóa Báo cáo tuyển dụng</h3>
+                  <h3 className="text-lg font-semibold text-foreground">Mở khóa Báo cáo tuyển nhân sự</h3>
                   <p className="text-sm leading-relaxed text-muted-foreground">
-                    Xem biểu đồ tương tác, số lượt xem bài đăng tuyển dụng chi tiết theo ngày và xuất các báo cáo thống kê phục vụ hoạt động quản trị của tổ chức.
+                    Xem biểu đồ tương tác, số lượt xem bài tuyển nhân sự nhân sự chi tiết theo ngày và xuất các báo cáo thống kê phục vụ hoạt động quản trị của tổ chức.
                   </p>
                 </div>
                 <Button
@@ -727,7 +727,7 @@ export default function OrgDashboard() {
           <div className="mx-auto max-w-2xl space-y-2 text-center">
             <h1 className="text-xl font-semibold text-foreground sm:text-2xl">Bảng giá dịch vụ VIP</h1>
             <p className="text-sm text-muted-foreground">
-              Lựa chọn gói dịch vụ tối ưu để tối đa hóa hiệu quả tuyển dụng tình nguyện viên của bạn.
+              Lựa chọn gói dịch vụ tối ưu để tối đa hóa hiệu quả tuyển nhân sự tình nguyện viên của bạn.
             </p>
           </div>
 
@@ -744,7 +744,7 @@ export default function OrgDashboard() {
                   <h3 className="flex items-center gap-1.5 text-lg font-semibold text-foreground">
                     <Crown className="h-5 w-5 text-primary" /> VIP Recruiter
                   </h3>
-                  <p className="mt-1 text-xs text-muted-foreground">Giải pháp tối ưu cho Nhà tuyển dụng chuyên nghiệp</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Giải pháp tối ưu cho Nhà tuyển nhân sự chuyên nghiệp</p>
                 </div>
 
                 <div className="flex items-baseline gap-1">
@@ -754,8 +754,8 @@ export default function OrgDashboard() {
 
                 <ul className="space-y-2.5">
                   {[
-                    "Mở khóa đề xuất CV AI phù hợp",
-                    "Xem Báo cáo tuyển dụng chuyên sâu",
+                    "Mở khóa đề xuất người tham gia AI phù hợp",
+                    "Xem Báo cáo tuyển nhân sự chuyên sâu",
                     "Đẩy tin nổi bật không giới hạn",
                     "Hỗ trợ ưu tiên 24/7 từ EventMate"
                   ].map((feat, i) => (
@@ -784,7 +784,7 @@ export default function OrgDashboard() {
               <div className="space-y-5">
                 <div>
                   <h3 className="text-lg font-semibold text-foreground">Đẩy tin VIP bài đăng</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">Tăng độ tiếp cận của bài tuyển dụng</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Tăng độ tiếp cận của bài tuyển nhân sự</p>
                 </div>
 
                 <div className="flex items-baseline gap-1">
@@ -830,7 +830,7 @@ export default function OrgDashboard() {
               </div>
               <h3 className="text-base font-semibold text-foreground">Chưa có cuộc trò chuyện nào</h3>
               <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
-                Nhấp vào nút nhắn tin trên hồ sơ ứng viên để bắt đầu cuộc hội thoại.
+                Nhấp vào nút nhắn tin trên hồ sơ người tham gia để bắt đầu cuộc hội thoại.
               </p>
             </div>
           ) : (

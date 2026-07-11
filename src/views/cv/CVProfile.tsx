@@ -81,7 +81,7 @@ export default function CVProfile() {
       if (error) {
         alert(getUserFacingMessage(error, "Lỗi khi lưu CV. Vui lòng thử lại."))
       } else {
-        alert("🎉 Đã lưu Hồ sơ CV thành công! Mức độ hoàn thiện CV của bạn trên hệ thống đã được cập nhật tự động.")
+        alert("🎉 Đã lưu Hồ sơ năng lực thành công! Mức độ hoàn thiện CV của bạn trên hệ thống đã được cập nhật tự động.")
       }
     }
     setSaving(false)
@@ -102,7 +102,7 @@ export default function CVProfile() {
             <span className="min-w-0">Hồ sơ Năng lực (CV)</span>
           </h1>
           <p className="text-sm text-muted-foreground">
-            Bổ sung đầy đủ thông tin giúp bạn tăng <strong className="text-primary font-semibold">300% cơ hội</strong> được Ban tổ chức lựa chọn ứng tuyển.
+            Bổ sung đầy đủ thông tin giúp bạn tăng <strong className="text-primary font-semibold">300% cơ hội</strong> được Ban tổ chức lựa chọn đăng ký.
           </p>
         </div>
 
@@ -118,7 +118,7 @@ export default function CVProfile() {
             <p className="font-semibold text-foreground truncate">{fullName || "Chưa cập nhật"}</p>
             <p className="text-sm text-muted-foreground truncate">{email || "—"}</p>
             <span className="inline-flex items-center text-xs font-medium text-primary bg-accent border border-primary/20 px-2 py-0.5 rounded">
-              {role === "student" ? "Ứng viên" : "Nhà tuyển dụng"}
+              {role === "student" ? "Người tham gia" : "Nhà tuyển nhân sự"}
             </span>
           </div>
         </div>
@@ -208,7 +208,7 @@ export default function CVProfile() {
                   disabled={saving}
                   className="rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground font-medium h-11 px-6 transition-colors shadow-sm w-full sm:w-auto"
                 >
-                  {saving ? "Đang lưu..." : (<><Save className="w-4 h-4 mr-2" /> Lưu Hồ sơ CV</>)}
+                  {saving ? "Đang lưu..." : (<><Save className="w-4 h-4 mr-2" /> Lưu Hồ sơ năng lực</>)}
                 </Button>
               </div>
             </form>

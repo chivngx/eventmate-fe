@@ -91,7 +91,7 @@ export default function Chat() {
       const formattedChats = data.map((item: any) => ({
         ...item,
         events: Array.isArray(item.events) ? item.events[0] || { title: "Sự kiện chung" } : item.events || { title: "Sự kiện chung" },
-        student_profile: Array.isArray(item.student_profile) ? item.student_profile[0] || { id: "", full_name: "Ứng viên", avatar_url: "" } : item.student_profile || { id: "", full_name: "Ứng viên", avatar_url: "" },
+        student_profile: Array.isArray(item.student_profile) ? item.student_profile[0] || { id: "", full_name: "Người tham gia", avatar_url: "" } : item.student_profile || { id: "", full_name: "Người tham gia", avatar_url: "" },
         organizer_profile: Array.isArray(item.organizer_profile) ? item.organizer_profile[0] || { id: "", full_name: "Ban tổ chức", avatar_url: "" } : item.organizer_profile || { id: "", full_name: "Ban tổ chức", avatar_url: "" }
       })) as ChatItem[]
 
@@ -117,7 +117,7 @@ export default function Chat() {
             const formatted = {
               ...directChat,
               events: Array.isArray(directChat.events) ? directChat.events[0] || { title: "Sự kiện chung" } : directChat.events || { title: "Sự kiện chung" },
-              student_profile: Array.isArray(directChat.student_profile) ? directChat.student_profile[0] || { id: "", full_name: "Ứng viên", avatar_url: "" } : directChat.student_profile || { id: "", full_name: "Ứng viên", avatar_url: "" },
+              student_profile: Array.isArray(directChat.student_profile) ? directChat.student_profile[0] || { id: "", full_name: "Người tham gia", avatar_url: "" } : directChat.student_profile || { id: "", full_name: "Người tham gia", avatar_url: "" },
               organizer_profile: Array.isArray(directChat.organizer_profile) ? directChat.organizer_profile[0] || { id: "", full_name: "Ban tổ chức", avatar_url: "" } : directChat.organizer_profile || { id: "", full_name: "Ban tổ chức", avatar_url: "" }
             } as ChatItem
             setActiveChat(formatted)
@@ -321,7 +321,7 @@ export default function Chat() {
         {
           user_id: interview.organizer_id,
           title: newStatus === "accepted" ? "Lịch phỏng vấn được chấp nhận" : "Lịch phỏng vấn bị từ chối",
-          message: `Ứng viên đã ${newStatus === "accepted" ? "chấp nhận" : "từ chối"} lịch hẹn phỏng vấn: ${interview.title}`,
+          message: `Người tham gia đã ${newStatus === "accepted" ? "chấp nhận" : "từ chối"} lịch hẹn phỏng vấn: ${interview.title}`,
           is_read: false
         }
       ])
@@ -549,7 +549,7 @@ export default function Chat() {
                               </div>
                             ) : (
                               <div className="rounded-lg bg-muted px-3 py-2 text-center text-xs font-medium text-muted-foreground">
-                                Đang chờ phản hồi từ ứng viên
+                                Đang chờ phản hồi từ người tham gia
                               </div>
                             )
                           ) : interview.status === "accepted" ? (
@@ -624,7 +624,7 @@ export default function Chat() {
             </div>
             <h3 className="text-sm font-semibold text-foreground">Chọn cuộc hội thoại</h3>
             <p className="mx-auto max-w-xs text-xs leading-relaxed text-muted-foreground">
-              Chọn một hội thoại ở thanh bên trái hoặc nhắn tin từ bài đăng tuyển dụng để bắt đầu thảo luận.
+              Chọn một hội thoại ở thanh bên trái hoặc nhắn tin từ bài tuyển nhân sự nhân sự để bắt đầu thảo luận.
             </p>
           </div>
         )}
@@ -654,7 +654,7 @@ export default function Chat() {
         setActiveTab={(tab) => navigate(`/?tab=${tab}`)}
         isPremium={isPremium}
         userProfile={{
-          fullName: currentUser?.user_metadata?.full_name || "Nhà tuyển dụng",
+          fullName: currentUser?.user_metadata?.full_name || "Nhà tuyển nhân sự",
           avatarUrl: currentUser?.user_metadata?.avatar_url || "",
           email: currentUser?.email || ""
         }}

@@ -41,10 +41,10 @@ export default function OrgLayout({
 
   const menuItems = [
     { id: "feed", name: "Bảng tin", icon: LayoutDashboard },
-    { id: "events", name: "Tin tuyển dụng", icon: FileText },
-    { id: "candidates", name: "Quản lý CV", icon: Users },
-    { id: "recommended", name: "CV đề xuất", icon: Sparkles, isPremiumLocked: !isPremium },
-    { id: "reports", name: "Báo cáo tuyển dụng", icon: BarChart3, isPremiumLocked: !isPremium },
+    { id: "events", name: "Sự kiện", icon: FileText },
+    { id: "candidates", name: "Quản lý hồ sơ", icon: Users },
+    { id: "recommended", name: "Người tham gia đề xuất", icon: Sparkles, isPremiumLocked: !isPremium },
+    { id: "reports", name: "Báo cáo tuyển nhân sự", icon: BarChart3, isPremiumLocked: !isPremium },
     { id: "services", name: "Mua dịch vụ", icon: ShoppingBag },
     { id: "chat", name: "Chat", icon: MessageSquare },
     { id: "account", name: "Tài khoản", icon: User }
@@ -114,7 +114,7 @@ export default function OrgLayout({
           {isSidebarOpen && (
             <div className="min-w-0 flex-1">
               <h4 className="text-sm font-semibold text-foreground truncate">
-                {userProfile?.fullName || "Nhà tuyển dụng"}
+                {userProfile?.fullName || "Nhà tuyển nhân sự"}
               </h4>
               <div className="flex items-center gap-1 mt-0.5">
                 {isPremium ? (
@@ -203,7 +203,7 @@ export default function OrgLayout({
             {isPremium ? (
               <div className="inline-flex items-center gap-1.5 bg-accent text-primary border border-primary/20 rounded-lg px-3 py-1.5 text-xs font-medium">
                 <Crown className="w-3.5 h-3.5 fill-current" />
-                <span className="hidden sm:inline">Tài khoản VIP Tuyển dụng</span>
+                <span className="hidden sm:inline">Tài khoản VIP Tuyển nhân sự</span>
                 <span className="sm:hidden">VIP</span>
               </div>
             ) : (
@@ -212,7 +212,7 @@ export default function OrgLayout({
                 className="inline-flex items-center gap-1.5 bg-accent text-primary border border-primary/20 hover:bg-primary hover:text-primary-foreground rounded-lg px-3 py-1.5 text-xs font-medium transition-colors"
               >
                 <Crown className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Lên VIP Tuyển dụng</span>
+                <span className="hidden sm:inline">Lên VIP Tuyển nhân sự</span>
                 <span className="sm:hidden">Lên VIP</span>
               </button>
             )}

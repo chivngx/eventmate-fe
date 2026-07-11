@@ -97,7 +97,7 @@ export default function AccountSettings() {
                 <CardHeader className="pb-4">
                   <CardTitle className="text-lg font-semibold text-foreground">Hồ sơ cá nhân</CardTitle>
                   <CardDescription className="text-sm text-muted-foreground">
-                    Thông tin này dùng để hiển thị trên CV ứng tuyển của bạn.
+                    Thông tin này dùng để hiển thị trên CV đăng ký của bạn.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-5">

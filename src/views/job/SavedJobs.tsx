@@ -41,7 +41,7 @@ export default function SavedJobs() {
         .order("created_at", { ascending: false })
 
       if (error) {
-        console.error("🚨 Lỗi truy vấn việc làm đã lưu:", error)
+        console.error("🚨 Lỗi truy vấn sự kiện đã lưu:", error)
       } else if (data) {
         setBookmarks(data)
       }
@@ -75,14 +75,14 @@ export default function SavedJobs() {
             <div className="min-w-0">
               <h1 className="flex items-center gap-2 text-xl font-bold text-foreground sm:text-2xl">
                 <Bookmark className="h-5 w-5 text-primary sm:h-6 sm:w-6" />
-                Việc làm đã lưu
+                Sự kiện đã lưu
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                Xem và quản lý các cơ hội việc làm sự kiện bạn đã lưu để ứng tuyển sau.
+                Xem và quản lý các cơ hội sự kiện bạn đã lưu để đăng ký sau.
               </p>
             </div>
             <Badge className="shrink-0 bg-muted text-foreground hover:bg-muted px-3 py-1.5 text-xs font-semibold">
-              {bookmarks.length} việc làm
+              {bookmarks.length} sự kiện
             </Badge>
           </div>
         </header>
@@ -93,9 +93,9 @@ export default function SavedJobs() {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-muted">
               <Bookmark className="h-8 w-8 text-muted-foreground" />
             </div>
-            <h2 className="text-lg font-semibold text-foreground">Bạn chưa lưu việc làm nào</h2>
+            <h2 className="text-lg font-semibold text-foreground">Bạn chưa lưu sự kiện nào</h2>
             <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
-              Hãy lướt xem các sự kiện tuyển dụng và lưu lại những vị trí bạn yêu thích.
+              Hãy lướt xem các sự kiện tuyển nhân sự và lưu lại những vị trí bạn yêu thích.
             </p>
             <Button
               onClick={() => navigate("/")}
@@ -192,8 +192,8 @@ export default function SavedJobs() {
                         handleRemoveBookmark(b.id)
                       }}
                       variant="outline"
-                      aria-label="Bỏ lưu việc làm này"
-                      title="Bỏ lưu việc làm này"
+                      aria-label="Bỏ lưu sự kiện này"
+                      title="Bỏ lưu sự kiện này"
                       className="h-9 rounded-lg border-border text-muted-foreground hover:border-destructive/30 hover:bg-destructive/10 hover:text-destructive"
                     >
                       <Trash2 className="h-4 w-4" />

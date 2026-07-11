@@ -33,9 +33,9 @@ export default function OrgEventsTab({
  <Calendar className="w-8 h-8" />
  </div>
  <div className="space-y-1">
- <h3 className="text-lg font-black text-slate-800">Chưa có tin tuyển dụng</h3>
+ <h3 className="text-lg font-black text-slate-800">Chưa có sự kiện</h3>
  <p className="text-slate-500 text-xs font-semibold">
- Bắt đầu tạo bài tuyển dụng tình nguyện viên đầu tiên để tiếp cận hàng ngàn sinh viên tài năng tại Đà Nẵng!
+ Bắt đầu tạo bài tuyển nhân sự tình nguyện viên đầu tiên để tiếp cận hàng ngàn sinh viên tài năng tại Đà Nẵng!
  </p>
  </div>
  <p className="text-xs text-slate-400 font-bold">Hãy nhấp vào nút"Tạo chiến dịch mới" để tiếp tục.</p>
@@ -75,7 +75,7 @@ export default function OrgEventsTab({
  : 'bg-slate-100 text-slate-600'
  }`}
  >
- {job.status === 'upcoming' ? 'Đang mở tuyển' : 'Đã đóng'}
+ {job.status === 'upcoming' ? 'Đang mở đăng ký' : 'Đã đóng'}
  </Badge>
 
  {candidateCount > 0 && (
@@ -98,7 +98,7 @@ export default function OrgEventsTab({
  </span>
  <span className="flex items-center gap-2 truncate col-span-2 text-destructive">
  <Clock className="w-4 h-4 text-destructive shrink-0" />
- Hạn ứng tuyển: {job.application_deadline ? new Date(job.application_deadline).toLocaleDateString('vi-VN') : 'Không giới hạn'}
+ Hạn đăng ký: {job.application_deadline ? new Date(job.application_deadline).toLocaleDateString('vi-VN') : 'Không giới hạn'}
  </span>
  </div>
 
@@ -120,7 +120,7 @@ export default function OrgEventsTab({
  className="rounded-xl bg-accent hover:bg-emerald-100/80 text-primary font-black text-xs h-10 px-4 flex items-center gap-1.5 shadow-sm active:scale-98 transition-all border border-emerald-250/20"
  >
  <Users className="w-4 h-4" />
- Xem hồ sơ ứng viên
+ Xem hồ sơ người tham gia
  </Button>
 
  <div className="flex items-center gap-1.5">

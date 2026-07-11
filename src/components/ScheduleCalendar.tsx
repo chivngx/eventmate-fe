@@ -51,7 +51,7 @@ interface ScheduleCalendarProps {
 export default function ScheduleCalendar({ applications, interviews = [] }: ScheduleCalendarProps) {
  const [currentDate, setCurrentDate] = useState(new Date())
 
- // Lấy các đơn ứng tuyển đã được duyệt
+ // Lấy các đơn đăng ký đã được duyệt
  const approvedApps = applications.filter((app) => app.status ==="approved" && app.events?.event_date)
 
  // Nhóm các sự kiện và lịch phỏng vấn theo ngày (format: YYYY-MM-DD)
@@ -60,7 +60,7 @@ export default function ScheduleCalendar({ applications, interviews = [] }: Sche
  let entry: CalendarEntry
 
  if ("events" in item &&"applied_at" in item) {
- // Đơn ứng tuyển (Sự kiện)
+ // Đơn đăng ký (Sự kiện)
  const app = item as ApplicationData
  dateStr = new Date(app.events.event_date).toISOString().split("T")[0]
  entry = {

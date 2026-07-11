@@ -41,7 +41,7 @@ export default function OrgEventApplicationsDetail({
  </Button>
  <div className="min-w-0">
  <h2 className="text-xl font-black text-slate-900 truncate">
- Ứng viên của sự kiện
+ Người tham gia của sự kiện
  </h2>
  </div>
  </div>
@@ -57,7 +57,7 @@ export default function OrgEventApplicationsDetail({
  {event.position_type ||"Vị trí tuyển"}
  </Badge>
  {event.status === 'upcoming' ? (
- <Badge className="bg-blue-600 hover:bg-blue-600 border-none font-bold text-xs uppercase tracking-wider px-2 py-0.5">Đang mở tuyển</Badge>
+ <Badge className="bg-blue-600 hover:bg-blue-600 border-none font-bold text-xs uppercase tracking-wider px-2 py-0.5">Đang mở đăng ký</Badge>
  ) : (
  <Badge className="bg-slate-700 hover:bg-slate-700 border-none font-bold text-xs uppercase tracking-wider px-2 py-0.5">Đã hoàn thành</Badge>
  )}
@@ -88,28 +88,28 @@ export default function OrgEventApplicationsDetail({
  </div>
  </div>
 
- {/* Danh sách Ứng viên */}
+ {/* Danh sách Người tham gia */}
  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
  <div className="p-6 sm:p-8 border-b border-slate-100">
  <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
- 📩 Đơn ứng tuyển đã nhận ({applications.length})
+ 📩 Đơn đăng ký đã nhận ({applications.length})
  </h3>
  </div>
 
  <div className="p-6 sm:p-8">
  {loadingApps ? (
- <div className="text-center py-12 text-slate-500 font-medium">Đang tải hồ sơ ứng viên...</div>
+ <div className="text-center py-12 text-slate-500 font-medium">Đang tải hồ sơ người tham gia...</div>
  ) : applications.length === 0 ? (
  <div className="text-center py-16 border-2 border-dashed border-slate-100 rounded-2xl">
  <Users className="w-12 h-12 text-slate-300 mx-auto mb-4" />
- <h3 className="text-lg font-bold text-slate-700">Chưa có ứng viên nộp đơn</h3>
- <p className="text-slate-500 font-medium mt-1">Hồ sơ ứng tuyển của sinh viên vào sự kiện này sẽ xuất hiện tại đây.</p>
+ <h3 className="text-lg font-bold text-slate-700">Chưa có người tham gia đăng ký</h3>
+ <p className="text-slate-500 font-medium mt-1">Hồ sơ đăng ký của sinh viên vào sự kiện này sẽ xuất hiện tại đây.</p>
  </div>
  ) : (
  <div className="grid grid-cols-1 gap-4">
  {applications.map((app) => {
  const student = app.profiles
- const displayName = student?.full_name ||"Ứng viên ẩn danh"
+ const displayName = student?.full_name ||"Người tham gia ẩn danh"
 
  let statusBadge = null
  if (app.status === 'pending') {

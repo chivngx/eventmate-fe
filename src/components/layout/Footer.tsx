@@ -14,8 +14,8 @@ export default function Footer() {
  Event<span className="text-primary">Mate</span>
  </Link>
  <p className="text-sm leading-relaxed text-slate-500 max-w-md">
- Nền tảng kết nối sinh viên với cơ hội việc làm sự kiện và ban tổ chức tại Đà Nẵng.
- Tìm việc linh hoạt, quản lý nhân sự hiệu quả.
+ Nền tảng kết nối sinh viên với cơ hội sự kiện và ban tổ chức tại Đà Nẵng.
+ Tìm sự kiện linh hoạt, quản lý nhân sự hiệu quả.
  </p>
  <div className="flex items-center gap-2 pt-2">
  <a
@@ -54,10 +54,10 @@ export default function Footer() {
  Dành cho sinh viên
  </h3>
  <ul className="space-y-2.5 text-sm">
- <li><Link href="/" className="text-slate-500 hover:text-primary transition-colors">Tìm việc sự kiện</Link></li>
- <li><Link href="/my-jobs" className="text-slate-500 hover:text-primary transition-colors">Việc đã ứng tuyển</Link></li>
+ <li><Link href="/" className="text-slate-500 hover:text-primary transition-colors">Tìm sự kiện</Link></li>
+ <li><Link href="/my-jobs" className="text-slate-500 hover:text-primary transition-colors">Việc đã đăng ký</Link></li>
  <li><Link href="/saved" className="text-slate-500 hover:text-primary transition-colors">Việc đã lưu</Link></li>
- <li><Link href="/cv" className="text-slate-500 hover:text-primary transition-colors">Hồ sơ CV</Link></li>
+ <li><Link href="/cv" className="text-slate-500 hover:text-primary transition-colors">Hồ sơ năng lực</Link></li>
  </ul>
  </div>
 

@@ -52,7 +52,7 @@ export default function MyJobs() {
         .order("applied_at", { ascending: false })
 
       if (error) {
-        console.error("🚨 Lỗi truy vấn đơn ứng tuyển:", error)
+        console.error("🚨 Lỗi truy vấn đơn đăng ký:", error)
         showToast({ title: "Lỗi kết nối Database", message: getUserFacingMessage(error, "Đã xảy ra lỗi kết nối. Vui lòng thử lại."), type: "error" })
       } else if (data) {
         setApplications(data)
@@ -85,7 +85,7 @@ export default function MyJobs() {
   }, [profile])
 
   const handleWithdraw = async (appId: string) => {
-    const isConfirmed = window.confirm("Bạn có chắc chắn muốn rút đơn ứng tuyển sự kiện này không?\nHành động này không thể hoàn tác.")
+    const isConfirmed = window.confirm("Bạn có chắc chắn muốn rút đơn đăng ký sự kiện này không?\nHành động này không thể hoàn tác.")
     if (!isConfirmed) return
 
     const { error } = await supabase
@@ -94,10 +94,10 @@ export default function MyJobs() {
       .eq("id", appId)
 
     if (!error) {
-      showToast({ title: "Thành công", message: "Đã rút đơn ứng tuyển thành công.", type: "success" })
+      showToast({ title: "Thành công", message: "Đã rút đơn đăng ký thành công.", type: "success" })
       setApplications(prev => prev.filter(app => app.id !== appId))
     } else {
-      showToast({ title: "Lỗi khi hủy ứng tuyển", message: getUserFacingMessage(error, "Không thể hủy ứng tuyển. Vui lòng thử lại."), type: "error" })
+      showToast({ title: "Lỗi khi hủy đăng ký", message: getUserFacingMessage(error, "Không thể hủy đăng ký. Vui lòng thử lại."), type: "error" })
     }
   }
 
@@ -124,10 +124,10 @@ export default function MyJobs() {
             <div className="min-w-0">
               <h1 className="flex items-center gap-2 text-xl font-bold text-foreground sm:text-2xl">
                 <Briefcase className="h-5 w-5 text-primary sm:h-6 sm:w-6" />
-                Việc làm đã nộp
+                Sự kiện đã nộp
               </h1>
               <p className="mt-1 text-sm text-muted-foreground">
-                Theo dõi trạng thái các đơn ứng tuyển và sự kiện bạn đã tham gia.
+                Theo dõi trạng thái các đơn đăng ký và sự kiện bạn đã tham gia.
               </p>
             </div>
             <Badge className="shrink-0 bg-muted text-foreground hover:bg-muted px-3 py-1.5 text-xs font-semibold">
@@ -142,7 +142,7 @@ export default function MyJobs() {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-xl bg-muted">
               <Briefcase className="h-8 w-8 text-muted-foreground" />
             </div>
-            <h2 className="text-lg font-semibold text-foreground">Bạn chưa ứng tuyển sự kiện nào</h2>
+            <h2 className="text-lg font-semibold text-foreground">Bạn chưa đăng ký sự kiện nào</h2>
             <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
               Hàng ngàn cơ hội đang chờ đón bạn ngoài kia. Hãy bắt đầu khám phá ngay!
             </p>
@@ -150,7 +150,7 @@ export default function MyJobs() {
               onClick={() => navigate("/")}
               className="mt-6 h-10 rounded-lg bg-primary px-6 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
             >
-              Tìm việc ngay
+              Tìm sự kiện ngay
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
@@ -297,11 +297,11 @@ export default function MyJobs() {
                             handleWithdraw(app.id)
                           }}
                           variant="outline"
-                          title="Hủy ứng tuyển sự kiện này"
+                          title="Hủy đăng ký sự kiện này"
                           className="h-8 rounded-lg border-destructive/20 px-2.5 text-xs font-medium text-destructive hover:bg-destructive/10"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
-                          <span className="hidden sm:inline">Hủy đơn</span>
+                          <span className="hidden sm:inline">Hủy đăng ký</span>
                         </Button>
                       )}
                     </div>

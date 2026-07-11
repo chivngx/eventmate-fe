@@ -77,7 +77,7 @@ export default function OnboardingOverlay() {
  Chào mừng bạn đến với <span className="text-primary font-bold">EventMate</span>
  </>
  ),
- subtitle:"Nền tảng kết nối nhân sự và cơ hội việc làm sự kiện hàng đầu dành cho sinh viên và ban tổ chức.",
+ subtitle:"Nền tảng kết nối nhân sự và cơ hội sự kiện hàng đầu dành cho sinh viên và ban tổ chức.",
  illustration: (
  <div className="relative w-48 h-48 mx-auto flex items-center justify-center">
  {/* Decorative glowing circles */}
@@ -130,8 +130,8 @@ export default function OnboardingOverlay() {
  illustration: (
  <div className="grid grid-cols-3 gap-3 max-w-sm mx-auto">
  {[
- { icon: Briefcase, color:"bg-accent text-primary", title:"Việc làm sự kiện", desc:"Hàng trăm công việc" },
- { icon: FileText, color:"bg-accent text-primary", title:"Hồ sơ CV số", desc:"Showcase năng lực" },
+ { icon: Briefcase, color:"bg-accent text-primary", title:"Sự kiện", desc:"Hàng trăm công việc" },
+ { icon: FileText, color:"bg-accent text-primary", title:"Hồ sơ năng lực số", desc:"Showcase năng lực" },
  { icon: MessageSquare, color:"bg-teal-50 text-teal-600", title:"Chat trực tiếp", desc:"Kết nối tức thì" },
  ].map((item, idx) => (
  <motion.div
@@ -167,7 +167,7 @@ export default function OnboardingOverlay() {
  </div>
  <div>
  <h4 className="text-xs font-bold text-slate-800">Nhận chứng chỉ làm việc</h4>
- <p className="text-xs text-slate-500 mt-0.5">Sau mỗi sự kiện hoàn thành tốt, bạn sẽ nhận được chứng nhận online lưu vào hồ sơ CV.</p>
+ <p className="text-xs text-slate-500 mt-0.5">Sau mỗi sự kiện hoàn thành tốt, bạn sẽ nhận được chứng nhận online lưu vào hồ sơ năng lực.</p>
  </div>
  </div>
  </div>
@@ -176,7 +176,7 @@ export default function OnboardingOverlay() {
  // Slide 2: For Organizers
  {
  title:"Dành Cho Nhà Tuyển Dụng",
- subtitle:"Giải pháp quản lý, tuyển dụng và phân bổ nhân sự sự kiện thông minh.",
+ subtitle:"Giải pháp quản lý, tuyển nhân sự và phân bổ nhân sự sự kiện thông minh.",
  illustration: (
  <div className="grid grid-cols-3 gap-3 max-w-sm mx-auto">
  {[
@@ -208,7 +208,7 @@ export default function OnboardingOverlay() {
  </div>
  <div>
  <h4 className="text-xs font-bold text-slate-800">Đăng tin nhanh chóng</h4>
- <p className="text-xs text-slate-500 mt-0.5">Tạo chiến dịch tuyển dụng, chia nhỏ vị trí công việc, và tiếp nhận hồ sơ ngay lập tức.</p>
+ <p className="text-xs text-slate-500 mt-0.5">Tạo chiến dịch tuyển nhân sự, chia nhỏ vị trí công việc, và tiếp nhận hồ sơ ngay lập tức.</p>
  </div>
  </div>
  <div className="flex gap-3 items-start bg-slate-50 p-3 rounded-2xl border border-slate-200">
@@ -246,7 +246,7 @@ export default function OnboardingOverlay() {
  }`}>
  <GraduationCap className="w-8 h-8" />
  </div>
- <span className="text-sm font-bold text-slate-800">Tìm việc làm</span>
+ <span className="text-sm font-bold text-slate-800">Tìm sự kiện</span>
  <span className="text-xs text-slate-500 mt-1">Sinh viên / Freelancer muốn tìm kiếm cơ hội</span>
  </button>
 
@@ -266,7 +266,7 @@ export default function OnboardingOverlay() {
  <Building2 className="w-8 h-8" />
  </div>
  <span className="text-sm font-bold text-slate-800">Tuyển nhân sự</span>
- <span className="text-xs text-slate-500 mt-1">BTC / Doanh nghiệp có nhu cầu đăng tuyển</span>
+ <span className="text-xs text-slate-500 mt-1">BTC / Doanh nghiệp có nhu cầu tuyển nhân sự</span>
  </button>
  </div>
  

@@ -189,7 +189,7 @@ export function useOrgDashboard() {
   }
 
   const handleDeleteEvent = async (id: string) => {
-    const isConfirmed = window.confirm("🚨 BẠN CÓ CHẮC CHẮN MUỐN XÓA SỰ KIỆN NÀY?\nToàn bộ đơn ứng tuyển của sinh viên cũng sẽ bị xóa vĩnh viễn!")
+    const isConfirmed = window.confirm("🚨 BẠN CÓ CHẮC CHẮN MUỐN XÓA SỰ KIỆN NÀY?\nToàn bộ đơn đăng ký của sinh viên cũng sẽ bị xóa vĩnh viễn!")
     if (!isConfirmed) return
 
     const { error } = await supabase.from("events").delete().eq("id", id)

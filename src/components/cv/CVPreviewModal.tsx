@@ -73,7 +73,7 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  {/* THANH ĐIỀU KHIỂN TRÊN - ẨN KHI IN */}
  <div className="flex items-center justify-between p-4 bg-white border-b border-slate-200 shrink-0 print:hidden">
  <div className="flex items-center gap-3">
- <h3 className="font-black text-slate-800 text-lg">Mẫu CV Cá Nhân</h3>
+ <h3 className="font-black text-slate-800 text-lg">Mẫu hồ sơ Cá Nhân</h3>
  {/* Bộ chọn Accent Color */}
  <div className="flex items-center gap-1.5 ml-4 bg-slate-100 p-1 rounded-full">
  <button
@@ -137,7 +137,7 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  </Avatar>
  <div className="text-center md:text-left flex-1 space-y-1.5">
  <h1 className="text-3xl font-black text-slate-900 tracking-tight">{profile.full_name}</h1>
- <p className={`text-sm font-black uppercase tracking-widest ${classes.text}`}>Ứng viên năng động</p>
+ <p className={`text-sm font-black uppercase tracking-widest ${classes.text}`}>Người tham gia năng động</p>
  <div className="flex flex-wrap justify-center md:justify-start gap-x-4 gap-y-1.5 text-xs font-bold text-slate-500 pt-2">
  <span className="flex items-center gap-1">
  <Mail className="w-3.5 h-3.5" /> {profile.email}
@@ -215,7 +215,7 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  <User className="w-4 h-4" /> Giới thiệu bản thân
  </h3>
  <p className="text-sm font-medium text-slate-600 leading-relaxed whitespace-pre-line">
- {profile.bio ||"Chưa cập nhật thông tin giới thiệu bản thân. Hãy cập nhật để nhà tuyển dụng hiểu rõ hơn về bạn."}
+ {profile.bio ||"Chưa cập nhật thông tin giới thiệu bản thân. Hãy cập nhật để nhà tuyển nhân sự hiểu rõ hơn về bạn."}
  </p>
  </div>
 

@@ -90,7 +90,7 @@ export function useStudentDashboard() {
       }
     }
 
-    // [MỚI] BỘ QUÉT DỮ LIỆU ĐỘNG: Lấy ra danh sách các ward_id, category, benefits của bài tuyển dụng đang mở cổng (upcoming) và còn hiệu lực
+    // [MỚI] BỘ QUÉT DỮ LIỆU ĐỘNG: Lấy ra danh sách các ward_id, category, benefits của bài tuyển nhân sự đang mở cổng (upcoming) và còn hiệu lực
     const { data: activeEventsQuery } = await supabase
       .from("events")
       .select("ward_id, category, benefits, application_deadline")
@@ -189,7 +189,7 @@ export function useStudentDashboard() {
       const isPastDeadline = targetEvent.application_deadline ? new Date() > new Date(targetEvent.application_deadline) : false;
       const isClosed = targetEvent.status !== 'upcoming';
       if (isPastDeadline || isClosed) {
-        alert(isPastDeadline ? "🚨 Rất tiếc, chiến dịch tuyển dụng này đã quá hạn nhận hồ sơ ứng tuyển!" : "🚨 Ban tổ chức sự kiện này đã đóng cổng nhận hồ sơ ứng tuyển!")
+        alert(isPastDeadline ? "🚨 Rất tiếc, chiến dịch tuyển nhân sự này đã quá hạn nhận đăng ký!" : "🚨 Ban tổ chức sự kiện này đã đóng cổng đăng ký!")
         setApplyingId(null)
         return
       }
@@ -202,7 +202,7 @@ export function useStudentDashboard() {
     if (!appError) {
       setMyApplications(prev => ({ ...prev, [eventId]: 'pending' }))
     } else {
-      alert(getUserFacingMessage(appError, "Không thể ứng tuyển. Vui lòng thử lại."))
+      alert(getUserFacingMessage(appError, "Không thể đăng ký. Vui lòng thử lại."))
     }
     setApplyingId(null)
   }
@@ -265,7 +265,7 @@ export function useStudentDashboard() {
     benefitTerm,
     setBenefitTerm,
     wards,
-    activeWards, // Trả ra mảng các xã phường đang có bài tuyển dụng thực tế
+    activeWards, // Trả ra mảng các xã phường đang có bài tuyển nhân sự thực tế
     activeCategories,
     activeBenefits,
     wardIdTerm,
