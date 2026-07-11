@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
+import { getUserFacingMessage } from "@/lib/error"
 
 export function useAccountSettings() {
     // State quản lý hệ thống
@@ -70,7 +71,7 @@ export function useAccountSettings() {
 
         setUpdating(false)
         if (error) {
-            setMessage({ type: "error", text: "Cập nhật thất bại: " + error.message })
+            setMessage({ type: "error", text: getUserFacingMessage(error, "Cập nhật thất bại. Vui lòng thử lại.") })
         } else {
             setMessage({ type: "success", text: "Đã cập nhật thông tin cá nhân thành công!" })
         }
@@ -93,7 +94,7 @@ export function useAccountSettings() {
 
         setUpdating(false)
         if (error) {
-            setMessage({ type: "error", text: "Đổi mật khẩu thất bại: " + error.message })
+            setMessage({ type: "error", text: getUserFacingMessage(error, "Đổi mật khẩu thất bại. Vui lòng thử lại.") })
         } else {
             setMessage({ type: "success", text: "Đã cập nhật mật khẩu mới thành công!" })
             setCurrentPassword("")
@@ -142,7 +143,7 @@ export function useAccountSettings() {
                 localStorage.setItem("em_user_profile", JSON.stringify(parsed))
             }
         } catch (error: any) {
-            setMessage({ type: "error", text: "Tải ảnh lên thất bại: " + error.message })
+            setMessage({ type: "error", text: getUserFacingMessage(error, "Tải ảnh lên thất bại. Vui lòng thử lại.") })
         } finally {
             setUploadingAvatar(false)
         }

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
+import { getUserFacingMessage } from "@/lib/error"
 import {
     LayoutDashboard,
     Building2,
@@ -91,7 +92,7 @@ export default function AdminDashboard() {
             showToast({ title: "Thành công", message: "Đã gỡ bài đăng tuyển dụng thành công.", type: "success" })
             fetchAdminData()
         } else {
-            showToast({ title: "Lỗi gỡ bài", message: error.message, type: "error" })
+            showToast({ title: "Lỗi gỡ bài", message: getUserFacingMessage(error, "Không thể gỡ bài. Vui lòng thử lại."), type: "error" })
         }
     }
 
@@ -132,7 +133,7 @@ export default function AdminDashboard() {
                         </span>
                     )}
 
-                    <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="hidden lg:flex p-1.5 rounded-lg hover:bg-slate-800 text-slate-400">
+                    <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} aria-label="Thu gọn hoặc mở rộng thanh bên" className="hidden lg:flex p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40">
                         <ChevronLeft className={`w-4 h-4 transition-transform duration-300 ${!isSidebarOpen ? "rotate-180" : ""}`} />
                     </button>
                 </div>
@@ -188,7 +189,7 @@ export default function AdminDashboard() {
             <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
                 <header className="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 h-16 px-6 flex items-center justify-between shrink-0 z-20">
                     <div className="flex items-center gap-3">
-                        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 rounded-lg hover:bg-slate-100 text-slate-500 lg:hidden">
+                        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} aria-label="Mở menu" className="p-2 rounded-lg hover:bg-slate-100 text-slate-500 lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40">
                             <Menu className="w-5 h-5" />
                         </button>
                         <h2 className="text-lg font-black text-slate-900 dark:text-slate-100">

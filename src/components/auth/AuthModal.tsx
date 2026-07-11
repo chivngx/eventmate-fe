@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { supabase } from "@/lib/supabase"
+import { getUserFacingMessage } from "@/lib/error"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { X } from "lucide-react"
 import {
@@ -70,7 +71,8 @@ function LoginForm({
     })
 
     if (signInError) {
-      setError("Email hoặc mật khẩu không chính xác.")
+      // SECURITY: don't surface raw Supabase auth error text (can leak internals).
+      setError(getUserFacingMessage(signInError, "Email hoặc mật khẩu không chính xác."))
       setLoading(false)
     } else if (data.user) {
       if (window.location.pathname === "/login" || window.location.pathname === "/register") {
@@ -91,7 +93,7 @@ function LoginForm({
       },
     })
     if (oAuthError) {
-      setError(oAuthError.message)
+      setError(getUserFacingMessage(oAuthError, "Không thể kết nối với Google. Vui lòng thử lại."))
     }
   }
 
@@ -246,7 +248,7 @@ function StudentRegisterForm({
     })
 
     if (signUpError) {
-      setError(signUpError.message)
+      setError(getUserFacingMessage(signUpError, "Đăng ký không thành công. Vui lòng thử lại."))
     } else if (data.user) {
       setSuccess("Đăng ký thành công! Hãy kiểm tra email để xác thực.")
     }
@@ -375,7 +377,7 @@ function OrgRegisterForm({
     })
 
     if (signUpError) {
-      setError(signUpError.message)
+      setError(getUserFacingMessage(signUpError, "Đăng ký không thành công. Vui lòng thử lại."))
     } else if (data.user) {
       setSuccess("Đăng ký thành công! Hãy kiểm tra email để xác thực.")
     }
@@ -470,7 +472,8 @@ export default function AuthModal({ isOpen, initialMode = "login", onClose }: Au
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors"
+          aria-label="Đóng form đăng nhập"
+          className="absolute top-5 right-5 p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
         >
           <X className="w-5 h-5" />
         </button>

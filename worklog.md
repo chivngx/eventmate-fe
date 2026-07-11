@@ -95,3 +95,89 @@ Stage Summary:
 - App Next.js 16 đã kết nối thành công với backend Supabase thật.
 - Tất cả luồng đọc dữ liệu hoạt động: danang_wards (dropdown + QuickFilters), events (event cards + detail page với UUID→slug redirect), profiles (companies list).
 - Toàn bộ migration Vite→Next.js + kết nối backend thật HOÀN TẤT và ĐÃ VERIFY end-to-end qua Agent Browser.
+
+---
+Task ID: 5b-error-sanitize
+Agent: general-purpose (Sentinel)
+Task: Sanitize user-facing error messages to prevent Supabase internals leakage
+
+Work Log:
+- Read worklog.md (prior migration context), .standards/Security.md, src/lib/error.ts helper, and AuthModal.tsx reference pattern.
+- Edited 12 files, converting 19 user-facing error leak sites to use `getUserFacingMessage(error, "<Vietnamese fallback>")` from @/lib/error:
+  + src/pages/cv/CVProfile.tsx — 1 site (alert "Lỗi khi lưu CV")
+  + src/pages/job/SavedJobs.tsx — 1 site (alert "Lỗi khi bỏ lưu")
+  + src/pages/job/MyJobs.tsx — 2 sites (showToast DB error + withdraw error)
+  + src/pages/event/EventDetail.tsx — 3 sites (apply + bookmark add/remove showToast)
+  + src/pages/dashboard/useOrgDashboard.ts — 4 sites (update/insert/delete/status-change alerts)
+  + src/pages/dashboard/useStudentDashboard.ts — 1 site (apply alert, appError var)
+  + src/pages/dashboard/AdminDashboard.tsx — 1 site (delete-event showToast)
+  + src/pages/dashboard/OrgDashboard.tsx — 2 sites (profile update + password change showToast)
+  + src/pages/settings/useAccountSettings.ts — 3 sites (profile/password/avatar setMessage)
+  + src/components/ReviewModal.tsx — 1 site (review submit alert)
+  + src/pages/chat/Chat.tsx — 2 sites (console.error fetchChats + sendMessage: passed whole error object instead of error.message)
+  + src/components/chat/FloatingChat.tsx — 1 site (console.error send error: passed whole error object instead of error.message)
+- Added `import { getUserFacingMessage } from "@/lib/error"` to 10 files (after the supabase import, keeping order). Chat.tsx and FloatingChat.tsx needed no import (console.error-only changes).
+
+Stage Summary:
+- Lint status: `bun run lint` → 0 errors, 1 pre-existing warning in src/lib/error.ts (unused eslint-disable for no-console — not introduced by this task, helper authored by prior agent).
+- TypeScript: `bunx tsc --noEmit` shows no new errors in edited files. Pre-existing errors in .next/dev/types/validator.ts (hook files lacking `default` export — structural, unrelated to this task), examples/ and skills/ (ignored by eslint config), and src/lib/router.tsx (pre-existing) are unchanged.
+- Verification grep: `grep -rn "error\.message\|appError\.message" src/ | grep -v "console.error\|getUserFacingMessage\|// "` → 0 matches (exit 1). All targeted error.message leaks eliminated.
+- Remaining console.error lines referencing `.message` in src/: 2 (Chat.tsx:331 and 367, both using `err.message` variable — out of task scope; companion user-facing alerts on Chat.tsx:332, 368 with `err.message` were NOT in the explicit task site list and were left untouched per "DO NOT change any other logic" instruction; recommend follow-up task to sanitize these and `createError?.message` at useOrgDashboard.ts:294 and `err.message` showToast leaks at OrgDashboard.tsx:183,232,267).
+- Net effect: all 19 listed user-facing error.message leaks now route through getUserFacingMessage, which logs raw error to console.error (developer diagnostics preserved) and shows friendly Vietnamese fallback or mapped Supabase code messages (23505/23503/42501/PGRST116) to users. No Supabase internals (table names, RLS hints, constraint names, stack fragments) can reach end users via the targeted surfaces.
+
+---
+Task ID: 7b-aria-feature
+Agent: general-purpose (Palette)
+Task: Add ARIA labels + focus-visible rings to icon-only buttons across feature components
+
+Work Log:
+- Read worklog.md and .standards/Design.md to align with the EventCard.tsx bookmark pattern (aria-label + aria-pressed for toggles + focus-visible:ring-2 ring-emerald-500/40).
+- Scanned all 16 target files; identified 24 icon-only buttons across 11 files needing labels.
+- Edited 11 files (OrgEventApplicationsDetail / OrgDashboard / EventDetail / MyJobs / SavedJobs skipped — no pure icon-only buttons; all their buttons have visible text alongside icons):
+  + src/components/cv/CVPreviewModal.tsx — 4 buttons (3 accent color picker toggles with title "Xanh lá/Xanh dương/Tím hồng" → aria-label + aria-pressed; X close → "Đóng").
+  + src/components/cv/CVViewModal.tsx — 1 close button ("Đóng").
+  + src/components/event/EventFormModal.tsx — 1 close button ("Đóng").
+  + src/components/event/OrgEventsTab.tsx — 2 buttons (Edit2 → "Chỉnh sửa", Trash2 → "Xóa").
+  + src/components/chat/FloatingChat.tsx — 4 buttons (ArrowLeft back → "Quay lại", X close → "Đóng", Send submit → "Gửi tin nhắn", MessageCircle bubble toggle with title "Trò chuyện" → aria-label + aria-pressed).
+  + src/components/ReviewModal.tsx — 6 buttons (X close → "Đóng"; 5 Star rating buttons → `Đánh giá N sao` + aria-pressed).
+  + src/components/ScheduleCalendar.tsx — 2 buttons (ChevronLeft → "Tháng trước", ChevronRight → "Tháng sau").
+  + src/components/CertificateModal.tsx — 1 close button ("Đóng").
+  + src/pages/chat/Chat.tsx — 2 buttons (mobile ArrowLeft back → "Quay lại", Send submit → "Gửi tin nhắn").
+  + src/pages/dashboard/AdminDashboard.tsx — 2 buttons (ChevronLeft sidebar toggle → "Thu gọn hoặc mở rộng thanh bên", Menu mobile toggle → "Mở menu").
+  + src/pages/company/CompanyDetail.tsx — 3 buttons (2 Bookmark toggles in About+Jobs tabs → "Lưu tin" + aria-pressed; Copy link → "Sao chép liên kết").
+- All edits surgical: added only `aria-label`, `aria-pressed` (where toggle), and `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40` classes to className. No onClick / styling / logic touched. Title attributes preserved where present.
+
+Stage Summary:
+- Lint status: `bun run lint` → 0 errors, 1 pre-existing warning in src/lib/error.ts (unused eslint-disable directive — not introduced by this task). No new lint problems.
+- aria-label file count: 6 → 17 files in src/components + src/pages (11 new files contain aria-label, exceeding prior baseline).
+- Total icon-only buttons labeled: 24 across 11 files; 8 toggle buttons also received aria-pressed.
+- Did NOT touch the explicitly excluded files (MainLayout, notch-navbar, OrgLayout, AuthModal, OnboardingOverlay, EventCard) — verified via grep that those still have their own aria-labels from prior agent.
+- Skipped OrgEventApplicationsDetail / OrgDashboard / EventDetail / MyJobs / SavedJobs because every actionable button in those files pairs a lucide icon with visible Vietnamese text (e.g. "Duyệt", "Từ chối", "Hủy", "Bỏ lưu", "Lưu tin"), so the text already labels them per the task rule.
+
+---
+Task ID: 8-standards-verify
+Agent: main (Z.ai Code)
+Task: Áp dụng 3 file chuẩn (Performance/Design/Security) vào codebase, verify
+
+Work Log:
+- Lưu 3 file chuẩn vào .standards/ (Performance.md, Design.md, Security.md) làm reference cho mọi code sau này.
+- SECURITY (Sentinel):
+  + Tạo src/lib/error.ts: getUserFacingMessage(error, fallback) — log raw error ra console cho dev, trả message tiếng Việt thân thiện cho user; map code Supabase已知 (23505/23503/42501/PGRST116). escapeHtml(str) cho document.write.
+  + Fix DOM XSS CertificateModal (HIGH): escape studentName/eventTitle/position/organizerName/date trước khi document.write (trước đó organizer có thể set tên "<img src=x onerror=alert(1)>" → execute trong cửa sổ in).
+  + Sanitize error messages: 25+ sites across 14 files (AuthModal, EventDetail, MyJobs, useAccountSettings, useOrgDashboard, OrgDashboard, AdminDashboard, SavedJobs, CVProfile, ReviewModal, Chat, FloatingChat, useStudentDashboard) — thay alert(error.message)/showToast({message: error.message}) bằng getUserFacingMessage(). console.error giữ nguyên (dev log).
+  + Verify: grep "error.message|err.message|createError?.message" user-facing → 0 leak.
+- PERFORMANCE (Bolt):
+  + EventCard: React.memo wrap (tránh re-render khi parent state đổi), loading="lazy" cho avatar img, memo comment.
+  + OrgDashboard: loading="lazy" cho 3 img (CV avatar, student avatar, company images) — giảm bandwidth, faster paint.
+- DESIGN/UX (Palette):
+  + EventCard bookmark heart: aria-label động ("Lưu việc làm này"/"Bỏ lưu việc làm này"), aria-pressed, focus-visible ring.
+  + Layout: notch-navbar menu toggle (aria-label + aria-expanded + focus-visible), OrgLayout sidebar toggles (2 buttons), MainLayout chat link, OnboardingOverlay skip (X), AuthModal close (X).
+  + Feature components (subagent 7b): 24 icon-only buttons across 11 files (CVPreviewModal, CVViewModal, EventFormModal, OrgEventsTab, FloatingChat, ReviewModal, ScheduleCalendar, CertificateModal, Chat, AdminDashboard, CompanyDetail) — aria-label + aria-pressed (toggles) + focus-visible ring.
+- Fix build break: EventCard có 2 default exports (export default function + export default memo) → đổi function declaration thành named, giữ 1 export default memo. HTTP 200 restored.
+- Lint: bun run lint → 0 errors, 0 warnings (sạch hoàn toàn).
+- Agent Browser verify: home render đúng event cards thật với bookmark buttons có accessible name "Lưu việc làm này"; click bookmark (guest) → auth modal mở (có aria "Đóng form đăng nhập"), KHÔNG leak error; /jobs/[slug] detail render đầy đủ; 0 console error.
+
+Stage Summary:
+- 3 file chuẩn đã được áp dụng: Security (XSS + error sanitize triệt để), Performance (memo + lazy images), Design (ARIA labels + focus-visible cho icon-only buttons).
+- .standards/ lưu làm reference. Kể từ đây về sau, mọi code mới tuân thủ 3 chuẩn này.
+- App chạy ổn định, lint sạch, Agent Browser verify pass.

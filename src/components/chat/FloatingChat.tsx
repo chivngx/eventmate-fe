@@ -157,7 +157,7 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
     setSending(false)
 
     if (error) {
-      console.error(error.message)
+      console.error("[FloatingChat] send error:", error)
       setNewMessage(tempMsg)
     } else if (data) {
       setMessages((prev) => [...prev, data as Message])
@@ -182,7 +182,8 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
               {activeChat && (
                 <button
                   onClick={() => setActiveChat(null)}
-                  className="p-1 hover:bg-white/10 rounded-lg text-white transition-colors"
+                  aria-label="Quay lại"
+                  className="p-1 hover:bg-white/10 rounded-lg text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
                 >
                   <ArrowLeft className="w-5 h-5" />
                 </button>
@@ -213,7 +214,8 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="p-1.5 hover:bg-white/10 rounded-full transition-colors shrink-0"
+              aria-label="Đóng"
+              className="p-1.5 hover:bg-white/10 rounded-full transition-colors shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
             >
               <X className="w-5 h-5" />
             </button>
@@ -268,7 +270,8 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
                   <Button
                     type="submit"
                     disabled={sending}
-                    className="rounded-xl bg-[#00b14f] hover:bg-[#009e47] text-white h-10 w-10 shrink-0 p-0 flex items-center justify-center shadow-md shadow-[#00b14f]/15"
+                    aria-label="Gửi tin nhắn"
+                    className="rounded-xl bg-[#00b14f] hover:bg-[#009e47] text-white h-10 w-10 shrink-0 p-0 flex items-center justify-center shadow-md shadow-[#00b14f]/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
                   >
                     <Send className="w-4 h-4" />
                   </Button>
@@ -317,7 +320,9 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
       {/* Floating Messenger Circle Bubble Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-14 h-14 bg-[#00b14f] hover:bg-[#009e47] text-white rounded-full flex items-center justify-center shadow-xl shadow-[#00b14f]/25 transition-all transform hover:scale-105 active:scale-95 cursor-pointer shrink-0"
+        aria-label="Trò chuyện"
+        aria-pressed={isOpen}
+        className="w-14 h-14 bg-[#00b14f] hover:bg-[#009e47] text-white rounded-full flex items-center justify-center shadow-xl shadow-[#00b14f]/25 transition-all transform hover:scale-105 active:scale-95 cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
         title="Trò chuyện"
       >
         <MessageCircle className="w-7 h-7" />

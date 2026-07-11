@@ -29,7 +29,7 @@ export default function CVViewModal({ viewingCV, onClose }: CVViewModalProps) {
               <p className="text-sm font-medium text-slate-500 mt-0.5">{viewingCV.email}</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-800 bg-white rounded-full border border-slate-200 transition-colors">
+          <button onClick={onClose} aria-label="Đóng" className="p-2 text-slate-400 hover:text-slate-800 bg-white rounded-full border border-slate-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40">
             <X className="w-5 h-5" />
           </button>
         </div>

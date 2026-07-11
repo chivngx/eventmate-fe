@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
+import { getUserFacingMessage } from "@/lib/error"
 import MainLayout from "@/components/layout/MainLayout"
 import { Briefcase, MapPin, Building2, CheckCircle, XCircle, Clock3, ArrowRight, CalendarDays, Tag, Trash2, Award } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -59,7 +60,7 @@ export default function MyJobs() {
 
         if (error) {
             console.error("🚨 Lỗi truy vấn đơn ứng tuyển:", error)
-            showToast({ title: "Lỗi kết nối Database", message: error.message, type: "error" })
+            showToast({ title: "Lỗi kết nối Database", message: getUserFacingMessage(error, "Đã xảy ra lỗi kết nối. Vui lòng thử lại."), type: "error" })
         } else if (data) {
             setApplications(data)
         }
@@ -102,7 +103,7 @@ export default function MyJobs() {
             showToast({ title: "Thành công", message: "Đã rút đơn ứng tuyển thành công.", type: "success" })
             setApplications(prev => prev.filter(app => app.id !== appId))
         } else {
-            showToast({ title: "Lỗi khi hủy ứng tuyển", message: error.message, type: "error" })
+            showToast({ title: "Lỗi khi hủy ứng tuyển", message: getUserFacingMessage(error, "Không thể hủy ứng tuyển. Vui lòng thử lại."), type: "error" })
         }
     }
 

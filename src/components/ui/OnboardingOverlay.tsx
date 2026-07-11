@@ -306,7 +306,8 @@ export default function OnboardingOverlay() {
           {/* Skip button */}
           <button
             onClick={() => handleClose()}
-            className="absolute top-4 right-4 p-2 rounded-full text-slate-400 hover:text-slate-650 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors z-20"
+            aria-label="Bỏ qua giới thiệu"
+            className="absolute top-4 right-4 p-2 rounded-full text-slate-400 hover:text-slate-650 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors z-20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
             title="Bỏ qua giới thiệu"
           >
             <X className="w-5 h-5" />

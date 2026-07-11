@@ -1,5 +1,6 @@
 "use client"
 
+import { memo } from "react"
 import { Heart } from "lucide-react"
 import { useNavigate } from "@/lib/router"
 
@@ -11,7 +12,7 @@ interface EventCardProps {
   onNavigateToJob: (jobId: string) => void
 }
 
-export default function EventCard({
+function EventCard({
   job,
   idx,
   isBookmarked,
@@ -33,6 +34,7 @@ export default function EventCard({
             <img
               src={job.profiles.avatar_url}
               alt={job.profiles?.full_name || "Organizer"}
+              loading="lazy"
               className="object-cover w-full h-full"
             />
           ) : (
@@ -84,7 +86,9 @@ export default function EventCard({
               e.stopPropagation();
               onToggleBookmark(job.id);
             }}
-            className={`w-8 h-8 min-[1440px]:w-[26px] min-[1440px]:h-[26px] min-[1440px]:rounded-[5px] flex items-center justify-center transition-all shrink-0 active:scale-90 ${isBookmarked
+            aria-label={isBookmarked ? "Bỏ lưu việc làm này" : "Lưu việc làm này"}
+            aria-pressed={isBookmarked}
+            className={`w-8 h-8 min-[1440px]:w-[26px] min-[1440px]:h-[26px] min-[1440px]:rounded-[5px] flex items-center justify-center transition-all shrink-0 active:scale-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 ${isBookmarked
               ? "bg-rose-50 text-rose-500 hover:bg-rose-100"
               : "bg-transparent text-[#00b14f] hover:bg-slate-50"
               }`}
@@ -97,3 +101,7 @@ export default function EventCard({
     </div>
   )
 }
+
+// PERF: memoize so the card only re-renders when its own props change,
+// avoiding re-renders triggered by parent state updates (filters, search).
+export default memo(EventCard)

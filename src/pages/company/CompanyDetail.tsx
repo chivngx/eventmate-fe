@@ -380,7 +380,9 @@ export default function CompanyDetail() {
                                                     <span className="text-xs md:text-sm font-bold text-[#00b14f]">{job.benefits || "Thỏa thuận"}</span>
                                                     <button
                                                         onClick={(e) => toggleBookmark(job.id, e)}
-                                                        className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all ${bookmarkedJobs[job.id]
+                                                        aria-label="Lưu tin"
+                                                        aria-pressed={!!bookmarkedJobs[job.id]}
+                                                        className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 ${bookmarkedJobs[job.id]
                                                             ? "bg-emerald-50 border-emerald-200 text-[#00b14f]"
                                                             : "bg-white border-slate-200 text-slate-350 hover:text-[#00b14f] hover:border-emerald-200"
                                                             }`}
@@ -392,7 +394,7 @@ export default function CompanyDetail() {
                                         ))}
                                     </div>
                                 )}
-							</div>
+                                                        </div>
                         </div>
 
                         {/* Right Column ( Thông tin chung, Địa điểm, Chia sẻ ) */}
@@ -482,7 +484,8 @@ export default function CompanyDetail() {
                                             />
                                             <button
                                                 onClick={handleCopyLink}
-                                                className="p-1 text-slate-400 hover:text-[#00b14f] hover:bg-[#00b14f]/5 rounded transition-all shrink-0"
+                                                aria-label="Sao chép liên kết"
+                                                className="p-1 text-slate-400 hover:text-[#00b14f] hover:bg-[#00b14f]/5 rounded transition-all shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
                                             >
                                                 <Copy className="w-3.5 h-3.5" />
                                             </button>
@@ -599,7 +602,9 @@ export default function CompanyDetail() {
                                                     <span className="text-xs md:text-sm font-bold text-[#00b14f]">{job.benefits || "Thỏa thuận"}</span>
                                                     <button
                                                         onClick={(e) => toggleBookmark(job.id, e)}
-                                                        className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all ${bookmarkedJobs[job.id]
+                                                        aria-label="Lưu tin"
+                                                        aria-pressed={!!bookmarkedJobs[job.id]}
+                                                        className={`w-8 h-8 rounded-full border flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 ${bookmarkedJobs[job.id]
                                                             ? "bg-emerald-50 border-emerald-200 text-[#00b14f]"
                                                             : "bg-white border-slate-200 text-slate-350 hover:text-[#00b14f] hover:border-emerald-200"
                                                             }`}

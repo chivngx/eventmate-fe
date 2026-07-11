@@ -127,7 +127,8 @@ export default function OrgEventsTab({
                 <Button
                   onClick={() => onEditClick(job)}
                   variant="ghost"
-                  className="h-10 w-10 p-0 rounded-xl text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/80 border dark:border-slate-800/80"
+                  aria-label="Chỉnh sửa"
+                  className="h-10 w-10 p-0 rounded-xl text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/80 border dark:border-slate-800/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
                 >
                   <Edit2 className="w-4 h-4" />
                 </Button>
@@ -135,7 +136,8 @@ export default function OrgEventsTab({
                 <Button
                   onClick={() => onDeleteEvent(job.id)}
                   variant="ghost"
-                  className="h-10 w-10 p-0 rounded-xl text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/20 border border-transparent hover:border-rose-100 dark:hover:border-rose-900/30"
+                  aria-label="Xóa"
+                  className="h-10 w-10 p-0 rounded-xl text-rose-500 hover:text-rose-700 hover:bg-rose-50 dark:hover:bg-rose-950/20 border border-transparent hover:border-rose-100 dark:hover:border-rose-900/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>

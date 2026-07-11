@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useSearchParams, useNavigate } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
+import { getUserFacingMessage } from "@/lib/error"
 
 export function useOrgDashboard() {
     const navigate = useNavigate()
@@ -176,7 +177,7 @@ export function useOrgDashboard() {
                     resetForm()
                     fetchMyEvents()
                 } else {
-                    alert("Lỗi khi cập nhật: " + error.message)
+                    alert(getUserFacingMessage(error, "Cập nhật thất bại. Vui lòng thử lại."))
                 }
             } else {
                 const { error } = await supabase.from("events").insert([
@@ -187,7 +188,7 @@ export function useOrgDashboard() {
                     resetForm()
                     fetchMyEvents()
                 } else {
-                    alert("Lỗi: " + error.message)
+                    alert(getUserFacingMessage(error, "Đã xảy ra lỗi. Vui lòng thử lại."))
                 }
             }
         }
@@ -215,7 +216,7 @@ export function useOrgDashboard() {
 
         const { error } = await supabase.from("events").delete().eq("id", id)
         if (error) {
-            alert("Lỗi khi xóa: " + error.message)
+            alert(getUserFacingMessage(error, "Không thể xóa. Vui lòng thử lại."))
         } else {
             alert("Đã xóa sự kiện thành công.")
             fetchMyEvents()
@@ -254,7 +255,7 @@ export function useOrgDashboard() {
         if (!error) {
             setApplications((apps: any[]) => apps.map((app: any) => app.id === appId ? { ...app, status: newStatus } : app))
         } else {
-            alert("Lỗi khi cập nhật trạng thái: " + error.message)
+            alert(getUserFacingMessage(error, "Không thể cập nhật trạng thái. Vui lòng thử lại."))
         }
     }
 
@@ -290,7 +291,7 @@ export function useOrgDashboard() {
         if (!createError && newChat) {
             navigate(`/chat/${newChat.id}`)
         } else {
-            alert("Lỗi khi tạo phòng chat: " + (createError?.message || "Lỗi không xác định"))
+            alert(getUserFacingMessage(createError, "Không thể tạo phòng chat. Vui lòng thử lại."))
         }
     }
 

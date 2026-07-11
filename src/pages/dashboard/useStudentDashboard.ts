@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useNavigate, useSearchParams, useLocation } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
+import { getUserFacingMessage } from "@/lib/error"
 
 export function useStudentDashboard() {
     const navigate = useNavigate()
@@ -215,7 +216,7 @@ export function useStudentDashboard() {
         if (!appError) {
             setMyApplications(prev => ({ ...prev, [eventId]: 'pending' }))
         } else {
-            alert("Lỗi: " + appError.message)
+            alert(getUserFacingMessage(appError, "Không thể ứng tuyển. Vui lòng thử lại."))
         }
         setApplyingId(null)
     }

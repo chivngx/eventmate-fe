@@ -88,7 +88,8 @@ export default function OrgLayout({
 
                     <button
                         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                        className="hidden lg:flex p-1.5 rounded-lg hover:bg-slate-50 text-slate-500 transition-colors"
+                        aria-label={isSidebarOpen ? "Thu gọn thanh bên" : "Mở rộng thanh bên"}
+                        className="hidden lg:flex p-1.5 rounded-lg hover:bg-slate-50 text-slate-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
                     >
                         <ChevronLeft className={`w-4 h-4 transition-transform duration-300 ${!isSidebarOpen ? "rotate-180" : ""}`} />
                     </button>
@@ -179,7 +180,8 @@ export default function OrgLayout({
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                            className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 lg:hidden"
+                            aria-label="Mở menu điều hướng"
+                            className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
                         >
                             <Menu className="w-5 h-5" />
                         </button>

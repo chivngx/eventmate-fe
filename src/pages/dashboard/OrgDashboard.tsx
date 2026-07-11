@@ -22,6 +22,7 @@ import ReviewModal from "@/components/ReviewModal"
 import CVViewModal from "@/components/cv/CVViewModal"
 import OrgLayout from "@/components/layout/OrgLayout"
 import { supabase } from "@/lib/supabase"
+import { getUserFacingMessage } from "@/lib/error"
 import { useToast } from "@/components/ui/ToastProvider"
 
 export default function OrgDashboard() {
@@ -132,7 +133,7 @@ export default function OrgDashboard() {
       } else {
         showToast({
           title: "Lỗi cập nhật",
-          message: error.message,
+          message: getUserFacingMessage(error, "Cập nhật hồ sơ thất bại. Vui lòng thử lại."),
           type: "error"
         })
       }
@@ -179,7 +180,7 @@ export default function OrgDashboard() {
     } catch (err: any) {
       showToast({
         title: "Lỗi tải ảnh lên",
-        message: err.message,
+        message: getUserFacingMessage(err, "Không thể tải ảnh lên. Vui lòng thử lại."),
         type: "error"
       })
     } finally {
@@ -228,7 +229,7 @@ export default function OrgDashboard() {
     } catch (err: any) {
       showToast({
         title: "Lỗi tải ảnh lên",
-        message: err.message,
+        message: getUserFacingMessage(err, "Không thể tải ảnh lên. Vui lòng thử lại."),
         type: "error"
       })
     } finally {
@@ -263,7 +264,7 @@ export default function OrgDashboard() {
     } catch (err: any) {
       showToast({
         title: "Lỗi xóa ảnh",
-        message: err.message,
+        message: getUserFacingMessage(err, "Không thể xóa ảnh. Vui lòng thử lại."),
         type: "error"
       })
     }
@@ -301,7 +302,7 @@ export default function OrgDashboard() {
     } else {
       showToast({
         title: "Lỗi",
-        message: error.message,
+        message: getUserFacingMessage(error, "Đổi mật khẩu thất bại. Vui lòng thử lại."),
         type: "error"
       })
     }
@@ -528,7 +529,7 @@ export default function OrgDashboard() {
           <div className={`grid grid-cols-1 md:grid-cols-2 gap-5 ${!isPremium ? "filter blur-sm pointer-events-none select-none" : ""}`}>
             {mockCVs.map((cv, i) => (
               <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl p-5 border-2 border-slate-100 dark:border-slate-800 flex items-start gap-4">
-                <img src={cv.avatar} alt={cv.name} className="w-14 h-14 rounded-xl object-cover shrink-0" />
+                <img src={cv.avatar} alt={cv.name} loading="lazy" className="w-14 h-14 rounded-xl object-cover shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <h3 className="text-base font-bold truncate">{cv.name}</h3>
@@ -798,7 +799,7 @@ export default function OrgDashboard() {
                     className="p-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-emerald-250 hover:shadow-md transition-all duration-200 cursor-pointer flex items-center justify-between"
                   >
                     <div className="flex items-center gap-4 min-w-0">
-                      <img src={student?.avatar_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=40&h=40&q=80"} alt={student?.full_name} className="w-12 h-12 rounded-xl object-cover shrink-0 border border-slate-100" />
+                      <img src={student?.avatar_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=40&h=40&q=80"} alt={student?.full_name} loading="lazy" className="w-12 h-12 rounded-xl object-cover shrink-0 border border-slate-100" />
                       <div className="min-w-0">
                         <h4 className="font-bold text-slate-900 dark:text-slate-100 truncate">{student?.full_name}</h4>
                         <p className="text-xs text-slate-500 truncate mt-0.5">{student?.university || "Sinh viên"}</p>
@@ -889,7 +890,7 @@ export default function OrgDashboard() {
                     {profileData.companyImages ? (
                       profileData.companyImages.split(',').filter(Boolean).map((imgUrl, idx) => (
                         <div key={idx} className="relative aspect-video rounded-xl overflow-hidden border border-slate-100 dark:border-slate-850 group">
-                          <img src={imgUrl} alt={`Company image ${idx + 1}`} className="w-full h-full object-cover" />
+                          <img src={imgUrl} alt={`Company image ${idx + 1}`} loading="lazy" className="w-full h-full object-cover" />
                           <button
                             type="button"
                             onClick={() => handleDeleteCompanyImage(idx)}

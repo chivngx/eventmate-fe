@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useParams, useNavigate } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
+import { getUserFacingMessage } from "@/lib/error"
 import MainLayout from "@/components/layout/MainLayout"
 import { MapPin, Calendar, CheckCircle, XCircle, Clock3, Bookmark, Briefcase, Tag, DollarSign, Users, ExternalLink } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -93,7 +94,7 @@ export default function EventDetail() {
         ])
 
         if (error) {
-            showToast({ title: "Đã xảy ra lỗi", message: error.message, type: "error" })
+            showToast({ title: "Đã xảy ra lỗi", message: getUserFacingMessage(error, "Vui lòng thử lại."), type: "error" })
         } else {
             setApplyStatus('pending')
             showToast({ title: "Ứng tuyển thành công", message: "Đơn ứng tuyển của bạn đã được gửi. Vui lòng chờ BTC phê duyệt.", type: "success" })
@@ -119,7 +120,7 @@ export default function EventDetail() {
                 setIsBookmarked(false)
                 showToast({ title: "Đã hủy lưu", message: "Đã hủy lưu tin tuyển dụng thành công.", type: "info" })
             }
-            else showToast({ title: "Đã xảy ra lỗi", message: error.message, type: "error" })
+            else showToast({ title: "Đã xảy ra lỗi", message: getUserFacingMessage(error, "Vui lòng thử lại."), type: "error" })
         } else {
             const { error } = await supabase
                 .from("event_bookmarks")
@@ -129,7 +130,7 @@ export default function EventDetail() {
                 setIsBookmarked(true)
                 showToast({ title: "Đã lưu tin", message: "Đã lưu tin tuyển dụng thành công.", type: "success" })
             }
-            else showToast({ title: "Đã xảy ra lỗi", message: error.message, type: "error" })
+            else showToast({ title: "Đã xảy ra lỗi", message: getUserFacingMessage(error, "Vui lòng thử lại."), type: "error" })
         }
     }
 

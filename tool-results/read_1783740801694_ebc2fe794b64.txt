@@ -1,0 +1,1133 @@
+     1→"use client"
+     2→
+     3→import { useState, useEffect } from "react"
+     4→import { useOrgDashboard } from "./useOrgDashboard"
+     5→import { Button } from "@/components/ui/button"
+     6→import {
+     7→  Briefcase,
+     8→  Calendar,
+     9→  Users,
+    10→  MessageSquare,
+    11→  Lock,
+    12→  Crown,
+    13→  Check,
+    14→  TrendingUp,
+    15→  ArrowRight,
+    16→  ChevronRight
+    17→} from "lucide-react"
+    18→import OrgEventsTab from "@/components/event/OrgEventsTab"
+    19→import OrgEventApplicationsDetail from "@/components/organizer/OrgEventApplicationsDetail"
+    20→import EventFormModal from "@/components/event/EventFormModal"
+    21→import ReviewModal from "@/components/ReviewModal"
+    22→import CVViewModal from "@/components/cv/CVViewModal"
+    23→import OrgLayout from "@/components/layout/OrgLayout"
+    24→import { supabase } from "@/lib/supabase"
+    25→import { useToast } from "@/components/ui/ToastProvider"
+    26→
+    27→export default function OrgDashboard() {
+    28→  const { showToast } = useToast()
+    29→  const {
+    30→    events, title, setTitle, desc, setDesc, location, setLocation,
+    31→    wardId, setWardId, wards,
+    32→    positionType, setPositionType, benefits, setBenefits,
+    33→    category, setCategory, slotsNeeded, setSlotsNeeded,
+    34→    eventDate, setEventDate, applicationDeadline, setApplicationDeadline,
+    35→    loading, fetching, showForm, setShowForm, editingId,
+    36→    viewingCV, setViewingCV, applications, loadingApps,
+    37→    selectedEventForCandidates, handleBackToEvents,
+    38→    handleSubmitEvent, handleEditClick, handleDeleteEvent,
+    39→    handleViewApplications, handleUpdateStatus, handleStartChatWithStudent, resetForm,
+    40→    totalEvents, activeEvents, userId,
+    41→    activeTab, setActiveTab, isPremium, handleBuyPremium, togglePremium
+    42→  } = useOrgDashboard()
+    43→
+    44→  const [reviewingStudent, setReviewingStudent] = useState<{ eventId: string; studentId: string; studentName: string } | null>(null)
+    45→
+    46→  // Profile update state
+    47→  const [profileData, setProfileData] = useState({
+    48→    fullName: "",
+    49→    phone: "",
+    50→    university: "", // represents Company Name
+    51→    bio: "",
+    52→    avatarUrl: "",
+    53→    email: "",
+    54→    mst: "",
+    55→    website: "",
+    56→    scale: "",
+    57→    address: "",
+    58→    companyImages: ""
+    59→  })
+    60→  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false)
+    61→  const [activeSubTab, setActiveSubTab] = useState<"info" | "password">("info")
+    62→  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+    63→  const [uploadingCompanyImage, setUploadingCompanyImage] = useState(false)
+    64→
+    65→  // Password change state
+    66→  const [passwordState, setPasswordState] = useState({
+    67→    newPassword: "",
+    68→    confirmPassword: ""
+    69→  })
+    70→  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
+    71→
+    72→  // Fetch / sync organizer profile
+    73→  const fetchProfile = async () => {
+    74→    const { data: { user } } = await supabase.auth.getUser()
+    75→    if (user) {
+    76→      const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
+    77→      if (data) {
+    78→        setProfileData({
+    79→          fullName: data.full_name || "",
+    80→          phone: data.phone || "",
+    81→          university: data.university || "",
+    82→          bio: data.bio || "",
+    83→          avatarUrl: data.avatar_url || "",
+    84→          email: data.email || "",
+    85→          mst: data.mst || "",
+    86→          website: data.website || "",
+    87→          scale: data.scale || "",
+    88→          address: data.address || "",
+    89→          companyImages: data.company_images || ""
+    90→        })
+    91→
+    92→        // Update local storage cache to match
+    93→        localStorage.setItem("em_user_profile", JSON.stringify({
+    94→          fullName: data.full_name || "",
+    95→          avatarUrl: data.avatar_url || "",
+    96→          email: data.email || "",
+    97→          role: data.role || "organizer"
+    98→        }))
+    99→      }
+   100→    }
+   101→  }
+   102→
+   103→  useEffect(() => {
+   104→    fetchProfile()
+   105→  }, [userId])
+   106→
+   107→  const handleUpdateProfile = async (e: React.FormEvent) => {
+   108→    e.preventDefault()
+   109→    setIsUpdatingProfile(true)
+   110→    const { data: { user } } = await supabase.auth.getUser()
+   111→    if (user) {
+   112→      const { error } = await supabase.from("profiles").update({
+   113→        full_name: profileData.fullName,
+   114→        phone: profileData.phone,
+   115→        university: profileData.fullName, // Keep university field synced with Company Name/CLB
+   116→        bio: profileData.bio,
+   117→        avatar_url: profileData.avatarUrl,
+   118→        mst: profileData.mst,
+   119→        website: profileData.website,
+   120→        scale: profileData.scale,
+   121→        address: profileData.address,
+   122→        company_images: profileData.companyImages
+   123→      }).eq("id", user.id)
+   124→
+   125→      if (!error) {
+   126→        showToast({
+   127→          title: "Thành công",
+   128→          message: "Cập nhật thông tin công ty thành công!",
+   129→          type: "success"
+   130→        })
+   131→        fetchProfile()
+   132→      } else {
+   133→        showToast({
+   134→          title: "Lỗi cập nhật",
+   135→          message: error.message,
+   136→          type: "error"
+   137→        })
+   138→      }
+   139→    }
+   140→    setIsUpdatingProfile(false)
+   141→  }
+   142→
+   143→  // Upload Logo handler
+   144→  const handleUploadLogo = async (file: File) => {
+   145→    try {
+   146→      setUploadingAvatar(true)
+   147→      const { data: { user } } = await supabase.auth.getUser()
+   148→      if (!user) return
+   149→
+   150→      const fileExt = file.name.split('.').pop()
+   151→      const fileName = `${user.id}-logo-${Math.random().toString(36).substring(7)}.${fileExt}`
+   152→      const filePath = fileName
+   153→
+   154→      const { error: uploadError } = await supabase.storage
+   155→        .from('avatars')
+   156→        .upload(filePath, file, { cacheControl: '3600', upsert: true })
+   157→
+   158→      if (uploadError) throw uploadError
+   159→
+   160→      const { data: { publicUrl } } = supabase.storage
+   161→        .from('avatars')
+   162→        .getPublicUrl(filePath)
+   163→
+   164→      // Update local state and also sync to db
+   165→      const { error: updateError } = await supabase
+   166→        .from('profiles')
+   167→        .update({ avatar_url: publicUrl })
+   168→        .eq('id', user.id)
+   169→
+   170→      if (updateError) throw updateError
+   171→
+   172→      setProfileData(prev => ({ ...prev, avatarUrl: publicUrl }))
+   173→      showToast({
+   174→        title: "Thành công",
+   175→        message: "Tải lên logo thành công!",
+   176→        type: "success"
+   177→      })
+   178→      fetchProfile()
+   179→    } catch (err: any) {
+   180→      showToast({
+   181→        title: "Lỗi tải ảnh lên",
+   182→        message: err.message,
+   183→        type: "error"
+   184→      })
+   185→    } finally {
+   186→      setUploadingAvatar(false)
+   187→    }
+   188→  }
+   189→
+   190→  // Upload Company Image handler
+   191→  const handleUploadCompanyImage = async (file: File) => {
+   192→    try {
+   193→      setUploadingCompanyImage(true)
+   194→      const { data: { user } } = await supabase.auth.getUser()
+   195→      if (!user) return
+   196→
+   197→      const fileExt = file.name.split('.').pop()
+   198→      const fileName = `${user.id}-company-${Math.random().toString(36).substring(7)}.${fileExt}`
+   199→      const filePath = fileName
+   200→
+   201→      const { error: uploadError } = await supabase.storage
+   202→        .from('avatars')
+   203→        .upload(filePath, file, { cacheControl: '3600', upsert: true })
+   204→
+   205→      if (uploadError) throw uploadError
+   206→
+   207→      const { data: { publicUrl } } = supabase.storage
+   208→        .from('avatars')
+   209→        .getPublicUrl(filePath)
+   210→
+   211→      const currentImages = profileData.companyImages ? profileData.companyImages.split(',').filter(Boolean) : []
+   212→      const newImages = [...currentImages, publicUrl].join(',')
+   213→
+   214→      const { error: updateError } = await supabase
+   215→        .from('profiles')
+   216→        .update({ company_images: newImages })
+   217→        .eq('id', user.id)
+   218→
+   219→      if (updateError) throw updateError
+   220→
+   221→      setProfileData(prev => ({ ...prev, companyImages: newImages }))
+   222→      showToast({
+   223→        title: "Thành công",
+   224→        message: "Tải lên hình ảnh công ty thành công!",
+   225→        type: "success"
+   226→      })
+   227→      fetchProfile()
+   228→    } catch (err: any) {
+   229→      showToast({
+   230→        title: "Lỗi tải ảnh lên",
+   231→        message: err.message,
+   232→        type: "error"
+   233→      })
+   234→    } finally {
+   235→      setUploadingCompanyImage(false)
+   236→    }
+   237→  }
+   238→
+   239→  // Delete Company Image handler
+   240→  const handleDeleteCompanyImage = async (indexToDelete: number) => {
+   241→    try {
+   242→      const { data: { user } } = await supabase.auth.getUser()
+   243→      if (!user) return
+   244→
+   245→      const currentImages = profileData.companyImages ? profileData.companyImages.split(',').filter(Boolean) : []
+   246→      const updatedImagesList = currentImages.filter((_, idx) => idx !== indexToDelete)
+   247→      const newImages = updatedImagesList.join(',')
+   248→
+   249→      const { error: updateError } = await supabase
+   250→        .from('profiles')
+   251→        .update({ company_images: newImages })
+   252→        .eq('id', user.id)
+   253→
+   254→      if (updateError) throw updateError
+   255→
+   256→      setProfileData(prev => ({ ...prev, companyImages: newImages }))
+   257→      showToast({
+   258→        title: "Thành công",
+   259→        message: "Xóa hình ảnh thành công!",
+   260→        type: "success"
+   261→      })
+   262→      fetchProfile()
+   263→    } catch (err: any) {
+   264→      showToast({
+   265→        title: "Lỗi xóa ảnh",
+   266→        message: err.message,
+   267→        type: "error"
+   268→      })
+   269→    }
+   270→  }
+   271→
+   272→  const handleChangePassword = async (e: React.FormEvent) => {
+   273→    e.preventDefault()
+   274→    if (!passwordState.newPassword) {
+   275→      showToast({
+   276→        title: "Lỗi",
+   277→        message: "Vui lòng nhập mật khẩu mới",
+   278→        type: "error"
+   279→      })
+   280→      return
+   281→    }
+   282→    if (passwordState.newPassword !== passwordState.confirmPassword) {
+   283→      showToast({
+   284→        title: "Lỗi",
+   285→        message: "Mật khẩu xác nhận không khớp",
+   286→        type: "error"
+   287→      })
+   288→      return
+   289→    }
+   290→    setIsUpdatingPassword(true)
+   291→    const { error } = await supabase.auth.updateUser({
+   292→      password: passwordState.newPassword
+   293→    })
+   294→    if (!error) {
+   295→      showToast({
+   296→        title: "Thành công",
+   297→        message: "Đổi mật khẩu thành công!",
+   298→        type: "success"
+   299→      })
+   300→      setPasswordState({ newPassword: "", confirmPassword: "" })
+   301→    } else {
+   302→      showToast({
+   303→        title: "Lỗi",
+   304→        message: error.message,
+   305→        type: "error"
+   306→      })
+   307→    }
+   308→    setIsUpdatingPassword(false)
+   309→  }
+   310→
+   311→  const handleBuyPremiumService = () => {
+   312→    handleBuyPremium()
+   313→    showToast({
+   314→      title: "Kích hoạt thành công",
+   315→      message: "Chúc mừng! Bạn đã nâng cấp tài khoản VIP Tuyển dụng thành công.",
+   316→      type: "success"
+   317→    })
+   318→  }
+   319→
+   320→  const userProfileCached = {
+   321→    fullName: profileData.fullName || "Nhà tuyển dụng",
+   322→    avatarUrl: profileData.avatarUrl || "",
+   323→    email: profileData.email || ""
+   324→  }
+   325→
+   326→  // Active Chats list for the Recruiter
+   327→  const [activeChats, setActiveChats] = useState<any[]>([])
+   328→  const [loadingChats, setLoadingChats] = useState(false)
+   329→
+   330→  useEffect(() => {
+   331→    const fetchChats = async () => {
+   332→      const { data: { user } } = await supabase.auth.getUser()
+   333→      if (!user) return
+   334→      setLoadingChats(true)
+   335→      const { data } = await supabase
+   336→        .from("chats")
+   337→        .select(`
+   338→          id,
+   339→          created_at,
+   340→          events (id, title),
+   341→          profiles!chats_student_id_fkey (id, full_name, avatar_url, university)
+   342→        `)
+   343→        .eq("organizer_id", user.id)
+   344→      if (data) setActiveChats(data)
+   345→      setLoadingChats(false)
+   346→    }
+   347→    if (activeTab === "chat") {
+   348→      fetchChats()
+   349→    }
+   350→  }, [activeTab])
+   351→
+   352→  // Mock CV Recommendations
+   353→  const mockCVs = [
+   354→    { name: "Nguyễn Văn A", university: "Đại học Bách Khoa - ĐHĐN", skills: "React, Node.js, Photoshop", match: 95, completion: 90, avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=120&h=120&q=80" },
+   355→    { name: "Trần Thị B", university: "Đại học Ngoại Ngữ - ĐHĐN", skills: "Tiếng Anh (IELTS 7.5), Tổ chức sự kiện, MC", match: 88, completion: 100, avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&h=120&q=80" },
+   356→    { name: "Phạm Minh C", university: "Đại học Kinh tế - ĐHĐN", skills: "Marketing, Content Writer, Canva", match: 85, completion: 80, avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&h=120&q=80" },
+   357→    { name: "Lê Thu D", university: "Đại học Duy Tân", skills: "Tình nguyện viên, Hậu cần, Giao tiếp tốt", match: 82, completion: 95, avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=120&h=120&q=80" }
+   358→  ]
+   359→
+   360→  return (
+   361→    <OrgLayout
+   362→      activeTab={activeTab}
+   363→      setActiveTab={setActiveTab}
+   364→      isPremium={isPremium}
+   365→      userProfile={userProfileCached}
+   366→      onLogout={async () => {
+   367→        localStorage.removeItem("em_user_profile")
+   368→        await supabase.auth.signOut()
+   369→        window.location.href = "/"
+   370→      }}
+   371→    >
+   372→      {/* 1. TAB: FEED (BẢNG TIN THỐNG KÊ CHI TIẾT) */}
+   373→      {activeTab === "feed" && (
+   374→        <div className="space-y-8 animate-in fade-in duration-300">
+   375→          <div className="bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-100 p-8 rounded-[2rem] text-slate-800 border-2 border-emerald-100/50 shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+   376→            <div>
+   377→              <h1 className="text-3xl font-black tracking-tight text-slate-900">Xin chào, {profileData.fullName || "Nhà tuyển dụng"}!</h1>
+   378→              <p className="text-slate-600 font-medium mt-1">Dưới đây là tổng quan hiệu suất các chiến dịch tuyển dụng tình nguyện viên của bạn.</p>
+   379→            </div>
+   380→            <Button onClick={() => { setActiveTab("events"); setShowForm(true); }} className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black h-12 px-6 shrink-0 shadow-md">
+   381→              Tạo chiến dịch mới
+   382→            </Button>
+   383→          </div>
+   384→
+   385→          {/* STATS CARDS */}
+   386→          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+   387→            <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border-2 border-slate-100 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
+   388→              <div className="w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-950/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400"><Briefcase className="w-6 h-6" /></div>
+   389→              <div>
+   390→                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tổng chiến dịch</p>
+   391→                <h3 className="text-2xl font-black text-slate-900 dark:text-slate-100 mt-0.5">{totalEvents}</h3>
+   392→              </div>
+   393→            </div>
+   394→            <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border-2 border-slate-100 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
+   395→              <div className="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400"><Calendar className="w-6 h-6" /></div>
+   396→              <div>
+   397→                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Đang mở tuyển</p>
+   398→                <h3 className="text-2xl font-black text-slate-900 dark:text-slate-100 mt-0.5">{activeEvents}</h3>
+   399→              </div>
+   400→            </div>
+   401→            <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border-2 border-slate-100 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
+   402→              <div className="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/30 flex items-center justify-center text-amber-600 dark:text-amber-400"><Users className="w-6 h-6" /></div>
+   403→              <div>
+   404→                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tỷ lệ duyệt hồ sơ</p>
+   405→                <h3 className="text-2xl font-black text-slate-900 dark:text-slate-100 mt-0.5">85%</h3>
+   406→              </div>
+   407→            </div>
+   408→            <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border-2 border-slate-100 dark:border-slate-800/80 flex items-center gap-4 shadow-sm">
+   409→              <div className="w-12 h-12 rounded-xl bg-rose-50 dark:bg-rose-950/30 flex items-center justify-center text-rose-600 dark:text-rose-400"><TrendingUp className="w-6 h-6" /></div>
+   410→              <div>
+   411→                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Lượt xem hồ sơ</p>
+   412→                <h3 className="text-2xl font-black text-slate-900 dark:text-slate-100 mt-0.5">142 lượt</h3>
+   413→              </div>
+   414→            </div>
+   415→          </div>
+   416→
+   417→          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+   418→            {/* Recent activity log */}
+   419→            <div className="lg:col-span-2 bg-white dark:bg-slate-900 p-6 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 shadow-sm space-y-6">
+   420→              <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">Biểu đồ hiệu quả tuyển dụng (Tháng 6)</h3>
+   421→              {/* Beautiful Mock SVG Chart */}
+   422→              <div className="h-64 w-full flex items-end justify-between px-4 pt-6 border-b border-l border-slate-200 dark:border-slate-800 relative">
+   423→                <div className="absolute left-4 top-2 text-[10px] text-slate-400 font-bold">Ứng viên / Ngày</div>
+   424→                <div className="w-1/6 flex flex-col items-center gap-2">
+   425→                  <div className="w-8 bg-slate-200 dark:bg-slate-850 h-28 rounded-t-lg transition-all duration-500 hover:bg-emerald-500"></div>
+   426→                  <span className="text-[10px] text-slate-400 font-bold">Tuần 1</span>
+   427→                </div>
+   428→                <div className="w-1/6 flex flex-col items-center gap-2">
+   429→                  <div className="w-8 bg-slate-200 dark:bg-slate-850 h-40 rounded-t-lg transition-all duration-500 hover:bg-emerald-500"></div>
+   430→                  <span className="text-[10px] text-slate-400 font-bold">Tuần 2</span>
+   431→                </div>
+   432→                <div className="w-1/6 flex flex-col items-center gap-2">
+   433→                  <div className="w-8 bg-emerald-600 h-48 rounded-t-lg shadow-lg shadow-emerald-500/20"></div>
+   434→                  <span className="text-[10px] text-slate-400 font-bold">Tuần 3</span>
+   435→                </div>
+   436→                <div className="w-1/6 flex flex-col items-center gap-2">
+   437→                  <div className="w-8 bg-slate-200 dark:bg-slate-850 h-32 rounded-t-lg transition-all duration-500 hover:bg-emerald-500"></div>
+   438→                  <span className="text-[10px] text-slate-400 font-bold">Tuần 4</span>
+   439→                </div>
+   440→              </div>
+   441→            </div>
+   442→
+   443→            {/* Premium quick promo */}
+   444→            <div className="bg-gradient-to-b from-emerald-50 to-white p-6 rounded-[2rem] text-slate-800 flex flex-col justify-between shadow-md border-2 border-emerald-100/40 relative overflow-hidden">
+   445→              <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
+   446→              <div className="space-y-4">
+   447→                <Crown className="w-10 h-10 text-emerald-600 fill-current" />
+   448→                <h3 className="text-xl font-black text-slate-900">Nâng cấp VIP Tuyển dụng</h3>
+   449→                <p className="text-slate-600 text-xs font-semibold leading-relaxed">
+   450→                  Tiếp cận trực tiếp hàng ngàn hồ sơ sinh viên tài năng tại Đà Nẵng, xem báo cáo thông minh và đẩy tin tuyển dụng của bạn lên vị trí nổi bật nhất.
+   451→                </p>
+   452→              </div>
+   453→              <Button onClick={() => setActiveTab("services")} className="mt-6 w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black h-11">
+   454→                Xem bảng giá gói
+   455→              </Button>
+   456→            </div>
+   457→          </div>
+   458→        </div>
+   459→      )}
+   460→
+   461→      {/* 2. TAB: EVENTS (TIN TUYỂN DỤNG) */}
+   462→      {activeTab === "events" && (
+   463→        <div className="space-y-6 animate-in fade-in duration-300">
+   464→          <div className="flex items-center justify-between gap-4">
+   465→            <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100">Các chiến dịch của tôi</h1>
+   466→            <Button onClick={() => setShowForm(true)} className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black">
+   467→              Tạo chiến dịch mới
+   468→            </Button>
+   469→          </div>
+   470→          <OrgEventsTab
+   471→            fetching={fetching}
+   472→            events={events}
+   473→            onEditClick={handleEditClick}
+   474→            onDeleteEvent={handleDeleteEvent}
+   475→            onViewApplications={handleViewApplications}
+   476→          />
+   477→        </div>
+   478→      )}
+   479→
+   480→      {/* 3. TAB: CANDIDATES (QUẢN LÝ CV - DRILL DOWN) */}
+   481→      {activeTab === "candidates" && (
+   482→        <div className="space-y-6 animate-in fade-in duration-300">
+   483→          {selectedEventForCandidates ? (
+   484→            <OrgEventApplicationsDetail
+   485→              event={selectedEventForCandidates}
+   486→              applications={applications}
+   487→              loadingApps={loadingApps}
+   488→              onBack={handleBackToEvents}
+   489→              setViewingCV={setViewingCV}
+   490→              handleUpdateStatus={handleUpdateStatus}
+   491→              onStartChatWithStudent={handleStartChatWithStudent}
+   492→              onRateStudent={(eventId, studentId, studentName) => setReviewingStudent({ eventId, studentId, studentName })}
+   493→            />
+   494→          ) : (
+   495→            <div className="bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 p-6 sm:p-8 space-y-6">
+   496→              <h2 className="text-xl font-black text-slate-900 dark:text-slate-100">Chọn tin tuyển dụng để xem ứng viên</h2>
+   497→              <p className="text-slate-500 font-medium -mt-2">Chọn một trong những tin tuyển dụng dưới đây để xem danh sách hồ sơ chi tiết.</p>
+   498→
+   499→              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+   500→                {events.map((ev) => (
+   501→                  <div
+   502→                    key={ev.id}
+   503→                    onClick={() => handleViewApplications(ev)}
+   504→                    className="p-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 hover:bg-white dark:hover:bg-slate-900 hover:border-emerald-250 dark:hover:border-emerald-900 transition-all duration-200 cursor-pointer flex items-center justify-between"
+   505→                  >
+   506→                    <div className="min-w-0">
+   507→                      <h4 className="text-base font-bold text-slate-900 dark:text-slate-100 truncate">{ev.title}</h4>
+   508→                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 font-semibold flex items-center gap-1.5">
+   509→                        <Users className="w-3.5 h-3.5" /> Số lượng đơn ứng tuyển: {ev.applications?.length || 0}
+   510→                      </p>
+   511→                    </div>
+   512→                    <ChevronRight className="w-5 h-5 text-slate-400 shrink-0" />
+   513→                  </div>
+   514→                ))}
+   515→              </div>
+   516→            </div>
+   517→          )}
+   518→        </div>
+   519→      )}
+   520→
+   521→      {/* 4. TAB: RECOMMENDED (CV ĐỀ XUẤT - KHÓA PREMIUM) */}
+   522→      {activeTab === "recommended" && (
+   523→        <div className="space-y-6 relative z-10 min-h-[450px] animate-in fade-in duration-300">
+   524→          <div className="flex items-center justify-between">
+   525→            <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100">Đề xuất CV Thông minh</h1>
+   526→          </div>
+   527→
+   528→          <div className={`grid grid-cols-1 md:grid-cols-2 gap-5 ${!isPremium ? "filter blur-sm pointer-events-none select-none" : ""}`}>
+   529→            {mockCVs.map((cv, i) => (
+   530→              <div key={i} className="bg-white dark:bg-slate-900 rounded-2xl p-5 border-2 border-slate-100 dark:border-slate-800 flex items-start gap-4">
+   531→                <img src={cv.avatar} alt={cv.name} className="w-14 h-14 rounded-xl object-cover shrink-0" />
+   532→                <div className="flex-1 min-w-0">
+   533→                  <div className="flex items-center gap-2">
+   534→                    <h3 className="text-base font-bold truncate">{cv.name}</h3>
+   535→                    <span className="bg-emerald-50 text-emerald-700 text-[10px] font-black px-2 py-0.5 rounded">Match: {cv.match}%</span>
+   536→                  </div>
+   537→                  <p className="text-xs text-slate-500 mt-0.5 font-medium">{cv.university}</p>
+   538→                  <p className="text-xs font-semibold text-slate-600 mt-2 truncate">Kỹ năng: {cv.skills}</p>
+   539→                </div>
+   540→              </div>
+   541→            ))}
+   542→          </div>
+   543→
+   544→          {/* PREMIUM LOCK OVERLAY */}
+   545→          {!isPremium && (
+   546→            <div className="absolute inset-0 bg-slate-50/10 dark:bg-slate-950/10 flex items-center justify-center p-6 z-10">
+   547→              <div className="bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-[2.5rem] p-8 max-w-md text-center shadow-2xl space-y-5 animate-in zoom-in-95">
+   548→                <div className="w-16 h-16 bg-amber-50 dark:bg-amber-950/30 rounded-2xl flex items-center justify-center text-amber-500 mx-auto shadow-sm">
+   549→                  <Lock className="w-8 h-8" />
+   550→                </div>
+   551→                <div className="space-y-2">
+   552→                  <h3 className="text-xl font-black text-slate-950 dark:text-white">Mở khóa tính năng VIP</h3>
+   553→                  <p className="text-slate-500 font-medium text-sm leading-relaxed">
+   554→                    Khám phá tính năng gợi ý CV tự động bằng AI, tìm kiếm sinh viên phù hợp nhất dựa trên tiêu chuẩn sự kiện và gửi lời mời phỏng vấn ngay lập tức!
+   555→                  </p>
+   556→                </div>
+   557→                <Button onClick={() => setActiveTab("services")} className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black w-full h-11 shadow-md shadow-emerald-500/10 flex items-center justify-center gap-2">
+   558→                  <Crown className="w-4 h-4 fill-current" /> Xem gói dịch vụ VIP
+   559→                </Button>
+   560→              </div>
+   561→            </div>
+   562→          )}
+   563→        </div>
+   564→      )}
+   565→
+   566→      {/* 5. TAB: REPORTS (BÁO CÁO TUYỂN DỤNG - KHÓA PREMIUM) */}
+   567→      {activeTab === "reports" && (
+   568→        <div className="space-y-6 relative z-10 min-h-[450px] animate-in fade-in duration-300">
+   569→          <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100">Báo cáo & Phân tích chuyên sâu</h1>
+   570→
+   571→          <div className={`space-y-6 ${!isPremium ? "filter blur-sm pointer-events-none select-none" : ""}`}>
+   572→            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+   573→              <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border-2 border-slate-100 dark:border-slate-800">
+   574→                <h4 className="text-xs font-bold text-slate-400 uppercase">Tỷ lệ hoàn thành hồ sơ ứng tuyển</h4>
+   575→                <div className="text-2xl font-black mt-2 text-slate-900 dark:text-white">92.5%</div>
+   576→              </div>
+   577→              <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border-2 border-slate-100 dark:border-slate-800">
+   578→                <h4 className="text-xs font-bold text-slate-400 uppercase">Thời gian phản hồi CV trung bình</h4>
+   579→                <div className="text-2xl font-black mt-2 text-slate-900 dark:text-white">1.8 ngày</div>
+   580→              </div>
+   581→              <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border-2 border-slate-100 dark:border-slate-800">
+   582→                <h4 className="text-xs font-bold text-slate-400 uppercase">Kênh tiếp cận hiệu quả nhất</h4>
+   583→                <div className="text-2xl font-black mt-2 text-slate-900 dark:text-white">Facebook & Web</div>
+   584→              </div>
+   585→            </div>
+   586→
+   587→            {/* BIỂU ĐỒ BÁO CÁO CHI TIẾT */}
+   588→            <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 shadow-sm space-y-6">
+   589→              <h3 className="text-lg font-black text-slate-900 dark:text-slate-100">Lượt tiếp cận & Đơn ứng tuyển theo ngày</h3>
+   590→              <div className="h-72 w-full flex items-end justify-between px-4 pt-6 border-b border-l border-slate-200 dark:border-slate-800 relative">
+   591→                <div className="absolute left-4 top-2 text-[10px] text-slate-400 font-bold">Lượt xem (Xanh dương) / Đơn ứng tuyển (Emerald)</div>
+   592→
+   593→                {/* Thứ 2 */}
+   594→                <div className="w-1/7 flex flex-col items-center gap-1.5 flex-1">
+   595→                  <div className="flex items-end gap-1">
+   596→                    <div className="w-3 bg-blue-500 h-28 rounded-t transition-all hover:opacity-85" title="120 lượt xem"></div>
+   597→                    <div className="w-3 bg-emerald-500 h-10 rounded-t transition-all hover:opacity-85" title="15 ứng tuyển"></div>
+   598→                  </div>
+   599→                  <span className="text-[10px] text-slate-400 font-bold">Thứ 2</span>
+   600→                </div>
+   601→
+   602→                {/* Thứ 3 */}
+   603→                <div className="w-1/7 flex flex-col items-center gap-1.5 flex-1">
+   604→                  <div className="flex items-end gap-1">
+   605→                    <div className="w-3 bg-blue-500 h-36 rounded-t transition-all hover:opacity-85" title="160 lượt xem"></div>
+   606→                    <div className="w-3 bg-emerald-500 h-16 rounded-t transition-all hover:opacity-85" title="24 ứng tuyển"></div>
+   607→                  </div>
+   608→                  <span className="text-[10px] text-slate-400 font-bold">Thứ 3</span>
+   609→                </div>
+   610→
+   611→                {/* Thứ 4 */}
+   612→                <div className="w-1/7 flex flex-col items-center gap-1.5 flex-1">
+   613→                  <div className="flex items-end gap-1">
+   614→                    <div className="w-3 bg-blue-500 h-44 rounded-t transition-all hover:opacity-85" title="200 lượt xem"></div>
+   615→                    <div className="w-3 bg-emerald-500 h-24 rounded-t transition-all hover:opacity-85" title="35 ứng tuyển"></div>
+   616→                  </div>
+   617→                  <span className="text-[10px] text-slate-400 font-bold">Thứ 4</span>
+   618→                </div>
+   619→
+   620→                {/* Thứ 5 */}
+   621→                <div className="w-1/7 flex flex-col items-center gap-1.5 flex-1">
+   622→                  <div className="flex items-end gap-1">
+   623→                    <div className="w-3 bg-blue-500 h-32 rounded-t transition-all hover:opacity-85" title="140 lượt xem"></div>
+   624→                    <div className="w-3 bg-emerald-500 h-12 rounded-t transition-all hover:opacity-85" title="18 ứng tuyển"></div>
+   625→                  </div>
+   626→                  <span className="text-[10px] text-slate-400 font-bold">Thứ 5</span>
+   627→                </div>
+   628→
+   629→                {/* Thứ 6 */}
+   630→                <div className="w-1/7 flex flex-col items-center gap-1.5 flex-1">
+   631→                  <div className="flex items-end gap-1">
+   632→                    <div className="w-3 bg-blue-500 h-48 rounded-t transition-all hover:opacity-85" title="220 lượt xem"></div>
+   633→                    <div className="w-3 bg-emerald-500 h-36 rounded-t transition-all hover:opacity-85" title="50 ứng tuyển"></div>
+   634→                  </div>
+   635→                  <span className="text-[10px] text-slate-400 font-bold">Thứ 6</span>
+   636→                </div>
+   637→
+   638→                {/* Thứ 7 */}
+   639→                <div className="w-1/7 flex flex-col items-center gap-1.5 flex-1">
+   640→                  <div className="flex items-end gap-1">
+   641→                    <div className="w-3 bg-blue-500 h-56 rounded-t transition-all hover:opacity-85" title="260 lượt xem"></div>
+   642→                    <div className="w-3 bg-emerald-500 h-48 rounded-t transition-all hover:opacity-85" title="68 ứng tuyển"></div>
+   643→                  </div>
+   644→                  <span className="text-[10px] text-slate-400 font-bold">Thứ 7</span>
+   645→                </div>
+   646→
+   647→                {/* Chủ Nhật */}
+   648→                <div className="w-1/7 flex flex-col items-center gap-1.5 flex-1">
+   649→                  <div className="flex items-end gap-1">
+   650→                    <div className="w-3 bg-blue-500 h-40 rounded-t transition-all hover:opacity-85" title="180 lượt xem"></div>
+   651→                    <div className="w-3 bg-emerald-500 h-28 rounded-t transition-all hover:opacity-85" title="40 ứng tuyển"></div>
+   652→                  </div>
+   653→                  <span className="text-[10px] text-slate-400 font-bold">Chủ Nhật</span>
+   654→                </div>
+   655→
+   656→              </div>
+   657→            </div>
+   658→          </div>
+   659→
+   660→          {/* PREMIUM LOCK OVERLAY */}
+   661→          {!isPremium && (
+   662→            <div className="absolute inset-0 bg-slate-50/10 dark:bg-slate-950/10 flex items-center justify-center p-6 z-10">
+   663→              <div className="bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-[2.5rem] p-8 max-w-md text-center shadow-2xl space-y-5 animate-in zoom-in-95">
+   664→                <div className="w-16 h-16 bg-amber-50 dark:bg-amber-950/30 rounded-2xl flex items-center justify-center text-amber-500 mx-auto shadow-sm">
+   665→                  <Lock className="w-8 h-8" />
+   666→                </div>
+   667→                <div className="space-y-2">
+   668→                  <h3 className="text-xl font-black text-slate-950 dark:text-white">Mở khóa Báo cáo tuyển dụng</h3>
+   669→                  <p className="text-slate-500 font-medium text-sm leading-relaxed">
+   670→                    Xem biểu đồ tương tác, số lượt xem bài đăng tuyển dụng chi tiết theo ngày và xuất các báo cáo thống kê phục vụ hoạt động quản trị của tổ chức.
+   671→                  </p>
+   672→                </div>
+   673→                <Button onClick={() => setActiveTab("services")} className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black w-full h-11 shadow-md shadow-emerald-500/10 flex items-center justify-center gap-2">
+   674→                  <Crown className="w-4 h-4 fill-current" /> Xem gói dịch vụ VIP
+   675→                </Button>
+   676→              </div>
+   677→            </div>
+   678→          )}
+   679→        </div>
+   680→      )}
+   681→
+   682→      {/* 6. TAB: SERVICES (MUA DỊCH VỤ) */}
+   683→      {activeTab === "services" && (
+   684→        <div className="space-y-6 animate-in fade-in duration-300">
+   685→          <div className="text-center max-w-2xl mx-auto space-y-2">
+   686→            <h1 className="text-3xl font-black text-slate-900 dark:text-slate-100">Bảng giá dịch vụ VIP</h1>
+   687→            <p className="text-slate-500 font-medium">Lựa chọn gói dịch vụ tối ưu để tối đa hóa hiệu quả tuyển dụng tình nguyện viên của bạn.</p>
+   688→          </div>
+   689→
+   690→          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto pt-4">
+   691→            {/* VIP Plan */}
+   692→            <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border-2 border-slate-150 dark:border-slate-800 p-8 flex flex-col justify-between shadow-lg relative overflow-hidden">
+   693→              {isPremium && (
+   694→                <div className="absolute top-4 right-4 bg-emerald-500 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase flex items-center gap-0.5">
+   695→                  Đang sử dụng
+   696→                </div>
+   697→              )}
+   698→              <div className="space-y-6">
+   699→                <div>
+   700→                  <h3 className="text-xl font-black flex items-center gap-1.5 text-slate-900 dark:text-slate-100">
+   701→                    <Crown className="w-5 h-5 text-emerald-500 fill-current" /> VIP Recruiter
+   702→                  </h3>
+   703→                  <p className="text-slate-400 text-xs font-semibold mt-1">Giải pháp tối ưu cho Nhà tuyển dụng chuyên nghiệp</p>
+   704→                </div>
+   705→
+   706→                <div className="flex items-baseline gap-1">
+   707→                  <span className="text-3xl font-black">990.000đ</span>
+   708→                  <span className="text-slate-400 text-xs font-bold">/ tháng</span>
+   709→                </div>
+   710→
+   711→                <ul className="space-y-3">
+   712→                  {[
+   713→                    "Mở khóa đề xuất CV AI phù hợp",
+   714→                    "Xem Báo cáo tuyển dụng chuyên sâu",
+   715→                    "Đẩy tin nổi bật không giới hạn",
+   716→                    "Hỗ trợ ưu tiên 24/7 từ EventMate"
+   717→                  ].map((feat, i) => (
+   718→                    <li key={i} className="flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-350">
+   719→                      <Check className="w-4 h-4 text-emerald-500" /> {feat}
+   720→                    </li>
+   721→                  ))}
+   722→                </ul>
+   723→              </div>
+   724→
+   725→              <Button
+   726→                onClick={handleBuyPremiumService}
+   727→                disabled={isPremium}
+   728→                className={`mt-8 w-full rounded-xl font-black h-11 shadow-sm
+   729→                  ${isPremium
+   730→                    ? "bg-slate-100 dark:bg-slate-800 text-slate-400"
+   731→                    : "bg-emerald-600 hover:bg-emerald-700 text-white"
+   732→                  }
+   733→                `}
+   734→              >
+   735→                {isPremium ? "Đã được kích hoạt" : "Kích hoạt ngay"}
+   736→              </Button>
+   737→            </div>
+   738→
+   739→            {/* Basic Push Plan */}
+   740→            <div className="bg-white dark:bg-slate-900 rounded-[2.5rem] border-2 border-slate-100 dark:border-slate-850 p-8 flex flex-col justify-between shadow-sm">
+   741→              <div className="space-y-6">
+   742→                <div>
+   743→                  <h3 className="text-xl font-black text-slate-900 dark:text-slate-100">Đẩy tin VIP bài đăng</h3>
+   744→                  <p className="text-slate-400 text-xs font-semibold mt-1">Tăng độ tiếp cận của bài tuyển dụng</p>
+   745→                </div>
+   746→
+   747→                <div className="flex items-baseline gap-1">
+   748→                  <span className="text-3xl font-black">290.000đ</span>
+   749→                  <span className="text-slate-400 text-xs font-bold">/ 7 ngày</span>
+   750→                </div>
+   751→
+   752→                <ul className="space-y-3">
+   753→                  {[
+   754→                    "Ghim bài đăng lên top 1 trang chủ sinh viên",
+   755→                    "Hiển thị nhãn VIP nổi bật trên bài đăng",
+   756→                    "Đẩy tin tự động mỗi 24 giờ"
+   757→                  ].map((feat, i) => (
+   758→                    <li key={i} className="flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-350">
+   759→                      <Check className="w-4 h-4 text-emerald-500" /> {feat}
+   760→                    </li>
+   761→                  ))}
+   762→                </ul>
+   763→              </div>
+   764→
+   765→              <Button
+   766→                onClick={() => showToast({ title: "Dịch vụ giả lập", message: "Gói đẩy tin VIP đã được mô phỏng kích hoạt thành công cho chiến dịch!", type: "info" })}
+   767→                className="mt-8 w-full rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-black h-11"
+   768→              >
+   769→                Mua gói đẩy tin
+   770→              </Button>
+   771→            </div>
+   772→          </div>
+   773→        </div>
+   774→      )}
+   775→
+   776→      {/* 7. TAB: CHAT (TÍCH HỢP HỘI THOẠI TRỰC TIẾP) */}
+   777→      {activeTab === "chat" && (
+   778→        <div className="space-y-6 animate-in fade-in duration-300">
+   779→          <h1 className="text-2xl font-black text-slate-900 dark:text-slate-100">Danh sách cuộc trò chuyện</h1>
+   780→
+   781→          {loadingChats ? (
+   782→            <div className="text-center py-12 text-slate-500 font-medium">Đang tải cuộc trò chuyện...</div>
+   783→          ) : activeChats.length === 0 ? (
+   784→            <div className="text-center py-16 border-2 border-dashed border-slate-150 rounded-[2rem] bg-white dark:bg-slate-900">
+   785→              <MessageSquare className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+   786→              <h3 className="text-lg font-bold text-slate-700">Chưa có cuộc trò chuyện nào</h3>
+   787→              <p className="text-slate-500 font-medium mt-1">Nhấp vào nút nhắn tin trên hồ sơ ứng viên để bắt đầu cuộc hội thoại.</p>
+   788→            </div>
+   789→          ) : (
+   790→            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+   791→              {activeChats.map((chat) => {
+   792→                const student = chat.profiles
+   793→                const event = chat.events
+   794→                return (
+   795→                  <div
+   796→                    key={chat.id}
+   797→                    onClick={() => handleStartChatWithStudent(event?.id, student?.id)}
+   798→                    className="p-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-emerald-250 hover:shadow-md transition-all duration-200 cursor-pointer flex items-center justify-between"
+   799→                  >
+   800→                    <div className="flex items-center gap-4 min-w-0">
+   801→                      <img src={student?.avatar_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=40&h=40&q=80"} alt={student?.full_name} className="w-12 h-12 rounded-xl object-cover shrink-0 border border-slate-100" />
+   802→                      <div className="min-w-0">
+   803→                        <h4 className="font-bold text-slate-900 dark:text-slate-100 truncate">{student?.full_name}</h4>
+   804→                        <p className="text-xs text-slate-500 truncate mt-0.5">{student?.university || "Sinh viên"}</p>
+   805→                        <span className="inline-block text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-1.5 py-0.5 rounded mt-1.5 font-semibold">
+   806→                          Chiến dịch: {event?.title}
+   807→                        </span>
+   808→                      </div>
+   809→                    </div>
+   810→                    <ArrowRight className="w-5 h-5 text-slate-400 shrink-0" />
+   811→                  </div>
+   812→                )
+   813→              })}
+   814→            </div>
+   815→          )}
+   816→        </div>
+   817→      )}
+   818→
+   819→      {/* 8. TAB: ACCOUNT (TÀI KHOẢN TỔ CHỨC) */}
+   820→      {activeTab === "account" && (
+   821→        <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in duration-300">
+   822→          <div className="flex bg-slate-100 dark:bg-slate-800/60 p-1.5 rounded-2xl max-w-md mx-auto shadow-sm">
+   823→            <button
+   824→              onClick={() => setActiveSubTab("info")}
+   825→              className={`flex-1 py-3 px-4 rounded-xl text-sm font-black transition-all ${activeSubTab === "info"
+   826→                  ? "bg-white dark:bg-slate-900 text-emerald-600 shadow-sm"
+   827→                  : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+   828→                }`}
+   829→            >
+   830→              Thông tin công ty/CLB
+   831→            </button>
+   832→            <button
+   833→              onClick={() => setActiveSubTab("password")}
+   834→              className={`flex-1 py-3 px-4 rounded-xl text-sm font-black transition-all ${activeSubTab === "password"
+   835→                  ? "bg-white dark:bg-slate-900 text-emerald-600 shadow-sm"
+   836→                  : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
+   837→                }`}
+   838→            >
+   839→              Đổi mật khẩu
+   840→            </button>
+   841→          </div>
+   842→
+   843→          {activeSubTab === "info" ? (
+   844→            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+   845→              {/* Cột trái: Upload Logo và hình ảnh doanh nghiệp */}
+   846→              <div className="lg:col-span-1 space-y-6">
+   847→
+   848→                {/* LOGO UPLOAD CARD */}
+   849→                <div className="bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800/80 rounded-[2rem] p-6 text-center shadow-sm flex flex-col items-center">
+   850→                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Logo Công ty / CLB</h3>
+   851→                  <div className="relative w-32 h-32 rounded-3xl overflow-hidden border-4 border-slate-50 dark:border-slate-800 shadow-md group">
+   852→                    <img
+   853→                      src={profileData.avatarUrl || "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=150&h=150&q=80"}
+   854→                      alt="Company Logo"
+   855→                      className="w-full h-full object-cover"
+   856→                    />
+   857→                    <label
+   858→                      htmlFor="logo-upload"
+   859→                      className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white cursor-pointer transition-all duration-200"
+   860→                    >
+   861→                      <span className="text-xs font-black">Thay đổi Logo</span>
+   862→                    </label>
+   863→                    <input
+   864→                      type="file"
+   865→                      id="logo-upload"
+   866→                      accept="image/*"
+   867→                      className="hidden"
+   868→                      onChange={(e) => {
+   869→                        const file = e.target.files?.[0]
+   870→                        if (file) handleUploadLogo(file)
+   871→                      }}
+   872→                    />
+   873→                  </div>
+   874→                  <button
+   875→                    type="button"
+   876→                    onClick={() => document.getElementById("logo-upload")?.click()}
+   877→                    className="mt-4 px-4 py-2 bg-slate-50 dark:bg-slate-850 hover:bg-slate-100 dark:hover:bg-slate-800 border dark:border-slate-850 rounded-xl text-xs font-black transition-all"
+   878→                  >
+   879→                    {uploadingAvatar ? "Đang tải lên..." : "Tải ảnh mới"}
+   880→                  </button>
+   881→                  <p className="text-[10px] text-slate-400 mt-2 font-semibold">Khuyến nghị: Tỉ lệ 1:1, tối đa 2MB.</p>
+   882→                </div>
+   883→
+   884→                {/* COMPANY IMAGES GALLERY & UPLOAD */}
+   885→                <div className="bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800/80 rounded-[2rem] p-6 shadow-sm space-y-4">
+   886→                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Hình ảnh hoạt động</h3>
+   887→
+   888→                  <div className="grid grid-cols-2 gap-3">
+   889→                    {profileData.companyImages ? (
+   890→                      profileData.companyImages.split(',').filter(Boolean).map((imgUrl, idx) => (
+   891→                        <div key={idx} className="relative aspect-video rounded-xl overflow-hidden border border-slate-100 dark:border-slate-850 group">
+   892→                          <img src={imgUrl} alt={`Company image ${idx + 1}`} className="w-full h-full object-cover" />
+   893→                          <button
+   894→                            type="button"
+   895→                            onClick={() => handleDeleteCompanyImage(idx)}
+   896→                            className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-red-600 transition-all shadow-sm"
+   897→                          >
+   898→                            <span className="text-[10px] font-bold block px-1">Xóa</span>
+   899→                          </button>
+   900→                        </div>
+   901→                      ))
+   902→                    ) : (
+   903→                      <div className="col-span-2 text-center py-6 text-slate-400 text-xs font-semibold">Chưa có hình ảnh nào.</div>
+   904→                    )}
+   905→                  </div>
+   906→
+   907→                  <input
+   908→                    type="file"
+   909→                    id="company-image-upload"
+   910→                    accept="image/*"
+   911→                    className="hidden"
+   912→                    onChange={(e) => {
+   913→                      const file = e.target.files?.[0]
+   914→                      if (file) handleUploadCompanyImage(file)
+   915→                    }}
+   916→                  />
+   917→                  <button
+   918→                    type="button"
+   919→                    onClick={() => document.getElementById("company-image-upload")?.click()}
+   920→                    className="w-full py-2.5 border-2 border-dashed border-slate-200 dark:border-slate-800 hover:border-emerald-500 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 text-slate-500 hover:text-emerald-600"
+   921→                  >
+   922→                    {uploadingCompanyImage ? "Đang tải ảnh..." : "Thêm ảnh hoạt động"}
+   923→                  </button>
+   924→                </div>
+   925→              </div>
+   926→
+   927→              {/* Cột phải: Form thông tin chi tiết */}
+   928→              <div className="lg:col-span-2">
+   929→                <form onSubmit={handleUpdateProfile} className="bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-[2rem] p-6 sm:p-8 space-y-6 shadow-sm">
+   930→                  <div>
+   931→                    <h2 className="text-xl font-black text-slate-900 dark:text-slate-100">Thông tin công ty/CLB</h2>
+   932→                    <p className="text-slate-400 text-xs font-semibold mt-0.5">Cập nhật và hoàn thiện hồ sơ tuyển dụng của bạn.</p>
+   933→                  </div>
+   934→
+   935→                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+   936→                    <div className="space-y-1.5">
+   937→                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Tên công ty / CLB</label>
+   938→                      <input
+   939→                        type="text"
+   940→                        required
+   941→                        value={profileData.fullName}
+   942→                        onChange={(e) => setProfileData({ ...profileData, fullName: e.target.value })}
+   943→                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 focus:bg-white text-sm font-bold transition-all focus:border-emerald-500"
+   944→                        placeholder="Tên đầy đủ của công ty..."
+   945→                      />
+   946→                    </div>
+   947→
+   948→                    <div className="space-y-1.5">
+   949→                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Mã số thuế (MST)</label>
+   950→                      <input
+   951→                        type="text"
+   952→                        value={profileData.mst}
+   953→                        onChange={(e) => setProfileData({ ...profileData, mst: e.target.value })}
+   954→                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 focus:bg-white text-sm font-bold transition-all focus:border-emerald-500"
+   955→                        placeholder="Mã số thuế..."
+   956→                      />
+   957→                    </div>
+   958→                  </div>
+   959→
+   960→                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+   961→                    <div className="space-y-1.5">
+   962→                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Số điện thoại liên hệ</label>
+   963→                      <input
+   964→                        type="tel"
+   965→                        required
+   966→                        value={profileData.phone}
+   967→                        onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+   968→                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 focus:bg-white text-sm font-bold transition-all focus:border-emerald-500"
+   969→                        placeholder="Số điện thoại..."
+   970→                      />
+   971→                    </div>
+   972→
+   973→                    <div className="space-y-1.5">
+   974→                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Email liên hệ</label>
+   975→                      <input
+   976→                        type="email"
+   977→                        disabled
+   978→                        value={profileData.email}
+   979→                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 text-slate-500 text-sm font-bold cursor-not-allowed"
+   980→                      />
+   981→                    </div>
+   982→                  </div>
+   983→
+   984→                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+   985→                    <div className="space-y-1.5">
+   986→                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Website</label>
+   987→                      <input
+   988→                        type="url"
+   989→                        value={profileData.website}
+   990→                        onChange={(e) => setProfileData({ ...profileData, website: e.target.value })}
+   991→                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 focus:bg-white text-sm font-bold transition-all focus:border-emerald-500"
+   992→                        placeholder="https://example.com"
+   993→                      />
+   994→                    </div>
+   995→
+   996→                    <div className="space-y-1.5">
+   997→                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Quy mô (số nhân viên)</label>
+   998→                      <select
+   999→                        value={profileData.scale}
+  1000→                        onChange={(e) => setProfileData({ ...profileData, scale: e.target.value })}
+  1001→                        className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 focus:bg-white text-sm font-bold transition-all focus:border-emerald-500"
+  1002→                      >
+  1003→                        <option value="">Chọn quy mô...</option>
+  1004→                        <option value="1-9 nhân viên">1-9 nhân viên</option>
+  1005→                        <option value="10-24 nhân viên">10-24 nhân viên</option>
+  1006→                        <option value="25-99 nhân viên">25-99 nhân viên</option>
+  1007→                        <option value="100-499 nhân viên">100-499 nhân viên</option>
+  1008→                        <option value="500+ nhân viên">500+ nhân viên</option>
+  1009→                      </select>
+  1010→                    </div>
+  1011→                  </div>
+  1012→
+  1013→                  <div className="space-y-1.5">
+  1014→                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Địa chỉ</label>
+  1015→                    <input
+  1016→                      type="text"
+  1017→                      value={profileData.address}
+  1018→                      onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
+  1019→                      className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 focus:bg-white text-sm font-bold transition-all focus:border-emerald-500"
+  1020→                      placeholder="Địa chỉ công ty..."
+  1021→                    />
+  1022→                  </div>
+  1023→
+  1024→                  <div className="space-y-1.5">
+  1025→                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Mô tả công ty / CLB</label>
+  1026→                    <textarea
+  1027→                      value={profileData.bio}
+  1028→                      onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
+  1029→                      rows={4}
+  1030→                      className="w-full p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 focus:bg-white text-sm font-bold transition-all focus:border-emerald-500"
+  1031→                      placeholder="Giới thiệu chung về công ty hoặc câu lạc bộ..."
+  1032→                    />
+  1033→                  </div>
+  1034→
+  1035→                  <Button type="submit" disabled={isUpdatingProfile} className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black h-12 shadow-md">
+  1036→                    {isUpdatingProfile ? "Đang lưu thay đổi..." : "Lưu thay đổi"}
+  1037→                  </Button>
+  1038→                </form>
+  1039→              </div>
+  1040→            </div>
+  1041→          ) : (
+  1042→            <form onSubmit={handleChangePassword} className="max-w-2xl mx-auto bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-[2rem] p-6 sm:p-8 space-y-6 shadow-sm">
+  1043→              <div>
+  1044→                <h2 className="text-xl font-black text-slate-900 dark:text-slate-100">Đổi mật khẩu</h2>
+  1045→                <p className="text-slate-400 text-xs font-semibold mt-0.5">Đặt lại mật khẩu bảo mật mới.</p>
+  1046→              </div>
+  1047→
+  1048→              <div className="space-y-1.5">
+  1049→                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Mật khẩu mới</label>
+  1050→                <input
+  1051→                  type="password"
+  1052→                  required
+  1053→                  value={passwordState.newPassword}
+  1054→                  onChange={(e) => setPasswordState({ ...passwordState, newPassword: e.target.value })}
+  1055→                  className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 focus:bg-white text-sm font-bold transition-all focus:border-emerald-500"
+  1056→                  placeholder="Tối thiểu 6 ký tự..."
+  1057→                />
+  1058→              </div>
+  1059→
+  1060→              <div className="space-y-1.5">
+  1061→                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider">Xác nhận mật khẩu mới</label>
+  1062→                <input
+  1063→                  type="password"
+  1064→                  required
+  1065→                  value={passwordState.confirmPassword}
+  1066→                  onChange={(e) => setPasswordState({ ...passwordState, confirmPassword: e.target.value })}
+  1067→                  className="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 focus:bg-white text-sm font-bold transition-all focus:border-emerald-500"
+  1068→                  placeholder="Xác nhận lại mật khẩu..."
+  1069→                />
+  1070→              </div>
+  1071→
+  1072→              <Button type="submit" disabled={isUpdatingPassword} className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black h-12 shadow-md">
+  1073→                {isUpdatingPassword ? "Đang đổi mật khẩu..." : "Xác nhận đổi mật khẩu"}
+  1074→              </Button>
+  1075→            </form>
+  1076→          )}
+  1077→        </div>
+  1078→      )}
+  1079→
+  1080→      {/* MODALS */}
+  1081→      <EventFormModal
+  1082→        showForm={showForm}
+  1083→        editingId={editingId}
+  1084→        resetForm={resetForm}
+  1085→        handleSubmitEvent={handleSubmitEvent}
+  1086→        title={title}
+  1087→        setTitle={setTitle}
+  1088→        location={location}
+  1089→        setLocation={setLocation}
+  1090→        wardId={wardId}
+  1091→        setWardId={setWardId}
+  1092→        wards={wards}
+  1093→        eventDate={eventDate}
+  1094→        setEventDate={setEventDate}
+  1095→        applicationDeadline={applicationDeadline}
+  1096→        setApplicationDeadline={setApplicationDeadline}
+  1097→        positionType={positionType}
+  1098→        setPositionType={setPositionType}
+  1099→        category={category}
+  1100→        setCategory={setCategory}
+  1101→        benefits={benefits}
+  1102→        setBenefits={setBenefits}
+  1103→        slotsNeeded={slotsNeeded}
+  1104→        setSlotsNeeded={setSlotsNeeded}
+  1105→        desc={desc}
+  1106→        setDesc={setDesc}
+  1107→        loading={loading}
+  1108→      />
+  1109→
+  1110→      {reviewingStudent && userId && (
+  1111→        <ReviewModal
+  1112→          isOpen={!!reviewingStudent}
+  1113→          onClose={() => setReviewingStudent(null)}
+  1114→          eventId={reviewingStudent.eventId}
+  1115→          reviewerId={userId}
+  1116→          revieweeId={reviewingStudent.studentId}
+  1117→          revieweeName={reviewingStudent.studentName}
+  1118→        />
+  1119→      )}
+  1120→
+  1121→      <CVViewModal viewingCV={viewingCV} onClose={() => setViewingCV(null)} />
+  1122→
+  1123→      {/* FLOATING DEV TOGGLE PREMIUM */}
+  1124→      <button
+  1125→        onClick={togglePremium}
+  1126→        className="fixed bottom-6 right-6 bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold px-4 py-2.5 rounded-full text-xs shadow-2xl hover:scale-105 active:scale-95 transition-all z-[9999] flex items-center gap-1.5 border border-slate-200 dark:border-slate-800"
+  1127→      >
+  1128→        <Crown className="w-3.5 h-3.5 text-amber-500 fill-current" />
+  1129→        Dev: {isPremium ? "Tắt VIP" : "Bật VIP"}
+  1130→      </button>
+  1131→    </OrgLayout>
+  1132→  )
+  1133→}

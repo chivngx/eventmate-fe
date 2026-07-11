@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react"
 import { useParams, useNavigate } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
+import { getUserFacingMessage } from "@/lib/error"
 import MainLayout from "@/components/layout/MainLayout"
 import OrgLayout from "@/components/layout/OrgLayout"
 import { Send, MessageSquare, User, ArrowLeft, Calendar, Video, Clock, Check, X } from "lucide-react"
@@ -93,7 +94,7 @@ export default function Chat() {
       .order("created_at", { ascending: false })
 
     if (error) {
-      console.error("Lỗi fetchChats:", error.message)
+      console.error("Lỗi fetchChats:", error)
     }
 
     if (!error && data) {
@@ -263,7 +264,7 @@ export default function Chat() {
     setSending(false)
 
     if (error) {
-      console.error("Lỗi gửi tin nhắn:", error.message)
+      console.error("Lỗi gửi tin nhắn:", error)
       setNewMessage(tempMsg) // Khôi phục lại text
     } else if (data) {
       setMessages((prev) => {
@@ -328,8 +329,8 @@ export default function Chat() {
       setIsInterviewModalOpen(false)
       scrollToBottom()
     } catch (err: any) {
-      console.error("Lỗi tạo lịch hẹn:", err.message)
-      alert("Lỗi khi tạo lịch hẹn: " + err.message)
+      console.error("Lỗi tạo lịch hẹn:", err)
+      alert(getUserFacingMessage(err, "Không thể tạo lịch hẹn. Vui lòng thử lại."))
     } finally {
       setCreatingInterview(false)
     }
@@ -364,8 +365,8 @@ export default function Chat() {
         }
       ])
     } catch (err: any) {
-      console.error("Lỗi cập nhật lịch hẹn:", err.message)
-      alert("Không thể cập nhật trạng thái: " + err.message)
+      console.error("Lỗi cập nhật lịch hẹn:", err)
+      alert(getUserFacingMessage(err, "Không thể cập nhật trạng thái. Vui lòng thử lại."))
     }
   }
 
@@ -446,7 +447,8 @@ export default function Chat() {
                       setActiveChat(null)
                       navigate("/chat")
                     }}
-                    className="md:hidden p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-250 transition-colors mr-1"
+                    aria-label="Quay lại"
+                    className="md:hidden p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-250 transition-colors mr-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
                   >
                     <ArrowLeft className="w-5 h-5" />
                   </button>
@@ -643,7 +645,8 @@ export default function Chat() {
                 <Button
                   type="submit"
                   disabled={sending}
-                  className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white h-12 w-12 shrink-0 p-0 flex items-center justify-center shadow-md shadow-emerald-600/20 disabled:opacity-50"
+                  aria-label="Gửi tin nhắn"
+                  className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white h-12 w-12 shrink-0 p-0 flex items-center justify-center shadow-md shadow-emerald-600/20 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
                 >
                   <Send className="w-5 h-5" />
                 </Button>

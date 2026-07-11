@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
+import { getUserFacingMessage } from "@/lib/error"
 import MainLayout from "@/components/layout/MainLayout"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -77,7 +78,7 @@ export default function CVProfile() {
                 .eq("id", user.id)
 
             if (error) {
-                alert("Lỗi khi lưu CV: " + error.message)
+                alert(getUserFacingMessage(error, "Lỗi khi lưu CV. Vui lòng thử lại."))
             } else {
                 alert("🎉 Đã lưu Hồ sơ CV thành công! Mức độ hoàn thiện CV của bạn trên hệ thống đã được cập nhật tự động.")
             }

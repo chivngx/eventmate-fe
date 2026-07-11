@@ -4,6 +4,7 @@ import { useState } from "react"
 import { X, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { supabase } from "@/lib/supabase"
+import { getUserFacingMessage } from "@/lib/error"
 
 interface ReviewModalProps {
   isOpen: boolean
@@ -49,7 +50,7 @@ export default function ReviewModal({
       if (error.code === "23505") {
         alert("Bạn đã đánh giá đối phương cho sự kiện này rồi!")
       } else {
-        alert("Lỗi khi gửi đánh giá: " + error.message)
+        alert(getUserFacingMessage(error, "Không thể gửi đánh giá. Vui lòng thử lại."))
       }
     } else {
       alert("🎉 Cảm ơn bạn đã gửi đánh giá!")
@@ -64,7 +65,8 @@ export default function ReviewModal({
       <div className="bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 w-full max-w-md shadow-2xl p-6 relative overflow-hidden transition-all">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+          aria-label="Đóng"
+          className="absolute top-4 right-4 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
         >
           <X className="w-5 h-5" />
         </button>
@@ -85,7 +87,9 @@ export default function ReviewModal({
                   onClick={() => setRating(star)}
                   onMouseEnter={() => setHoverRating(star)}
                   onMouseLeave={() => setHoverRating(null)}
-                  className="p-1 hover:scale-110 transition-transform text-amber-400 hover:text-amber-500"
+                  aria-label={`Đánh giá ${star} sao`}
+                  aria-pressed={rating === star}
+                  className="p-1 hover:scale-110 transition-transform text-amber-400 hover:text-amber-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 rounded"
                 >
                   <Star
                     className="w-8 h-8"

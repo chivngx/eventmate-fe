@@ -159,7 +159,8 @@ export default function ScheduleCalendar({ applications, interviews = [] }: Sche
         <div className="flex items-center gap-1 bg-slate-50 dark:bg-slate-800/50 p-1 rounded-lg border border-slate-100 dark:border-slate-800">
           <button
             onClick={prevMonth}
-            className="p-0.5 rounded hover:bg-white dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-all"
+            aria-label="Tháng trước"
+            className="p-0.5 rounded hover:bg-white dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
           >
             <ChevronLeft className="w-3.5 h-3.5" />
           </button>
@@ -168,7 +169,8 @@ export default function ScheduleCalendar({ applications, interviews = [] }: Sche
           </span>
           <button
             onClick={nextMonth}
-            className="p-0.5 rounded hover:bg-white dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-all"
+            aria-label="Tháng sau"
+            className="p-0.5 rounded hover:bg-white dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
           >
             <ChevronRight className="w-3.5 h-3.5" />
           </button>

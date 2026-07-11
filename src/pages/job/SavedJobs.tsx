@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
+import { getUserFacingMessage } from "@/lib/error"
 import MainLayout from "@/components/layout/MainLayout"
 import { Bookmark, MapPin, Building2, Briefcase, Tag, Trash2, ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -63,7 +64,7 @@ export default function SavedJobs() {
         if (!error) {
             setBookmarks(prev => prev.filter(b => b.id !== bookmarkId))
         } else {
-            alert("Lỗi khi bỏ lưu: " + error.message)
+            alert(getUserFacingMessage(error, "Không thể bỏ lưu. Vui lòng thử lại."))
         }
     }
 

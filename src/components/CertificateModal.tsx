@@ -1,6 +1,7 @@
 "use client"
 
 import { X, Award, Printer } from "lucide-react"
+import { escapeHtml } from "@/lib/error"
 import { Button } from "@/components/ui/button"
 
 interface CertificateModalProps {
@@ -28,12 +29,20 @@ export default function CertificateModal({
     const printContent = document.getElementById("certificate-print-area")
     if (!printContent) return
 
+    // SECURITY: escape all user/organizer-supplied values before injecting
+    // them into the print window's HTML to prevent DOM XSS.
+    const safeName = escapeHtml(studentName)
+    const safeTitle = escapeHtml(eventTitle)
+    const safePosition = escapeHtml(position)
+    const safeOrganizer = escapeHtml(organizerName)
+    const safeDate = escapeHtml(new Date(eventDate).toLocaleDateString('vi-VN'))
+
     const printWindow = window.open("", "_blank")
     if (printWindow) {
       printWindow.document.write(`
         <html>
           <head>
-            <title>Chứng nhận tham gia sự kiện - ${studentName}</title>
+            <title>Chứng nhận tham gia sự kiện - ${safeName}</title>
             <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Inter:wght@400;650;600;700&display=swap" rel="stylesheet">
             <style>
               body {
@@ -169,10 +178,10 @@ export default function CertificateModal({
 
                 <div>
                   <div class="cert-to">Chứng nhận này được trân trọng trao cho</div>
-                  <div class="cert-name">${studentName}</div>
+                  <div class="cert-name">${safeName}</div>
                   <div class="cert-text">
-                    Đã hoàn thành xuất sắc vai trò <strong>${position}</strong> tại sự kiện <strong>${eventTitle}</strong>,<br/>
-                    diễn ra vào ngày <strong>${new Date(eventDate).toLocaleDateString('vi-VN')}</strong>.
+                    Đã hoàn thành xuất sắc vai trò <strong>${safePosition}</strong> tại sự kiện <strong>${safeTitle}</strong>,<br/>
+                    diễn ra vào ngày <strong>${safeDate}</strong>.
                   </div>
                 </div>
 
@@ -183,7 +192,7 @@ export default function CertificateModal({
                     <div class="signature-title">Hệ thống Quản lý Sự kiện</div>
                   </div>
                   <div class="signature-block">
-                    <div style="font-family: 'Playfair Display', serif; font-style: italic; color: #1e293b; font-size: 14px; font-weight: bold;">${organizerName}</div>
+                    <div style="font-family: 'Playfair Display', serif; font-style: italic; color: #1e293b; font-size: 14px; font-weight: bold;">${safeOrganizer}</div>
                     <div class="signature-line">ĐƠN VỊ TỔ CHỨC</div>
                     <div class="signature-title">Đại diện Đơn vị Đối tác</div>
                   </div>
@@ -214,8 +223,9 @@ export default function CertificateModal({
             Chứng Nhận Sự Kiện
           </h3>
           <button 
-            onClick={onClose} 
-            className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+            onClick={onClose}
+            aria-label="Đóng"
+            className="p-1.5 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-full transition-colors text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
           >
             <X className="w-5 h-5" />
           </button>

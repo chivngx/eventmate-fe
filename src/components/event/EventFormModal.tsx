@@ -91,7 +91,7 @@ export default function EventFormModal({
           <h2 className="text-xl font-extrabold text-slate-900 dark:text-slate-100">
             {editingId ? "✏️ Chỉnh sửa sự kiện" : "✨ Tạo sự kiện & Tuyển dụng mới"}
           </h2>
-          <button onClick={resetForm} className="p-2 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 bg-white dark:bg-slate-900 rounded-full border border-slate-200 dark:border-slate-850 transition-colors">
+          <button onClick={resetForm} aria-label="Đóng" className="p-2 text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 bg-white dark:bg-slate-900 rounded-full border border-slate-200 dark:border-slate-850 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40">
             <X className="w-5 h-5" />
           </button>
         </div>

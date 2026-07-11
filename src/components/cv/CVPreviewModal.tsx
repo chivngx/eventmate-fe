@@ -78,21 +78,27 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
             <div className="flex items-center gap-1.5 ml-4 bg-slate-100 p-1 rounded-full">
               <button
                 onClick={() => setAccent("emerald")}
-                className={`w-5 h-5 rounded-full bg-emerald-500 border-2 transition-transform ${
+                aria-label="Xanh lá"
+                aria-pressed={accent === "emerald"}
+                className={`w-5 h-5 rounded-full bg-emerald-500 border-2 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 ${
                   accent === "emerald" ? "border-slate-800 scale-110" : "border-transparent"
                 }`}
                 title="Xanh lá"
               />
               <button
                 onClick={() => setAccent("blue")}
-                className={`w-5 h-5 rounded-full bg-blue-500 border-2 transition-transform ${
+                aria-label="Xanh dương"
+                aria-pressed={accent === "blue"}
+                className={`w-5 h-5 rounded-full bg-blue-500 border-2 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 ${
                   accent === "blue" ? "border-slate-800 scale-110" : "border-transparent"
                 }`}
                 title="Xanh dương"
               />
               <button
                 onClick={() => setAccent("violet")}
-                className={`w-5 h-5 rounded-full bg-violet-500 border-2 transition-transform ${
+                aria-label="Tím hồng"
+                aria-pressed={accent === "violet"}
+                className={`w-5 h-5 rounded-full bg-violet-500 border-2 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 ${
                   accent === "violet" ? "border-slate-800 scale-110" : "border-transparent"
                 }`}
                 title="Tím hồng"
@@ -109,7 +115,8 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
             </Button>
             <button
               onClick={onClose}
-              className="p-1.5 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-600 transition-colors"
+              aria-label="Đóng"
+              className="p-1.5 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
             >
               <X className="w-5 h-5" />
             </button>

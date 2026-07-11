@@ -199,7 +199,8 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
             />
             <Link
                 href="/chat"
-                className="p-2 sm:p-2.5 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-400 hover:text-emerald-600 relative flex items-center justify-center shrink-0"
+                aria-label="Trò chuyện"
+                className="p-2 sm:p-2.5 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-400 hover:text-emerald-600 relative flex items-center justify-center shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
                 title="Trò chuyện"
             >
                 <MessageSquare className="w-5 h-5" />
