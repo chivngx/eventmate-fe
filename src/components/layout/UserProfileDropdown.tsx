@@ -1,3 +1,5 @@
+"use client"
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { LogOut, Briefcase, ChevronDown, ChevronUp, Mail, Shield, Crown, FileText, Building2 } from "lucide-react"

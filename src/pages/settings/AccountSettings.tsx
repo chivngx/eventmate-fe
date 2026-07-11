@@ -1,5 +1,7 @@
+"use client"
+
 import { useState, useEffect } from "react"
-import { Navigate } from "react-router-dom"
+import { Navigate } from "@/lib/router"
 import { cn } from "@/lib/utils"
 import MainLayout from "@/components/layout/MainLayout"
 import { SkeletonGenericPage } from "@/components/ui/Skeleton"

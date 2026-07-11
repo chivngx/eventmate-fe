@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { useOrgDashboard } from "./useOrgDashboard"
 import { Button } from "@/components/ui/button"

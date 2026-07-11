@@ -1,5 +1,7 @@
+"use client"
+
 import { useState, useEffect } from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
 import MainLayout from "@/components/layout/MainLayout"
 import { Building2, Search, MapPin, Mail, Phone, CalendarDays, ArrowRight } from "lucide-react"

@@ -1,3 +1,5 @@
+"use client"
+
 import { Calendar, Clock, X, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"

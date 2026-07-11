@@ -1,3 +1,5 @@
+"use client"
+
 import { X, Mail, Phone, GraduationCap, Sparkles, Printer, User, Award } from "lucide-react"
 import { useState } from "react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"

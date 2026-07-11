@@ -1,5 +1,7 @@
+"use client"
+
 import { useEffect, useState } from "react"
-import { useSearchParams, useNavigate, useParams } from "react-router-dom"
+import { useSearchParams, useNavigate, useParams } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
 import MainLayout from "@/components/layout/MainLayout"
 import { Search, MapPin, Briefcase, Clock, ChevronLeft, ChevronRight, Building2, Heart } from "lucide-react"

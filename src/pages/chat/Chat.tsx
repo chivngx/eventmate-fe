@@ -1,5 +1,7 @@
+"use client"
+
 import { useEffect, useState, useRef } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams, useNavigate } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
 import MainLayout from "@/components/layout/MainLayout"
 import OrgLayout from "@/components/layout/OrgLayout"

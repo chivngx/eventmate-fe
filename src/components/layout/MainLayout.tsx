@@ -1,5 +1,8 @@
+"use client"
+
 import { useEffect, useState } from "react"
-import { useNavigate, Link } from "react-router-dom"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { supabase } from "@/lib/supabase"
 import { NotchNavbar } from "@/components/layout/notch-navbar"
 import { Button } from "@/components/ui/button"
@@ -12,33 +15,29 @@ import FloatingChat from "@/components/chat/FloatingChat"
 import Footer from "./Footer"
 
 export default function MainLayout({ children, role }: { children: React.ReactNode, role?: string }) {
-    const navigate = useNavigate()
+    const router = useRouter()
+    const navigate = (path: string) => router.push(path)
     const { showToast } = useToast()
 
     const getCachedProfile = () => {
+        if (typeof window === "undefined") return null
         const cached = localStorage.getItem("em_user_profile")
         if (cached) {
             try {
                 return JSON.parse(cached)
-            } catch (e) {
+            } catch {
                 return null
             }
         }
         return null
     }
 
-    const cached = getCachedProfile()
-
-    const [user, setUser] = useState<any>(() => {
-        return cached ? { email: cached.email } : null
-    })
-    const [loadingAuth, setLoadingAuth] = useState(() => {
-        return cached ? false : true
-    })
-    const [fullName, setFullName] = useState(cached?.fullName || "")
-    const [email, setEmail] = useState(cached?.email || "")
-    const [avatarUrl, setAvatarUrl] = useState(cached?.avatarUrl || "")
-    const [userRole, setUserRole] = useState(role || cached?.role || "student")
+    const [user, setUser] = useState<any>(null)
+    const [loadingAuth, setLoadingAuth] = useState(true)
+    const [fullName, setFullName] = useState("")
+    const [email, setEmail] = useState("")
+    const [avatarUrl, setAvatarUrl] = useState("")
+    const [userRole, setUserRole] = useState(role || "student")
 
     const [authModal, setAuthModal] = useState<{ isOpen: boolean; mode: "login" | "register" }>({
         isOpen: false,
@@ -79,6 +78,17 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
         let channel: any; // Biến lưu trữ kênh đăng ký Real-time để cleanup khi unmount
 
         const fetchProfileAndSetupRealtime = async () => {
+            // Áp dụng cache profile cục bộ để hiển thị tức thì (chỉ client)
+            const cachedProfile = getCachedProfile()
+            if (cachedProfile) {
+                setUser({ email: cachedProfile.email })
+                setFullName(cachedProfile.fullName || "")
+                setEmail(cachedProfile.email || "")
+                setAvatarUrl(cachedProfile.avatarUrl || "")
+                setUserRole(cachedProfile.role || "student")
+                setLoadingAuth(false)
+            }
+
             // Lấy session từ cache cục bộ (nhanh hơn getUser rất nhiều)
             const { data: { session } } = await supabase.auth.getSession()
             let currentUser = session?.user || null
@@ -188,7 +198,7 @@ export default function MainLayout({ children, role }: { children: React.ReactNo
                 markAsRead={markAsRead}
             />
             <Link
-                to="/chat"
+                href="/chat"
                 className="p-2 sm:p-2.5 rounded-full hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-400 hover:text-emerald-600 relative flex items-center justify-center shrink-0"
                 title="Trò chuyện"
             >

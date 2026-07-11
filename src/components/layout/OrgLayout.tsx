@@ -1,5 +1,7 @@
+"use client"
+
 import { useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { useRouter } from "next/navigation"
 import {
     LayoutDashboard,
     FileText,
@@ -33,7 +35,8 @@ export default function OrgLayout({
     userProfile,
     onLogout
 }: OrgLayoutProps) {
-    const navigate = useNavigate()
+    const router = useRouter()
+    const navigate = (path: string) => router.push(path)
     const [isSidebarOpen, setIsSidebarOpen] = useState(true)
 
     const menuItems = [

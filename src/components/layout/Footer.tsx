@@ -1,8 +1,12 @@
-import { Link, useNavigate } from "react-router-dom"
+"use client"
+
+import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Mail, Phone, MapPin } from "lucide-react"
 
 export default function Footer() {
-  const navigate = useNavigate()
+  const router = useRouter()
+  const navigate = (path: string) => router.push(path)
 
   return (
     <footer className="bg-[#0f172a] text-slate-400 font-sans border-t-[3px] border-[#00b14f] mt-16 shadow-[0_-8px_30px_rgb(0,0,0,0.12)]">
@@ -56,25 +60,25 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3.5 text-sm font-medium">
               <li className="transform hover:translate-x-1.5 transition-all duration-300">
-                <Link to="/" className="text-slate-400 hover:text-[#00b14f] transition-colors flex items-center gap-1.5 group">
+                <Link href="/" className="text-slate-400 hover:text-[#00b14f] transition-colors flex items-center gap-1.5 group">
                   <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-[#00b14f] transition-colors" />
                   Tìm kiếm sự kiện
                 </Link>
               </li>
               <li className="transform hover:translate-x-1.5 transition-all duration-300">
-                <Link to="/my-jobs" className="text-slate-400 hover:text-[#00b14f] transition-colors flex items-center gap-1.5 group">
+                <Link href="/my-jobs" className="text-slate-400 hover:text-[#00b14f] transition-colors flex items-center gap-1.5 group">
                   <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-[#00b14f] transition-colors" />
                   Sự kiện đã ứng tuyển
                 </Link>
               </li>
               <li className="transform hover:translate-x-1.5 transition-all duration-300">
-                <Link to="/my-jobs" className="text-slate-400 hover:text-[#00b14f] transition-colors flex items-center gap-1.5 group">
+                <Link href="/my-jobs" className="text-slate-400 hover:text-[#00b14f] transition-colors flex items-center gap-1.5 group">
                   <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-[#00b14f] transition-colors" />
                   Việc làm đã lưu
                 </Link>
               </li>
               <li className="transform hover:translate-x-1.5 transition-all duration-300">
-                <Link to="/settings" className="text-slate-400 hover:text-[#00b14f] transition-colors flex items-center gap-1.5 group">
+                <Link href="/settings" className="text-slate-400 hover:text-[#00b14f] transition-colors flex items-center gap-1.5 group">
                   <span className="w-1.5 h-1.5 rounded-full bg-slate-700 group-hover:bg-[#00b14f] transition-colors" />
                   Quản lý hồ sơ CV
                 </Link>

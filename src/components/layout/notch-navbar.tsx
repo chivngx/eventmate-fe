@@ -1,20 +1,23 @@
+"use client"
+
 import { useState, useEffect } from "react"
-import { Link, useLocation } from "react-router-dom"
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { Search, FileText, Menu, X, ChevronDown, Bookmark, Briefcase, Building2, MessageSquare } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
 import { supabase } from "@/lib/supabase"
 
 const NavLink = ({ href, icon: Icon, label, onClick }: { href: string; icon: React.ComponentType<{ className?: string }>; label: string; onClick?: (e: React.MouseEvent) => void }) => {
-    const location = useLocation()
-    const currentPathWithSearch = location.pathname + location.search
+    const pathname = usePathname()
+    const currentPathWithSearch = pathname + (typeof window !== "undefined" ? window.location.search : "")
     const isActive = href.includes("?")
-        ? currentPathWithSearch === href || (href.includes("tab=events") && !location.search.includes("tab="))
-        : location.pathname === href
+        ? currentPathWithSearch === href || (href.includes("tab=events") && !currentPathWithSearch.includes("tab="))
+        : pathname === href
 
     return (
         <Link
-            to={href}
+            href={href}
             onClick={onClick}
             className={cn(
                 "group flex items-center gap-1.5 text-sm transition-all whitespace-nowrap px-3 sm:px-4 py-2 rounded-full",
@@ -75,21 +78,21 @@ const JobsMegaMenu = ({ role }: { role?: string }) => {
                         <div>
                             <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Quản lý Việc làm</h4>
                             <div className="space-y-1">
-                                <Link to="/" className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
+                                <Link href="/" className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
                                     <Search className="w-5 h-5 text-emerald-500 group-hover/item:scale-110 transition-transform" /> Tìm việc sự kiện
                                 </Link>
                                 {/* ĐÃ CẬP NHẬT: Gắn parameter ?filter=saved vào link dưới đây */}
-                                <Link to="/saved" onClick={handleProtectedLink} className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
+                                <Link href="/saved" onClick={handleProtectedLink} className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
                                     <Bookmark className="w-5 h-5 text-slate-400 group-hover/item:text-emerald-500 group-hover/item:scale-110 transition-all" /> Việc làm đã lưu
                                 </Link>
-                                <Link to="/my-jobs" onClick={handleProtectedLink} className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-650 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
+                                <Link href="/my-jobs" onClick={handleProtectedLink} className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-650 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
                                     <Briefcase className="w-5 h-5 text-slate-400 group-hover/item:text-emerald-500 group-hover/item:scale-110 transition-all" /> Việc làm đã ứng tuyển
                                 </Link>
                             </div>
                         </div>
                         <div>
                             <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Ban Tổ Chức</h4>
-                            <Link to="/companies" className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
+                            <Link href="/companies" className="flex items-center gap-3 text-sm font-bold text-slate-700 hover:text-emerald-600 transition-colors p-2.5 -ml-2 rounded-xl hover:bg-emerald-50 group/item">
                                 <Building2 className="w-5 h-5 text-slate-400 group-hover/item:text-emerald-500 group-hover/item:scale-110 transition-all" /> Danh sách Ban tổ chức
                             </Link>
                         </div>
@@ -100,7 +103,7 @@ const JobsMegaMenu = ({ role }: { role?: string }) => {
                         <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-5">Việc làm theo vị trí</h4>
                         <div className="space-y-4">
                             {positions.map(item => (
-                                <Link key={item.slug} to={`/positions/${item.slug}`} className="block text-sm font-medium text-slate-600 hover:text-emerald-600 hover:translate-x-1 hover:font-bold transition-all">
+                                <Link key={item.slug} href={`/positions/${item.slug}`} className="block text-sm font-medium text-slate-600 hover:text-emerald-600 hover:translate-x-1 hover:font-bold transition-all">
                                     {item.name}
                                 </Link>
                             ))}
@@ -112,7 +115,7 @@ const JobsMegaMenu = ({ role }: { role?: string }) => {
                         <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-5">Việc làm theo sự kiện</h4>
                         <div className="space-y-4">
                             {categories.map(item => (
-                                <Link key={item.slug} to={`/events/${item.slug}`} className="block text-sm font-medium text-slate-600 hover:text-emerald-600 hover:translate-x-1 hover:font-bold transition-all">
+                                <Link key={item.slug} href={`/events/${item.slug}`} className="block text-sm font-medium text-slate-600 hover:text-emerald-600 hover:translate-x-1 hover:font-bold transition-all">
                                     {item.name}
                                 </Link>
                             ))}
@@ -220,11 +223,11 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                         className="fixed inset-x-0 top-[72px] z-40 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800 p-4 md:hidden shadow-md rounded-b-2xl"
                     >
                         <nav className="flex flex-col gap-1">
-                            <Link to="/" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 font-bold text-slate-800 dark:text-slate-200" onClick={() => setIsMobileMenuOpen(false)}>
+                            <Link href="/" className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 font-bold text-slate-800 dark:text-slate-200" onClick={() => setIsMobileMenuOpen(false)}>
                                 <Search className="w-5 h-5 text-slate-400" /> Việc làm sự kiện
                             </Link>
                             <Link
-                                to="/cv"
+                            href="/cv"
                                 className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 font-bold text-slate-800 dark:text-slate-200"
                                 onClick={(e) => {
                                     setIsMobileMenuOpen(false)
@@ -237,7 +240,7 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
                                 <FileText className="w-5 h-5 text-slate-400" /> Hồ sơ CV của tôi
                             </Link>
                             <Link
-                                to="/chat"
+                            href="/chat"
                                 className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 font-bold text-slate-800 dark:text-slate-200"
                                 onClick={(e) => {
                                     setIsMobileMenuOpen(false)

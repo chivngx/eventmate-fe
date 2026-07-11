@@ -1,3 +1,5 @@
+"use client"
+
 import { CheckCircle2 } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"

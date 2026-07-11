@@ -1,3 +1,5 @@
+"use client"
+
 import { Edit2, Trash2, Users, Calendar, MapPin, Briefcase, Tag, Clock, Award } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"

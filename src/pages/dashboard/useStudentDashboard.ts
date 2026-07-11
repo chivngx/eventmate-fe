@@ -1,5 +1,7 @@
+"use client"
+
 import { useState, useEffect } from "react"
-import { useNavigate, useSearchParams, useLocation } from "react-router-dom"
+import { useNavigate, useSearchParams, useLocation } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
 
 export function useStudentDashboard() {

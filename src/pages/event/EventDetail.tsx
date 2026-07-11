@@ -1,5 +1,7 @@
+"use client"
+
 import { useState, useEffect } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams, useNavigate } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
 import MainLayout from "@/components/layout/MainLayout"
 import { MapPin, Calendar, CheckCircle, XCircle, Clock3, Bookmark, Briefcase, Tag, DollarSign, Users, ExternalLink } from "lucide-react"

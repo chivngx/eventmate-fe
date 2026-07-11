@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { Users, Check, Plus } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"

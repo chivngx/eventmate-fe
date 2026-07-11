@@ -1,0 +1,762 @@
+     1→import { useEffect, useState, useRef } from "react"
+     2→import { useParams, useNavigate } from "react-router-dom"
+     3→import { supabase } from "@/lib/supabase"
+     4→import MainLayout from "@/components/layout/MainLayout"
+     5→import OrgLayout from "@/components/layout/OrgLayout"
+     6→import { Send, MessageSquare, User, ArrowLeft, Calendar, Video, Clock, Check, X } from "lucide-react"
+     7→import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+     8→import { Button } from "@/components/ui/button"
+     9→
+    10→interface ChatItem {
+    11→  id: string
+    12→  event_id: string
+    13→  student_id: string
+    14→  organizer_id: string
+    15→  created_at: string
+    16→  events: { title: string }
+    17→  student_profile: { id: string; full_name: string; avatar_url: string }
+    18→  organizer_profile: { id: string; full_name: string; avatar_url: string }
+    19→}
+    20→
+    21→interface Message {
+    22→  id: string
+    23→  chat_id: string
+    24→  sender_id: string
+    25→  content: string
+    26→  created_at: string
+    27→}
+    28→
+    29→export default function Chat() {
+    30→  const { id: routeChatId } = useParams<{ id: string }>()
+    31→  const navigate = useNavigate()
+    32→
+    33→  const [currentUser, setCurrentUser] = useState<any>(null)
+    34→  const [role, setRole] = useState("student")
+    35→  const [loading, setLoading] = useState(true)
+    36→
+    37→  const [chats, setChats] = useState<ChatItem[]>([])
+    38→  const [activeChat, setActiveChat] = useState<ChatItem | null>(null)
+    39→  const [messages, setMessages] = useState<Message[]>([])
+    40→  const [newMessage, setNewMessage] = useState("")
+    41→  const [sending, setSending] = useState(false)
+    42→
+    43→  // Phân trang
+    44→  const [messagesLimit, setMessagesLimit] = useState(20)
+    45→  const [hasMoreMessages, setHasMoreMessages] = useState(true)
+    46→
+    47→  // Hẹn phỏng vấn
+    48→  const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false)
+    49→  const [interviewTitle, setInterviewTitle] = useState("")
+    50→  const [interviewDate, setInterviewDate] = useState("")
+    51→  const [interviewLink, setInterviewLink] = useState("")
+    52→  const [interviews, setInterviews] = useState<Record<string, any>>({})
+    53→  const [creatingInterview, setCreatingInterview] = useState(false)
+    54→
+    55→  const messagesEndRef = useRef<HTMLDivElement>(null)
+    56→
+    57→  // 1. Lấy thông tin User hiện tại
+    58→  useEffect(() => {
+    59→    const fetchUser = async () => {
+    60→      const { data: { user } } = await supabase.auth.getUser()
+    61→      if (!user) {
+    62→        navigate("/login")
+    63→        return
+    64→      }
+    65→      setCurrentUser(user)
+    66→
+    67→      const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
+    68→      if (profile) setRole(profile.role)
+    69→
+    70→      setLoading(false)
+    71→    }
+    72→    fetchUser()
+    73→  }, [navigate])
+    74→
+    75→  // 2. Fetch danh sách các phòng Chat của User
+    76→  const fetchChats = async () => {
+    77→    if (!currentUser) return
+    78→
+    79→    const isOrg = role === "organizer"
+    80→    const queryField = isOrg ? "organizer_id" : "student_id"
+    81→
+    82→    const { data, error } = await supabase
+    83→      .from("chats")
+    84→      .select(`
+    85→        id, event_id, student_id, organizer_id, created_at,
+    86→        events (title),
+    87→        student_profile:profiles!student_id (id, full_name, avatar_url),
+    88→        organizer_profile:profiles!organizer_id (id, full_name, avatar_url)
+    89→      `)
+    90→      .eq(queryField, currentUser.id)
+    91→      .order("created_at", { ascending: false })
+    92→
+    93→    if (error) {
+    94→      console.error("Lỗi fetchChats:", error.message)
+    95→    }
+    96→
+    97→    if (!error && data) {
+    98→      const formattedChats = data.map((item: any) => ({
+    99→        ...item,
+   100→        events: Array.isArray(item.events) ? item.events[0] || { title: "Sự kiện chung" } : item.events || { title: "Sự kiện chung" },
+   101→        student_profile: Array.isArray(item.student_profile) ? item.student_profile[0] || { id: "", full_name: "Ứng viên", avatar_url: "" } : item.student_profile || { id: "", full_name: "Ứng viên", avatar_url: "" },
+   102→        organizer_profile: Array.isArray(item.organizer_profile) ? item.organizer_profile[0] || { id: "", full_name: "Ban tổ chức", avatar_url: "" } : item.organizer_profile || { id: "", full_name: "Ban tổ chức", avatar_url: "" }
+   103→      })) as ChatItem[]
+   104→
+   105→      setChats(formattedChats)
+   106→
+   107→      // Nếu có chat ID từ Route, set active chat
+   108→      if (routeChatId) {
+   109→        const found = formattedChats.find(c => c.id === routeChatId)
+   110→        if (found) {
+   111→          setActiveChat(found)
+   112→        } else {
+   113→          // Trực tiếp fetch chat nếu không tìm thấy trong list (phòng ngừa lỗi đồng bộ)
+   114→          const { data: directChat } = await supabase
+   115→            .from("chats")
+   116→            .select(`
+   117→              id, event_id, student_id, organizer_id, created_at,
+   118→              events (title),
+   119→              student_profile:profiles!student_id (id, full_name, avatar_url),
+   120→              organizer_profile:profiles!organizer_id (id, full_name, avatar_url)
+   121→            `)
+   122→            .eq("id", routeChatId)
+   123→            .maybeSingle()
+   124→
+   125→          if (directChat) {
+   126→            const formatted = {
+   127→              ...directChat,
+   128→              events: Array.isArray(directChat.events) ? directChat.events[0] || { title: "Sự kiện chung" } : directChat.events || { title: "Sự kiện chung" },
+   129→              student_profile: Array.isArray(directChat.student_profile) ? directChat.student_profile[0] || { id: "", full_name: "Ứng viên", avatar_url: "" } : directChat.student_profile || { id: "", full_name: "Ứng viên", avatar_url: "" },
+   130→              organizer_profile: Array.isArray(directChat.organizer_profile) ? directChat.organizer_profile[0] || { id: "", full_name: "Ban tổ chức", avatar_url: "" } : directChat.organizer_profile || { id: "", full_name: "Ban tổ chức", avatar_url: "" }
+   131→            } as ChatItem
+   132→            setActiveChat(formatted)
+   133→          }
+   134→        }
+   135→      } else if (formattedChats.length > 0 && !activeChat) {
+   136→        setActiveChat(formattedChats[0])
+   137→      }
+   138→    }
+   139→  }
+   140→
+   141→  useEffect(() => {
+   142→    if (currentUser) {
+   143→      fetchChats()
+   144→    }
+   145→  }, [currentUser, role, routeChatId])
+   146→
+   147→  // Fetch danh sách lịch hẹn phỏng vấn
+   148→  const fetchInterviews = async (chat: ChatItem) => {
+   149→    const { data, error } = await supabase
+   150→      .from("interviews")
+   151→      .select("*")
+   152→      .eq("student_id", chat.student_id)
+   153→      .eq("organizer_id", chat.organizer_id)
+   154→
+   155→    if (!error && data) {
+   156→      const map: Record<string, any> = {}
+   157→      data.forEach((item) => {
+   158→        map[item.id] = item
+   159→      })
+   160→      setInterviews(map)
+   161→    }
+   162→  }
+   163→
+   164→  // 3. Fetch tin nhắn khi đổi Chat room
+   165→  const fetchMessages = async (chatId: string, currentLimit = 20) => {
+   166→    const { data, error } = await supabase
+   167→      .from("messages")
+   168→      .select("*")
+   169→      .eq("chat_id", chatId)
+   170→      .order("created_at", { ascending: false })
+   171→      .limit(currentLimit)
+   172→
+   173→    if (!error && data) {
+   174→      const reversed = [...data].reverse()
+   175→      setMessages(reversed)
+   176→      setHasMoreMessages(data.length === currentLimit)
+   177→    }
+   178→  }
+   179→
+   180→  useEffect(() => {
+   181→    if (activeChat) {
+   182→      setMessagesLimit(20)
+   183→      fetchMessages(activeChat.id, 20)
+   184→      fetchInterviews(activeChat)
+   185→
+   186→      // 4. Đăng ký Realtime tin nhắn mới của Chat room đang mở
+   187→      const channel = supabase
+   188→        .channel(`chat-room-${activeChat.id}`)
+   189→        .on(
+   190→          "postgres_changes",
+   191→          {
+   192→            event: "INSERT",
+   193→            schema: "public",
+   194→            table: "messages"
+   195→          },
+   196→          (payload) => {
+   197→            const newMsg = payload.new as Message
+   198→            if (newMsg.chat_id === activeChat.id) {
+   199→              setMessages((prev) => {
+   200→                if (prev.some((m) => m.id === newMsg.id)) return prev
+   201→                return [...prev, newMsg]
+   202→              })
+   203→
+   204→              // Nếu là tin nhắn lịch hẹn mới, tải lại danh sách lịch hẹn
+   205→              if (newMsg.content.startsWith("__INTERVIEW_REQUEST__:")) {
+   206→                fetchInterviews(activeChat)
+   207→              }
+   208→
+   209→              scrollToBottom()
+   210→            }
+   211→          }
+   212→        )
+   213→        .subscribe()
+   214→
+   215→      return () => {
+   216→        supabase.removeChannel(channel)
+   217→      }
+   218→    }
+   219→  }, [activeChat])
+   220→
+   221→  // Polling fallback to fetch messages every 4 seconds (handles cases where Supabase Realtime replication is disabled)
+   222→  useEffect(() => {
+   223→    if (!activeChat) return
+   224→
+   225→    const interval = setInterval(() => {
+   226→      fetchMessages(activeChat.id, messagesLimit)
+   227→      fetchInterviews(activeChat)
+   228→    }, 4000)
+   229→
+   230→    return () => clearInterval(interval)
+   231→  }, [activeChat, messagesLimit])
+   232→
+   233→  const scrollToBottom = () => {
+   234→    setTimeout(() => {
+   235→      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+   236→    }, 100)
+   237→  }
+   238→
+   239→  // 5. Gửi tin nhắn
+   240→  const handleSendMessage = async (e: React.FormEvent) => {
+   241→    e.preventDefault()
+   242→    if (!newMessage.trim() || !activeChat || !currentUser || sending) return
+   243→
+   244→    setSending(true)
+   245→    const tempMsg = newMessage
+   246→    setNewMessage("")
+   247→
+   248→    // Lưu tin nhắn gửi đi và lấy dữ liệu trả về để cập nhật UI ngay lập tức
+   249→    const { data, error } = await supabase
+   250→      .from("messages")
+   251→      .insert([
+   252→        {
+   253→          chat_id: activeChat.id,
+   254→          sender_id: currentUser.id,
+   255→          content: tempMsg
+   256→        }
+   257→      ])
+   258→      .select()
+   259→      .single()
+   260→
+   261→    setSending(false)
+   262→
+   263→    if (error) {
+   264→      console.error("Lỗi gửi tin nhắn:", error.message)
+   265→      setNewMessage(tempMsg) // Khôi phục lại text
+   266→    } else if (data) {
+   267→      setMessages((prev) => {
+   268→        if (prev.some((m) => m.id === data.id)) return prev
+   269→        return [...prev, data as Message]
+   270→      })
+   271→      scrollToBottom()
+   272→    }
+   273→  }
+   274→
+   275→  // Tạo lịch phỏng vấn
+   276→  const handleCreateInterview = async (e: React.FormEvent) => {
+   277→    e.preventDefault()
+   278→    if (!activeChat || !currentUser || !interviewTitle || !interviewDate || creatingInterview) return
+   279→
+   280→    setCreatingInterview(true)
+   281→    try {
+   282→      // 1. Tạo bản ghi lịch hẹn
+   283→      const { data: interview, error: intError } = await supabase
+   284→        .from("interviews")
+   285→        .insert([
+   286→          {
+   287→            event_id: activeChat.event_id,
+   288→            organizer_id: currentUser.id,
+   289→            student_id: activeChat.student_id,
+   290→            title: interviewTitle,
+   291→            scheduled_at: new Date(interviewDate).toISOString(),
+   292→            meeting_link: interviewLink || null,
+   293→            status: "pending"
+   294→          }
+   295→        ])
+   296→        .select()
+   297→        .single()
+   298→
+   299→      if (intError) throw intError
+   300→
+   301→      // 2. Gửi tin nhắn đặc biệt vào chat room
+   302→      const { data: messageData, error: msgError } = await supabase
+   303→        .from("messages")
+   304→        .insert([
+   305→          {
+   306→            chat_id: activeChat.id,
+   307→            sender_id: currentUser.id,
+   308→            content: `__INTERVIEW_REQUEST__:${interview.id}`
+   309→          }
+   310→        ])
+   311→        .select()
+   312→        .single()
+   313→
+   314→      if (msgError) throw msgError
+   315→
+   316→      // Cập nhật local state
+   317→      setInterviews(prev => ({ ...prev, [interview.id]: interview }))
+   318→      if (messageData) {
+   319→        setMessages(prev => [...prev, messageData as Message])
+   320→      }
+   321→
+   322→      // Reset form
+   323→      setInterviewTitle("")
+   324→      setInterviewDate("")
+   325→      setInterviewLink("")
+   326→      setIsInterviewModalOpen(false)
+   327→      scrollToBottom()
+   328→    } catch (err: any) {
+   329→      console.error("Lỗi tạo lịch hẹn:", err.message)
+   330→      alert("Lỗi khi tạo lịch hẹn: " + err.message)
+   331→    } finally {
+   332→      setCreatingInterview(false)
+   333→    }
+   334→  }
+   335→
+   336→  // Chấp nhận/Từ chối phỏng vấn
+   337→  const handleUpdateInterviewStatus = async (interviewId: string, newStatus: "accepted" | "rejected") => {
+   338→    try {
+   339→      const interview = interviews[interviewId]
+   340→      if (!interview) return
+   341→
+   342→      const { error } = await supabase
+   343→        .from("interviews")
+   344→        .update({ status: newStatus })
+   345→        .eq("id", interviewId)
+   346→
+   347→      if (error) throw error
+   348→
+   349→      // Cập nhật state
+   350→      setInterviews(prev => ({
+   351→        ...prev,
+   352→        [interviewId]: { ...prev[interviewId], status: newStatus }
+   353→      }))
+   354→
+   355→      // Gửi thông báo đến organizer
+   356→      await supabase.from("notifications").insert([
+   357→        {
+   358→          user_id: interview.organizer_id,
+   359→          title: newStatus === "accepted" ? "Lịch phỏng vấn được chấp nhận" : "Lịch phỏng vấn bị từ chối",
+   360→          message: `Ứng viên đã ${newStatus === "accepted" ? "chấp nhận" : "từ chối"} lịch hẹn phỏng vấn: ${interview.title}`,
+   361→          is_read: false
+   362→        }
+   363→      ])
+   364→    } catch (err: any) {
+   365→      console.error("Lỗi cập nhật lịch hẹn:", err.message)
+   366→      alert("Không thể cập nhật trạng thái: " + err.message)
+   367→    }
+   368→  }
+   369→
+   370→  if (loading) {
+   371→    return (
+   372→      <div className="flex h-screen w-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
+   373→        <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent"></div>
+   374→      </div>
+   375→    )
+   376→  }
+   377→
+   378→  const getPartnerProfile = (chat: ChatItem) => {
+   379→    return role === "organizer" ? chat.student_profile : chat.organizer_profile
+   380→  }
+   381→
+   382→  const chatUI = (
+   383→    <>
+   384→      <div className="max-w-6xl mx-auto h-[calc(100vh-120px)] flex bg-white dark:bg-slate-900 rounded-[2.5rem] border-2 border-slate-100 dark:border-slate-800/80 shadow-2xl overflow-hidden">
+   385→        {/* Left Side: Danh sách Chats */}
+   386→        <div className={`w-full md:w-80 border-r-2 border-slate-100 dark:border-slate-850 flex flex-col ${activeChat ? "hidden md:flex" : "flex"}`}>
+   387→          <div className="p-5 border-b-2 border-slate-100 dark:border-slate-850">
+   388→            <h1 className="text-xl font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
+   389→              <MessageSquare className="w-5 h-5 text-emerald-500" />
+   390→              Hộp thư trò chuyện
+   391→            </h1>
+   392→          </div>
+   393→          <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
+   394→            {chats.length === 0 ? (
+   395→              <div className="text-center py-12 text-slate-400 dark:text-slate-500 font-semibold text-xs">
+   396→                Chưa có hội thoại nào
+   397→              </div>
+   398→            ) : (
+   399→              chats.map((chat) => {
+   400→                const partner = getPartnerProfile(chat)
+   401→                const isActive = activeChat?.id === chat.id
+   402→                return (
+   403→                  <button
+   404→                    key={chat.id}
+   405→                    onClick={() => {
+   406→                      setActiveChat(chat)
+   407→                      navigate(`/chat/${chat.id}`)
+   408→                    }}
+   409→                    className={`w-full flex items-center gap-3 p-3.5 rounded-2xl transition-all text-left ${isActive
+   410→                        ? "bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100/50 dark:border-emerald-900/30"
+   411→                        : "hover:bg-slate-50 dark:hover:bg-slate-800/40 border border-transparent"
+   412→                      }`}
+   413→                  >
+   414→                    <Avatar className="h-10 w-10 border border-white dark:border-slate-800 shadow-sm shrink-0">
+   415→                      <AvatarImage src={partner.avatar_url} />
+   416→                      <AvatarFallback className="bg-emerald-100 text-emerald-700 font-bold">
+   417→                        {partner.full_name?.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
+   418→                      </AvatarFallback>
+   419→                    </Avatar>
+   420→                    <div className="min-w-0 flex-1">
+   421→                      <h4 className={`text-sm font-bold truncate ${isActive ? "text-emerald-700 dark:text-emerald-400" : "text-slate-800 dark:text-slate-200"}`}>
+   422→                        {partner.full_name}
+   423→                      </h4>
+   424→                      <p className="text-[11px] text-slate-400 dark:text-slate-500 truncate font-semibold">
+   425→                        Sự kiện: {chat.events.title}
+   426→                      </p>
+   427→                    </div>
+   428→                  </button>
+   429→                )
+   430→              })
+   431→            )}
+   432→          </div>
+   433→        </div>
+   434→
+   435→        {/* Right Side: Message Thread */}
+   436→        <div className={`flex-1 flex flex-col bg-slate-50/50 dark:bg-slate-900/20 ${!activeChat ? "hidden md:flex items-center justify-center" : "flex"}`}>
+   437→          {activeChat ? (
+   438→            <>
+   439→              {/* Header */}
+   440→              <div className="bg-white dark:bg-slate-900 p-4 border-b-2 border-slate-100 dark:border-slate-850 flex items-center justify-between">
+   441→                <div className="flex items-center gap-3 min-w-0">
+   442→                  <button
+   443→                    onClick={() => {
+   444→                      setActiveChat(null)
+   445→                      navigate("/chat")
+   446→                    }}
+   447→                    className="md:hidden p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl text-slate-400 hover:text-slate-600 dark:hover:text-slate-250 transition-colors mr-1"
+   448→                  >
+   449→                    <ArrowLeft className="w-5 h-5" />
+   450→                  </button>
+   451→                  <Avatar className="h-10 w-10 border shadow-inner shrink-0">
+   452→                    <AvatarImage src={getPartnerProfile(activeChat).avatar_url} />
+   453→                    <AvatarFallback className="bg-emerald-100 text-emerald-700 font-black">
+   454→                      {getPartnerProfile(activeChat).full_name?.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
+   455→                    </AvatarFallback>
+   456→                  </Avatar>
+   457→                  <div className="min-w-0">
+   458→                    <h3 className="text-sm font-extrabold text-slate-900 dark:text-slate-100 truncate">
+   459→                      {getPartnerProfile(activeChat).full_name}
+   460→                    </h3>
+   461→                    <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 truncate">
+   462→                      Đang liên hệ về: {activeChat.events.title}
+   463→                    </p>
+   464→                  </div>
+   465→                </div>
+   466→
+   467→                {role === "organizer" && (
+   468→                  <Button
+   469→                    onClick={() => setIsInterviewModalOpen(true)}
+   470→                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl h-9 px-4 flex items-center gap-1.5 shadow-sm transition-colors"
+   471→                  >
+   472→                    <Calendar className="w-3.5 h-3.5" />
+   473→                    Hẹn phỏng vấn
+   474→                  </Button>
+   475→                )}
+   476→              </div>
+   477→
+   478→              {/* Messages Body */}
+   479→              <div className="flex-1 overflow-y-auto p-5 space-y-3.5">
+   480→                {/* Nút tải thêm tin nhắn cũ */}
+   481→                {hasMoreMessages && (
+   482→                  <div className="flex justify-center pb-3">
+   483→                    <button
+   484→                      onClick={() => {
+   485→                        const nextLimit = messagesLimit + 20
+   486→                        setMessagesLimit(nextLimit)
+   487→                        fetchMessages(activeChat.id, nextLimit)
+   488→                      }}
+   489→                      className="text-[11px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/20 px-3.5 py-1.5 rounded-full hover:bg-emerald-100 dark:hover:bg-emerald-950/40 transition-colors"
+   490→                    >
+   491→                      Tải tin nhắn cũ hơn
+   492→                    </button>
+   493→                  </div>
+   494→                )}
+   495→
+   496→                {messages.map((msg) => {
+   497→                  const isMe = msg.sender_id === currentUser.id
+   498→
+   499→                  // Kiểm tra xem tin nhắn có phải là lời mời phỏng vấn không
+   500→                  if (msg.content.startsWith("__INTERVIEW_REQUEST__:")) {
+   501→                    const interviewId = msg.content.substring("__INTERVIEW_REQUEST__:".length)
+   502→                    const interview = interviews[interviewId]
+   503→
+   504→                    if (!interview) {
+   505→                      return (
+   506→                        <div key={msg.id} className="flex justify-center my-2">
+   507→                          <div className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-400 px-3 py-1.5 rounded-xl font-medium">
+   508→                            Đang tải thông tin phỏng vấn...
+   509→                          </div>
+   510→                        </div>
+   511→                      )
+   512→                    }
+   513→
+   514→                    const isStudent = role === "student"
+   515→
+   516→                    return (
+   517→                      <div key={msg.id} className="flex justify-center my-4 w-full">
+   518→                        <div className="bg-white dark:bg-slate-850 border border-slate-200/60 dark:border-slate-800 rounded-3xl p-5 shadow-sm max-w-md w-full space-y-4">
+   519→                          <div className="flex items-center gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+   520→                            <div className="p-2.5 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400">
+   521→                              <Calendar className="w-5 h-5" />
+   522→                            </div>
+   523→                            <div>
+   524→                              <h4 className="text-sm font-extrabold text-slate-900 dark:text-slate-100">Lời Mời Phỏng Vấn</h4>
+   525→                              <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold mt-0.5">HẸN LỊCH TRỰC TUYẾN</p>
+   526→                            </div>
+   527→                          </div>
+   528→
+   529→                          <div className="space-y-2.5 text-xs text-slate-600 dark:text-slate-350">
+   530→                            <div>
+   531→                              <span className="font-bold text-slate-400 block mb-0.5">Chủ đề:</span>
+   532→                              <span className="text-slate-800 dark:text-slate-200 font-black">{interview.title}</span>
+   533→                            </div>
+   534→                            <div className="flex gap-4">
+   535→                              <div className="flex-1">
+   536→                                <span className="font-bold text-slate-400 block mb-0.5">Thời gian:</span>
+   537→                                <span className="flex items-center gap-1.5 font-bold text-slate-800 dark:text-slate-200">
+   538→                                  <Clock className="w-3.5 h-3.5 text-emerald-500" />
+   539→                                  {new Date(interview.scheduled_at).toLocaleString("vi-VN", {
+   540→                                    dateStyle: "medium",
+   541→                                    timeStyle: "short"
+   542→                                  })}
+   543→                                </span>
+   544→                              </div>
+   545→                            </div>
+   546→                            {interview.meeting_link && (
+   547→                              <div>
+   548→                                <span className="font-bold text-slate-400 block mb-0.5">Link phòng họp:</span>
+   549→                                <a
+   550→                                  href={interview.meeting_link.startsWith("http") ? interview.meeting_link : `https://${interview.meeting_link}`}
+   551→                                  target="_blank"
+   552→                                  rel="noopener noreferrer"
+   553→                                  className="flex items-center gap-1.5 font-black text-emerald-600 dark:text-emerald-400 hover:underline"
+   554→                                >
+   555→                                  <Video className="w-3.5 h-3.5" />
+   556→                                  Tham gia cuộc gọi trực tuyến
+   557→                                </a>
+   558→                              </div>
+   559→                            )}
+   560→                          </div>
+   561→
+   562→                          <div className="pt-2">
+   563→                            {interview.status === "pending" ? (
+   564→                              isStudent ? (
+   565→                                <div className="flex gap-2">
+   566→                                  <Button
+   567→                                    onClick={() => handleUpdateInterviewStatus(interview.id, "accepted")}
+   568→                                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl h-9 flex items-center justify-center gap-1.5 shadow-sm"
+   569→                                  >
+   570→                                    <Check className="w-3.5 h-3.5" />
+   571→                                    Đồng ý
+   572→                                  </Button>
+   573→                                  <Button
+   574→                                    variant="outline"
+   575→                                    onClick={() => handleUpdateInterviewStatus(interview.id, "rejected")}
+   576→                                    className="flex-1 border-rose-100 hover:bg-rose-50 text-rose-600 hover:text-rose-700 dark:border-rose-900/30 dark:hover:bg-rose-950/20 font-bold text-xs rounded-xl h-9 flex items-center justify-center gap-1.5"
+   577→                                  >
+   578→                                    <X className="w-3.5 h-3.5" />
+   579→                                    Từ chối
+   580→                                  </Button>
+   581→                                </div>
+   582→                              ) : (
+   583→                                <div className="text-center text-xs font-bold text-amber-600 bg-amber-50 dark:bg-amber-950/20 py-2 rounded-xl border border-amber-100/50 dark:border-amber-900/30">
+   584→                                  Đang chờ phản hồi từ ứng viên
+   585→                                </div>
+   586→                              )
+   587→                            ) : interview.status === "accepted" ? (
+   588→                              <div className="text-center text-xs font-bold text-emerald-700 bg-emerald-50 dark:bg-emerald-950/20 py-2 rounded-xl border border-emerald-100/50 dark:border-emerald-900/30 flex items-center justify-center gap-1.5">
+   589→                                <Check className="w-4 h-4" />
+   590→                                Đã chấp nhận lịch hẹn
+   591→                              </div>
+   592→                            ) : (
+   593→                              <div className="text-center text-xs font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/20 py-2 rounded-xl border border-rose-100/50 dark:border-rose-900/30 flex items-center justify-center gap-1.5">
+   594→                                <X className="w-4 h-4" />
+   595→                                Lịch hẹn bị từ chối
+   596→                              </div>
+   597→                            )}
+   598→                          </div>
+   599→                        </div>
+   600→                      </div>
+   601→                    )
+   602→                  }
+   603→
+   604→                  return (
+   605→                    <div
+   606→                      key={msg.id}
+   607→                      className={`flex ${isMe ? "justify-end" : "justify-start"} animate-in fade-in duration-150`}
+   608→                    >
+   609→                      <div
+   610→                        className={`max-w-[70%] rounded-2xl px-4 py-2.5 text-sm font-medium leading-relaxed shadow-sm ${isMe
+   611→                            ? "bg-emerald-600 text-white rounded-tr-none"
+   612→                            : "bg-white dark:bg-slate-850 text-slate-800 dark:text-slate-200 rounded-tl-none border border-slate-100 dark:border-slate-800"
+   613→                          }`}
+   614→                      >
+   615→                        <p className="break-words">{msg.content}</p>
+   616→                        <span className={`block text-[9px] text-right mt-1.5 font-bold ${isMe ? "text-emerald-200" : "text-slate-400"}`}>
+   617→                          {new Date(msg.created_at).toLocaleTimeString("vi-VN", {
+   618→                            hour: "2-digit",
+   619→                            minute: "2-digit"
+   620→                          })}
+   621→                        </span>
+   622→                      </div>
+   623→                    </div>
+   624→                  )
+   625→                })}
+   626→                <div ref={messagesEndRef} />
+   627→              </div>
+   628→
+   629→              {/* Input Form */}
+   630→              <form
+   631→                onSubmit={handleSendMessage}
+   632→                className="p-4 bg-white dark:bg-slate-900 border-t-2 border-slate-100 dark:border-slate-850 flex items-center gap-3"
+   633→              >
+   634→                <input
+   635→                  type="text"
+   636→                  placeholder="Nhập tin nhắn..."
+   637→                  value={newMessage}
+   638→                  onChange={(e) => setNewMessage(e.target.value)}
+   639→                  className="flex-1 h-12 bg-slate-50 dark:bg-slate-800/60 rounded-xl px-4 text-sm font-medium focus:outline-none border-2 border-transparent focus:border-emerald-500 dark:focus:border-emerald-500 dark:text-slate-150 transition-colors"
+   640→                />
+   641→                <Button
+   642→                  type="submit"
+   643→                  disabled={sending}
+   644→                  className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white h-12 w-12 shrink-0 p-0 flex items-center justify-center shadow-md shadow-emerald-600/20 disabled:opacity-50"
+   645→                >
+   646→                  <Send className="w-5 h-5" />
+   647→                </Button>
+   648→              </form>
+   649→            </>
+   650→          ) : (
+   651→            <div className="text-center p-6 space-y-3">
+   652→              <div className="w-16 h-16 bg-slate-100 dark:bg-slate-800/80 rounded-full flex items-center justify-center mx-auto text-slate-350">
+   653→                <MessageSquare className="w-8 h-8" />
+   654→              </div>
+   655→              <h3 className="text-sm font-bold text-slate-700 dark:text-slate-300">Chọn cuộc hội thoại</h3>
+   656→              <p className="text-xs text-slate-400 max-w-[280px] mx-auto leading-relaxed">
+   657→                Chọn một hội thoại ở thanh bên trái hoặc nhắn tin từ bài đăng tuyển dụng để bắt đầu thảo luận.
+   658→              </p>
+   659→            </div>
+   660→          )}
+   661→        </div>
+   662→      </div>
+   663→
+   664→      {/* Modal Lên lịch phỏng vấn (Dành cho Organizer) */}
+   665→      {isInterviewModalOpen && (
+   666→        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+   667→          <div className="bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-200">
+   668→            <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-900/50">
+   669→              <h3 className="font-black text-lg text-slate-900 dark:text-slate-100 flex items-center gap-2">
+   670→                <Calendar className="w-5 h-5 text-emerald-500" />
+   671→                Hẹn phỏng vấn
+   672→              </h3>
+   673→              <button
+   674→                onClick={() => setIsInterviewModalOpen(false)}
+   675→                className="text-xs font-black text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+   676→              >
+   677→                Đóng
+   678→              </button>
+   679→            </div>
+   680→
+   681→            <form onSubmit={handleCreateInterview} className="p-6 space-y-4">
+   682→              <div className="space-y-1.5">
+   683→                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Chủ đề phỏng vấn *</label>
+   684→                <input
+   685→                  type="text"
+   686→                  required
+   687→                  placeholder="Ví dụ: Phỏng vấn vị trí CTV Sự Kiện..."
+   688→                  value={interviewTitle}
+   689→                  onChange={(e) => setInterviewTitle(e.target.value)}
+   690→                  className="w-full h-11 bg-slate-50 dark:bg-slate-800/60 rounded-xl px-4 text-sm font-medium focus:outline-none border-2 border-transparent focus:border-emerald-500 dark:text-slate-150 transition-colors"
+   691→                />
+   692→              </div>
+   693→
+   694→              <div className="space-y-1.5">
+   695→                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Thời gian diễn ra *</label>
+   696→                <input
+   697→                  type="datetime-local"
+   698→                  required
+   699→                  value={interviewDate}
+   700→                  onChange={(e) => setInterviewDate(e.target.value)}
+   701→                  className="w-full h-11 bg-slate-50 dark:bg-slate-800/60 rounded-xl px-4 text-sm font-medium focus:outline-none border-2 border-transparent focus:border-emerald-500 dark:text-slate-150 transition-colors"
+   702→                />
+   703→              </div>
+   704→
+   705→              <div className="space-y-1.5">
+   706→                <label className="text-xs font-bold text-slate-700 dark:text-slate-300">Link phòng họp (Google Meet, Zoom...) - Không bắt buộc</label>
+   707→                <input
+   708→                  type="text"
+   709→                  placeholder="Ví dụ: meet.google.com/abc-defg-hij"
+   710→                  value={interviewLink}
+   711→                  onChange={(e) => setInterviewLink(e.target.value)}
+   712→                  className="w-full h-11 bg-slate-50 dark:bg-slate-800/60 rounded-xl px-4 text-sm font-medium focus:outline-none border-2 border-transparent focus:border-emerald-500 dark:text-slate-150 transition-colors"
+   713→                />
+   714→              </div>
+   715→
+   716→              <div className="pt-3">
+   717→                <Button
+   718→                  type="submit"
+   719→                  disabled={creatingInterview}
+   720→                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl h-11 flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20"
+   721→                >
+   722→                  {creatingInterview ? "Đang lên lịch..." : "Gửi lời mời phỏng vấn"}
+   723→                </Button>
+   724→              </div>
+   725→            </form>
+   726→          </div>
+   727→        </div>
+   728→      )}
+   729→    </>
+   730→  )
+   731→
+   732→  if (role === "organizer") {
+   733→    return (
+   734→      <OrgLayout
+   735→        activeTab="chat"
+   736→        setActiveTab={(tab) => navigate(`/?tab=${tab}`)}
+   737→        isPremium={localStorage.getItem("em_premium_recruiter") === "true"}
+   738→        userProfile={{
+   739→          fullName: currentUser?.raw_user_meta_data?.full_name || "Nhà tuyển dụng",
+   740→          avatarUrl: currentUser?.raw_user_meta_data?.avatar_url || "",
+   741→          email: currentUser?.email || ""
+   742→        }}
+   743→        onLogout={async () => {
+   744→          localStorage.removeItem("em_user_profile")
+   745→          await supabase.auth.signOut()
+   746→          navigate("/")
+   747→        }}
+   748→      >
+   749→        <div className="py-2">
+   750→          {chatUI}
+   751→        </div>
+   752→      </OrgLayout>
+   753→    )
+   754→  }
+   755→
+   756→  return (
+   757→    <MainLayout role={role}>
+   758→      {chatUI}
+   759→    </MainLayout>
+   760→  )
+   761→}
+   762→

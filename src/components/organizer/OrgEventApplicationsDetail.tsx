@@ -1,3 +1,5 @@
+"use client"
+
 import { ArrowLeft, Calendar, MapPin, FileText, MessageSquare, CheckCircle, XCircle, Users } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"

@@ -1,3 +1,5 @@
+"use client"
+
 import { Users, FileText, CheckCircle, XCircle, MessageSquare } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"

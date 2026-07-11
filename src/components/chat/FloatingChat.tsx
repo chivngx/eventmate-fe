@@ -1,3 +1,5 @@
+"use client"
+
 import { useEffect, useState, useRef } from "react"
 import { supabase } from "@/lib/supabase"
 import { Send, MessageSquare, User, ArrowLeft, X, MessageCircle } from "lucide-react"

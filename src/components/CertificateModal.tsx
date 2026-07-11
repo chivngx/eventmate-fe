@@ -1,3 +1,5 @@
+"use client"
+
 import { X, Award, Printer } from "lucide-react"
 import { Button } from "@/components/ui/button"
 

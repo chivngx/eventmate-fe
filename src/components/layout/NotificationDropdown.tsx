@@ -1,3 +1,5 @@
+"use client"
+
 import { Bell } from "lucide-react"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 

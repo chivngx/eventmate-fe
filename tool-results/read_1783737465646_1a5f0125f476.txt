@@ -1,0 +1,424 @@
+     1→import { useState, useEffect } from "react"
+     2→import { useNavigate } from "react-router-dom"
+     3→import { supabase } from "@/lib/supabase"
+     4→import {
+     5→    LayoutDashboard,
+     6→    Building2,
+     7→    Users,
+     8→    FileText,
+     9→    CreditCard,
+    10→    LogOut,
+    11→    ChevronLeft,
+    12→    Menu,
+    13→    Home,
+    14→    Shield,
+    15→    Trash2
+    16→} from "lucide-react"
+    17→import { Button } from "@/components/ui/button"
+    18→import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+    19→import { Badge } from "@/components/ui/badge"
+    20→import { useToast } from "@/components/ui/ToastProvider"
+    21→
+    22→export default function AdminDashboard() {
+    23→    const navigate = useNavigate()
+    24→    const { showToast } = useToast()
+    25→
+    26→    const [activeTab, setActiveTab] = useState("overview")
+    27→    const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+    28→
+    29→    // System Stats
+    30→    const [stats, setStats] = useState({
+    31→        totalStudents: 0,
+    32→        totalOrganizers: 0,
+    33→        totalEvents: 0,
+    34→        totalRevenue: 2470000 // mock revenue from premium packs
+    35→    })
+    36→
+    37→    // Data lists
+    38→    const [organizers, setOrganizers] = useState<any[]>([])
+    39→    const [students, setStudents] = useState<any[]>([])
+    40→    const [events, setEvents] = useState<any[]>([])
+    41→    const [loading, setLoading] = useState(true)
+    42→
+    43→
+    44→    const fetchAdminData = async () => {
+    45→        setLoading(true)
+    46→
+    47→        // 1. Fetch recruiters
+    48→        const { data: orgs } = await supabase
+    49→            .from("profiles")
+    50→            .select("*")
+    51→            .eq("role", "organizer")
+    52→            .order("created_at", { ascending: false })
+    53→        if (orgs) setOrganizers(orgs)
+    54→
+    55→        // 2. Fetch students
+    56→        const { data: studs } = await supabase
+    57→            .from("profiles")
+    58→            .select("*")
+    59→            .eq("role", "student")
+    60→            .order("created_at", { ascending: false })
+    61→        if (studs) setStudents(studs)
+    62→
+    63→        // 3. Fetch all events
+    64→        const { data: evs } = await supabase
+    65→            .from("events")
+    66→            .select("*, profiles(id, full_name, avatar_url)")
+    67→            .order("created_at", { ascending: false })
+    68→        if (evs) setEvents(evs)
+    69→
+    70→        // Calculate count stats
+    71→        setStats({
+    72→            totalStudents: studs?.length || 0,
+    73→            totalOrganizers: orgs?.length || 0,
+    74→            totalEvents: evs?.length || 0,
+    75→            totalRevenue: 2470000 + ((orgs?.length || 0) * 990000) // dynamically mock based on organizer counts
+    76→        })
+    77→
+    78→        setLoading(false)
+    79→    }
+    80→
+    81→    useEffect(() => {
+    82→        fetchAdminData()
+    83→    }, [])
+    84→
+    85→    const handleDeleteEvent = async (id: string) => {
+    86→        if (!window.confirm("Bạn có chắc chắn muốn gỡ/xóa bài đăng này khỏi hệ thống?")) return
+    87→        const { error } = await supabase.from("events").delete().eq("id", id)
+    88→        if (!error) {
+    89→            showToast({ title: "Thành công", message: "Đã gỡ bài đăng tuyển dụng thành công.", type: "success" })
+    90→            fetchAdminData()
+    91→        } else {
+    92→            showToast({ title: "Lỗi gỡ bài", message: error.message, type: "error" })
+    93→        }
+    94→    }
+    95→
+    96→    const handleToggleOrganizerVerification = async () => {
+    97→        showToast({
+    98→            title: "Cập nhật thành công",
+    99→            message: "Trạng thái phê duyệt nhà tuyển dụng đã được thay đổi thành công.",
+   100→            type: "success"
+   101→        })
+   102→    }
+   103→
+   104→    const menuItems = [
+   105→        { id: "overview", name: "Tổng quan", icon: LayoutDashboard },
+   106→        { id: "organizers", name: "Nhà tuyển dụng", icon: Building2 },
+   107→        { id: "students", name: "Sinh viên", icon: Users },
+   108→        { id: "events", name: "Quản lý bài tuyển", icon: FileText },
+   109→        { id: "transactions", name: "Doanh thu & Giao dịch", icon: CreditCard }
+   110→    ]
+   111→
+   112→    return (
+   113→        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex text-slate-900 dark:text-slate-100 transition-colors duration-200">
+   114→
+   115→            {/* SIDEBAR */}
+   116→            <aside
+   117→                className={`fixed lg:sticky top-0 bottom-0 left-0 bg-slate-900 text-slate-300 border-r border-slate-800 transition-all duration-300 z-40 flex flex-col shrink-0 h-screen
+   118→          ${isSidebarOpen ? "w-64 translate-x-0" : "w-20 lg:w-20 -translate-x-full lg:translate-x-0"}
+   119→        `}
+   120→            >
+   121→                <div className="h-16 px-6 border-b border-slate-800 flex items-center justify-between">
+   122→                    {isSidebarOpen ? (
+   123→                        <span className="font-black text-lg tracking-tight text-white cursor-pointer flex items-center gap-1.5" onClick={() => navigate("/")}>
+   124→                            Event<span className="text-emerald-500">Mate</span>
+   125→                            <span className="text-[10px] bg-red-600 text-white font-bold px-1.5 py-0.5 rounded">ADMIN</span>
+   126→                        </span>
+   127→                    ) : (
+   128→                        <span className="font-black text-xl text-emerald-500 cursor-pointer mx-auto" onClick={() => navigate("/")}>
+   129→                            AD
+   130→                        </span>
+   131→                    )}
+   132→
+   133→                    <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="hidden lg:flex p-1.5 rounded-lg hover:bg-slate-800 text-slate-400">
+   134→                        <ChevronLeft className={`w-4 h-4 transition-transform duration-300 ${!isSidebarOpen ? "rotate-180" : ""}`} />
+   135→                    </button>
+   136→                </div>
+   137→
+   138→                <div className="p-4 border-b border-slate-800 flex items-center gap-3">
+   139→                    <Shield className="w-10 h-10 text-emerald-400 shrink-0" />
+   140→                    {isSidebarOpen && (
+   141→                        <div>
+   142→                            <h4 className="text-sm font-black text-white truncate">Quản trị viên</h4>
+   143→                            <span className="text-[10px] bg-slate-850 text-slate-400 font-bold px-1.5 py-0.2 rounded">System Admin</span>
+   144→                        </div>
+   145→                    )}
+   146→                </div>
+   147→
+   148→                <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto no-scrollbar">
+   149→                    {menuItems.map((item) => {
+   150→                        const Icon = item.icon
+   151→                        const isActive = activeTab === item.id
+   152→                        return (
+   153→                            <button
+   154→                                key={item.id}
+   155→                                onClick={() => {
+   156→                                    setActiveTab(item.id)
+   157→                                    if (window.innerWidth < 1024) setIsSidebarOpen(false)
+   158→                                }}
+   159→                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all
+   160→                  ${isActive
+   161→                                        ? "bg-emerald-600 text-white shadow-lg"
+   162→                                        : "text-slate-400 hover:bg-slate-850 hover:text-white"
+   163→                                    }
+   164→                `}
+   165→                            >
+   166→                                <Icon className="w-5 h-5 shrink-0" />
+   167→                                {isSidebarOpen && <span>{item.name}</span>}
+   168→                            </button>
+   169→                        )
+   170→                    })}
+   171→                </nav>
+   172→
+   173→                <div className="p-3 border-t border-slate-800 space-y-1">
+   174→                    <button onClick={() => navigate("/")} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-850 hover:text-white">
+   175→                        <Home className="w-5 h-5 shrink-0" />
+   176→                        {isSidebarOpen && <span>Về trang chủ</span>}
+   177→                    </button>
+   178→                    <button onClick={() => { supabase.auth.signOut(); navigate("/"); }} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-rose-400 hover:bg-rose-955/20">
+   179→                        <LogOut className="w-5 h-5 shrink-0" />
+   180→                        {isSidebarOpen && <span>Đăng xuất</span>}
+   181→                    </button>
+   182→                </div>
+   183→            </aside>
+   184→
+   185→            {/* MAIN CONTENT AREA */}
+   186→            <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
+   187→                <header className="sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 h-16 px-6 flex items-center justify-between shrink-0 z-20">
+   188→                    <div className="flex items-center gap-3">
+   189→                        <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 rounded-lg hover:bg-slate-100 text-slate-500 lg:hidden">
+   190→                            <Menu className="w-5 h-5" />
+   191→                        </button>
+   192→                        <h2 className="text-lg font-black text-slate-900 dark:text-slate-100">
+   193→                            {menuItems.find(i => i.id === activeTab)?.name}
+   194→                        </h2>
+   195→                    </div>
+   196→                    <div className="flex items-center gap-2">
+   197→                        <Badge className="bg-emerald-600 text-white font-bold">Live Status</Badge>
+   198→                    </div>
+   199→                </header>
+   200→
+   201→                <main className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto">
+   202→                    {loading ? (
+   203→                        <div className="text-center py-12 text-slate-500 font-medium">Đang tải dữ liệu quản trị hệ thống...</div>
+   204→                    ) : (
+   205→                        <div className="space-y-6">
+   206→
+   207→                            {/* 1. OVERVIEW */}
+   208→                            {activeTab === "overview" && (
+   209→                                <div className="space-y-6 animate-in fade-in">
+   210→                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+   211→                                        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border-2 border-slate-100 dark:border-slate-800 flex items-center gap-4">
+   212→                                            <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center"><Users className="w-6 h-6" /></div>
+   213→                                            <div>
+   214→                                                <p className="text-xs font-bold text-slate-400 uppercase">Tổng Sinh Viên</p>
+   215→                                                <h3 className="text-2xl font-black">{stats.totalStudents}</h3>
+   216→                                            </div>
+   217→                                        </div>
+   218→                                        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border-2 border-slate-100 dark:border-slate-800 flex items-center gap-4">
+   219→                                            <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center"><Building2 className="w-6 h-6" /></div>
+   220→                                            <div>
+   221→                                                <p className="text-xs font-bold text-slate-400 uppercase">Nhà tuyển dụng</p>
+   222→                                                <h3 className="text-2xl font-black">{stats.totalOrganizers}</h3>
+   223→                                            </div>
+   224→                                        </div>
+   225→                                        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border-2 border-slate-100 dark:border-slate-800 flex items-center gap-4">
+   226→                                            <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center"><FileText className="w-6 h-6" /></div>
+   227→                                            <div>
+   228→                                                <p className="text-xs font-bold text-slate-400 uppercase">Tổng tin tuyển</p>
+   229→                                                <h3 className="text-2xl font-black">{stats.totalEvents}</h3>
+   230→                                            </div>
+   231→                                        </div>
+   232→                                        <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border-2 border-slate-100 dark:border-slate-800 flex items-center gap-4">
+   233→                                            <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center"><CreditCard className="w-6 h-6" /></div>
+   234→                                            <div>
+   235→                                                <p className="text-xs font-bold text-slate-400 uppercase">Tổng doanh thu</p>
+   236→                                                <h3 className="text-2xl font-black">{stats.totalRevenue.toLocaleString("vi-VN")}đ</h3>
+   237→                                            </div>
+   238→                                        </div>
+   239→                                    </div>
+   240→
+   241→                                    <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 shadow-sm space-y-4">
+   242→                                        <h3 className="text-lg font-black">Các chiến dịch mới đăng tuyển gần đây</h3>
+   243→                                        <div className="overflow-x-auto">
+   244→                                            <table className="w-full text-left border-collapse">
+   245→                                                <thead>
+   246→                                                    <tr className="border-b border-slate-100 dark:border-slate-800 text-xs text-slate-400 font-bold uppercase">
+   247→                                                        <th className="py-3">Tên sự kiện</th>
+   248→                                                        <th className="py-3">Nhà tuyển dụng</th>
+   249→                                                        <th className="py-3">Vị trí</th>
+   250→                                                        <th className="py-3">Ngày diễn ra</th>
+   251→                                                        <th className="py-3">Trạng thái</th>
+   252→                                                    </tr>
+   253→                                                </thead>
+   254→                                                <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-sm font-bold">
+   255→                                                    {events.slice(0, 5).map((ev) => (
+   256→                                                        <tr key={ev.id}>
+   257→                                                            <td className="py-4 text-slate-900 dark:text-slate-100">{ev.title}</td>
+   258→                                                            <td className="py-4">{ev.profiles?.full_name}</td>
+   259→                                                            <td className="py-4 text-slate-500">{ev.position_type}</td>
+   260→                                                            <td className="py-4 text-slate-500">{new Date(ev.event_date).toLocaleDateString("vi-VN")}</td>
+   261→                                                            <td className="py-4">
+   262→                                                                <Badge className="bg-emerald-100 text-emerald-700">{ev.status === "upcoming" ? "Đang mở tuyển" : "Hoàn thành"}</Badge>
+   263→                                                            </td>
+   264→                                                        </tr>
+   265→                                                    ))}
+   266→                                                </tbody>
+   267→                                            </table>
+   268→                                        </div>
+   269→                                    </div>
+   270→                                </div>
+   271→                            )}
+   272→
+   273→                            {/* 2. ORGANIZERS */}
+   274→                            {activeTab === "organizers" && (
+   275→                                <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 shadow-sm space-y-4">
+   276→                                    <h3 className="text-lg font-black">Danh sách nhà tuyển dụng / Công ty</h3>
+   277→                                    <div className="overflow-x-auto">
+   278→                                        <table className="w-full text-left border-collapse">
+   279→                                            <thead>
+   280→                                                <tr className="border-b border-slate-100 text-xs text-slate-400 font-bold uppercase">
+   281→                                                    <th className="py-3">Công ty</th>
+   282→                                                    <th className="py-3">Người đại diện</th>
+   283→                                                    <th className="py-3">Email liên hệ</th>
+   284→                                                    <th className="py-3">Điện thoại</th>
+   285→                                                    <th className="py-3">Hành động</th>
+   286→                                                </tr>
+   287→                                            </thead>
+   288→                                            <tbody className="divide-y divide-slate-100 text-sm font-bold">
+   289→                                                {organizers.map((org) => (
+   290→                                                    <tr key={org.id}>
+   291→                                                        <td className="py-4 text-slate-900 dark:text-slate-100">{org.university || "Chưa cập nhật"}</td>
+   292→                                                        <td className="py-4">{org.full_name}</td>
+   293→                                                        <td className="py-4 text-slate-500">{org.email}</td>
+   294→                                                        <td className="py-4 text-slate-500">{org.phone || "---"}</td>
+   295→                                                        <td className="py-4">
+   296→                                                            <Button size="xs" variant="outline" onClick={() => handleToggleOrganizerVerification()} className="text-xs h-8 px-2.5 rounded-lg border-emerald-200 text-emerald-600 hover:bg-emerald-50">
+   297→                                                                Phê duyệt
+   298→                                                            </Button>
+   299→                                                        </td>
+   300→                                                    </tr>
+   301→                                                ))}
+   302→                                            </tbody>
+   303→                                        </table>
+   304→                                    </div>
+   305→                                </div>
+   306→                            )}
+   307→
+   308→                            {/* 3. STUDENTS */}
+   309→                            {activeTab === "students" && (
+   310→                                <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 shadow-sm space-y-4">
+   311→                                    <h3 className="text-lg font-black">Danh sách Sinh Viên đăng ký tài khoản</h3>
+   312→                                    <div className="overflow-x-auto">
+   313→                                        <table className="w-full text-left border-collapse">
+   314→                                            <thead>
+   315→                                                <tr className="border-b border-slate-100 text-xs text-slate-400 font-bold uppercase">
+   316→                                                    <th className="py-3">Sinh viên</th>
+   317→                                                    <th className="py-3">Trường đại học</th>
+   318→                                                    <th className="py-3">Email</th>
+   319→                                                    <th className="py-3">Độ hoàn thiện CV</th>
+   320→                                                </tr>
+   321→                                            </thead>
+   322→                                            <tbody className="divide-y divide-slate-100 text-sm font-bold">
+   323→                                                {students.map((stud) => (
+   324→                                                    <tr key={stud.id}>
+   325→                                                        <td className="py-4 flex items-center gap-3">
+   326→                                                            <Avatar className="w-8 h-8 rounded-full border">
+   327→                                                                <AvatarImage src={stud.avatar_url} />
+   328→                                                                <AvatarFallback>{stud.full_name?.charAt(0)}</AvatarFallback>
+   329→                                                            </Avatar>
+   330→                                                            <span>{stud.full_name}</span>
+   331→                                                        </td>
+   332→                                                        <td className="py-4 text-slate-600 dark:text-slate-400">{stud.university || "Chưa cập nhật"}</td>
+   333→                                                        <td className="py-4 text-slate-500">{stud.email}</td>
+   334→                                                        <td className="py-4">
+   335→                                                            <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded text-xs">{stud.cv_completion_percent || 0}%</span>
+   336→                                                        </td>
+   337→                                                    </tr>
+   338→                                                ))}
+   339→                                            </tbody>
+   340→                                        </table>
+   341→                                    </div>
+   342→                                </div>
+   343→                            )}
+   344→
+   345→                            {/* 4. EVENTS */}
+   346→                            {activeTab === "events" && (
+   347→                                <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 shadow-sm space-y-4">
+   348→                                    <h3 className="text-lg font-black">Quản lý các tin bài tuyển dụng toàn hệ thống</h3>
+   349→                                    <div className="overflow-x-auto">
+   350→                                        <table className="w-full text-left border-collapse">
+   351→                                            <thead>
+   352→                                                <tr className="border-b border-slate-100 text-xs text-slate-400 font-bold uppercase">
+   353→                                                    <th className="py-3">Tên chiến dịch</th>
+   354→                                                    <th className="py-3">Nhà tổ chức</th>
+   355→                                                    <th className="py-3">Vị trí</th>
+   356→                                                    <th className="py-3">Hành động</th>
+   357→                                                </tr>
+   358→                                            </thead>
+   359→                                            <tbody className="divide-y divide-slate-100 text-sm font-bold">
+   360→                                                {events.map((ev) => (
+   361→                                                    <tr key={ev.id}>
+   362→                                                        <td className="py-4 text-slate-900 dark:text-slate-100 truncate max-w-xs">{ev.title}</td>
+   363→                                                        <td className="py-4">{ev.profiles?.full_name}</td>
+   364→                                                        <td className="py-4 text-slate-500">{ev.position_type}</td>
+   365→                                                        <td className="py-4">
+   366→                                                            <Button size="xs" variant="ghost" onClick={() => handleDeleteEvent(ev.id)} className="text-rose-600 hover:bg-rose-50 h-8 rounded-lg">
+   367→                                                                <Trash2 className="w-4 h-4" /> Gỡ bài
+   368→                                                            </Button>
+   369→                                                        </td>
+   370→                                                    </tr>
+   371→                                                ))}
+   372→                                            </tbody>
+   373→                                        </table>
+   374→                                    </div>
+   375→                                </div>
+   376→                            )}
+   377→
+   378→                            {/* 5. TRANSACTIONS */}
+   379→                            {activeTab === "transactions" && (
+   380→                                <div className="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 shadow-sm space-y-4">
+   381→                                    <div className="flex items-center justify-between">
+   382→                                        <h3 className="text-lg font-black">Lịch sử giao dịch mua gói VIP & Dịch vụ</h3>
+   383→                                        <Badge className="bg-emerald-500 font-bold">Doanh thu: {stats.totalRevenue.toLocaleString("vi-VN")}đ</Badge>
+   384→                                    </div>
+   385→                                    <div className="overflow-x-auto">
+   386→                                        <table className="w-full text-left border-collapse">
+   387→                                            <thead>
+   388→                                                <tr className="border-b border-slate-100 text-xs text-slate-400 font-bold uppercase">
+   389→                                                    <th className="py-3">Mã giao dịch</th>
+   390→                                                    <th className="py-3">Nhà tuyển dụng</th>
+   391→                                                    <th className="py-3">Loại dịch vụ</th>
+   392→                                                    <th className="py-3">Số tiền</th>
+   393→                                                    <th className="py-3">Ngày thanh toán</th>
+   394→                                                    <th className="py-3">Trạng thái</th>
+   395→                                                </tr>
+   396→                                            </thead>
+   397→                                            <tbody className="divide-y divide-slate-100 text-sm font-bold">
+   398→                                                {organizers.map((org, index) => (
+   399→                                                    <tr key={org.id}>
+   400→                                                        <td className="py-4 text-slate-500">#TXN-{1000 + index}</td>
+   401→                                                        <td className="py-4">{org.full_name} ({org.university || "BTC"})</td>
+   402→                                                        <td className="py-4 text-slate-900 dark:text-slate-100">Gói VIP Recruiter (1 tháng)</td>
+   403→                                                        <td className="py-4 text-emerald-600">990.000đ</td>
+   404→                                                        <td className="py-4 text-slate-400">22/06/2026</td>
+   405→                                                        <td className="py-4">
+   406→                                                            <Badge className="bg-emerald-100 text-emerald-700">Hoàn thành</Badge>
+   407→                                                        </td>
+   408→                                                    </tr>
+   409→                                                ))}
+   410→                                            </tbody>
+   411→                                        </table>
+   412→                                    </div>
+   413→                                </div>
+   414→                            )}
+   415→
+   416→                        </div>
+   417→                    )}
+   418→                </main>
+   419→            </div>
+   420→
+   421→        </div>
+   422→    )
+   423→}
+   424→

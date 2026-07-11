@@ -1,3 +1,5 @@
+"use client"
+
 import { X, Phone, GraduationCap, Sparkles } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
