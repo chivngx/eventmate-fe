@@ -225,3 +225,85 @@ Stage Summary:
 - 8 P1 architect: auth context, RSC migration, react-query adoption, RHF+zod adoption, tách OrgDashboard 1133 dòng + Chat 766 dòng, bỏ polling thỏa, next/image.
 - 11 P2 polish: dark mode, bỏ zoom hack, modal accessible, loading/error boundary, SEO, dead code, test/CI, mock→real, observability, i18n, re-enable eslint-config-next.
 - Cần user chốt 7 quyết định trước khi code (dark mode, primitive choice, payment provider, i18n, test framework, scope, priority).
+
+---
+Task ID: phase1-task1-db
+Agent: main (Z.ai Code)
+Task: Phase 1 Task 1 — Sửa DB schema + RLS (P0.1, P0.2)
+
+Work Log:
+- Tạo supabase/migrations/0001_phase1_p0_schema_rls.sql (idempotent, ~195 dòng): thêm bảng interviews + index + RLS 4 policies; kích hoạt trigger on_auth_user_created; siết applications UPDATE (USING true → organizer scoped); siết notifications INSERT (WITH CHECK true → auth.uid()=user_id); storage avatars ownership theo path prefix=auth.uid(); REVOKE ALL FROM anon + GRANT SELECT chỉ public-read tables.
+- Update db.sql reference file: thêm bảng interviews (Phần 1), RLS interviews (Phần 2), uncomment trigger on_auth_user_created (Phần 4), sửa GRANT (Phần 5: bỏ ALL TO anon), sửa storage policies (Phần 6: ownership check), xóa applications UPDATE USING(true) (Phần 7).
+- Tạo supabase/migrations/README.md hướng dẫn user chạy migration trong Supabase Dashboard (môi trường code chỉ có anon key, không chạy DDL qua REST).
+- Verify: interviews table chưa tồn tại trên Supabase (404 PGRST205) — cần user chạy migration.
+
+Stage Summary:
+- SQL migration ready, db.sql updated. Cần user chạy 0001_phase1_p0_schema_rls.sql trong Supabase Dashboard → SQL Editor để apply lên DB thật.
+- Code không phụ thuộc migration chạy xong (Task 2+ sẽ work khi migration được apply).
+
+---
+Task ID: phase1-task2-ssr
+Agent: main (Z.ai Code)
+Task: Phase 1 Task 2 — Cài @supabase/ssr + middleware/proxy + /auth/callback (P0.3)
+
+Work Log:
+- bun add @supabase/ssr@0.12.0.
+- src/lib/supabase.ts: đổi createClient (@supabase/supabase-js, localStorage session) → createBrowserClient (@supabase/ssr, httpOnly cookie session). Giữ export `supabase` để backward-compatible với 30+ file import.
+- src/lib/supabase-server.ts: createServerSupabaseClient() dùng next/headers cookies — cho Server Components/Route Handlers fetch authenticated data.
+- src/lib/supabase-middleware.ts: updateSession(request) — refresh session (getUser validate JWT), protect /settings|/cv|/my-jobs|/chat|/saved (redirect /login?redirect=...), redirect logged-in away from /login|/register.
+- src/proxy.ts: export proxy() function (Next 16 đổi tên middleware→proxy). Matcher exclude static assets.
+- src/lib/database.types.ts: placeholder Database type (TODO Phase 2: supabase gen types).
+- src/app/auth/callback/route.ts: GET handler exchangeCodeForSession(code) → redirect về `next` param hoặc `/`. Thay hash-cleanup hack trong providers.tsx.
+- AuthModal: signInWithOAuth redirectTo = `${origin}/auth/callback` (trước là window.location.origin).
+- Clean restart dev server. Verify: / 200, /login 200, /settings 307→/login?redirect=/settings, /chat 307, /cv 307, /auth/callback 307→/. Agent Browser: /settings redirect → /login?redirect=/settings đúng, 0 console error.
+
+Stage Summary:
+- Session chuyển từ localStorage (XSS-exposed) sang httpOnly cookie (secure). Middleware protect 5 private route. OAuth flow dùng /auth/callback route handler (an toàn hơn hash-cleanup).
+- Lưu ý: user đã login trước đó (với localStorage session) sẽ bị logout 1 lần (do cookie empty) → login lại, sau đó session persist qua cookie.
+
+---
+Task ID: phase1-task3-premium
+Agent: main (Z.ai Code)
+Task: Phase 1 Task 3 — Chuyển is_premium từ localStorage sang DB (P0.4)
+
+Work Log:
+- Tạo supabase/migrations/0002_phase1_task3_premium_db.sql: ALTER TABLE profiles ADD is_premium BOOLEAN DEFAULT FALSE + premium_until TIMESTAMPTZ; tạo trigger prevent_self_premium_update (chặn user tự set is_premium/premium_until — chỉ service_role qua payment webhook mới set được).
+- useOrgDashboard.ts: isPremium initial false (đọc DB trong fetchMyEvents); fetch profiles.select("is_premium, premium_until") + check premium_until > now; handleBuyPremium chỉ set state local (demo, không persist — payment integration Phase 4); xóa togglePremium function + return.
+- OrgDashboard.tsx: xóa togglePremium khỏi destructure; xóa debug button "Dev: Bật/Tắt VIP" (floating bottom-right).
+- Chat.tsx: thêm state isPremium; fetch profiles.select("role, is_premium, premium_until"); OrgLayout isPremium={isPremium} (trước là localStorage.getItem).
+- Verify: grep "em_premium_recruiter|togglePremium" src/ → chỉ còn 1 comment giải thích. Lint 0 errors. Routes 200.
+
+Stage Summary:
+- VIP bypass via DevTools đã bị khóa. is_premium đọc từ DB, trigger chặn self-update. Demo handleBuyPremium chỉ set state local (reload sẽ reset — đúng behavior chờ payment Phase 4).
+
+---
+Task ID: phase1-task4-headers
+Agent: main (Z.ai Code)
+Task: Phase 1 Task 4 — Security headers + images config (P0.5)
+
+Work Log:
+- next.config.ts: thêm headers() trả 6 security headers cho mọi route: X-Content-Type-Options nosniff, X-Frame-Options DENY, Referrer-Policy strict-origin-when-cross-origin, Permissions-Policy (camera/mic/geo/cohort disabled), Strict-Transport-Security (HSTS 2 năm), Content-Security-Policy (default self; script self+inline+eval; style self+inline+googleapis; font self+gstatic+data; img self+data+https; connect self+supabase REST+wss; frame-ancestors none; base-uri self; form-action self).
+- images.remotePatterns: **.supabase.co + images.unsplash.com (cho next/image Phase 2).
+- Clean restart dev server. Verify: curl -sI / → 6 headers đều present. Agent Browser: 0 CSP violation, 0 console error. Routes 200.
+
+Stage Summary:
+- App giờ có defense-in-depth: CSP chặn XSS/injection, X-Frame-Options chặn clickjacking, HSTS ép HTTPS, Permissions-Policy chặn camera/mic. Supabase REST + Realtime (wss) được CSP allow. App hoạt động bình thường.
+
+---
+Task ID: phase1-task5-verify
+Agent: main (Z.ai Code)
+Task: Phase 1 Task 5 — Test critical path bằng Agent Browser
+
+Work Log:
+- Home: render event cards thật từ Supabase (Điều phối viên Giải Futsal, CTV Truyền thông SURF, Tình nguyện viên Lễ hội Ẩm thực, Hậu cần Setup). Skip onboarding OK.
+- Click event card → /jobs/[slug]: UUID→slug redirect hoạt động. Detail page render đầy đủ (title, "Chi tiết tin tuyển dụng", "Mô tả công việc", "Địa điểm làm việc cụ thể", Google Maps link, organizer info).
+- Protected route /my-jobs → redirect /login?redirect=/my-jobs (proxy.ts protect hoạt động).
+- Auth modal: mở đúng, heading "Đăng nhập", close button có aria-label "Đóng form đăng nhập".
+- 0 console error, 0 CSP violation, 0 page error. Screenshot saved upload/phase1-login-modal.png.
+
+Stage Summary:
+- Phase 1 (Stabilize) HOÀN TẤT code-wise. 5 task done: DB schema/RLS, @supabase/ssr+proxy+auth/callback, is_premium→DB, security headers, critical path verify.
+- CẦN USER: chạy 2 file SQL migration trong Supabase Dashboard → SQL Editor:
+  1. supabase/migrations/0001_phase1_p0_schema_rls.sql (interviews table, handle_new_user trigger, RLS tightening, GRANT fix, storage ownership)
+  2. supabase/migrations/0002_phase1_task3_premium_db.sql (is_premium column + trigger prevent self-update)
+- Sau khi user chạy migration, Phase 1 hoàn toàn effect. App code đã sẵn sàng work với schema mới.

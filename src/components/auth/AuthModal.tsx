@@ -86,10 +86,13 @@ function LoginForm({
   const handleGoogleSignIn = async () => {
     setError(null)
     setSuccess(null)
+    // Redirect to the /auth/callback route handler which exchanges the code
+    // for a session (httpOnly cookie) and then navigates to the final destination.
+    const redirectTo = `${window.location.origin}/auth/callback`
     const { error: oAuthError } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: window.location.origin,
+        redirectTo,
       },
     })
     if (oAuthError) {

@@ -39,7 +39,7 @@ export default function OrgDashboard() {
     handleSubmitEvent, handleEditClick, handleDeleteEvent,
     handleViewApplications, handleUpdateStatus, handleStartChatWithStudent, resetForm,
     totalEvents, activeEvents, userId,
-    activeTab, setActiveTab, isPremium, handleBuyPremium, togglePremium
+    activeTab, setActiveTab, isPremium, handleBuyPremium
   } = useOrgDashboard()
 
   const [reviewingStudent, setReviewingStudent] = useState<{ eventId: string; studentId: string; studentName: string } | null>(null)
@@ -1120,15 +1120,6 @@ export default function OrgDashboard() {
       )}
 
       <CVViewModal viewingCV={viewingCV} onClose={() => setViewingCV(null)} />
-
-      {/* FLOATING DEV TOGGLE PREMIUM */}
-      <button
-        onClick={togglePremium}
-        className="fixed bottom-6 right-6 bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-bold px-4 py-2.5 rounded-full text-xs shadow-2xl hover:scale-105 active:scale-95 transition-all z-[9999] flex items-center gap-1.5 border border-slate-200 dark:border-slate-800"
-      >
-        <Crown className="w-3.5 h-3.5 text-amber-500 fill-current" />
-        Dev: {isPremium ? "Tắt VIP" : "Bật VIP"}
-      </button>
     </OrgLayout>
   )
 }

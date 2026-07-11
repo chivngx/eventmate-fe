@@ -41,24 +41,19 @@ export function useOrgDashboard() {
     const [activeTab, setActiveTabState] = useState<string>(() => {
         return searchParams.get("tab") || "feed"
     })
-    const [isPremium, setIsPremium] = useState<boolean>(() => {
-        return localStorage.getItem("em_premium_recruiter") === "true"
-    })
+    // 🔒 SECURITY: is_premium được đọc từ DB (profiles.is_premium), không còn localStorage.
+    // Trước đây user có thể `localStorage.setItem("em_premium_recruiter", "true")` để bypass VIP.
+    const [isPremium, setIsPremium] = useState<boolean>(false)
 
     const setActiveTab = (tab: string) => {
         setActiveTabState(tab)
         setSearchParams({ tab })
     }
 
+    // Demo-only: set state local (không persist). Khi reload sẽ reset về DB value.
+    // Payment integration (PayOS/VNPay) sẽ thay thế handler này ở Phase 4.
     const handleBuyPremium = () => {
         setIsPremium(true)
-        localStorage.setItem("em_premium_recruiter", "true")
-    }
-
-    const togglePremium = () => {
-        const newVal = !isPremium
-        setIsPremium(newVal)
-        localStorage.setItem("em_premium_recruiter", String(newVal))
     }
 
 
@@ -102,6 +97,20 @@ export function useOrgDashboard() {
         const { data: { user } } = await supabase.auth.getUser()
         if (!user) return
         setUserId(user.id)
+
+        // Fetch is_premium từ DB (thay vì localStorage)
+        const { data: profileData } = await supabase
+            .from("profiles")
+            .select("is_premium, premium_until")
+            .eq("id", user.id)
+            .maybeSingle()
+        if (profileData) {
+            // Premium còn hiệu lực nếu is_premium=true VÀ (premium_until null HOẶC > now)
+            const stillValid = profileData.is_premium && (
+                !profileData.premium_until || new Date(profileData.premium_until) > new Date()
+            )
+            setIsPremium(!!stillValid)
+        }
 
         const { data, error } = await supabase
             .from("events")
@@ -345,7 +354,6 @@ export function useOrgDashboard() {
         activeTab,
         setActiveTab,
         isPremium,
-        handleBuyPremium,
-        togglePremium
+        handleBuyPremium
     }
 }

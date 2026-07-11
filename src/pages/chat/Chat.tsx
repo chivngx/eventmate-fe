@@ -54,6 +54,8 @@ export default function Chat() {
   const [interviewLink, setInterviewLink] = useState("")
   const [interviews, setInterviews] = useState<Record<string, any>>({})
   const [creatingInterview, setCreatingInterview] = useState(false)
+  // 🔒 SECURITY: isPremium đọc từ DB (profiles.is_premium), không còn localStorage.
+  const [isPremium, setIsPremium] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -67,8 +69,14 @@ export default function Chat() {
       }
       setCurrentUser(user)
 
-      const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).maybeSingle()
-      if (profile) setRole(profile.role)
+      const { data: profile } = await supabase.from("profiles").select("role, is_premium, premium_until").eq("id", user.id).maybeSingle()
+      if (profile) {
+        setRole(profile.role)
+        const stillValid = profile.is_premium && (
+          !profile.premium_until || new Date(profile.premium_until) > new Date()
+        )
+        setIsPremium(!!stillValid)
+      }
 
       setLoading(false)
     }
@@ -739,7 +747,7 @@ export default function Chat() {
       <OrgLayout
         activeTab="chat"
         setActiveTab={(tab) => navigate(`/?tab=${tab}`)}
-        isPremium={localStorage.getItem("em_premium_recruiter") === "true"}
+        isPremium={isPremium}
         userProfile={{
           fullName: currentUser?.raw_user_meta_data?.full_name || "Nhà tuyển dụng",
           avatarUrl: currentUser?.raw_user_meta_data?.avatar_url || "",

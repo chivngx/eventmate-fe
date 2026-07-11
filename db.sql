@@ -150,6 +150,28 @@ INSERT INTO public.job_positions (name) VALUES
 ('Hỗ trợ khách mời')
 ON CONFLICT (name) DO NOTHING;
 
+-- 12. Bảng INTERVIEWS (Lịch phỏng vấn / thử việc)
+-- Organizer tạo interview cho student đã apply, student accept/reject.
+CREATE TABLE IF NOT EXISTS public.interviews (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_id UUID NOT NULL REFERENCES public.events(id) ON DELETE CASCADE,
+    student_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    organizer_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    scheduled_at TIMESTAMPTZ NOT NULL,
+    meeting_link TEXT,
+    status TEXT NOT NULL DEFAULT 'pending'
+        CHECK (status IN ('pending', 'accepted', 'rejected', 'completed', 'cancelled')),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE(event_id, student_id, scheduled_at)
+);
+CREATE INDEX IF NOT EXISTS idx_interviews_student_status
+    ON public.interviews(student_id, status);
+CREATE INDEX IF NOT EXISTS idx_interviews_organizer_status
+    ON public.interviews(organizer_id, status);
+CREATE INDEX IF NOT EXISTS idx_interviews_event
+    ON public.interviews(event_id);
+
 
 -- =========================================================================
 -- PHẦN 2: BẢO MẬT & PHÂN QUYỀN TRUY CẬP (RLS & POLICIES)
@@ -167,6 +189,7 @@ ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.job_positions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.interviews ENABLE ROW LEVEL SECURITY;
 
 -- Tạo các Policy tương ứng từ Policies.csv
 CREATE POLICY "Public profiles are viewable by everyone." ON public.profiles FOR SELECT USING (true);
@@ -185,13 +208,16 @@ CREATE POLICY "BTC được xóa sự kiện" ON public.events FOR DELETE USING 
 
 CREATE POLICY "Xem đơn ứng tuyển" ON public.applications FOR SELECT USING (true);
 CREATE POLICY "Sinh viên nộp đơn" ON public.applications FOR INSERT WITH CHECK (auth.uid() = student_id);
+-- 🔒 SECURITY: chỉ organizer của event mới được duyệt đơn (trước đây USING(true) cho phép ai cũng sửa)
 CREATE POLICY "BTC duyệt đơn" ON public.applications FOR UPDATE USING (auth.uid() IN (SELECT events.organizer_id FROM events WHERE events.id = applications.event_id));
 
 CREATE POLICY "Cho phép mọi người xem danh mục" ON public.event_categories FOR SELECT USING (true);
 CREATE POLICY "Cho phép mọi người xem vị trí công việc" ON public.job_positions FOR SELECT USING (true);
 
 CREATE POLICY "Xem thông báo cá nhân" ON public.notifications FOR SELECT USING (auth.uid() = user_id);
-CREATE POLICY "Bắn thông báo tự do" ON public.notifications FOR INSERT WITH CHECK (true);
+-- 🔒 SECURITY: chỉ self (hoặc service_role qua trigger SECURITY DEFINER) mới INSERT notification
+-- (trước đây WITH CHECK(true) cho phép spam bất kỳ user)
+CREATE POLICY "Tự tạo thông báo cho bản thân" ON public.notifications FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Đánh dấu đã đọc" ON public.notifications FOR UPDATE USING (auth.uid() = user_id);
 
 CREATE POLICY "Sinh viên xem danh sách đã lưu" ON public.event_bookmarks FOR SELECT USING (auth.uid() = student_id);
@@ -204,6 +230,24 @@ CREATE POLICY "Allow insert for chat participants" ON public.chats FOR INSERT WI
 
 CREATE POLICY "Allow select for message participants" ON public.messages FOR SELECT USING (((auth.uid() IN (SELECT chats.student_id FROM chats WHERE (chats.id = messages.chat_id))) OR (auth.uid() IN (SELECT chats.organizer_id FROM chats WHERE (chats.id = messages.chat_id)))));
 CREATE POLICY "Allow insert for message sender" ON public.messages FOR INSERT WITH CHECK (auth.uid() = sender_id);
+
+-- 🔒 RLS cho interviews: student + organizer của interview được đọc; organizer tạo/update; organizer xóa
+CREATE POLICY "interviews_select_participants" ON public.interviews
+    FOR SELECT TO authenticated
+    USING (auth.uid() = student_id OR auth.uid() = organizer_id);
+CREATE POLICY "interviews_insert_organizer" ON public.interviews
+    FOR INSERT TO authenticated
+    WITH CHECK (
+        auth.uid() = organizer_id
+        AND auth.uid() IN (SELECT organizer_id FROM public.events WHERE id = event_id)
+    );
+CREATE POLICY "interviews_update_participants" ON public.interviews
+    FOR UPDATE TO authenticated
+    USING (auth.uid() = student_id OR auth.uid() = organizer_id)
+    WITH CHECK (auth.uid() = student_id OR auth.uid() = organizer_id);
+CREATE POLICY "interviews_delete_organizer" ON public.interviews
+    FOR DELETE TO authenticated
+    USING (auth.uid() = organizer_id);
 
 
 -- =========================================================================
@@ -396,12 +440,13 @@ $$ LANGUAGE plpgsql;
 -- PHẦN 4: ĐĂNG KÝ CÁC TRÌNH KÍCH HOẠT TỰ ĐỘNG (TRIGGERS)
 -- =========================================================================
 
--- Trigger 1: Tạo profile khi đăng ký auth (Trigger nằm trên schema auth của hệ thống Supabase)
--- (Câu lệnh drop/create này chỉ chạy thành công khi có quyền trên schema auth)
--- DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
--- CREATE TRIGGER on_auth_user_created
---   AFTER INSERT ON auth.users
---   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
+-- Trigger 1: Tạo profile khi đăng ký auth
+-- 🔒 ĐÃ KÍCH HOẠT (trước đây bị comment → user đăng ký mới không có profiles row)
+-- Cần chạy trong Supabase SQL Editor (yêu cầu quyền trên schema auth)
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
 
 -- Trigger 2: Tính toán độ hoàn thiện CV
 DROP TRIGGER IF EXISTS trg_calculate_cv_completion ON public.profiles;
@@ -442,19 +487,46 @@ CREATE TRIGGER trg_generate_event_slug
 
 -- =========================================================================
 -- PHẦN 5: PHÂN QUYỀN API TOÀN DIỆN (GRANTS)
+-- 🔒 SECURITY: anon chỉ cần SELECT trên public-read tables (trước đây GRANT ALL cho anon)
 -- =========================================================================
 
-GRANT ALL ON TABLE public.danang_wards TO anon, authenticated, service_role, postgres;
-GRANT ALL ON TABLE public.profiles TO anon, authenticated, service_role, postgres;
-GRANT ALL ON TABLE public.events TO anon, authenticated, service_role, postgres;
-GRANT ALL ON TABLE public.applications TO anon, authenticated, service_role, postgres;
-GRANT ALL ON TABLE public.notifications TO anon, authenticated, service_role, postgres;
-GRANT ALL ON TABLE public.event_bookmarks TO anon, authenticated, service_role, postgres;
-GRANT ALL ON TABLE public.chats TO anon, authenticated, service_role, postgres;
-GRANT ALL ON TABLE public.messages TO anon, authenticated, service_role, postgres;
-GRANT ALL ON TABLE public.reviews TO anon, authenticated, service_role, postgres;
-GRANT ALL ON TABLE public.event_categories TO anon, authenticated, service_role, postgres;
-GRANT ALL ON TABLE public.job_positions TO anon, authenticated, service_role, postgres;
+-- Thu hồi toàn bộ quyền của anon trên mọi bảng
+REVOKE ALL ON public.danang_wards FROM anon;
+REVOKE ALL ON public.profiles FROM anon;
+REVOKE ALL ON public.events FROM anon;
+REVOKE ALL ON public.applications FROM anon;
+REVOKE ALL ON public.notifications FROM anon;
+REVOKE ALL ON public.event_bookmarks FROM anon;
+REVOKE ALL ON public.chats FROM anon;
+REVOKE ALL ON public.messages FROM anon;
+REVOKE ALL ON public.reviews FROM anon;
+REVOKE ALL ON public.event_categories FROM anon;
+REVOKE ALL ON public.job_positions FROM anon;
+REVOKE ALL ON public.interviews FROM anon;
+
+-- Cấp lại SELECT cho anon trên public-read tables (RLS allow SELECT với true)
+GRANT SELECT ON public.danang_wards TO anon;
+GRANT SELECT ON public.profiles TO anon;
+GRANT SELECT ON public.events TO anon;
+GRANT SELECT ON public.applications TO anon;
+GRANT SELECT ON public.reviews TO anon;
+GRANT SELECT ON public.event_categories TO anon;
+GRANT SELECT ON public.job_positions TO anon;
+-- notifications / event_bookmarks / chats / messages / interviews: KHÔNG cấp SELECT cho anon
+
+-- authenticated + service_role + postgres giữ ALL (RLS enforce ở row level)
+GRANT ALL ON TABLE public.danang_wards TO authenticated, service_role, postgres;
+GRANT ALL ON TABLE public.profiles TO authenticated, service_role, postgres;
+GRANT ALL ON TABLE public.events TO authenticated, service_role, postgres;
+GRANT ALL ON TABLE public.applications TO authenticated, service_role, postgres;
+GRANT ALL ON TABLE public.notifications TO authenticated, service_role, postgres;
+GRANT ALL ON TABLE public.event_bookmarks TO authenticated, service_role, postgres;
+GRANT ALL ON TABLE public.chats TO authenticated, service_role, postgres;
+GRANT ALL ON TABLE public.messages TO authenticated, service_role, postgres;
+GRANT ALL ON TABLE public.reviews TO authenticated, service_role, postgres;
+GRANT ALL ON TABLE public.event_categories TO authenticated, service_role, postgres;
+GRANT ALL ON TABLE public.job_positions TO authenticated, service_role, postgres;
+GRANT ALL ON TABLE public.interviews TO authenticated, service_role, postgres;
 
 
 -- =========================================================================
@@ -479,22 +551,36 @@ ON storage.objects FOR SELECT
 USING (bucket_id = 'avatars');
 
 -- 2. Cho phép người dùng đã đăng nhập tải ảnh đại diện lên
+-- 🔒 SECURITY: ownership theo path prefix = auth.uid() (trước đây authenticated nào cũng upload/overwrite/delete file của người khác)
 CREATE POLICY "Allow authenticated insert on avatars"
 ON storage.objects FOR INSERT
 TO authenticated
-WITH CHECK (bucket_id = 'avatars');
+WITH CHECK (
+    bucket_id = 'avatars'
+    AND (storage.foldername(name))[1] = auth.uid()::text
+);
 
 -- 3. Cho phép người dùng đã đăng nhập cập nhật lại ảnh của mình
 CREATE POLICY "Allow authenticated update on avatars"
 ON storage.objects FOR UPDATE
 TO authenticated
-USING (bucket_id = 'avatars');
+USING (
+    bucket_id = 'avatars'
+    AND (storage.foldername(name))[1] = auth.uid()::text
+)
+WITH CHECK (
+    bucket_id = 'avatars'
+    AND (storage.foldername(name))[1] = auth.uid()::text
+);
 
 -- 4. Cho phép người dùng đã đăng nhập xóa ảnh của mình
 CREATE POLICY "Allow authenticated delete on avatars"
 ON storage.objects FOR DELETE
 TO authenticated
-USING (bucket_id = 'avatars');
+USING (
+    bucket_id = 'avatars'
+    AND (storage.foldername(name))[1] = auth.uid()::text
+);
 
 
 -- =========================================================================
@@ -517,8 +603,8 @@ CREATE POLICY "Allow students to delete their own applications" ON public.applic
 FOR DELETE TO authenticated USING (auth.uid() = student_id);
 
 DROP POLICY IF EXISTS "Allow update on applications" ON public.applications;
-CREATE POLICY "Allow update on applications" ON public.applications
-FOR UPDATE USING (true);
+-- 🔒 ĐÃ XÓA policy USING(true) cũ — thay bằng "BTC duyệt đơn" scoped ở Phần 2
+-- (policy cũ cho phép ai cũng sửa status đơn của người khác)
 
 -- 2. Bảng EVENT_BOOKMARKS
 ALTER TABLE public.event_bookmarks ENABLE ROW LEVEL SECURITY;
