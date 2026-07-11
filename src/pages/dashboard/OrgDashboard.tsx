@@ -429,66 +429,66 @@ export default function OrgDashboard() {
  {/* 1. TAB: FEED (BẢNG TIN THỐNG KÊ CHI TIẾT) */}
  {activeTab ==="feed" && (
  <div className="space-y-8 animate-in fade-in duration-300">
- <div className="p-8 rounded-[2rem] text-slate-800 border-2 border-emerald-100/50 shadow-md flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
- <div>
- <h1 className="text-3xl font-black tracking-tight text-slate-900">Xin chào, {profileData.fullName ||"Nhà tuyển dụng"}!</h1>
- <p className="text-slate-600 font-medium mt-1">Dưới đây là tổng quan hiệu suất các chiến dịch tuyển dụng tình nguyện viên của bạn.</p>
+ <div className="p-6 sm:p-8 rounded-2xl text-foreground border border-border shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+ <div className="min-w-0">
+ <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">Xin chào, {profileData.fullName ||"Nhà tuyển dụng"}!</h1>
+ <p className="text-muted-foreground font-medium mt-1">Dưới đây là tổng quan hiệu suất các chiến dịch tuyển dụng tình nguyện viên của bạn.</p>
  </div>
- <Button onClick={() => { setActiveTab("events"); setShowForm(true); }} className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black h-12 px-6 shrink-0 shadow-md">
+ <Button onClick={() => { setActiveTab("events"); setShowForm(true); }} className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-black h-12 px-6 shrink-0 shadow-md">
  Tạo chiến dịch mới
  </Button>
  </div>
 
  {/* STATS CARDS */}
- <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
- <div className="bg-white p-6 rounded-2xl border-2 border-slate-100 flex items-center gap-4 shadow-sm">
- <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600"><Briefcase className="w-6 h-6" /></div>
- <div>
- <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tổng chiến dịch</p>
- <h3 className="text-2xl font-black text-slate-900 mt-0.5">{totalEvents}</h3>
+ <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+ <div className="bg-card p-5 sm:p-6 rounded-2xl border border-border flex items-center gap-4 shadow-sm">
+ <div className="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0"><Briefcase className="w-6 h-6" /></div>
+ <div className="min-w-0">
+ <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Tổng chiến dịch</p>
+ <h3 className="text-2xl font-black text-foreground mt-0.5">{totalEvents}</h3>
  </div>
  </div>
- <div className="bg-white p-6 rounded-2xl border-2 border-slate-100 flex items-center gap-4 shadow-sm">
- <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600"><Calendar className="w-6 h-6" /></div>
- <div>
- <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Đang mở tuyển</p>
- <h3 className="text-2xl font-black text-slate-900 mt-0.5">{activeEvents}</h3>
+ <div className="bg-card p-5 sm:p-6 rounded-2xl border border-border flex items-center gap-4 shadow-sm">
+ <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center text-primary shrink-0"><Calendar className="w-6 h-6" /></div>
+ <div className="min-w-0">
+ <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Đang mở tuyển</p>
+ <h3 className="text-2xl font-black text-foreground mt-0.5">{activeEvents}</h3>
  </div>
  </div>
- <div className="bg-white p-6 rounded-2xl border-2 border-slate-100 flex items-center gap-4 shadow-sm">
- <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600"><Users className="w-6 h-6" /></div>
- <div>
- <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tỷ lệ duyệt hồ sơ</p>
- <h3 className="text-2xl font-black text-slate-900 mt-0.5">{feedStats.approvalRate}%</h3>
+ <div className="bg-card p-5 sm:p-6 rounded-2xl border border-border flex items-center gap-4 shadow-sm">
+ <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600 shrink-0"><Users className="w-6 h-6" /></div>
+ <div className="min-w-0">
+ <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Tỷ lệ duyệt hồ sơ</p>
+ <h3 className="text-2xl font-black text-foreground mt-0.5">{feedStats.approvalRate}%</h3>
  </div>
  </div>
- <div className="bg-white p-6 rounded-2xl border-2 border-slate-100 flex items-center gap-4 shadow-sm">
- <div className="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center text-rose-600"><TrendingUp className="w-6 h-6" /></div>
- <div>
- <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tổng đơn ứng tuyển</p>
- <h3 className="text-2xl font-black text-slate-900 mt-0.5">{feedStats.weeklyApps.reduce((a: number, b: number) => a + b, 0)}</h3>
+ <div className="bg-card p-5 sm:p-6 rounded-2xl border border-border flex items-center gap-4 shadow-sm">
+ <div className="w-12 h-12 rounded-xl bg-rose-50 flex items-center justify-center text-rose-600 shrink-0"><TrendingUp className="w-6 h-6" /></div>
+ <div className="min-w-0">
+ <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Tổng đơn ứng tuyển</p>
+ <h3 className="text-2xl font-black text-foreground mt-0.5">{feedStats.weeklyApps.reduce((a: number, b: number) => a + b, 0)}</h3>
  </div>
  </div>
  </div>
 
  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
  {/* Recent activity log */}
- <div className="lg:col-span-2 bg-white p-6 rounded-[2rem] border-2 border-slate-100 shadow-sm space-y-6">
- <h3 className="text-lg font-black text-slate-900">Biểu đồ ứng tuyển (4 tuần gần nhất)</h3>
+ <div className="lg:col-span-2 bg-card p-6 rounded-2xl border border-border shadow-sm space-y-6">
+ <h3 className="text-lg font-black text-foreground">Biểu đồ ứng tuyển (4 tuần gần nhất)</h3>
  {/* 🔒 P2.8: real chart từ feedStats.weeklyApps (thay mock SVG hardcoded) */}
- <div className="h-64 w-full flex items-end justify-between px-4 pt-6 border-b border-l border-slate-200 relative">
- <div className="absolute left-4 top-2 text-[10px] text-slate-400 font-bold">Ứng viên / Tuần</div>
+ <div className="h-64 w-full flex items-end justify-between px-4 pt-6 border-b border-l border-border relative">
+ <div className="absolute left-4 top-2 text-[10px] text-muted-foreground font-bold">Ứng viên / Tuần</div>
  {(() => {
  const max = Math.max(...feedStats.weeklyApps, 1)
  return feedStats.weeklyApps.map((count, i) => (
  <div key={i} className="w-1/4 flex flex-col items-center gap-2">
  <div
- className={`w-12 rounded-t-lg transition-all duration-500 hover:bg-emerald-500 ${i === 2 ? 'bg-emerald-600 shadow-lg shadow-emerald-500/20' : 'bg-slate-200'}`}
+ className={`w-12 rounded-t-lg transition-all duration-500 hover:bg-primary ${i === 2 ? 'bg-primary shadow-md' : 'bg-muted'}`}
  style={{ height: `${Math.max(20, (count / max) * 180)}px` }}
  title={`${count} ứng viên`}
  />
- <span className="text-[10px] text-slate-400 font-bold">Tuần {i + 1}</span>
- <span className="text-[10px] text-slate-600 font-black">{count}</span>
+ <span className="text-[10px] text-muted-foreground font-bold">Tuần {i + 1}</span>
+ <span className="text-[10px] text-foreground font-black">{count}</span>
  </div>
  ))
  })()}
@@ -496,16 +496,15 @@ export default function OrgDashboard() {
  </div>
 
  {/* Premium quick promo */}
- <div className="to-white p-6 rounded-[2rem] text-slate-800 flex flex-col justify-between shadow-md border-2 border-emerald-100/40 relative overflow-hidden">
- <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl"></div>
+ <div className="p-6 rounded-2xl text-foreground flex flex-col justify-between shadow-md border border-primary/20 relative overflow-hidden">
  <div className="space-y-4">
- <Crown className="w-10 h-10 text-emerald-600 fill-current" />
- <h3 className="text-xl font-black text-slate-900">Nâng cấp VIP Tuyển dụng</h3>
- <p className="text-slate-600 text-xs font-semibold leading-relaxed">
+ <Crown className="w-10 h-10 text-primary fill-current" />
+ <h3 className="text-xl font-black text-foreground">Nâng cấp VIP Tuyển dụng</h3>
+ <p className="text-muted-foreground text-xs font-semibold leading-relaxed">
  Tiếp cận trực tiếp hàng ngàn hồ sơ sinh viên tài năng tại Đà Nẵng, xem báo cáo thông minh và đẩy tin tuyển dụng của bạn lên vị trí nổi bật nhất.
  </p>
  </div>
- <Button onClick={() => setActiveTab("services")} className="mt-6 w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black h-11">
+ <Button onClick={() => setActiveTab("services")} className="mt-6 w-full rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-black h-11">
  Xem bảng giá gói
  </Button>
  </div>
@@ -517,8 +516,8 @@ export default function OrgDashboard() {
  {activeTab ==="events" && (
  <div className="space-y-6 animate-in fade-in duration-300">
  <div className="flex items-center justify-between gap-4">
- <h1 className="text-2xl font-black text-slate-900">Các chiến dịch của tôi</h1>
- <Button onClick={() => setShowForm(true)} className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black">
+ <h1 className="text-2xl font-black text-foreground">Các chiến dịch của tôi</h1>
+ <Button onClick={() => setShowForm(true)} className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-black">
  Tạo chiến dịch mới
  </Button>
  </div>
@@ -547,24 +546,24 @@ export default function OrgDashboard() {
  onRateStudent={(eventId, studentId, studentName) => setReviewingStudent({ eventId, studentId, studentName })}
  />
  ) : (
- <div className="bg-white rounded-[2rem] border-2 border-slate-100 p-6 sm:p-8 space-y-6">
- <h2 className="text-xl font-black text-slate-900">Chọn tin tuyển dụng để xem ứng viên</h2>
- <p className="text-slate-500 font-medium -mt-2">Chọn một trong những tin tuyển dụng dưới đây để xem danh sách hồ sơ chi tiết.</p>
+ <div className="bg-card rounded-2xl border border-border p-6 sm:p-8 space-y-6">
+ <h2 className="text-xl font-black text-foreground">Chọn tin tuyển dụng để xem ứng viên</h2>
+ <p className="text-muted-foreground font-medium -mt-2">Chọn một trong những tin tuyển dụng dưới đây để xem danh sách hồ sơ chi tiết.</p>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  {events.map((ev) => (
  <div
  key={ev.id}
  onClick={() => handleViewApplications(ev)}
- className="p-5 rounded-2xl border-2 border-slate-100 bg-slate-50/50 hover:bg-white hover:border-emerald-250 transition-all duration-200 cursor-pointer flex items-center justify-between"
+ className="p-5 rounded-2xl border border-border bg-muted/40 hover:bg-card hover:border-primary/40 transition-all duration-200 cursor-pointer flex items-center justify-between"
  >
  <div className="min-w-0">
- <h4 className="text-base font-bold text-slate-900 truncate">{ev.title}</h4>
- <p className="text-xs text-slate-500 mt-1 font-semibold flex items-center gap-1.5">
+ <h4 className="text-base font-bold text-foreground truncate">{ev.title}</h4>
+ <p className="text-xs text-muted-foreground mt-1 font-semibold flex items-center gap-1.5">
  <Users className="w-3.5 h-3.5" /> Số lượng đơn ứng tuyển: {ev.applications?.length || 0}
  </p>
  </div>
- <ChevronRight className="w-5 h-5 text-slate-400 shrink-0" />
+ <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
  </div>
  ))}
  </div>
@@ -577,30 +576,30 @@ export default function OrgDashboard() {
  {activeTab ==="recommended" && (
  <div className="space-y-6 relative z-10 min-h-[450px] animate-in fade-in duration-300">
  <div className="flex items-center justify-between">
- <h1 className="text-2xl font-black text-slate-900">Đề xuất CV Thông minh</h1>
+ <h1 className="text-2xl font-black text-foreground">Đề xuất CV Thông minh</h1>
  </div>
 
  <div className={`grid grid-cols-1 md:grid-cols-2 gap-5 ${!isPremium ?"filter blur-sm pointer-events-none select-none" :""}`}>
  {recommendedCVs.length === 0 ? (
- <div className="md:col-span-2 text-center py-12 text-slate-400">
+ <div className="md:col-span-2 text-center py-12 text-muted-foreground">
  <p className="text-sm font-semibold">Chưa có ứng viên nào ứng tuyển vào sự kiện của bạn.</p>
  </div>
  ) : recommendedCVs.map((cv, i) => (
- <div key={i} className="bg-white rounded-2xl p-5 border-2 border-slate-100 flex items-start gap-4">
+ <div key={i} className="bg-card rounded-2xl p-5 border border-border flex items-start gap-4">
  {cv.avatar ? (
  <img src={cv.avatar} alt={cv.name} loading="lazy" className="w-14 h-14 rounded-xl object-cover shrink-0" />
  ) : (
- <div className="w-14 h-14 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-black text-lg shrink-0">
+ <div className="w-14 h-14 rounded-xl bg-accent text-primary flex items-center justify-center font-black text-lg shrink-0">
  {cv.name.charAt(0).toUpperCase()}
  </div>
  )}
  <div className="flex-1 min-w-0">
  <div className="flex items-center gap-2">
- <h3 className="text-base font-bold truncate">{cv.name}</h3>
- <span className="bg-emerald-50 text-emerald-700 text-[10px] font-black px-2 py-0.5 rounded">Match: {cv.match}%</span>
+ <h3 className="text-base font-bold text-foreground truncate">{cv.name}</h3>
+ <span className="bg-accent text-primary text-[10px] font-black px-2 py-0.5 rounded">Match: {cv.match}%</span>
  </div>
- <p className="text-xs text-slate-500 mt-0.5 font-medium">{cv.university}</p>
- <p className="text-xs font-semibold text-slate-600 mt-2 truncate">Kỹ năng: {cv.skills}</p>
+ <p className="text-xs text-muted-foreground mt-0.5 font-medium">{cv.university}</p>
+ <p className="text-xs font-semibold text-foreground mt-2 truncate">Kỹ năng: {cv.skills}</p>
  </div>
  </div>
  ))}
@@ -608,18 +607,18 @@ export default function OrgDashboard() {
 
  {/* PREMIUM LOCK OVERLAY */}
  {!isPremium && (
- <div className="absolute inset-0 bg-slate-50/10 flex items-center justify-center p-6 z-10">
- <div className="bg-white border-2 border-slate-100 rounded-[2.5rem] p-8 max-w-md text-center shadow-2xl space-y-5 animate-in zoom-in-95">
+ <div className="absolute inset-0 bg-muted/20 flex items-center justify-center p-6 z-10">
+ <div className="bg-card border border-border rounded-2xl p-8 max-w-md text-center shadow-md space-y-5 animate-in zoom-in-95">
  <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 mx-auto shadow-sm">
  <Lock className="w-8 h-8" />
  </div>
  <div className="space-y-2">
- <h3 className="text-xl font-black text-slate-950">Mở khóa tính năng VIP</h3>
- <p className="text-slate-500 font-medium text-sm leading-relaxed">
+ <h3 className="text-xl font-black text-foreground">Mở khóa tính năng VIP</h3>
+ <p className="text-muted-foreground font-medium text-sm leading-relaxed">
  Khám phá tính năng gợi ý CV tự động bằng AI, tìm kiếm sinh viên phù hợp nhất dựa trên tiêu chuẩn sự kiện và gửi lời mời phỏng vấn ngay lập tức!
  </p>
  </div>
- <Button onClick={() => setActiveTab("services")} className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black w-full h-11 shadow-md shadow-emerald-500/10 flex items-center justify-center gap-2">
+ <Button onClick={() => setActiveTab("services")} className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-black w-full h-11 shadow-md flex items-center justify-center gap-2">
  <Crown className="w-4 h-4 fill-current" /> Xem gói dịch vụ VIP
  </Button>
  </div>
@@ -631,91 +630,91 @@ export default function OrgDashboard() {
  {/* 5. TAB: REPORTS (BÁO CÁO TUYỂN DỤNG - KHÓA PREMIUM) */}
  {activeTab ==="reports" && (
  <div className="space-y-6 relative z-10 min-h-[450px] animate-in fade-in duration-300">
- <h1 className="text-2xl font-black text-slate-900">Báo cáo & Phân tích chuyên sâu</h1>
+ <h1 className="text-2xl font-black text-foreground">Báo cáo & Phân tích chuyên sâu</h1>
 
  <div className={`space-y-6 ${!isPremium ?"filter blur-sm pointer-events-none select-none" :""}`}>
  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
- <div className="bg-white p-6 rounded-2xl border-2 border-slate-100">
- <h4 className="text-xs font-bold text-slate-400 uppercase">Tỷ lệ hoàn thành hồ sơ ứng tuyển</h4>
- <div className="text-2xl font-black mt-2 text-slate-900">92.5%</div>
+ <div className="bg-card p-6 rounded-2xl border border-border">
+ <h4 className="text-xs font-bold text-muted-foreground uppercase">Tỷ lệ hoàn thành hồ sơ ứng tuyển</h4>
+ <div className="text-2xl font-black mt-2 text-foreground">92.5%</div>
  </div>
- <div className="bg-white p-6 rounded-2xl border-2 border-slate-100">
- <h4 className="text-xs font-bold text-slate-400 uppercase">Thời gian phản hồi CV trung bình</h4>
- <div className="text-2xl font-black mt-2 text-slate-900">1.8 ngày</div>
+ <div className="bg-card p-6 rounded-2xl border border-border">
+ <h4 className="text-xs font-bold text-muted-foreground uppercase">Thời gian phản hồi CV trung bình</h4>
+ <div className="text-2xl font-black mt-2 text-foreground">1.8 ngày</div>
  </div>
- <div className="bg-white p-6 rounded-2xl border-2 border-slate-100">
- <h4 className="text-xs font-bold text-slate-400 uppercase">Kênh tiếp cận hiệu quả nhất</h4>
- <div className="text-2xl font-black mt-2 text-slate-900">Facebook & Web</div>
+ <div className="bg-card p-6 rounded-2xl border border-border">
+ <h4 className="text-xs font-bold text-muted-foreground uppercase">Kênh tiếp cận hiệu quả nhất</h4>
+ <div className="text-2xl font-black mt-2 text-foreground">Facebook & Web</div>
  </div>
  </div>
 
  {/* BIỂU ĐỒ BÁO CÁO CHI TIẾT */}
- <div className="bg-white p-6 rounded-[2rem] border-2 border-slate-100 shadow-sm space-y-6">
- <h3 className="text-lg font-black text-slate-900">Lượt tiếp cận & Đơn ứng tuyển theo ngày</h3>
- <div className="h-72 w-full flex items-end justify-between px-4 pt-6 border-b border-l border-slate-200 relative">
- <div className="absolute left-4 top-2 text-[10px] text-slate-400 font-bold">Lượt xem (Xanh dương) / Đơn ứng tuyển (Emerald)</div>
+ <div className="bg-card p-6 rounded-2xl border border-border shadow-sm space-y-6">
+ <h3 className="text-lg font-black text-foreground">Lượt tiếp cận & Đơn ứng tuyển theo ngày</h3>
+ <div className="h-72 w-full flex items-end justify-between px-4 pt-6 border-b border-l border-border relative">
+ <div className="absolute left-4 top-2 text-[10px] text-muted-foreground font-bold">Lượt xem (Xanh dương) / Đơn ứng tuyển (Emerald)</div>
 
  {/* Thứ 2 */}
  <div className="w-1/7 flex flex-col items-center gap-1.5 flex-1">
  <div className="flex items-end gap-1">
  <div className="w-3 bg-blue-500 h-28 rounded-t transition-all hover:opacity-85" title="120 lượt xem"></div>
- <div className="w-3 bg-emerald-500 h-10 rounded-t transition-all hover:opacity-85" title="15 ứng tuyển"></div>
+ <div className="w-3 bg-primary h-10 rounded-t transition-all hover:opacity-85" title="15 ứng tuyển"></div>
  </div>
- <span className="text-[10px] text-slate-400 font-bold">Thứ 2</span>
+ <span className="text-[10px] text-muted-foreground font-bold">Thứ 2</span>
  </div>
 
  {/* Thứ 3 */}
  <div className="w-1/7 flex flex-col items-center gap-1.5 flex-1">
  <div className="flex items-end gap-1">
  <div className="w-3 bg-blue-500 h-36 rounded-t transition-all hover:opacity-85" title="160 lượt xem"></div>
- <div className="w-3 bg-emerald-500 h-16 rounded-t transition-all hover:opacity-85" title="24 ứng tuyển"></div>
+ <div className="w-3 bg-primary h-16 rounded-t transition-all hover:opacity-85" title="24 ứng tuyển"></div>
  </div>
- <span className="text-[10px] text-slate-400 font-bold">Thứ 3</span>
+ <span className="text-[10px] text-muted-foreground font-bold">Thứ 3</span>
  </div>
 
  {/* Thứ 4 */}
  <div className="w-1/7 flex flex-col items-center gap-1.5 flex-1">
  <div className="flex items-end gap-1">
  <div className="w-3 bg-blue-500 h-44 rounded-t transition-all hover:opacity-85" title="200 lượt xem"></div>
- <div className="w-3 bg-emerald-500 h-24 rounded-t transition-all hover:opacity-85" title="35 ứng tuyển"></div>
+ <div className="w-3 bg-primary h-24 rounded-t transition-all hover:opacity-85" title="35 ứng tuyển"></div>
  </div>
- <span className="text-[10px] text-slate-400 font-bold">Thứ 4</span>
+ <span className="text-[10px] text-muted-foreground font-bold">Thứ 4</span>
  </div>
 
  {/* Thứ 5 */}
  <div className="w-1/7 flex flex-col items-center gap-1.5 flex-1">
  <div className="flex items-end gap-1">
  <div className="w-3 bg-blue-500 h-32 rounded-t transition-all hover:opacity-85" title="140 lượt xem"></div>
- <div className="w-3 bg-emerald-500 h-12 rounded-t transition-all hover:opacity-85" title="18 ứng tuyển"></div>
+ <div className="w-3 bg-primary h-12 rounded-t transition-all hover:opacity-85" title="18 ứng tuyển"></div>
  </div>
- <span className="text-[10px] text-slate-400 font-bold">Thứ 5</span>
+ <span className="text-[10px] text-muted-foreground font-bold">Thứ 5</span>
  </div>
 
  {/* Thứ 6 */}
  <div className="w-1/7 flex flex-col items-center gap-1.5 flex-1">
  <div className="flex items-end gap-1">
  <div className="w-3 bg-blue-500 h-48 rounded-t transition-all hover:opacity-85" title="220 lượt xem"></div>
- <div className="w-3 bg-emerald-500 h-36 rounded-t transition-all hover:opacity-85" title="50 ứng tuyển"></div>
+ <div className="w-3 bg-primary h-36 rounded-t transition-all hover:opacity-85" title="50 ứng tuyển"></div>
  </div>
- <span className="text-[10px] text-slate-400 font-bold">Thứ 6</span>
+ <span className="text-[10px] text-muted-foreground font-bold">Thứ 6</span>
  </div>
 
  {/* Thứ 7 */}
  <div className="w-1/7 flex flex-col items-center gap-1.5 flex-1">
  <div className="flex items-end gap-1">
  <div className="w-3 bg-blue-500 h-56 rounded-t transition-all hover:opacity-85" title="260 lượt xem"></div>
- <div className="w-3 bg-emerald-500 h-48 rounded-t transition-all hover:opacity-85" title="68 ứng tuyển"></div>
+ <div className="w-3 bg-primary h-48 rounded-t transition-all hover:opacity-85" title="68 ứng tuyển"></div>
  </div>
- <span className="text-[10px] text-slate-400 font-bold">Thứ 7</span>
+ <span className="text-[10px] text-muted-foreground font-bold">Thứ 7</span>
  </div>
 
  {/* Chủ Nhật */}
  <div className="w-1/7 flex flex-col items-center gap-1.5 flex-1">
  <div className="flex items-end gap-1">
  <div className="w-3 bg-blue-500 h-40 rounded-t transition-all hover:opacity-85" title="180 lượt xem"></div>
- <div className="w-3 bg-emerald-500 h-28 rounded-t transition-all hover:opacity-85" title="40 ứng tuyển"></div>
+ <div className="w-3 bg-primary h-28 rounded-t transition-all hover:opacity-85" title="40 ứng tuyển"></div>
  </div>
- <span className="text-[10px] text-slate-400 font-bold">Chủ Nhật</span>
+ <span className="text-[10px] text-muted-foreground font-bold">Chủ Nhật</span>
  </div>
 
  </div>
@@ -724,18 +723,18 @@ export default function OrgDashboard() {
 
  {/* PREMIUM LOCK OVERLAY */}
  {!isPremium && (
- <div className="absolute inset-0 bg-slate-50/10 flex items-center justify-center p-6 z-10">
- <div className="bg-white border-2 border-slate-100 rounded-[2.5rem] p-8 max-w-md text-center shadow-2xl space-y-5 animate-in zoom-in-95">
+ <div className="absolute inset-0 bg-muted/20 flex items-center justify-center p-6 z-10">
+ <div className="bg-card border border-border rounded-2xl p-8 max-w-md text-center shadow-md space-y-5 animate-in zoom-in-95">
  <div className="w-16 h-16 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-500 mx-auto shadow-sm">
  <Lock className="w-8 h-8" />
  </div>
  <div className="space-y-2">
- <h3 className="text-xl font-black text-slate-950">Mở khóa Báo cáo tuyển dụng</h3>
- <p className="text-slate-500 font-medium text-sm leading-relaxed">
+ <h3 className="text-xl font-black text-foreground">Mở khóa Báo cáo tuyển dụng</h3>
+ <p className="text-muted-foreground font-medium text-sm leading-relaxed">
  Xem biểu đồ tương tác, số lượt xem bài đăng tuyển dụng chi tiết theo ngày và xuất các báo cáo thống kê phục vụ hoạt động quản trị của tổ chức.
  </p>
  </div>
- <Button onClick={() => setActiveTab("services")} className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black w-full h-11 shadow-md shadow-emerald-500/10 flex items-center justify-center gap-2">
+ <Button onClick={() => setActiveTab("services")} className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-black w-full h-11 shadow-md flex items-center justify-center gap-2">
  <Crown className="w-4 h-4 fill-current" /> Xem gói dịch vụ VIP
  </Button>
  </div>
@@ -748,36 +747,36 @@ export default function OrgDashboard() {
  {activeTab ==="services" && (
  <div className="space-y-6 animate-in fade-in duration-300">
  <div className="text-center max-w-2xl mx-auto space-y-2">
- <h1 className="text-3xl font-black text-slate-900">Bảng giá dịch vụ VIP</h1>
- <p className="text-slate-500 font-medium">Lựa chọn gói dịch vụ tối ưu để tối đa hóa hiệu quả tuyển dụng tình nguyện viên của bạn.</p>
+ <h1 className="text-2xl sm:text-3xl font-black text-foreground">Bảng giá dịch vụ VIP</h1>
+ <p className="text-muted-foreground font-medium">Lựa chọn gói dịch vụ tối ưu để tối đa hóa hiệu quả tuyển dụng tình nguyện viên của bạn.</p>
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto pt-4">
  {/* VIP Plan */}
- <div className="bg-white rounded-[2.5rem] border-2 border-slate-150 p-8 flex flex-col justify-between shadow-lg relative overflow-hidden">
+ <div className="bg-card rounded-2xl border border-border p-6 sm:p-8 flex flex-col justify-between shadow-md relative overflow-hidden">
  {isPremium && (
- <div className="absolute top-4 right-4 bg-emerald-500 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase flex items-center gap-0.5">
+ <div className="absolute top-4 right-4 bg-primary text-primary-foreground text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase flex items-center gap-0.5">
  Đang sử dụng
  </div>
  )}
  <div className="space-y-6">
  <div>
- <h3 className="text-xl font-black flex items-center gap-1.5 text-slate-900">
- <Crown className="w-5 h-5 text-emerald-500 fill-current" /> VIP Recruiter
+ <h3 className="text-xl font-black flex items-center gap-1.5 text-foreground">
+ <Crown className="w-5 h-5 text-primary fill-current" /> VIP Recruiter
  </h3>
- <p className="text-slate-400 text-xs font-semibold mt-1">Giải pháp tối ưu cho Nhà tuyển dụng chuyên nghiệp</p>
+ <p className="text-muted-foreground text-xs font-semibold mt-1">Giải pháp tối ưu cho Nhà tuyển dụng chuyên nghiệp</p>
  </div>
 
  <div className="flex items-baseline gap-1">
- <span className="text-3xl font-black">990.000đ</span>
- <span className="text-slate-400 text-xs font-bold">/ tháng</span>
+ <span className="text-3xl font-black text-foreground">990.000đ</span>
+ <span className="text-muted-foreground text-xs font-bold">/ tháng</span>
  </div>
 
  <ul className="space-y-3">
  {["Mở khóa đề xuất CV AI phù hợp","Xem Báo cáo tuyển dụng chuyên sâu","Đẩy tin nổi bật không giới hạn","Hỗ trợ ưu tiên 24/7 từ EventMate"
  ].map((feat, i) => (
- <li key={i} className="flex items-center gap-2 text-xs font-semibold text-slate-600">
- <Check className="w-4 h-4 text-emerald-500" /> {feat}
+ <li key={i} className="flex items-center gap-2 text-xs font-semibold text-foreground">
+ <Check className="w-4 h-4 text-primary" /> {feat}
  </li>
  ))}
  </ul>
@@ -788,8 +787,8 @@ export default function OrgDashboard() {
  disabled={isPremium}
  className={`mt-8 w-full rounded-xl font-black h-11 shadow-sm
  ${isPremium
- ?"bg-slate-100 text-slate-400"
- :"bg-emerald-600 hover:bg-emerald-700 text-white"
+ ?"bg-muted text-muted-foreground"
+ :"bg-primary hover:bg-primary/90 text-primary-foreground"
  }
  `}
  >
@@ -798,23 +797,23 @@ export default function OrgDashboard() {
  </div>
 
  {/* Basic Push Plan */}
- <div className="bg-white rounded-[2.5rem] border-2 border-slate-100 p-8 flex flex-col justify-between shadow-sm">
+ <div className="bg-card rounded-2xl border border-border p-6 sm:p-8 flex flex-col justify-between shadow-sm">
  <div className="space-y-6">
  <div>
- <h3 className="text-xl font-black text-slate-900">Đẩy tin VIP bài đăng</h3>
- <p className="text-slate-400 text-xs font-semibold mt-1">Tăng độ tiếp cận của bài tuyển dụng</p>
+ <h3 className="text-xl font-black text-foreground">Đẩy tin VIP bài đăng</h3>
+ <p className="text-muted-foreground text-xs font-semibold mt-1">Tăng độ tiếp cận của bài tuyển dụng</p>
  </div>
 
  <div className="flex items-baseline gap-1">
- <span className="text-3xl font-black">290.000đ</span>
- <span className="text-slate-400 text-xs font-bold">/ 7 ngày</span>
+ <span className="text-3xl font-black text-foreground">290.000đ</span>
+ <span className="text-muted-foreground text-xs font-bold">/ 7 ngày</span>
  </div>
 
  <ul className="space-y-3">
  {["Ghim bài đăng lên top 1 trang chủ sinh viên","Hiển thị nhãn VIP nổi bật trên bài đăng","Đẩy tin tự động mỗi 24 giờ"
  ].map((feat, i) => (
- <li key={i} className="flex items-center gap-2 text-xs font-semibold text-slate-600">
- <Check className="w-4 h-4 text-emerald-500" /> {feat}
+ <li key={i} className="flex items-center gap-2 text-xs font-semibold text-foreground">
+ <Check className="w-4 h-4 text-primary" /> {feat}
  </li>
  ))}
  </ul>
@@ -822,7 +821,7 @@ export default function OrgDashboard() {
 
  <Button
  onClick={() => showToast({ title:"Dịch vụ giả lập", message:"Gói đẩy tin VIP đã được mô phỏng kích hoạt thành công cho chiến dịch!", type:"info" })}
- className="mt-8 w-full rounded-xl bg-slate-800 hover:bg-slate-900 text-white font-black h-11"
+ className="mt-8 w-full rounded-xl bg-foreground hover:bg-foreground/90 text-background font-black h-11"
  >
  Mua gói đẩy tin
  </Button>
@@ -834,15 +833,15 @@ export default function OrgDashboard() {
  {/* 7. TAB: CHAT (TÍCH HỢP HỘI THOẠI TRỰC TIẾP) */}
  {activeTab ==="chat" && (
  <div className="space-y-6 animate-in fade-in duration-300">
- <h1 className="text-2xl font-black text-slate-900">Danh sách cuộc trò chuyện</h1>
+ <h1 className="text-2xl font-black text-foreground">Danh sách cuộc trò chuyện</h1>
 
  {loadingChats ? (
- <div className="text-center py-12 text-slate-500 font-medium">Đang tải cuộc trò chuyện...</div>
+ <div className="text-center py-12 text-muted-foreground font-medium">Đang tải cuộc trò chuyện...</div>
  ) : activeChats.length === 0 ? (
- <div className="text-center py-16 border-2 border-dashed border-slate-150 rounded-[2rem] bg-white">
- <MessageSquare className="w-12 h-12 text-slate-300 mx-auto mb-4" />
- <h3 className="text-lg font-bold text-slate-700">Chưa có cuộc trò chuyện nào</h3>
- <p className="text-slate-500 font-medium mt-1">Nhấp vào nút nhắn tin trên hồ sơ ứng viên để bắt đầu cuộc hội thoại.</p>
+ <div className="text-center py-16 border border-dashed border-border rounded-2xl bg-card">
+ <MessageSquare className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+ <h3 className="text-lg font-bold text-foreground">Chưa có cuộc trò chuyện nào</h3>
+ <p className="text-muted-foreground font-medium mt-1">Nhấp vào nút nhắn tin trên hồ sơ ứng viên để bắt đầu cuộc hội thoại.</p>
  </div>
  ) : (
  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -853,19 +852,19 @@ export default function OrgDashboard() {
  <div
  key={chat.id}
  onClick={() => handleStartChatWithStudent(event?.id, student?.id)}
- className="p-5 rounded-2xl border-2 border-slate-100 bg-white hover:border-emerald-250 hover:shadow-md transition-all duration-200 cursor-pointer flex items-center justify-between"
+ className="p-5 rounded-2xl border border-border bg-card hover:border-primary/40 hover:shadow-md transition-all duration-200 cursor-pointer flex items-center justify-between"
  >
  <div className="flex items-center gap-4 min-w-0">
- <img src={student?.avatar_url ||"https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=40&h=40&q=80"} alt={student?.full_name} loading="lazy" className="w-12 h-12 rounded-xl object-cover shrink-0 border border-slate-100" />
+ <img src={student?.avatar_url ||"https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=40&h=40&q=80"} alt={student?.full_name} loading="lazy" className="w-12 h-12 rounded-xl object-cover shrink-0 border border-border" />
  <div className="min-w-0">
- <h4 className="font-bold text-slate-900 truncate">{student?.full_name}</h4>
- <p className="text-xs text-slate-500 truncate mt-0.5">{student?.university ||"Sinh viên"}</p>
- <span className="inline-block text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded mt-1.5 font-semibold">
+ <h4 className="font-bold text-foreground truncate">{student?.full_name}</h4>
+ <p className="text-xs text-muted-foreground truncate mt-0.5">{student?.university ||"Sinh viên"}</p>
+ <span className="inline-block text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded mt-1.5 font-semibold">
  Chiến dịch: {event?.title}
  </span>
  </div>
  </div>
- <ArrowRight className="w-5 h-5 text-slate-400 shrink-0" />
+ <ArrowRight className="w-5 h-5 text-muted-foreground shrink-0" />
  </div>
  )
  })}

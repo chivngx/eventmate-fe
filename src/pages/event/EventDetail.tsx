@@ -174,7 +174,7 @@ export default function EventDetail() {
  <button
  onClick={handleApply}
  disabled={disabledApply || isPastDeadline}
- className="job-detail_info--actions-button button-primary open-apply-modal btn-apply-job flex items-center justify-center bg-primary hover:bg-[#009a44] text-white font-semibold font-sans rounded-md transition-all active:scale-95 disabled:opacity-50 h-[40px] px-6 text-sm flex-1 cursor-pointer"
+ className="job-detail_info--actions-button button-primary open-apply-modal btn-apply-job flex items-center justify-center bg-primary hover:bg-primary/90 text-white font-semibold font-sans rounded-md transition-all active:scale-95 disabled:opacity-50 h-[40px] px-6 text-sm flex-1 cursor-pointer"
  >
  {isApplying ?"Đang xử lý..." : isPastDeadline ?"Đã hết hạn nộp đơn" : event.status !== 'upcoming' ?"Đã đóng đăng ký" :"Ứng tuyển ngay"}
  </button>
@@ -232,8 +232,8 @@ export default function EventDetail() {
  </div>
 
  {/* Hạn chót nộp hồ sơ */}
- <div className="job-detail_info--flex flex items-center text-sm text-[#333] gap-2 mt-4 mb-6">
- <div className="job-detail_info--deadline flex items-center gap-1 text-sm text-[#7f878f] bg-slate-50 px-2.5 py-1.5 md:p-[2px_8px_2px_4px] rounded">
+ <div className="job-detail_info--flex flex items-center text-sm text-foreground gap-2 mt-4 mb-6">
+ <div className="job-detail_info--deadline flex items-center gap-1 text-sm text-muted-foreground bg-slate-50 px-2.5 py-1.5 md:px-2 md:py-1 rounded">
  <span>Hạn nộp hồ sơ</span>
  </div>
  <div className="job-detail_info--deadline-date text-sm font-semibold text-foreground">
@@ -310,16 +310,16 @@ export default function EventDetail() {
  </div>
 
  {/* Right Column (Sidebar, Width: approx 350px on large screen) */}
- <div className="job-detail_body-right w-full lg:w-[350px] shrink-0 flex flex-col gap-6 items-center text-[#333] text-[14px] leading-[20px]">
+ <div className="job-detail_body-right w-full lg:w-[350px] shrink-0 flex flex-col gap-6 items-center text-foreground text-sm leading-5">
  {/* Company Card */}
  <div
- className="job-detail_box right job-detail_company bg-white rounded-lg border border-slate-200 p-5 shadow-sm flex flex-col gap-4 items-start text-[#333] text-[14px] leading-[20px]"
+ className="job-detail_box right job-detail_company bg-white rounded-lg border border-slate-200 p-5 shadow-sm flex flex-col gap-4 items-start text-foreground text-sm leading-5"
  >
  <div className="job-detail_company--information w-full flex flex-col gap-3">
- <div className="job-detail_company--information-item company-name flex items-start text-[#333] text-[14px] gap-[16px] leading-[20px] mb-3">
+ <div className="job-detail_company--information-item company-name flex items-start text-foreground text-[14px] gap-[16px] leading-[20px] mb-3">
  <div
  onClick={() => navigate(`/companies/${event.profiles?.slug || event.organizer_id}`)}
- className="company-logo flex items-center justify-center bg-white border border-muted rounded-[8px] border-[0.8px] text-[#23527c] text-[14px] leading-[20px] p-[7.04px] w-[88px] h-[88px] shrink-0 cursor-pointer"
+ className="company-logo flex items-center justify-center bg-white border border-muted rounded-lg border-[0.8px] text-primary text-sm leading-5 p-[7.04px] w-[88px] h-[88px] shrink-0 cursor-pointer"
  >
  <img
  src={event.profiles?.avatar_url ||"https://images.unsplash.com/photo-1542744094-3a31f103e35f?auto=format&fit=crop&w=88&h=88&q=80"}
@@ -331,7 +331,7 @@ export default function EventDetail() {
  }}
  />
  </div>
- <div className="company-name-label flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full">
+ <div className="company-name-label flex flex-col gap-1 text-foreground text-sm leading-5 w-full">
  <a
  onClick={() => navigate(`/companies/${event.profiles?.slug || event.organizer_id}`)}
  className="name text-[14px] font-semibold text-foreground font-sans tracking-[-0.16px] leading-[24px] cursor-pointer hover:text-primary transition-colors"
@@ -341,9 +341,9 @@ export default function EventDetail() {
  </div>
  </div>
 
- <div className="job-detail_company--information-item company-scale flex items-start text-[#333] text-[14px] gap-[16px] leading-[20px] mb-2">
- <div className="company-title flex items-center gap-[8px] text-[#7f878f] text-[14px] leading-[22px] tracking-[0.14px] w-[88px] shrink-0">
- <Users className="w-4 h-4 text-[#7f878f] fill-none text-[14px] leading-[22px] tracking-[0.14px]" />
+ <div className="job-detail_company--information-item company-scale flex items-start text-foreground text-[14px] gap-[16px] leading-[20px] mb-2">
+ <div className="company-title flex items-center gap-[8px] text-muted-foreground text-[14px] leading-[22px] tracking-[0.14px] w-[88px] shrink-0">
+ <Users className="w-4 h-4 text-muted-foreground fill-none text-[14px] leading-[22px] tracking-[0.14px]" />
  <span>Quy mô:</span>
  </div>
  <div className="company-value text-foreground text-[14px] font-medium leading-[22px] tracking-[0.14px] w-full">
@@ -351,9 +351,9 @@ export default function EventDetail() {
  </div>
  </div>
 
- <div className="job-detail_company--information-item company-address flex items-start text-[#333] text-[14px] gap-[16px] leading-[20px] mb-2">
- <div className="company-title flex items-center gap-[8px] text-[#7f878f] text-[14px] leading-[22px] tracking-[0.14px] w-[88px] shrink-0">
- <MapPin className="w-4 h-4 text-[#7f878f] fill-none text-[14px] leading-[22px] tracking-[0.14px]" />
+ <div className="job-detail_company--information-item company-address flex items-start text-foreground text-[14px] gap-[16px] leading-[20px] mb-2">
+ <div className="company-title flex items-center gap-[8px] text-muted-foreground text-[14px] leading-[22px] tracking-[0.14px] w-[88px] shrink-0">
+ <MapPin className="w-4 h-4 text-muted-foreground fill-none text-[14px] leading-[22px] tracking-[0.14px]" />
  <span>Địa điểm:</span>
  </div>
  <div className="company-value text-foreground text-[14px] font-medium leading-[22px] tracking-[0.14px] w-full">
@@ -362,10 +362,10 @@ export default function EventDetail() {
  </div>
  </div>
 
- <div className="job-detail_company--link w-full flex justify-center text-[#333] text-[14px] leading-[20px] mt-1">
+ <div className="job-detail_company--link w-full flex justify-center text-foreground text-sm leading-5 mt-1">
  <a
  onClick={() => navigate(`/companies/${event.profiles?.slug || event.organizer_id}`)}
- className="flex items-center justify-center gap-[10px] text-primary text-[14px] font-semibold leading-[22px] tracking-[0.175px] font-sans hover:underline cursor-pointer"
+ className="flex items-center justify-center gap-2.5 text-primary text-[14px] font-semibold leading-[22px] tracking-[0.175px] font-sans hover:underline cursor-pointer"
  >
  Xem trang công ty
  <ExternalLink className="text-[15px] text-primary w-4 h-4 flex items-center justify-center leading-[20px] text-center shrink-0" />
@@ -375,18 +375,18 @@ export default function EventDetail() {
 
 
  {/* General Info Box */}
- <div className="job-detail_body-right--box-general bg-white rounded-lg border border-slate-200 p-5 shadow-sm text-[#333] text-[14px] leading-[20px] w-full">
+ <div className="job-detail_body-right--box-general bg-white rounded-lg border border-slate-200 p-5 shadow-sm text-foreground text-sm leading-5 w-full">
  <div className="box-title text-lg font-bold text-foreground mb-4">
  Thông tin chung
  </div>
 
- <div className="box-general-content flex flex-col gap-4 text-[#333] text-[14px] leading-[20px] w-full">
- <div className="box-general-group flex items-center gap-4 text-[#333] text-[14px] leading-[20px] w-full">
- <div className="box-general-group-icon flex items-center justify-center bg-muted rounded-[30px] p-2 text-[#333] text-[14px] leading-[20px] w-[40px] h-[40px] shrink-0">
- <Briefcase className="w-5 h-5 text-[#333] fill-none text-[14px] leading-[20px]" />
+ <div className="box-general-content flex flex-col gap-4 text-foreground text-sm leading-5 w-full">
+ <div className="box-general-group flex items-center gap-4 text-foreground text-sm leading-5 w-full">
+ <div className="box-general-group-icon flex items-center justify-center bg-muted rounded-xl p-2 text-foreground text-sm leading-5 w-10 h-10 shrink-0">
+ <Briefcase className="w-5 h-5 text-foreground fill-none text-sm leading-5" />
  </div>
- <div className="box-general-group-info flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full">
- <div className="box-general-group-info-title text-[#4d5965] text-[14px] tracking-[0.14px] leading-[22px] whitespace-nowrap">
+ <div className="box-general-group-info flex flex-col gap-1 text-foreground text-sm leading-5 w-full">
+ <div className="box-general-group-info-title text-foreground text-[14px] tracking-[0.14px] leading-[22px] whitespace-nowrap">
  Vị trí tuyển
  </div>
  <div className="box-general-group-info-value text-foreground text-[14px] font-semibold tracking-[0.175px] leading-[22px] whitespace-nowrap">
@@ -395,12 +395,12 @@ export default function EventDetail() {
  </div>
  </div>
 
- <div className="box-general-group flex items-center gap-4 text-[#333] text-[14px] leading-[20px] w-full">
- <div className="box-general-group-icon flex items-center justify-center bg-muted rounded-[30px] p-2 text-[#333] text-[14px] leading-[20px] w-[40px] h-[40px] shrink-0">
- <Tag className="w-5 h-5 text-[#333] fill-none text-[14px] leading-[20px]" />
+ <div className="box-general-group flex items-center gap-4 text-foreground text-sm leading-5 w-full">
+ <div className="box-general-group-icon flex items-center justify-center bg-muted rounded-xl p-2 text-foreground text-sm leading-5 w-10 h-10 shrink-0">
+ <Tag className="w-5 h-5 text-foreground fill-none text-sm leading-5" />
  </div>
- <div className="box-general-group-info flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full">
- <div className="box-general-group-info-title text-[#4d5965] text-[14px] tracking-[0.14px] leading-[22px] whitespace-nowrap">
+ <div className="box-general-group-info flex flex-col gap-1 text-foreground text-sm leading-5 w-full">
+ <div className="box-general-group-info-title text-foreground text-[14px] tracking-[0.14px] leading-[22px] whitespace-nowrap">
  Loại hình
  </div>
  <div className="box-general-group-info-value text-foreground text-[14px] font-semibold tracking-[0.175px] leading-[22px] whitespace-nowrap">
@@ -409,12 +409,12 @@ export default function EventDetail() {
  </div>
  </div>
 
- <div className="box-general-group flex items-center gap-4 text-[#333] text-[14px] leading-[20px] w-full">
- <div className="box-general-group-icon flex items-center justify-center bg-muted rounded-[30px] p-2 text-[#333] text-[14px] leading-[20px] w-[40px] h-[40px] shrink-0">
- <Users className="w-5 h-5 text-[#333] fill-none text-[14px] leading-[20px]" />
+ <div className="box-general-group flex items-center gap-4 text-foreground text-sm leading-5 w-full">
+ <div className="box-general-group-icon flex items-center justify-center bg-muted rounded-xl p-2 text-foreground text-sm leading-5 w-10 h-10 shrink-0">
+ <Users className="w-5 h-5 text-foreground fill-none text-sm leading-5" />
  </div>
- <div className="box-general-group-info flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full">
- <div className="box-general-group-info-title text-[#4d5965] text-[14px] tracking-[0.14px] leading-[22px] whitespace-nowrap">
+ <div className="box-general-group-info flex flex-col gap-1 text-foreground text-sm leading-5 w-full">
+ <div className="box-general-group-info-title text-foreground text-[14px] tracking-[0.14px] leading-[22px] whitespace-nowrap">
  Số lượng tuyển
  </div>
  <div className="box-general-group-info-value text-foreground text-[14px] font-semibold tracking-[0.175px] leading-[22px] whitespace-nowrap">

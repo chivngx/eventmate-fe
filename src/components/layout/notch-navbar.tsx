@@ -55,7 +55,7 @@ const JobsMegaMenu = ({ role }: { role?: string }) => {
 
  {/* Dropdown: full-width on mobile, fixed width on desktop */}
  <div className="absolute left-0 top-full pt-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 w-[min(90vw,28rem)] sm:w-[min(600px,28rem)] lg:w-[44rem] z-50 translate-y-1 group-hover:translate-y-0">
- <div className="bg-white rounded-2xl shadow-xl border border-slate-200 p-5 sm:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+ <div className="bg-white rounded-2xl shadow-md border border-slate-200 p-5 sm:p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
  {/* Section: Quản lý việc làm */}
  <div className="space-y-3">
  <h4 className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Quản lý việc làm</h4>
@@ -167,7 +167,7 @@ export function NotchNavbar({ className, logo, rightActions, role }: { className
  initial={{ opacity: 0, y: -8 }}
  animate={{ opacity: 1, y: 0 }}
  exit={{ opacity: 0, y: -8 }}
- className="md:hidden fixed inset-x-0 top-16 z-40 bg-white border-b border-slate-200 shadow-lg"
+ className="md:hidden fixed inset-x-0 top-16 z-40 bg-white border-b border-slate-200 shadow-md"
  >
  <nav className="mx-auto max-w-7xl px-4 py-3 flex flex-col gap-1">
  <Link href="/" className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 font-medium text-slate-800" onClick={() => setIsMobileMenuOpen(false)}>

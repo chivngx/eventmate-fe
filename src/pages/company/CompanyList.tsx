@@ -62,7 +62,7 @@ export default function CompanyList() {
  <MainLayout role={userRole}>
  <div className="max-w-6xl mx-auto px-4 py-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
  {/* Header Section */}
- <div className="mb-10 text-center md:text-left to-transparent p-8 md:p-12 rounded-[2rem] border-2 border-emerald-500/5 relative overflow-hidden">
+ <div className="mb-10 text-center md:text-left to-transparent p-8 md:p-12 rounded-2xl border border-primary/10 relative overflow-hidden">
  <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-100 rounded-full blur-3xl -z-10 translate-x-1/3 -translate-y-1/3 opacity-55"></div>
  
  <h1 className="text-3xl md:text-4xl font-black text-slate-900 flex items-center justify-center md:justify-start gap-3">
@@ -93,7 +93,7 @@ export default function CompanyList() {
  Đang tải danh sách các Ban tổ chức...
  </div>
  ) : filteredOrganizers.length === 0 ? (
- <div className="text-center py-20 bg-white rounded-[2rem] border-2 border-dashed border-slate-200">
+ <div className="text-center py-20 bg-white rounded-2xl border-2 border-dashed border-slate-200">
  <Building2 className="w-12 h-12 text-slate-300 mx-auto mb-4" />
  <h3 className="text-lg font-bold text-slate-800">Không tìm thấy Ban tổ chức nào</h3>
  <p className="text-slate-400 text-sm mt-1">Hãy thử tìm kiếm với từ khóa khác.</p>
@@ -109,19 +109,19 @@ export default function CompanyList() {
  <div
  key={org.id}
  style={{ animationDelay: `${index * 50}ms` }}
- className="bg-white rounded-3xl border-2 border-slate-100 p-6 hover:border-emerald-500/30 hover:shadow-xl hover:shadow-emerald-950/5 transition-all duration-300 flex flex-col justify-between group animate-in fade-in slide-in-from-bottom-3"
+ className="bg-white rounded-3xl border border-slate-200 p-6 hover:border-emerald-500/30 hover:shadow-md hover:shadow-emerald-950/5 transition-all duration-300 flex flex-col justify-between group animate-in fade-in slide-in-from-bottom-3"
  >
  <div>
  {/* Avatar & Badges */}
  <div className="flex items-start justify-between gap-4 mb-4">
- <Avatar className="h-16 w-16 rounded-2xl border-2 border-slate-50 mt-1 shrink-0">
+ <Avatar className="h-16 w-16 rounded-2xl border border-slate-100 mt-1 shrink-0">
  <AvatarImage src={org.avatar_url} />
  <AvatarFallback className="rounded-2xl bg-slate-100 text-2xl font-black text-slate-700">
  {displayName.charAt(0).toUpperCase()}
  </AvatarFallback>
  </Avatar>
  
- <Badge className="bg-emerald-50 text-emerald-600 border border-emerald-100/50 hover:bg-emerald-100/50 font-bold px-3 py-1 text-xs flex items-center gap-1">
+ <Badge className="bg-emerald-50 text-emerald-600 border border-primary/20 hover:bg-emerald-100/50 font-bold px-3 py-1 text-xs flex items-center gap-1">
  <CalendarDays className="w-3.5 h-3.5" />
  {eventCount} sự kiện
  </Badge>

@@ -92,24 +92,24 @@ export default function CVProfile() {
  <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
 
  <div className="mb-8">
- <h1 className="text-3xl font-black tracking-tight text-slate-900 flex items-center gap-3">
- <FileText className="w-8 h-8 text-emerald-500" />
+ <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground flex items-center gap-3">
+ <FileText className="w-8 h-8 text-primary" />
  Hồ sơ Năng lực (CV)
  </h1>
- <p className="text-slate-500 font-medium mt-2">
- Bổ sung đầy đủ thông tin giúp bạn tăng <strong className="text-emerald-600">300% cơ hội</strong> được Ban tổ chức lựa chọn ứng tuyển.
+ <p className="text-muted-foreground font-medium mt-2">
+ Bổ sung đầy đủ thông tin giúp bạn tăng <strong className="text-primary">300% cơ hội</strong> được Ban tổ chức lựa chọn ứng tuyển.
  </p>
  </div>
 
- <div className="bg-white rounded-[2rem] border-2 border-slate-100 shadow-xl shadow-emerald-900/5 overflow-hidden">
+ <div className="bg-card rounded-2xl border border-border shadow-md overflow-hidden">
  {/* BANNER NỀN TRÊN CỦA THẺ PROFILE */}
- <div className="h-32 relative">
+ <div className="h-32 relative bg-muted">
  <div className="absolute -bottom-10 left-8">
- <div className="w-24 h-24 bg-white rounded-2xl p-1.5 shadow-md flex items-center justify-center">
+ <div className="w-24 h-24 bg-card rounded-2xl p-1.5 shadow-md flex items-center justify-center border border-border">
  {/* ĐÃ NÂNG CẤP: Hiển thị Avatar thực tế đồng bộ động từ tài khoản Google/DB */}
- <Avatar className="h-full w-full rounded-xl shadow-inner shrink-0 border border-slate-50">
+ <Avatar className="h-full w-full rounded-xl shrink-0">
  <AvatarImage src={avatarUrl} className="object-cover" />
- <AvatarFallback className="bg-emerald-50 text-emerald-600 font-black text-2xl rounded-xl">
+ <AvatarFallback className="bg-accent text-primary font-black text-2xl rounded-xl">
  {fullName ? fullName.charAt(0).toUpperCase() : <User className="w-8 h-8" />}
  </AvatarFallback>
  </Avatar>
@@ -117,75 +117,75 @@ export default function CVProfile() {
  </div>
  </div>
 
- <form onSubmit={handleSaveCV} className="p-8 pt-16 space-y-8">
+ <form onSubmit={handleSaveCV} className="p-6 sm:p-8 pt-16 space-y-8">
  {/* HIỂN THỊ TÊN ĐẦY ĐỦ VÀ EMAIL TRỰC QUAN */}
- <div className="-mt-2 bg-slate-50/50 p-4 rounded-2xl border border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm font-bold text-slate-700">
- <p>Họ và tên: <span className="text-slate-900 font-black ml-1">{fullName ||"Chưa cập nhật"}</span></p>
- <p>Phân quyền: <span className="text-emerald-600 uppercase tracking-wider font-black ml-1">{role === 'student' ? 'Ứng viên' : 'Nhà tuyển dụng'}</span></p>
+ <div className="-mt-2 bg-muted/50 p-4 rounded-xl border border-border grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm font-bold text-foreground">
+ <p>Họ và tên: <span className="text-foreground font-black ml-1">{fullName ||"Chưa cập nhật"}</span></p>
+ <p>Phân quyền: <span className="text-primary uppercase tracking-wider font-black ml-1">{role === 'student' ? 'Ứng viên' : 'Nhà tuyển dụng'}</span></p>
  </div>
 
  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
  <div className="space-y-2">
- <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
- <Phone className="w-4 h-4 text-emerald-600" /> Số điện thoại liên hệ
+ <label className="text-sm font-bold text-foreground flex items-center gap-2">
+ <Phone className="w-4 h-4 text-primary" /> Số điện thoại liên hệ
  </label>
  <Input
  placeholder="Nhập số điện thoại liên hệ..."
  value={phone}
  onChange={e => setPhone(e.target.value)}
- className="h-12 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-emerald-500 text-base font-medium"
+ className="h-12 rounded-xl bg-muted border-border focus-visible:ring-ring text-base font-medium"
  />
  </div>
 
  <div className="space-y-2">
- <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
- <GraduationCap className="w-4 h-4 text-emerald-600" /> Trường Đại học / Cao đẳng
+ <label className="text-sm font-bold text-foreground flex items-center gap-2">
+ <GraduationCap className="w-4 h-4 text-primary" /> Trường Đại học / Cao đẳng
  </label>
  <Input
  placeholder="Ví dụ: Đại học FPT, Đại học Bách Khoa..."
  value={university}
  onChange={e => setUniversity(e.target.value)}
- className="h-12 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-emerald-500 text-base font-medium"
+ className="h-12 rounded-xl bg-muted border-border focus-visible:ring-ring text-base font-medium"
  />
  </div>
  </div>
 
  <div className="space-y-2">
- <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
- <Sparkles className="w-4 h-4 text-emerald-600" /> Kỹ năng nổi bật
+ <label className="text-sm font-bold text-foreground flex items-center gap-2">
+ <Sparkles className="w-4 h-4 text-primary" /> Kỹ năng nổi bật
  </label>
  <Input
  placeholder="Ví dụ: Giao tiếp, Chụp ảnh, Quản lý thời gian, Teamwork (Cách nhau bằng dấu phẩy)"
  value={skills}
  onChange={e => setSkills(e.target.value)}
- className="h-12 rounded-xl bg-slate-50 border-slate-200 focus-visible:ring-emerald-500 text-base font-medium"
+ className="h-12 rounded-xl bg-muted border-border focus-visible:ring-ring text-base font-medium"
  />
  </div>
 
  <div className="space-y-2">
- <label className="text-sm font-bold text-slate-700">Giới thiệu bản thân ngắn (Bio)</label>
+ <label className="text-sm font-bold text-foreground">Giới thiệu bản thân ngắn (Bio)</label>
  <textarea
  placeholder="Viết một đoạn ngắn giới thiệu về tính cách, đam mê và kinh nghiệm của bạn để tạo ấn tượng tốt nhất với Ban tổ chức..."
  value={bio}
  onChange={e => setBio(e.target.value)}
  rows={5}
- className="w-full rounded-xl bg-slate-50 border-2 border-slate-200 p-4 text-base font-medium focus:outline-none focus:border-emerald-500 transition-colors resize-none leading-relaxed"
+ className="w-full rounded-xl bg-muted border border-border p-4 text-base font-medium focus:outline-none focus:border-primary transition-colors resize-none leading-relaxed"
  />
  </div>
 
- <div className="flex justify-end items-center gap-3 pt-4 border-t-2 border-slate-50">
+ <div className="flex flex-col sm:flex-row justify-end items-center gap-3 pt-4 border-t border-border">
  <Button
  type="button"
  onClick={() => setCvPreviewOpen(true)}
  variant="outline"
- className="rounded-2xl border-emerald-200 hover:bg-emerald-50 text-emerald-700 font-bold h-12 px-6"
+ className="rounded-xl border-primary/20 hover:bg-accent text-primary font-bold h-12 px-6 w-full sm:w-auto"
  >
  <Eye className="w-5 h-5 mr-2" /> Xem trước & Tải CV
  </Button>
  <Button
  type="submit"
  disabled={saving}
- className="rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-12 px-8 transition-transform active:scale-95 shadow-md shadow-emerald-600/20"
+ className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-12 px-8 transition-transform active:scale-95 shadow-md w-full sm:w-auto"
  >
  {saving ?"Đang lưu cấu trúc hồ sơ..." : <><Save className="w-5 h-5 mr-2" /> Lưu Hồ sơ CV</>}
  </Button>

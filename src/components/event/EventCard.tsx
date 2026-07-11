@@ -43,7 +43,7 @@ function EventCard({
   return (
     <article
       onClick={() => onNavigateToJob(job.id)}
-      className="group relative flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden transition-all duration-200 hover:border-primary/40 hover:shadow-lg cursor-pointer animate-in fade-in slide-in-from-bottom-3"
+      className="group relative flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden transition-all duration-200 hover:border-primary/40 hover:shadow-md cursor-pointer animate-in fade-in slide-in-from-bottom-3"
       style={{ animationDelay: `${idx * 40}ms` }}
     >
       {/* Top strip: date block + category badge + bookmark */}

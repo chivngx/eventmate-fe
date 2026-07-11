@@ -127,7 +127,7 @@ export function Modal({
  aria-labelledby={effectiveTitleId}
  aria-label={label}
  tabIndex={-1}
- className={`relative bg-white rounded-3xl border border-slate-100 shadow-2xl w-full ${maxWidthClassName} max-h-[95vh] overflow-y-auto animate-in zoom-in-95 duration-200 ${panelClassName}`}
+ className={`relative bg-white rounded-2xl border border-slate-200 shadow-md w-full ${maxWidthClassName} max-h-[95vh] overflow-y-auto animate-in zoom-in-95 duration-200 ${panelClassName}`}
  onClick={(e) => e.stopPropagation()}
  >
  {showCloseButton && (

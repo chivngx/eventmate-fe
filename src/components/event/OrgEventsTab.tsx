@@ -28,7 +28,7 @@ export default function OrgEventsTab({
 
  if (events.length === 0) {
  return (
- <div className="text-center py-20 bg-white border-2 border-dashed border-slate-150 rounded-[2rem] max-w-xl mx-auto shadow-sm p-8 space-y-4">
+ <div className="text-center py-20 bg-white border-2 border-dashed border-slate-150 rounded-2xl max-w-xl mx-auto shadow-sm p-8 space-y-4">
  <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 mx-auto">
  <Calendar className="w-8 h-8" />
  </div>
@@ -51,7 +51,7 @@ export default function OrgEventsTab({
  return (
  <div
  key={job.id}
- className="bg-white border-2 border-slate-100 rounded-[2rem] p-6 hover:border-emerald-300 hover:shadow-xl transition-all duration-300 flex flex-col justify-between gap-6 shadow-sm relative group overflow-hidden"
+ className="bg-white border border-slate-200 rounded-2xl p-6 hover:border-primary/40 hover:shadow-md transition-all duration-300 flex flex-col justify-between gap-6 shadow-sm relative group overflow-hidden"
  >
  {/* Top Indicator Gradient Line */}
  <div className="absolute top-0 left-0 right-0 h-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
@@ -107,7 +107,7 @@ export default function OrgEventsTab({
  <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-xl flex items-center gap-1">
  Cần tuyển: <strong className="text-slate-900 font-extrabold">{job.slots_needed}</strong>
  </span>
- <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-xl flex items-center gap-1 border border-emerald-100/40">
+ <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-xl flex items-center gap-1 border border-primary/20/40">
  <Award className="w-3.5 h-3.5" /> {job.benefits}
  </span>
  </div>

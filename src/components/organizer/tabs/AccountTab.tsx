@@ -95,7 +95,7 @@ export default function AccountTab({
  {/* Cột trái: Upload Logo và hình ảnh doanh nghiệp */}
  <div className="lg:col-span-1 space-y-6">
  {/* LOGO UPLOAD CARD */}
- <div className="bg-white border-2 border-slate-100 rounded-[2rem] p-6 text-center shadow-sm flex flex-col items-center">
+ <div className="bg-white border border-slate-200 rounded-2xl p-6 text-center shadow-sm flex flex-col items-center">
  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Logo Công ty / CLB</h3>
  <div className="relative w-32 h-32 rounded-3xl overflow-hidden border-4 border-slate-50 shadow-md group">
  <img
@@ -131,7 +131,7 @@ export default function AccountTab({
  </div>
 
  {/* COMPANY IMAGES GALLERY & UPLOAD */}
- <div className="bg-white border-2 border-slate-100 rounded-[2rem] p-6 shadow-sm space-y-4">
+ <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-4">
  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Hình ảnh hoạt động</h3>
  <div className="grid grid-cols-2 gap-3">
  {profileData.companyImages ? (
@@ -174,7 +174,7 @@ export default function AccountTab({
 
  {/* Cột phải: Form thông tin chi tiết */}
  <div className="lg:col-span-2">
- <form onSubmit={handleUpdateProfile} className="bg-white border-2 border-slate-100 rounded-[2rem] p-6 sm:p-8 space-y-6 shadow-sm">
+ <form onSubmit={handleUpdateProfile} className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm">
  <div>
  <h2 className="text-xl font-black text-slate-900">Thông tin công ty/CLB</h2>
  <p className="text-slate-400 text-xs font-semibold mt-0.5">Cập nhật và hoàn thiện hồ sơ tuyển dụng của bạn.</p>
@@ -259,7 +259,7 @@ export default function AccountTab({
  </div>
  </div>
  ) : (
- <form onSubmit={handleChangePassword} className="max-w-2xl mx-auto bg-white border-2 border-slate-100 rounded-[2rem] p-6 sm:p-8 space-y-6 shadow-sm">
+ <form onSubmit={handleChangePassword} className="max-w-2xl mx-auto bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm">
  <div>
  <h2 className="text-xl font-black text-slate-900">Đổi mật khẩu</h2>
  <p className="text-slate-400 text-xs font-semibold mt-0.5">Đặt lại mật khẩu bảo mật mới.</p>

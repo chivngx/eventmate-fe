@@ -51,7 +51,7 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  text:"text-emerald-600",
  border:"border-emerald-600",
  lightBg:"bg-emerald-50",
- badge:"bg-emerald-50 text-emerald-700 border-emerald-100",
+ badge:"bg-emerald-50 text-emerald-700 border-primary/20",
  }
  }
  }
@@ -68,7 +68,7 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  return (
  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 overflow-y-auto print:p-0 print:bg-white print:static">
  {/* Container chính */}
- <div className="relative w-full max-w-4xl bg-slate-100 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:rounded-none print:w-full print:bg-white">
+ <div className="relative w-full max-w-4xl bg-slate-100 rounded-2xl shadow-md overflow-hidden flex flex-col max-h-[92vh] print:max-h-none print:shadow-none print:rounded-none print:w-full print:bg-white">
  
  {/* THANH ĐIỀU KHIỂN TRÊN - ẨN KHI IN */}
  <div className="flex items-center justify-between p-4 bg-white border-b border-slate-200 shrink-0 print:hidden">
@@ -80,7 +80,7 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  onClick={() => setAccent("emerald")}
  aria-label="Xanh lá"
  aria-pressed={accent ==="emerald"}
- className={`w-5 h-5 rounded-full bg-emerald-500 border-2 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 ${
+ className={`w-5 h-5 rounded-full bg-emerald-500 border transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 ${
  accent ==="emerald" ?"border-slate-800 scale-110" :"border-transparent"
  }`}
  title="Xanh lá"
@@ -89,7 +89,7 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  onClick={() => setAccent("blue")}
  aria-label="Xanh dương"
  aria-pressed={accent ==="blue"}
- className={`w-5 h-5 rounded-full bg-blue-500 border-2 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 ${
+ className={`w-5 h-5 rounded-full bg-blue-500 border transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 ${
  accent ==="blue" ?"border-slate-800 scale-110" :"border-transparent"
  }`}
  title="Xanh dương"
@@ -98,7 +98,7 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  onClick={() => setAccent("violet")}
  aria-label="Tím hồng"
  aria-pressed={accent ==="violet"}
- className={`w-5 h-5 rounded-full bg-violet-500 border-2 transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 ${
+ className={`w-5 h-5 rounded-full bg-violet-500 border transition-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40 ${
  accent ==="violet" ?"border-slate-800 scale-110" :"border-transparent"
  }`}
  title="Tím hồng"
@@ -116,7 +116,7 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  <button
  onClick={onClose}
  aria-label="Đóng"
- className="p-1.5 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-600 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
+ className="p-1.5 hover:bg-slate-100 rounded-xl text-slate-500 hover:text-slate-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
  >
  <X className="w-5 h-5" />
  </button>
@@ -129,7 +129,7 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  
  {/* Header CV */}
  <div className="flex flex-col md:flex-row items-center md:items-start gap-6 border-b pb-8 border-slate-100">
- <Avatar className="h-24 w-24 rounded-2xl border-4 border-slate-100 shadow-md shrink-0">
+ <Avatar className="h-24 w-24 rounded-2xl border border-slate-200 shadow-sm shrink-0">
  <AvatarImage src={profile.avatar_url} className="object-cover" />
  <AvatarFallback className={`${classes.bg} text-white font-black text-3xl rounded-2xl`}>
  {profile.full_name ? profile.full_name.charAt(0).toUpperCase() : <User className="w-10 h-10" />}
@@ -170,7 +170,7 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  </h3>
  <div className="space-y-1">
  <p className="text-sm font-black text-slate-800">{profile.university}</p>
- <p className="text-xs font-bold text-slate-400">Sinh viên chính quy</p>
+ <p className="text-xs font-bold text-slate-500">Sinh viên chính quy</p>
  </div>
  </div>
  )}
@@ -226,9 +226,9 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  </h3>
  <div className="relative border-l border-slate-100 pl-4 ml-1.5 space-y-4 pt-1">
  <div className="relative">
- <div className={`absolute -left-[20.5px] top-1 w-3.5 h-3.5 rounded-full border-2 bg-white ${classes.border}`} />
+ <div className={`absolute -left-[20.5px] top-1 w-3.5 h-3.5 rounded-full border bg-white ${classes.border}`} />
  <div className="space-y-1">
- <p className="text-xs font-black text-slate-400">2025 - Hiện tại</p>
+ <p className="text-xs font-black text-slate-500">2025 - Hiện tại</p>
  <p className="text-sm font-black text-slate-800">Thành viên Ban tổ chức sự kiện cộng đồng</p>
  <p className="text-xs font-medium text-slate-500">Tham gia điều phối, hỗ trợ check-in và tổ chức các sự kiện lớn kết nối qua cổng EventMate.</p>
  </div>
@@ -241,7 +241,7 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  </div>
 
  {/* Footer CV */}
- <div className="mt-auto border-t pt-4 border-slate-100 flex items-center justify-between text-[10px] font-bold text-slate-400">
+ <div className="mt-auto border-t pt-4 border-slate-100 flex items-center justify-between text-[10px] font-bold text-slate-500">
  <p>Hồ sơ trực tuyến được tạo bởi EventMate</p>
  <p>Trang 1 / 1</p>
  </div>

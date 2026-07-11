@@ -65,7 +65,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
  return (
  <div
  key={toast.id}
- className="pointer-events-auto flex gap-3 p-4 bg-white/80 backdrop-blur-md border border-slate-200/50 shadow-lg rounded-2xl animate-in slide-in-from-bottom-5 fade-in duration-300 transition-all hover:scale-[1.01]"
+ className="pointer-events-auto flex gap-3 p-4 bg-white/80 backdrop-blur-md border border-slate-200/50 shadow-md rounded-2xl animate-in slide-in-from-bottom-5 fade-in duration-300 transition-all hover:scale-[1.01]"
  >
  <div className={`p-2 rounded-xl h-fit shrink-0 ${iconColor}`}>
  <Icon className="w-5 h-5" />

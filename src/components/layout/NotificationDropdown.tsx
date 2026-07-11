@@ -22,7 +22,7 @@ export default function NotificationDropdown({
  <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white animate-pulse"></span>
  )}
  </DropdownMenuTrigger>
- <DropdownMenuContent align="end" className="w-80 mt-2 rounded-2xl p-0 shadow-xl border-slate-100 bg-white overflow-hidden text-slate-900">
+ <DropdownMenuContent align="end" className="w-80 mt-2 rounded-2xl p-0 shadow-md border-slate-100 bg-white overflow-hidden text-slate-900">
  <div className="p-4 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
  <h4 className="font-bold text-slate-900">Thông báo</h4>
  {unreadCount > 0 && (

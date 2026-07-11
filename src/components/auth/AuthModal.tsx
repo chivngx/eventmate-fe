@@ -410,7 +410,7 @@ export default function AuthModal({ isOpen, initialMode ="login", onClose }: Aut
  <div className="absolute inset-0" onClick={onClose}></div>
 
  {/* Modal Card */}
- <div className="relative w-full max-w-[450px] bg-white rounded-3xl shadow-2xl border border-slate-100 p-8 flex flex-col gap-4 max-h-[95vh] overflow-y-auto z-10 animate-in zoom-in-95 duration-200">
+ <div className="relative w-full max-w-[450px] bg-white rounded-3xl shadow-md border border-slate-100 p-8 flex flex-col gap-4 max-h-[95vh] overflow-y-auto z-10 animate-in zoom-in-95 duration-200">
 
  {/* Close Button */}
  <button
@@ -435,12 +435,12 @@ export default function AuthModal({ isOpen, initialMode ="login", onClose }: Aut
 
  {/* Global Messages */}
  {error && (
- <div className="rounded-[10px] bg-red-50 p-3.5 text-sm font-medium text-red-600 border border-red-100">
+ <div className="rounded-lg bg-red-50 p-3.5 text-sm font-medium text-red-600 border border-red-100">
  {error}
  </div>
  )}
  {success && (
- <div className="rounded-[10px] bg-green-50 p-3.5 text-sm font-medium text-green-600 border border-green-100">
+ <div className="rounded-lg bg-green-50 p-3.5 text-sm font-medium text-green-600 border border-green-100">
  {success}
  </div>
  )}

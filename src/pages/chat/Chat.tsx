@@ -358,8 +358,8 @@ export default function Chat() {
 
  if (loading) {
  return (
- <div className="flex h-screen w-screen items-center justify-center bg-slate-50">
- <div className="h-8 w-8 animate-spin rounded-full border-4 border-emerald-600 border-t-transparent"></div>
+ <div className="flex h-screen w-screen items-center justify-center bg-background">
+ <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
  </div>
  )
  }
@@ -370,18 +370,18 @@ export default function Chat() {
 
  const chatUI = (
  <>
- <div className="max-w-6xl mx-auto h-[calc(100vh-120px)] flex bg-white rounded-[2.5rem] border-2 border-slate-100 shadow-2xl overflow-hidden">
+ <div className="max-w-6xl mx-auto h-[calc(100vh-120px)] flex bg-card rounded-2xl border border-border shadow-md overflow-hidden">
  {/* Left Side: Danh sách Chats */}
- <div className={`w-full md:w-80 border-r-2 border-slate-100 flex flex-col ${activeChat ?"hidden md:flex" :"flex"}`}>
- <div className="p-5 border-b-2 border-slate-100">
- <h1 className="text-xl font-black text-slate-900 flex items-center gap-2">
- <MessageSquare className="w-5 h-5 text-emerald-500" />
+ <div className={`w-full md:w-80 border-r border-border flex flex-col ${activeChat ?"hidden md:flex" :"flex"}`}>
+ <div className="p-5 border-b border-border">
+ <h1 className="text-xl font-black text-foreground flex items-center gap-2">
+ <MessageSquare className="w-5 h-5 text-primary" />
  Hộp thư trò chuyện
  </h1>
  </div>
  <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
  {chats.length === 0 ? (
- <div className="text-center py-12 text-slate-400 font-semibold text-xs">
+ <div className="text-center py-12 text-muted-foreground font-semibold text-xs">
  Chưa có hội thoại nào
  </div>
  ) : (
@@ -395,22 +395,22 @@ export default function Chat() {
  setActiveChat(chat)
  navigate(`/chat/${chat.id}`)
  }}
- className={`w-full flex items-center gap-3 p-3.5 rounded-2xl transition-all text-left ${isActive
- ?"bg-emerald-50 border border-emerald-100/50"
- :"hover:bg-slate-50 border border-transparent"
+ className={`w-full flex items-center gap-3 p-3.5 rounded-xl transition-all text-left ${isActive
+ ?"bg-accent border border-primary/20"
+ :"hover:bg-muted border border-transparent"
  }`}
  >
- <Avatar className="h-10 w-10 border border-white shadow-sm shrink-0">
+ <Avatar className="h-10 w-10 border border-border shadow-sm shrink-0">
  <AvatarImage src={partner.avatar_url} />
- <AvatarFallback className="bg-emerald-100 text-emerald-700 font-bold">
+ <AvatarFallback className="bg-accent text-primary font-bold">
  {partner.full_name?.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
  </AvatarFallback>
  </Avatar>
  <div className="min-w-0 flex-1">
- <h4 className={`text-sm font-bold truncate ${isActive ?"text-emerald-700" :"text-slate-800"}`}>
+ <h4 className={`text-sm font-bold truncate ${isActive ?"text-primary" :"text-foreground"}`}>
  {partner.full_name}
  </h4>
- <p className="text-[11px] text-slate-400 truncate font-semibold">
+ <p className="text-[11px] text-muted-foreground truncate font-semibold">
  Sự kiện: {chat.events.title}
  </p>
  </div>
@@ -422,11 +422,11 @@ export default function Chat() {
  </div>
 
  {/* Right Side: Message Thread */}
- <div className={`flex-1 flex flex-col bg-slate-50/50 ${!activeChat ?"hidden md:flex items-center justify-center" :"flex"}`}>
+ <div className={`flex-1 flex flex-col bg-muted/30 ${!activeChat ?"hidden md:flex items-center justify-center" :"flex"}`}>
  {activeChat ? (
  <>
  {/* Header */}
- <div className="bg-white p-4 border-b-2 border-slate-100 flex items-center justify-between">
+ <div className="bg-card p-4 border-b border-border flex items-center justify-between">
  <div className="flex items-center gap-3 min-w-0">
  <button
  onClick={() => {
@@ -434,21 +434,21 @@ export default function Chat() {
  navigate("/chat")
  }}
  aria-label="Quay lại"
- className="md:hidden p-1.5 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-600 transition-colors mr-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
+ className="md:hidden p-1.5 hover:bg-accent rounded-xl text-muted-foreground hover:text-foreground transition-colors mr-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 shrink-0"
  >
  <ArrowLeft className="w-5 h-5" />
  </button>
- <Avatar className="h-10 w-10 border shadow-inner shrink-0">
+ <Avatar className="h-10 w-10 border border-border shrink-0">
  <AvatarImage src={getPartnerProfile(activeChat).avatar_url} />
- <AvatarFallback className="bg-emerald-100 text-emerald-700 font-black">
+ <AvatarFallback className="bg-accent text-primary font-black">
  {getPartnerProfile(activeChat).full_name?.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
  </AvatarFallback>
  </Avatar>
  <div className="min-w-0">
- <h3 className="text-sm font-extrabold text-slate-900 truncate">
+ <h3 className="text-sm font-extrabold text-foreground truncate">
  {getPartnerProfile(activeChat).full_name}
  </h3>
- <p className="text-[10px] font-bold text-slate-400 truncate">
+ <p className="text-[10px] font-bold text-muted-foreground truncate">
  Đang liên hệ về: {activeChat.events.title}
  </p>
  </div>
@@ -457,7 +457,7 @@ export default function Chat() {
  {role ==="organizer" && (
  <Button
  onClick={() => setIsInterviewModalOpen(true)}
- className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl h-9 px-4 flex items-center gap-1.5 shadow-sm transition-colors"
+ className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs rounded-xl h-9 px-4 flex items-center gap-1.5 shadow-sm transition-colors shrink-0"
  >
  <Calendar className="w-3.5 h-3.5" />
  Hẹn phỏng vấn
@@ -466,7 +466,7 @@ export default function Chat() {
  </div>
 
  {/* Messages Body */}
- <div className="flex-1 overflow-y-auto p-5 space-y-3.5">
+ <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-3.5">
  {/* Nút tải thêm tin nhắn cũ */}
  {hasMoreMessages && (
  <div className="flex justify-center pb-3">
@@ -476,7 +476,7 @@ export default function Chat() {
  setMessagesLimit(nextLimit)
  fetchMessages(activeChat.id, nextLimit)
  }}
- className="text-[11px] font-black text-emerald-600 bg-emerald-50 px-3.5 py-1.5 rounded-full hover:bg-emerald-100 transition-colors"
+ className="text-[11px] font-black text-primary bg-accent px-3.5 py-1.5 rounded-full hover:bg-accent/80 transition-colors"
  >
  Tải tin nhắn cũ hơn
  </button>
@@ -494,7 +494,7 @@ export default function Chat() {
  if (!interview) {
  return (
  <div key={msg.id} className="flex justify-center my-2">
- <div className="text-xs bg-slate-100 text-slate-400 px-3 py-1.5 rounded-xl font-medium">
+ <div className="text-xs bg-muted text-muted-foreground px-3 py-1.5 rounded-xl font-medium">
  Đang tải thông tin phỏng vấn...
  </div>
  </div>
@@ -505,27 +505,27 @@ export default function Chat() {
 
  return (
  <div key={msg.id} className="flex justify-center my-4 w-full">
- <div className="bg-white border border-slate-200/60 rounded-3xl p-5 shadow-sm max-w-md w-full space-y-4">
- <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
- <div className="p-2.5 rounded-2xl bg-emerald-50 text-emerald-600">
+ <div className="bg-card border border-border rounded-2xl p-5 shadow-sm max-w-md w-full space-y-4">
+ <div className="flex items-center gap-3 pb-3 border-b border-border">
+ <div className="p-2.5 rounded-xl bg-accent text-primary">
  <Calendar className="w-5 h-5" />
  </div>
  <div>
- <h4 className="text-sm font-extrabold text-slate-900">Lời Mời Phỏng Vấn</h4>
- <p className="text-[10px] text-slate-400 font-bold mt-0.5">HẸN LỊCH TRỰC TUYẾN</p>
+ <h4 className="text-sm font-extrabold text-foreground">Lời Mời Phỏng Vấn</h4>
+ <p className="text-[10px] text-muted-foreground font-bold mt-0.5">HẸN LỊCH TRỰC TUYẾN</p>
  </div>
  </div>
 
- <div className="space-y-2.5 text-xs text-slate-600">
+ <div className="space-y-2.5 text-xs text-foreground">
  <div>
- <span className="font-bold text-slate-400 block mb-0.5">Chủ đề:</span>
- <span className="text-slate-800 font-black">{interview.title}</span>
+ <span className="font-bold text-muted-foreground block mb-0.5">Chủ đề:</span>
+ <span className="text-foreground font-black">{interview.title}</span>
  </div>
  <div className="flex gap-4">
  <div className="flex-1">
- <span className="font-bold text-slate-400 block mb-0.5">Thời gian:</span>
- <span className="flex items-center gap-1.5 font-bold text-slate-800">
- <Clock className="w-3.5 h-3.5 text-emerald-500" />
+ <span className="font-bold text-muted-foreground block mb-0.5">Thời gian:</span>
+ <span className="flex items-center gap-1.5 font-bold text-foreground">
+ <Clock className="w-3.5 h-3.5 text-primary" />
  {new Date(interview.scheduled_at).toLocaleString("vi-VN", {
  dateStyle:"medium",
  timeStyle:"short"
@@ -535,12 +535,12 @@ export default function Chat() {
  </div>
  {interview.meeting_link && (
  <div>
- <span className="font-bold text-slate-400 block mb-0.5">Link phòng họp:</span>
+ <span className="font-bold text-muted-foreground block mb-0.5">Link phòng họp:</span>
  <a
  href={interview.meeting_link.startsWith("http") ? interview.meeting_link : `https://${interview.meeting_link}`}
  target="_blank"
  rel="noopener noreferrer"
- className="flex items-center gap-1.5 font-black text-emerald-600 hover:underline"
+ className="flex items-center gap-1.5 font-black text-primary hover:underline"
  >
  <Video className="w-3.5 h-3.5" />
  Tham gia cuộc gọi trực tuyến
@@ -555,7 +555,7 @@ export default function Chat() {
  <div className="flex gap-2">
  <Button
  onClick={() => handleUpdateInterviewStatus(interview.id,"accepted")}
- className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl h-9 flex items-center justify-center gap-1.5 shadow-sm"
+ className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-xs rounded-xl h-9 flex items-center justify-center gap-1.5 shadow-sm"
  >
  <Check className="w-3.5 h-3.5" />
  Đồng ý
@@ -563,24 +563,24 @@ export default function Chat() {
  <Button
  variant="outline"
  onClick={() => handleUpdateInterviewStatus(interview.id,"rejected")}
- className="flex-1 border-rose-100 hover:bg-rose-50 text-rose-600 hover:text-rose-700 font-bold text-xs rounded-xl h-9 flex items-center justify-center gap-1.5"
+ className="flex-1 border-destructive/20 hover:bg-destructive/10 text-destructive hover:text-destructive font-bold text-xs rounded-xl h-9 flex items-center justify-center gap-1.5"
  >
  <X className="w-3.5 h-3.5" />
  Từ chối
  </Button>
  </div>
  ) : (
- <div className="text-center text-xs font-bold text-amber-600 bg-amber-50 py-2 rounded-xl border border-amber-100/50">
+ <div className="text-center text-xs font-bold text-amber-600 bg-amber-50 py-2 rounded-xl border border-amber-200">
  Đang chờ phản hồi từ ứng viên
  </div>
  )
  ) : interview.status ==="accepted" ? (
- <div className="text-center text-xs font-bold text-emerald-700 bg-emerald-50 py-2 rounded-xl border border-emerald-100/50 flex items-center justify-center gap-1.5">
+ <div className="text-center text-xs font-bold text-primary bg-accent py-2 rounded-xl border border-primary/20 flex items-center justify-center gap-1.5">
  <Check className="w-4 h-4" />
  Đã chấp nhận lịch hẹn
  </div>
  ) : (
- <div className="text-center text-xs font-bold text-rose-600 bg-rose-50 py-2 rounded-xl border border-rose-100/50 flex items-center justify-center gap-1.5">
+ <div className="text-center text-xs font-bold text-destructive bg-destructive/10 py-2 rounded-xl border border-destructive/20 flex items-center justify-center gap-1.5">
  <X className="w-4 h-4" />
  Lịch hẹn bị từ chối
  </div>
@@ -598,12 +598,12 @@ export default function Chat() {
  >
  <div
  className={`max-w-[70%] rounded-2xl px-4 py-2.5 text-sm font-medium leading-relaxed shadow-sm ${isMe
- ?"bg-emerald-600 text-white rounded-tr-none"
- :"bg-white text-slate-800 rounded-tl-none border border-slate-100"
+ ?"bg-primary text-primary-foreground rounded-tr-none"
+ :"bg-card text-foreground rounded-tl-none border border-border"
  }`}
  >
  <p className="break-words">{msg.content}</p>
- <span className={`block text-[9px] text-right mt-1.5 font-bold ${isMe ?"text-emerald-200" :"text-slate-400"}`}>
+ <span className={`block text-[9px] text-right mt-1.5 font-bold ${isMe ?"text-primary-foreground/70" :"text-muted-foreground"}`}>
  {new Date(msg.created_at).toLocaleTimeString("vi-VN", {
  hour:"2-digit",
  minute:"2-digit"
@@ -619,20 +619,20 @@ export default function Chat() {
  {/* Input Form */}
  <form
  onSubmit={handleSendMessage}
- className="p-4 bg-white border-t-2 border-slate-100 flex items-center gap-3"
+ className="p-4 bg-card border-t border-border flex items-center gap-3"
  >
  <input
  type="text"
  placeholder="Nhập tin nhắn..."
  value={newMessage}
  onChange={(e) => setNewMessage(e.target.value)}
- className="flex-1 h-12 bg-slate-50 rounded-xl px-4 text-sm font-medium focus:outline-none border-2 border-transparent focus:border-emerald-500 transition-colors"
+ className="flex-1 h-12 bg-muted rounded-xl px-4 text-sm font-medium focus:outline-none border border-transparent focus:border-primary transition-colors min-w-0"
  />
  <Button
  type="submit"
  disabled={sending}
  aria-label="Gửi tin nhắn"
- className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white h-12 w-12 shrink-0 p-0 flex items-center justify-center shadow-md shadow-emerald-600/20 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
+ className="rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground h-12 w-12 shrink-0 p-0 flex items-center justify-center shadow-md disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
  >
  <Send className="w-5 h-5" />
  </Button>
@@ -640,11 +640,11 @@ export default function Chat() {
  </>
  ) : (
  <div className="text-center p-6 space-y-3">
- <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto text-slate-350">
+ <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto text-muted-foreground">
  <MessageSquare className="w-8 h-8" />
  </div>
- <h3 className="text-sm font-bold text-slate-700">Chọn cuộc hội thoại</h3>
- <p className="text-xs text-slate-400 max-w-[280px] mx-auto leading-relaxed">
+ <h3 className="text-sm font-bold text-foreground">Chọn cuộc hội thoại</h3>
+ <p className="text-xs text-muted-foreground max-w-[280px] mx-auto leading-relaxed">
  Chọn một hội thoại ở thanh bên trái hoặc nhắn tin từ bài đăng tuyển dụng để bắt đầu thảo luận.
  </p>
  </div>

@@ -39,7 +39,7 @@ export default function UserProfileDropdown({
  </AvatarFallback>
  </Avatar>
  </DropdownMenuTrigger>
- <DropdownMenuContent align="end" className="w-[320px] max-h-[85vh] overflow-y-auto mt-2 rounded-2xl p-4 shadow-xl border border-slate-100 bg-white space-y-4 text-slate-900">
+ <DropdownMenuContent align="end" className="w-[320px] max-h-[85vh] overflow-y-auto mt-2 rounded-2xl p-4 shadow-md border border-slate-100 bg-white space-y-4 text-slate-900">
  {/* Header */}
  <div className="flex items-center gap-3 pb-3 border-b border-slate-100">
  <Avatar className="h-12 w-12 rounded-full border border-slate-100 shrink-0">

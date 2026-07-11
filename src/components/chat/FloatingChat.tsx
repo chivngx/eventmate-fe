@@ -170,7 +170,7 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
  <div className="fixed bottom-6 right-6 z-50 font-sans flex flex-col items-end">
  {/* Messenger Chat Window */}
  {isOpen && (
- <div className="w-[360px] sm:w-[380px] h-[520px] bg-white border-2 border-slate-100 rounded-[2rem] shadow-2xl flex flex-col mb-4 overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
+ <div className="w-[min(90vw,380px)] h-[520px] bg-white border border-slate-200 rounded-2xl shadow-md flex flex-col mb-4 overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
  {/* Header */}
  <div className="bg-primary text-white p-4 flex items-center justify-between shadow-sm">
  <div className="flex items-center gap-2.5 min-w-0">
@@ -317,7 +317,7 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
  onClick={() => setIsOpen(!isOpen)}
  aria-label="Trò chuyện"
  aria-pressed={isOpen}
- className="w-14 h-14 bg-primary hover:bg-primary/90 text-white rounded-full flex items-center justify-center shadow-xl shadow-primary/25 transition-all transform hover:scale-105 active:scale-95 cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
+ className="w-14 h-14 bg-primary hover:bg-primary/90 text-white rounded-full flex items-center justify-center shadow-md shadow-primary/25 transition-all transform hover:scale-105 active:scale-95 cursor-pointer shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
  title="Trò chuyện"
  >
  <MessageCircle className="w-7 h-7" />

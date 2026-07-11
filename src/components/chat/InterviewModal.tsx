@@ -38,7 +38,7 @@ export default function InterviewModal({
  if (!isOpen) return null
 
  return (
- <Modal isOpen={isOpen} onClose={onClose} label="Hẹn phỏng vấn" maxWidthClassName="max-w-md" panelClassName="rounded-[2rem] border-2 border-slate-100 overflow-hidden">
+ <Modal isOpen={isOpen} onClose={onClose} label="Hẹn phỏng vấn" maxWidthClassName="max-w-md" panelClassName="rounded-2xl border border-slate-200 overflow-hidden">
  <div className="p-6 border-b border-slate-100 flex items-center bg-slate-50/50">
  <h3 className="font-black text-lg text-slate-900 flex items-center gap-2">
  <Calendar className="w-5 h-5 text-emerald-500" />

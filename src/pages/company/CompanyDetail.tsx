@@ -165,7 +165,7 @@ export default function CompanyDetail() {
  <div className="wrapper-company-cover bg-white rounded-lg border border-slate-200 p-6 md:p-8 shadow-sm flex flex-col md:flex-row items-center md:items-start justify-between gap-6 relative">
  <div className="company-cover-inner_header flex flex-col md:flex-row items-center md:items-start gap-6 w-full md:w-auto">
  {/* Company Logo wrapper matching event details page */}
- <div className="company-logo flex items-center justify-center bg-white border border-muted rounded-[8px] border-[0.8px] p-2 w-[110px] h-[110px] shrink-0">
+ <div className="company-logo flex items-center justify-center bg-white border border-muted rounded-lg border-[0.8px] p-2 w-[110px] h-[110px] shrink-0">
  <Avatar className="h-full w-full rounded-md">
  <AvatarImage src={company.avatar_url} className="object-contain" />
  <AvatarFallback className="rounded-md bg-emerald-50 text-primary text-4xl font-black">
@@ -201,7 +201,7 @@ export default function CompanyDetail() {
  onClick={() => setIsFollowed(!isFollowed)}
  className={`w-full md:w-auto h-[40px] px-6 rounded-md font-semibold transition-all active:scale-95 border cursor-pointer ${isFollowed
  ?"bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200"
- :"bg-primary hover:bg-[#009a44] border-primary text-white"
+ :"bg-primary hover:bg-primary/90 border-primary text-white"
  }`}
  >
  {isFollowed ? (
@@ -260,7 +260,7 @@ export default function CompanyDetail() {
  </div>
  <button
  onClick={() => setIsIntroExpanded(!isIntroExpanded)}
- className="text-xs font-bold text-primary hover:text-[#009a44] mt-3 flex items-center gap-1 transition-colors"
+ className="text-xs font-bold text-primary hover:text-primary/80 mt-3 flex items-center gap-1 transition-colors"
  >
  {isIntroExpanded ? (
  <>Thu gọn <ChevronUp className="w-3.5 h-3.5" /></>
@@ -335,7 +335,7 @@ export default function CompanyDetail() {
  <option key={loc} value={loc}>{loc}</option>
  ))}
  </select>
- <button className="bg-primary hover:bg-[#009a44] text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all flex items-center justify-center shrink-0">
+ <button className="bg-primary hover:bg-primary/90 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all flex items-center justify-center shrink-0">
  Tìm kiếm
  </button>
  </div>
@@ -352,7 +352,7 @@ export default function CompanyDetail() {
  className="p-4 rounded-xl border border-slate-100 hover:border-primary hover:shadow-md transition-all flex items-start justify-between gap-4 cursor-pointer group bg-white"
  >
  <div className="flex gap-3">
- <div className="company-logo flex items-center justify-center bg-white border border-muted rounded-[8px] border-[0.8px] p-1.5 w-[72px] h-[72px] shrink-0 cursor-pointer">
+ <div className="company-logo flex items-center justify-center bg-white border border-muted rounded-lg border-[0.8px] p-1.5 w-[72px] h-[72px] shrink-0 cursor-pointer">
  <Avatar className="h-full w-full rounded-md">
  <AvatarImage src={company.avatar_url} className="object-contain" />
  <AvatarFallback className="rounded-md bg-emerald-50 text-primary text-xl font-black">
@@ -394,21 +394,21 @@ export default function CompanyDetail() {
  </div>
 
  {/* Right Column ( Thông tin chung, Địa điểm, Chia sẻ ) */}
- <div className="company-detail_body-right w-full lg:w-[350px] shrink-0 flex flex-col gap-6 items-center text-[#333] text-[14px] leading-[20px]">
+ <div className="company-detail_body-right w-full lg:w-[350px] shrink-0 flex flex-col gap-6 items-center text-foreground text-sm leading-5">
  
  {/* Thông tin chung matching EventDetail styles */}
- <div className="job-detail_body-right--box-general bg-white rounded-lg border border-slate-200 p-5 shadow-sm text-[#333] text-[14px] leading-[20px] w-full">
+ <div className="job-detail_body-right--box-general bg-white rounded-lg border border-slate-200 p-5 shadow-sm text-foreground text-sm leading-5 w-full">
  <div className="box-title text-lg font-bold text-foreground mb-4">
  Thông tin chung
  </div>
- <div className="box-general-content flex flex-col gap-4 text-[#333] text-[14px] leading-[20px] w-full">
+ <div className="box-general-content flex flex-col gap-4 text-foreground text-sm leading-5 w-full">
  
- <div className="box-general-group flex items-center gap-4 text-[#333] text-[14px] leading-[20px] w-full">
- <div className="box-general-group-icon flex items-center justify-center bg-muted rounded-[30px] p-2 text-[#333] text-[14px] leading-[20px] w-[40px] h-[40px] shrink-0">
- <FileText className="w-5 h-5 text-[#333] fill-none" />
+ <div className="box-general-group flex items-center gap-4 text-foreground text-sm leading-5 w-full">
+ <div className="box-general-group-icon flex items-center justify-center bg-muted rounded-xl p-2 text-foreground text-sm leading-5 w-10 h-10 shrink-0">
+ <FileText className="w-5 h-5 text-foreground fill-none" />
  </div>
- <div className="box-general-group-info flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full">
- <div className="box-general-group-info-title text-[#4d5965] text-[14px] tracking-[0.14px] leading-[22px] whitespace-nowrap">
+ <div className="box-general-group-info flex flex-col gap-1 text-foreground text-sm leading-5 w-full">
+ <div className="box-general-group-info-title text-foreground text-[14px] tracking-[0.14px] leading-[22px] whitespace-nowrap">
  Mã số thuế
  </div>
  <div className="box-general-group-info-value text-foreground text-[14px] font-semibold tracking-[0.175px] leading-[22px] whitespace-nowrap">
@@ -417,12 +417,12 @@ export default function CompanyDetail() {
  </div>
  </div>
 
- <div className="box-general-group flex items-center gap-4 text-[#333] text-[14px] leading-[20px] w-full">
- <div className="box-general-group-icon flex items-center justify-center bg-muted rounded-[30px] p-2 text-[#333] text-[14px] leading-[20px] w-[40px] h-[40px] shrink-0">
- <Users className="w-5 h-5 text-[#333] fill-none" />
+ <div className="box-general-group flex items-center gap-4 text-foreground text-sm leading-5 w-full">
+ <div className="box-general-group-icon flex items-center justify-center bg-muted rounded-xl p-2 text-foreground text-sm leading-5 w-10 h-10 shrink-0">
+ <Users className="w-5 h-5 text-foreground fill-none" />
  </div>
- <div className="box-general-group-info flex flex-col gap-1 text-[#333] text-[14px] leading-[20px] w-full">
- <div className="box-general-group-info-title text-[#4d5965] text-[14px] tracking-[0.14px] leading-[22px] whitespace-nowrap">
+ <div className="box-general-group-info flex flex-col gap-1 text-foreground text-sm leading-5 w-full">
+ <div className="box-general-group-info-title text-foreground text-[14px] tracking-[0.14px] leading-[22px] whitespace-nowrap">
  Quy mô
  </div>
  <div className="box-general-group-info-value text-foreground text-[14px] font-semibold tracking-[0.175px] leading-[22px] whitespace-nowrap">
@@ -557,7 +557,7 @@ export default function CompanyDetail() {
  <option key={loc} value={loc}>{loc}</option>
  ))}
  </select>
- <button className="bg-primary hover:bg-[#009a44] text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all flex items-center justify-center shrink-0">
+ <button className="bg-primary hover:bg-primary/90 text-white text-xs font-bold px-6 py-2.5 rounded-xl transition-all flex items-center justify-center shrink-0">
  Tìm kiếm
  </button>
  </div>
@@ -574,7 +574,7 @@ export default function CompanyDetail() {
  className="p-4 rounded-xl border border-slate-100 hover:border-primary hover:shadow-md transition-all flex items-start justify-between gap-4 cursor-pointer group bg-white"
  >
  <div className="flex gap-3">
- <div className="company-logo flex items-center justify-center bg-white border border-muted rounded-[8px] border-[0.8px] p-1.5 w-[72px] h-[72px] shrink-0 cursor-pointer">
+ <div className="company-logo flex items-center justify-center bg-white border border-muted rounded-lg border-[0.8px] p-1.5 w-[72px] h-[72px] shrink-0 cursor-pointer">
  <Avatar className="h-full w-full rounded-md">
  <AvatarImage src={company.avatar_url} className="object-contain" />
  <AvatarFallback className="rounded-md bg-emerald-50 text-primary text-xl font-black">
@@ -620,7 +620,7 @@ export default function CompanyDetail() {
 
  {/* Bottom Floating Follow Banner */}
  {showFloatingBanner && (
- <div className="fixed bottom-4 left-4 right-4 bg-white border border-slate-200 rounded-2xl p-4 shadow-2xl z-[100] flex items-center justify-between gap-4 animate-in slide-in-from-bottom-5 duration-300 max-w-4xl mx-auto border-t-4 border-primary">
+ <div className="fixed bottom-4 left-4 right-4 bg-white border border-slate-200 rounded-2xl p-4 shadow-md z-[100] flex items-center justify-between gap-4 animate-in slide-in-from-bottom-5 duration-300 max-w-4xl mx-auto border-t-4 border-primary">
  <div className="flex items-center gap-3 min-w-0">
  <div className="border border-slate-200 rounded-xl p-1 w-12 h-12 flex items-center justify-center bg-white shrink-0">
  <Avatar className="h-full w-full rounded-lg">
@@ -638,8 +638,8 @@ export default function CompanyDetail() {
  <Button
  onClick={() => setIsFollowed(!isFollowed)}
  className={`rounded-lg font-bold h-10 px-5 text-xs transition-all shrink-0 ${isFollowed
- ?"bg-primary hover:bg-[#009a44] text-white border-primary"
- :"bg-primary hover:bg-[#009a44] text-white border-primary"
+ ?"bg-primary hover:bg-primary/90 text-white border-primary"
+ :"bg-primary hover:bg-primary/90 text-white border-primary"
  }`}
  >
  {isFollowed ?"✓ Đang theo dõi" :"+ Theo dõi ngay"}

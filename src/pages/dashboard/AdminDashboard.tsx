@@ -123,37 +123,37 @@ export default function AdminDashboard() {
  ]
 
  return (
- <div className="min-h-screen bg-slate-50 flex text-slate-900 transition-colors duration-200">
+ <div className="min-h-screen bg-background flex text-foreground transition-colors duration-200">
 
  {/* SIDEBAR */}
  <aside
- className={`fixed lg:sticky top-0 bottom-0 left-0 bg-slate-900 text-slate-300 border-r border-slate-800 transition-all duration-300 z-40 flex flex-col shrink-0 h-screen
+ className={`fixed lg:sticky top-0 bottom-0 left-0 bg-foreground text-background/80 border-r border-border transition-all duration-300 z-40 flex flex-col shrink-0 h-screen
  ${isSidebarOpen ?"w-64 translate-x-0" :"w-20 lg:w-20 -translate-x-full lg:translate-x-0"}
  `}
  >
- <div className="h-16 px-6 border-b border-slate-800 flex items-center justify-between">
+ <div className="h-16 px-6 border-b border-border flex items-center justify-between">
  {isSidebarOpen ? (
- <span className="font-black text-lg tracking-tight text-white cursor-pointer flex items-center gap-1.5" onClick={() => navigate("/")}>
- Event<span className="text-emerald-500">Mate</span>
- <span className="text-[10px] bg-red-600 text-white font-bold px-1.5 py-0.5 rounded">ADMIN</span>
+ <span className="font-black text-lg tracking-tight text-background cursor-pointer flex items-center gap-1.5" onClick={() => navigate("/")}>
+ Event<span className="text-primary">Mate</span>
+ <span className="text-[10px] bg-destructive text-destructive-foreground font-bold px-1.5 py-0.5 rounded">ADMIN</span>
  </span>
  ) : (
- <span className="font-black text-xl text-emerald-500 cursor-pointer mx-auto" onClick={() => navigate("/")}>
+ <span className="font-black text-xl text-primary cursor-pointer mx-auto" onClick={() => navigate("/")}>
  AD
  </span>
  )}
 
- <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} aria-label="Thu gọn hoặc mở rộng thanh bên" className="hidden lg:flex p-1.5 rounded-lg hover:bg-slate-800 text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40">
+ <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} aria-label="Thu gọn hoặc mở rộng thanh bên" className="hidden lg:flex p-1.5 rounded-lg hover:bg-background/10 text-background/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40">
  <ChevronLeft className={`w-4 h-4 transition-transform duration-300 ${!isSidebarOpen ?"rotate-180" :""}`} />
  </button>
  </div>
 
- <div className="p-4 border-b border-slate-800 flex items-center gap-3">
- <Shield className="w-10 h-10 text-emerald-400 shrink-0" />
+ <div className="p-4 border-b border-border flex items-center gap-3">
+ <Shield className="w-10 h-10 text-primary shrink-0" />
  {isSidebarOpen && (
- <div>
- <h4 className="text-sm font-black text-white truncate">Quản trị viên</h4>
- <span className="text-[10px] bg-slate-850 text-slate-400 font-bold px-1.5 py-0.2 rounded">System Admin</span>
+ <div className="min-w-0">
+ <h4 className="text-sm font-black text-background truncate">Quản trị viên</h4>
+ <span className="text-[10px] bg-background/10 text-background/60 font-bold px-1.5 py-0.2 rounded">System Admin</span>
  </div>
  )}
  </div>
@@ -169,10 +169,10 @@ export default function AdminDashboard() {
  setActiveTab(item.id)
  if (window.innerWidth < 1024) setIsSidebarOpen(false)
  }}
- className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold transition-all
+ className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold transition-all
  ${isActive
- ?"bg-emerald-600 text-white shadow-lg"
- :"text-slate-400 hover:bg-slate-850 hover:text-white"
+ ?"bg-primary text-primary-foreground shadow-md"
+ :"text-background/60 hover:bg-background/10 hover:text-background"
  }
  `}
  >
@@ -183,12 +183,12 @@ export default function AdminDashboard() {
  })}
  </nav>
 
- <div className="p-3 border-t border-slate-800 space-y-1">
- <button onClick={() => navigate("/")} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-slate-400 hover:bg-slate-850 hover:text-white">
+ <div className="p-3 border-t border-border space-y-1">
+ <button onClick={() => navigate("/")} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold text-background/60 hover:bg-background/10 hover:text-background">
  <Home className="w-5 h-5 shrink-0" />
  {isSidebarOpen && <span>Về trang chủ</span>}
  </button>
- <button onClick={() => { supabase.auth.signOut(); navigate("/"); }} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-bold text-rose-400 hover:bg-rose-955/20">
+ <button onClick={() => { supabase.auth.signOut(); navigate("/"); }} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold text-destructive hover:bg-destructive/20">
  <LogOut className="w-5 h-5 shrink-0" />
  {isSidebarOpen && <span>Đăng xuất</span>}
  </button>
@@ -197,66 +197,66 @@ export default function AdminDashboard() {
 
  {/* MAIN CONTENT AREA */}
  <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto">
- <header className="sticky top-0 bg-white border-b border-slate-200 h-16 px-6 flex items-center justify-between shrink-0 z-20">
- <div className="flex items-center gap-3">
- <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} aria-label="Mở menu" className="p-2 rounded-lg hover:bg-slate-100 text-slate-500 lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40">
+ <header className="sticky top-0 bg-card border-b border-border h-16 px-4 sm:px-6 flex items-center justify-between shrink-0 z-20">
+ <div className="flex items-center gap-3 min-w-0">
+ <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} aria-label="Mở menu" className="p-2 rounded-lg hover:bg-accent text-muted-foreground lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 shrink-0">
  <Menu className="w-5 h-5" />
  </button>
- <h2 className="text-lg font-black text-slate-900">
+ <h2 className="text-lg font-black text-foreground truncate">
  {menuItems.find(i => i.id === activeTab)?.name}
  </h2>
  </div>
- <div className="flex items-center gap-2">
- <Badge className="bg-emerald-600 text-white font-bold">Live Status</Badge>
+ <div className="flex items-center gap-2 shrink-0">
+ <Badge className="bg-primary text-primary-foreground font-bold">Live Status</Badge>
  </div>
  </header>
 
- <main className="flex-1 p-6 md:p-8 max-w-7xl w-full mx-auto">
+ <main className="flex-1 p-4 sm:p-6 md:p-8 max-w-7xl w-full mx-auto">
  {loading ? (
- <div className="text-center py-12 text-slate-500 font-medium">Đang tải dữ liệu quản trị hệ thống...</div>
+ <div className="text-center py-12 text-muted-foreground font-medium">Đang tải dữ liệu quản trị hệ thống...</div>
  ) : (
  <div className="space-y-6">
 
  {/* 1. OVERVIEW */}
  {activeTab ==="overview" && (
  <div className="space-y-6 animate-in fade-in">
- <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
- <div className="bg-white p-6 rounded-2xl border-2 border-slate-100 flex items-center gap-4">
- <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center"><Users className="w-6 h-6" /></div>
- <div>
- <p className="text-xs font-bold text-slate-400 uppercase">Tổng Sinh Viên</p>
- <h3 className="text-2xl font-black">{stats.totalStudents}</h3>
+ <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+ <div className="bg-card p-5 sm:p-6 rounded-2xl border border-border flex items-center gap-4">
+ <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0"><Users className="w-6 h-6" /></div>
+ <div className="min-w-0">
+ <p className="text-xs font-bold text-muted-foreground uppercase">Tổng Sinh Viên</p>
+ <h3 className="text-2xl font-black text-foreground">{stats.totalStudents}</h3>
  </div>
  </div>
- <div className="bg-white p-6 rounded-2xl border-2 border-slate-100 flex items-center gap-4">
- <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center"><Building2 className="w-6 h-6" /></div>
- <div>
- <p className="text-xs font-bold text-slate-400 uppercase">Nhà tuyển dụng</p>
- <h3 className="text-2xl font-black">{stats.totalOrganizers}</h3>
+ <div className="bg-card p-5 sm:p-6 rounded-2xl border border-border flex items-center gap-4">
+ <div className="w-12 h-12 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0"><Building2 className="w-6 h-6" /></div>
+ <div className="min-w-0">
+ <p className="text-xs font-bold text-muted-foreground uppercase">Nhà tuyển dụng</p>
+ <h3 className="text-2xl font-black text-foreground">{stats.totalOrganizers}</h3>
  </div>
  </div>
- <div className="bg-white p-6 rounded-2xl border-2 border-slate-100 flex items-center gap-4">
- <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center"><FileText className="w-6 h-6" /></div>
- <div>
- <p className="text-xs font-bold text-slate-400 uppercase">Tổng tin tuyển</p>
- <h3 className="text-2xl font-black">{stats.totalEvents}</h3>
+ <div className="bg-card p-5 sm:p-6 rounded-2xl border border-border flex items-center gap-4">
+ <div className="w-12 h-12 rounded-xl bg-accent text-primary flex items-center justify-center shrink-0"><FileText className="w-6 h-6" /></div>
+ <div className="min-w-0">
+ <p className="text-xs font-bold text-muted-foreground uppercase">Tổng tin tuyển</p>
+ <h3 className="text-2xl font-black text-foreground">{stats.totalEvents}</h3>
  </div>
  </div>
- <div className="bg-white p-6 rounded-2xl border-2 border-slate-100 flex items-center gap-4">
- <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center"><CreditCard className="w-6 h-6" /></div>
- <div>
- <p className="text-xs font-bold text-slate-400 uppercase">Tổng doanh thu</p>
- <h3 className="text-2xl font-black">{stats.totalRevenue.toLocaleString("vi-VN")}đ</h3>
+ <div className="bg-card p-5 sm:p-6 rounded-2xl border border-border flex items-center gap-4">
+ <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0"><CreditCard className="w-6 h-6" /></div>
+ <div className="min-w-0">
+ <p className="text-xs font-bold text-muted-foreground uppercase">Tổng doanh thu</p>
+ <h3 className="text-2xl font-black text-foreground">{stats.totalRevenue.toLocaleString("vi-VN")}đ</h3>
  </div>
  </div>
  </div>
 
- <div className="bg-white p-6 rounded-[2rem] border-2 border-slate-100 shadow-sm space-y-4">
- <h3 className="text-lg font-black">Các chiến dịch mới đăng tuyển gần đây</h3>
+ <div className="bg-card p-6 rounded-2xl border border-border shadow-sm space-y-4">
+ <h3 className="text-lg font-black text-foreground">Các chiến dịch mới đăng tuyển gần đây</h3>
  <div className="overflow-x-auto">
  <table className="w-full text-left border-collapse">
  <thead>
- <tr className="border-b border-slate-100 text-xs text-slate-400 font-bold uppercase">
+ <tr className="border-b border-border text-xs text-muted-foreground font-bold uppercase">
  <th className="py-3">Tên sự kiện</th>
  <th className="py-3">Nhà tuyển dụng</th>
  <th className="py-3">Vị trí</th>
@@ -264,15 +264,15 @@ export default function AdminDashboard() {
  <th className="py-3">Trạng thái</th>
  </tr>
  </thead>
- <tbody className="divide-y divide-slate-100 text-sm font-bold">
+ <tbody className="divide-y divide-border text-sm font-bold">
  {events.slice(0, 5).map((ev) => (
  <tr key={ev.id}>
- <td className="py-4 text-slate-900">{ev.title}</td>
- <td className="py-4">{ev.profiles?.full_name}</td>
- <td className="py-4 text-slate-500">{ev.position_type}</td>
- <td className="py-4 text-slate-500">{new Date(ev.event_date).toLocaleDateString("vi-VN")}</td>
+ <td className="py-4 text-foreground">{ev.title}</td>
+ <td className="py-4 text-foreground">{ev.profiles?.full_name}</td>
+ <td className="py-4 text-muted-foreground">{ev.position_type}</td>
+ <td className="py-4 text-muted-foreground">{new Date(ev.event_date).toLocaleDateString("vi-VN")}</td>
  <td className="py-4">
- <Badge className="bg-emerald-100 text-emerald-700">{ev.status ==="upcoming" ?"Đang mở tuyển" :"Hoàn thành"}</Badge>
+ <Badge className="bg-accent text-primary">{ev.status ==="upcoming" ?"Đang mở tuyển" :"Hoàn thành"}</Badge>
  </td>
  </tr>
  ))}
@@ -285,12 +285,12 @@ export default function AdminDashboard() {
 
  {/* 2. ORGANIZERS */}
  {activeTab ==="organizers" && (
- <div className="bg-white p-6 rounded-[2rem] border-2 border-slate-100 shadow-sm space-y-4">
- <h3 className="text-lg font-black">Danh sách nhà tuyển dụng / Công ty</h3>
+ <div className="bg-card p-6 rounded-2xl border border-border shadow-sm space-y-4">
+ <h3 className="text-lg font-black text-foreground">Danh sách nhà tuyển dụng / Công ty</h3>
  <div className="overflow-x-auto">
  <table className="w-full text-left border-collapse">
  <thead>
- <tr className="border-b border-slate-100 text-xs text-slate-400 font-bold uppercase">
+ <tr className="border-b border-border text-xs text-muted-foreground font-bold uppercase">
  <th className="py-3">Công ty</th>
  <th className="py-3">Người đại diện</th>
  <th className="py-3">Email liên hệ</th>
@@ -298,15 +298,15 @@ export default function AdminDashboard() {
  <th className="py-3">Hành động</th>
  </tr>
  </thead>
- <tbody className="divide-y divide-slate-100 text-sm font-bold">
+ <tbody className="divide-y divide-border text-sm font-bold">
  {organizers.map((org) => (
  <tr key={org.id}>
- <td className="py-4 text-slate-900">{org.university ||"Chưa cập nhật"}</td>
- <td className="py-4">{org.full_name}</td>
- <td className="py-4 text-slate-500">{org.email}</td>
- <td className="py-4 text-slate-500">{org.phone ||"---"}</td>
+ <td className="py-4 text-foreground">{org.university ||"Chưa cập nhật"}</td>
+ <td className="py-4 text-foreground">{org.full_name}</td>
+ <td className="py-4 text-muted-foreground">{org.email}</td>
+ <td className="py-4 text-muted-foreground">{org.phone ||"---"}</td>
  <td className="py-4">
- <Button size="xs" variant="outline" onClick={() => handleToggleOrganizerVerification()} className="text-xs h-8 px-2.5 rounded-lg border-emerald-200 text-emerald-600 hover:bg-emerald-50">
+ <Button size="xs" variant="outline" onClick={() => handleToggleOrganizerVerification()} className="text-xs h-8 px-2.5 rounded-lg border-primary/20 text-primary hover:bg-accent">
  Phê duyệt
  </Button>
  </td>
@@ -320,19 +320,19 @@ export default function AdminDashboard() {
 
  {/* 3. STUDENTS */}
  {activeTab ==="students" && (
- <div className="bg-white p-6 rounded-[2rem] border-2 border-slate-100 shadow-sm space-y-4">
- <h3 className="text-lg font-black">Danh sách Sinh Viên đăng ký tài khoản</h3>
+ <div className="bg-card p-6 rounded-2xl border border-border shadow-sm space-y-4">
+ <h3 className="text-lg font-black text-foreground">Danh sách Sinh Viên đăng ký tài khoản</h3>
  <div className="overflow-x-auto">
  <table className="w-full text-left border-collapse">
  <thead>
- <tr className="border-b border-slate-100 text-xs text-slate-400 font-bold uppercase">
+ <tr className="border-b border-border text-xs text-muted-foreground font-bold uppercase">
  <th className="py-3">Sinh viên</th>
  <th className="py-3">Trường đại học</th>
  <th className="py-3">Email</th>
  <th className="py-3">Độ hoàn thiện CV</th>
  </tr>
  </thead>
- <tbody className="divide-y divide-slate-100 text-sm font-bold">
+ <tbody className="divide-y divide-border text-sm font-bold">
  {students.map((stud) => (
  <tr key={stud.id}>
  <td className="py-4 flex items-center gap-3">
@@ -340,12 +340,12 @@ export default function AdminDashboard() {
  <AvatarImage src={stud.avatar_url} />
  <AvatarFallback>{stud.full_name?.charAt(0)}</AvatarFallback>
  </Avatar>
- <span>{stud.full_name}</span>
+ <span className="text-foreground">{stud.full_name}</span>
  </td>
- <td className="py-4 text-slate-600">{stud.university ||"Chưa cập nhật"}</td>
- <td className="py-4 text-slate-500">{stud.email}</td>
+ <td className="py-4 text-foreground">{stud.university ||"Chưa cập nhật"}</td>
+ <td className="py-4 text-muted-foreground">{stud.email}</td>
  <td className="py-4">
- <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded text-xs">{stud.cv_completion_percent || 0}%</span>
+ <span className="bg-accent text-primary px-2 py-0.5 rounded text-xs">{stud.cv_completion_percent || 0}%</span>
  </td>
  </tr>
  ))}
@@ -357,26 +357,26 @@ export default function AdminDashboard() {
 
  {/* 4. EVENTS */}
  {activeTab ==="events" && (
- <div className="bg-white p-6 rounded-[2rem] border-2 border-slate-100 shadow-sm space-y-4">
- <h3 className="text-lg font-black">Quản lý các tin bài tuyển dụng toàn hệ thống</h3>
+ <div className="bg-card p-6 rounded-2xl border border-border shadow-sm space-y-4">
+ <h3 className="text-lg font-black text-foreground">Quản lý các tin bài tuyển dụng toàn hệ thống</h3>
  <div className="overflow-x-auto">
  <table className="w-full text-left border-collapse">
  <thead>
- <tr className="border-b border-slate-100 text-xs text-slate-400 font-bold uppercase">
+ <tr className="border-b border-border text-xs text-muted-foreground font-bold uppercase">
  <th className="py-3">Tên chiến dịch</th>
  <th className="py-3">Nhà tổ chức</th>
  <th className="py-3">Vị trí</th>
  <th className="py-3">Hành động</th>
  </tr>
  </thead>
- <tbody className="divide-y divide-slate-100 text-sm font-bold">
+ <tbody className="divide-y divide-border text-sm font-bold">
  {events.map((ev) => (
  <tr key={ev.id}>
- <td className="py-4 text-slate-900 truncate max-w-xs">{ev.title}</td>
- <td className="py-4">{ev.profiles?.full_name}</td>
- <td className="py-4 text-slate-500">{ev.position_type}</td>
+ <td className="py-4 text-foreground truncate max-w-xs">{ev.title}</td>
+ <td className="py-4 text-foreground">{ev.profiles?.full_name}</td>
+ <td className="py-4 text-muted-foreground">{ev.position_type}</td>
  <td className="py-4">
- <Button size="xs" variant="ghost" onClick={() => handleDeleteEvent(ev.id)} className="text-rose-600 hover:bg-rose-50 h-8 rounded-lg">
+ <Button size="xs" variant="ghost" onClick={() => handleDeleteEvent(ev.id)} className="text-destructive hover:bg-destructive/10 h-8 rounded-lg">
  <Trash2 className="w-4 h-4" /> Gỡ bài
  </Button>
  </td>
@@ -390,15 +390,15 @@ export default function AdminDashboard() {
 
  {/* 5. TRANSACTIONS */}
  {activeTab ==="transactions" && (
- <div className="bg-white p-6 rounded-[2rem] border-2 border-slate-100 shadow-sm space-y-4">
+ <div className="bg-card p-6 rounded-2xl border border-border shadow-sm space-y-4">
  <div className="flex items-center justify-between">
- <h3 className="text-lg font-black">Lịch sử giao dịch mua gói VIP & Dịch vụ</h3>
- <Badge className="bg-emerald-500 font-bold">Doanh thu: {stats.totalRevenue.toLocaleString("vi-VN")}đ</Badge>
+ <h3 className="text-lg font-black text-foreground">Lịch sử giao dịch mua gói VIP & Dịch vụ</h3>
+ <Badge className="bg-primary text-primary-foreground font-bold">Doanh thu: {stats.totalRevenue.toLocaleString("vi-VN")}đ</Badge>
  </div>
  <div className="overflow-x-auto">
  <table className="w-full text-left border-collapse">
  <thead>
- <tr className="border-b border-slate-100 text-xs text-slate-400 font-bold uppercase">
+ <tr className="border-b border-border text-xs text-muted-foreground font-bold uppercase">
  <th className="py-3">Mã giao dịch</th>
  <th className="py-3">Nhà tuyển dụng</th>
  <th className="py-3">Loại dịch vụ</th>
@@ -407,22 +407,22 @@ export default function AdminDashboard() {
  <th className="py-3">Trạng thái</th>
  </tr>
  </thead>
- <tbody className="divide-y divide-slate-100 text-sm font-bold">
+ <tbody className="divide-y divide-border text-sm font-bold">
  {organizers.filter((org) => org.is_premium && (!org.premium_until || new Date(org.premium_until) > new Date())).length === 0 ? (
  <tr>
- <td colSpan={6} className="py-12 text-center text-slate-400 font-semibold">
+ <td colSpan={6} className="py-12 text-center text-muted-foreground font-semibold">
  Chưa có giao dịch VIP nào trong hệ thống.
  </td>
  </tr>
  ) : organizers.filter((org) => org.is_premium && (!org.premium_until || new Date(org.premium_until) > new Date())).map((org, index) => (
  <tr key={org.id}>
- <td className="py-4 text-slate-500">#TXN-{1000 + index}</td>
- <td className="py-4">{org.full_name}</td>
- <td className="py-4 text-slate-900">Gói VIP Recruiter (1 tháng)</td>
- <td className="py-4 text-emerald-600">990.000đ</td>
- <td className="py-4 text-slate-400">{new Date(org.premium_until || org.created_at).toLocaleDateString("vi-VN")}</td>
+ <td className="py-4 text-muted-foreground">#TXN-{1000 + index}</td>
+ <td className="py-4 text-foreground">{org.full_name}</td>
+ <td className="py-4 text-foreground">Gói VIP Recruiter (1 tháng)</td>
+ <td className="py-4 text-primary">990.000đ</td>
+ <td className="py-4 text-muted-foreground">{new Date(org.premium_until || org.created_at).toLocaleDateString("vi-VN")}</td>
  <td className="py-4">
- <Badge className="bg-emerald-100 text-emerald-700">Hoạt động</Badge>
+ <Badge className="bg-accent text-primary">Hoạt động</Badge>
  </td>
  </tr>
  ))}

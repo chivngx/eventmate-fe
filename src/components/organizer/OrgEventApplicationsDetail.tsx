@@ -47,7 +47,7 @@ export default function OrgEventApplicationsDetail({
  </div>
 
  {/* Thông tin Sự kiện Tóm tắt */}
- <div className="bg-slate-900 text-white rounded-[2rem] p-6 sm:p-8 shadow-md border border-slate-800 relative overflow-hidden">
+ <div className="bg-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-md border border-slate-800 relative overflow-hidden">
  <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl -z-10 translate-x-1/3 -translate-y-1/3 opacity-70"></div>
  
  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -89,7 +89,7 @@ export default function OrgEventApplicationsDetail({
  </div>
 
  {/* Danh sách Ứng viên */}
- <div className="bg-white rounded-[2rem] border-2 border-slate-100 shadow-sm overflow-hidden">
+ <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
  <div className="p-6 sm:p-8 border-b border-slate-100">
  <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
  📩 Đơn ứng tuyển đã nhận ({applications.length})
@@ -100,7 +100,7 @@ export default function OrgEventApplicationsDetail({
  {loadingApps ? (
  <div className="text-center py-12 text-slate-500 font-medium">Đang tải hồ sơ ứng viên...</div>
  ) : applications.length === 0 ? (
- <div className="text-center py-16 border-2 border-dashed border-slate-100 rounded-[2rem]">
+ <div className="text-center py-16 border-2 border-dashed border-slate-100 rounded-2xl">
  <Users className="w-12 h-12 text-slate-300 mx-auto mb-4" />
  <h3 className="text-lg font-bold text-slate-700">Chưa có ứng viên nộp đơn</h3>
  <p className="text-slate-500 font-medium mt-1">Hồ sơ ứng tuyển của sinh viên vào sự kiện này sẽ xuất hiện tại đây.</p>
@@ -147,7 +147,7 @@ export default function OrgEventApplicationsDetail({
  return (
  <div
  key={app.id}
- className="flex flex-col md:flex-row md:items-center justify-between p-5 rounded-2xl border-2 border-slate-100 bg-slate-50/50 hover:bg-white hover:border-emerald-250 transition-all duration-300"
+ className="flex flex-col md:flex-row md:items-center justify-between p-5 rounded-2xl border border-slate-200 bg-slate-50/50 hover:bg-white hover:border-emerald-250 transition-all duration-300"
  >
  <div className="flex items-center gap-4 mb-4 md:mb-0">
  <Avatar className="h-12 w-12 border-2 border-white shadow-sm shrink-0">

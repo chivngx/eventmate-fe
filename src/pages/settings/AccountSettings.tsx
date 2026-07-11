@@ -60,16 +60,16 @@ export default function AccountSettings() {
 
  {/* Tiêu đề trang */}
  <div>
- <h1 className="text-2xl font-black text-slate-900 tracking-tight">Cài đặt tài khoản</h1>
- <p className="text-sm font-medium text-slate-500 mt-1">Quản lý bảo mật và thông tin định danh cá nhân.</p>
+ <h1 className="text-2xl font-black text-foreground tracking-tight">Cài đặt tài khoản</h1>
+ <p className="text-sm font-medium text-muted-foreground mt-1">Quản lý bảo mật và thông tin định danh cá nhân.</p>
  </div>
 
  {/* Thanh Alert thông báo trạng thái */}
  {message && (
  <div className={cn("p-4 rounded-xl text-sm font-bold border",
  message.type ==="success"
- ?"bg-emerald-50 border-emerald-100 text-emerald-800"
- :"bg-rose-50 border-rose-100 text-rose-800"
+ ?"bg-accent border-primary/20 text-primary"
+ :"bg-destructive/10 border-destructive/20 text-destructive"
  )}>
  {message.text}
  </div>
@@ -79,16 +79,16 @@ export default function AccountSettings() {
  <Tabs defaultValue="account" orientation={isMobile ?"horizontal" :"vertical"} className="flex flex-col md:flex-row gap-6">
 
  {/* Cột Điều hướng danh mục */}
- <TabsList className="flex flex-row md:flex-col w-full md:w-52 shrink-0 h-auto bg-slate-100 p-1 md:p-0 rounded-xl md:rounded-none space-x-1 md:space-x-0 md:space-y-1 md:bg-transparent">
+ <TabsList className="flex flex-row md:flex-col w-full md:w-52 shrink-0 h-auto bg-muted p-1 md:p-0 rounded-xl md:rounded-none space-x-1 md:space-x-0 md:space-y-1 md:bg-transparent">
  <TabsTrigger
  value="account"
- className="flex-1 md:flex-initial w-auto md:w-full justify-center md:justify-start px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-2xl font-bold text-slate-500 data-[state=active]:bg-white md:data-[state=active]:bg-emerald-50 data-[state=active]:text-slate-900 md:data-[state=active]:text-emerald-700 data-[state=active]:shadow-sm md:data-[state=active]:shadow-none transition-all"
+ className="flex-1 md:flex-initial w-auto md:w-full justify-center md:justify-start px-3 md:px-4 py-2 md:py-3 rounded-lg font-bold text-muted-foreground data-[state=active]:bg-card md:data-[state=active]:bg-accent data-[state=active]:text-foreground md:data-[state=active]:text-primary data-[state=active]:shadow-sm md:data-[state=active]:shadow-none transition-all"
  >
  Thông tin cá nhân
  </TabsTrigger>
  <TabsTrigger
  value="password"
- className="flex-1 md:flex-initial w-auto md:w-full justify-center md:justify-start px-3 md:px-4 py-2 md:py-3 rounded-lg md:rounded-2xl font-bold text-slate-500 data-[state=active]:bg-white md:data-[state=active]:bg-emerald-50 data-[state=active]:text-slate-900 md:data-[state=active]:text-emerald-700 data-[state=active]:shadow-sm md:data-[state=active]:shadow-none transition-all"
+ className="flex-1 md:flex-initial w-auto md:w-full justify-center md:justify-start px-3 md:px-4 py-2 md:py-3 rounded-lg font-bold text-muted-foreground data-[state=active]:bg-card md:data-[state=active]:bg-accent data-[state=active]:text-foreground md:data-[state=active]:text-primary data-[state=active]:shadow-sm md:data-[state=active]:shadow-none transition-all"
  >
  Mật khẩu & Bảo mật
  </TabsTrigger>
@@ -100,24 +100,24 @@ export default function AccountSettings() {
  {/* TAB THÔNG TIN CÁ NHÂN */}
  <TabsContent value="account" className="mt-0 outline-none">
  <form onSubmit={handleUpdateProfile}>
- <Card className="border border-slate-200/60 shadow-sm rounded-2xl bg-white">
+ <Card className="border border-border shadow-sm rounded-2xl bg-card">
  <CardHeader className="pb-4">
- <CardTitle className="text-lg font-bold text-slate-900">Hồ sơ cá nhân</CardTitle>
- <CardDescription className="text-xs font-medium text-slate-500">
+ <CardTitle className="text-lg font-bold text-foreground">Hồ sơ cá nhân</CardTitle>
+ <CardDescription className="text-xs font-medium text-muted-foreground">
  Thông tin này dùng để hiển thị trên CV ứng tuyển của bạn.
  </CardDescription>
  </CardHeader>
  <CardContent className="space-y-4">
  {/* TẢI ẢNH ĐẠI DIỆN TRỰC TIẾP */}
- <div className="flex flex-col sm:flex-row items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100 mb-2">
- <Avatar className="h-16 w-16 border-2 border-white shadow-sm shrink-0 rounded-2xl">
+ <div className="flex flex-col sm:flex-row items-center gap-4 p-4 bg-muted rounded-xl border border-border mb-2">
+ <Avatar className="h-16 w-16 border border-border shadow-sm shrink-0 rounded-2xl">
  <AvatarImage src={avatarUrl} className="object-cover rounded-2xl" />
- <AvatarFallback className="bg-emerald-50 text-emerald-600 font-black text-xl rounded-2xl">
+ <AvatarFallback className="bg-accent text-primary font-black text-xl rounded-2xl">
  {fullName ? fullName.charAt(0).toUpperCase() : <User className="w-6 h-6" />}
  </AvatarFallback>
  </Avatar>
  <div className="flex flex-col items-center sm:items-start gap-1">
- <Label htmlFor="avatar-file" className="text-xs font-black text-slate-700 cursor-pointer bg-white border hover:bg-slate-50 px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition-all">
+ <Label htmlFor="avatar-file" className="text-xs font-black text-foreground cursor-pointer bg-card border border-border hover:bg-accent px-3.5 py-2 rounded-xl flex items-center gap-1.5 shadow-sm transition-all">
  <Upload className="w-3.5 h-3.5" />
  {uploadingAvatar ?"Đang tải lên..." :"Tải ảnh đại diện mới"}
  </Label>
@@ -134,28 +134,28 @@ export default function AccountSettings() {
  }}
  className="hidden"
  />
- <span className="text-[10px] text-slate-400 font-semibold">Định dạng JPG, PNG. Dung lượng tối đa 2MB.</span>
+ <span className="text-[10px] text-muted-foreground font-semibold">Định dạng JPG, PNG. Dung lượng tối đa 2MB.</span>
  </div>
  </div>
 
  <div className="space-y-2">
- <Label htmlFor="name" className="text-xs font-bold text-slate-700">Họ và tên</Label>
+ <Label htmlFor="name" className="text-xs font-bold text-foreground">Họ và tên</Label>
  <Input
  id="name"
  value={fullName}
  onChange={(e) => setFullName(e.target.value)}
  placeholder="Nhập họ và tên đầy đủ..."
- className="h-11 rounded-xl bg-white border-slate-200 focus-visible:ring-emerald-500 font-medium text-sm text-slate-900"
+ className="h-11 rounded-xl bg-card border-border focus-visible:ring-ring font-medium text-sm text-foreground"
  />
  </div>
  <div className="space-y-2">
- <Label htmlFor="email" className="text-xs font-bold text-slate-700">Địa chỉ Email (Không được sửa)</Label>
+ <Label htmlFor="email" className="text-xs font-bold text-foreground">Địa chỉ Email (Không được sửa)</Label>
  <Input
  id="email"
  type="email"
  disabled
  value={email}
- className="h-11 rounded-xl bg-slate-50 border-slate-100 text-slate-400 font-medium text-sm cursor-not-allowed"
+ className="h-11 rounded-xl bg-muted border-border text-muted-foreground font-medium text-sm cursor-not-allowed"
  />
  </div>
  </CardContent>
@@ -163,7 +163,7 @@ export default function AccountSettings() {
  <Button
  type="submit"
  disabled={updating}
- className="rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 h-10 px-5 text-sm transition-colors shadow-sm shadow-emerald-600/20"
+ className="rounded-xl bg-primary text-primary-foreground font-bold hover:bg-primary/90 h-10 px-5 text-sm transition-colors shadow-sm"
  >
  {updating ?"Đang lưu..." :"Lưu thay đổi"}
  </Button>
@@ -175,12 +175,12 @@ export default function AccountSettings() {
  {/* TAB ĐỔI / TẠO MẬT KHẨU */}
  <TabsContent value="password" className="mt-0 outline-none">
  <form onSubmit={handleUpdatePassword}>
- <Card className="border border-slate-200/60 shadow-sm rounded-2xl bg-white">
+ <Card className="border border-border shadow-sm rounded-2xl bg-card">
  <CardHeader className="pb-4">
- <CardTitle className="text-lg font-bold text-slate-900">
+ <CardTitle className="text-lg font-bold text-foreground">
  {hasPassword ?"Đổi mật khẩu" :"Tạo mật khẩu đăng nhập"}
  </CardTitle>
- <CardDescription className="text-xs font-medium text-slate-500">
+ <CardDescription className="text-xs font-medium text-muted-foreground">
  {hasPassword
  ?"Nên đặt mật khẩu mạnh gồm cả chữ và số để đảm bảo an toàn."
  :"Tài khoản của bạn đang liên kết với Google. Bạn có thể tạo thêm mật khẩu để đăng nhập trực tiếp bằng Email."}
@@ -191,19 +191,19 @@ export default function AccountSettings() {
  {/* CHỈ HIỂN THỊ Ô NÀY NẾU ĐÃ CÓ PASSWORD */}
  {hasPassword && (
  <div className="space-y-2">
- <Label htmlFor="current" className="text-xs font-bold text-slate-700">Mật khẩu hiện tại</Label>
+ <Label htmlFor="current" className="text-xs font-bold text-foreground">Mật khẩu hiện tại</Label>
  <Input
  id="current"
  type="password"
  value={currentPassword}
  onChange={(e) => setCurrentPassword(e.target.value)}
- className="h-11 rounded-xl bg-white border-slate-200 focus-visible:ring-emerald-500 text-sm text-slate-900"
+ className="h-11 rounded-xl bg-card border-border focus-visible:ring-ring text-sm text-foreground"
  />
  </div>
  )}
 
  <div className="space-y-2">
- <Label htmlFor="new" className="text-xs font-bold text-slate-700">
+ <Label htmlFor="new" className="text-xs font-bold text-foreground">
  {hasPassword ?"Mật khẩu mới" :"Nhập mật khẩu mới"}
  </Label>
  <Input
@@ -211,7 +211,7 @@ export default function AccountSettings() {
  type="password"
  value={newPassword}
  onChange={(e) => setNewPassword(e.target.value)}
- className="h-11 rounded-xl bg-white border-slate-200 focus-visible:ring-emerald-500 text-sm text-slate-900"
+ className="h-11 rounded-xl bg-card border-border focus-visible:ring-ring text-sm text-foreground"
  />
  </div>
  </CardContent>
@@ -219,7 +219,7 @@ export default function AccountSettings() {
  <Button
  type="submit"
  disabled={updating}
- className="rounded-xl bg-slate-900 text-white font-bold hover:bg-slate-800 h-10 px-5 text-sm transition-colors"
+ className="rounded-xl bg-foreground text-background font-bold hover:bg-foreground/90 h-10 px-5 text-sm transition-colors"
  >
  {updating ?"Đang xử lý..." : (hasPassword ?"Cập nhật mật khẩu" :"Lưu mật khẩu mới")}
  </Button>

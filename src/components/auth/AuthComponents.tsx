@@ -127,9 +127,9 @@ export function AuthInput({
  {label}
  </label>
  <div
- className={`inputForm flex items-center border-[1.5px] rounded-[10px] h-[50px] pl-[12px] pr-[12px] transition-all duration-200 bg-slate-50 ${error
+ className={`inputForm flex items-center border rounded-lg h-12 pl-3 pr-3 transition-all duration-200 bg-slate-50 ${error
  ?"border-red-500 focus-within:border-red-500"
- :"border-slate-200 focus-within:border-[#2d79f3]"
+ :"border-slate-200 focus-within:border-primary"
  }`}
  >
  {icon}
@@ -162,7 +162,7 @@ export function GoogleSignInButton({
  type="button"
  onClick={onClick}
  disabled={disabled}
- className="w-full h-[50px] rounded-[10px] flex justify-center items-center font-semibold text-sm gap-[10px] border border-slate-200 bg-white text-slate-800 cursor-pointer transition-all hover:border-[#2d79f3] disabled:opacity-75 disabled:cursor-not-allowed shrink-0"
+ className="w-full h-12 rounded-lg flex justify-center items-center font-semibold text-sm gap-2.5 border border-slate-200 bg-white text-slate-800 cursor-pointer transition-all hover:border-primary disabled:opacity-75 disabled:cursor-not-allowed shrink-0"
  >
  <GoogleIcon />
  <span>{label}</span>

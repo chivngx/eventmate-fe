@@ -15,10 +15,10 @@ export default function CVViewModal({ viewingCV, onClose }: CVViewModalProps) {
 
  return (
  <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
- <div className="bg-white rounded-[2rem] w-full max-w-xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
- <div className="bg-slate-50 p-6 flex items-start justify-between border-b border-slate-100">
+ <div className="bg-white rounded-2xl border border-slate-200 w-full max-w-xl shadow-md overflow-hidden animate-in zoom-in-95 duration-200">
+ <div className="bg-slate-50 p-6 flex items-start justify-between border-b border-slate-200">
  <div className="flex items-center gap-4">
- <Avatar className="h-16 w-16 border-2 border-white shadow-sm">
+ <Avatar className="h-16 w-16 border border-slate-200 shadow-sm">
  <AvatarImage src={viewingCV.avatar_url} />
  <AvatarFallback className="bg-slate-200 text-slate-600 font-bold text-xl">
  {viewingCV.full_name?.charAt(0).toUpperCase() ||"U"}
@@ -29,7 +29,7 @@ export default function CVViewModal({ viewingCV, onClose }: CVViewModalProps) {
  <p className="text-sm font-medium text-slate-500 mt-0.5">{viewingCV.email}</p>
  </div>
  </div>
- <button onClick={onClose} aria-label="Đóng" className="p-2 text-slate-400 hover:text-slate-800 bg-white rounded-full border border-slate-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40">
+ <button onClick={onClose} aria-label="Đóng" className="p-2 text-slate-500 hover:text-slate-700 bg-white rounded-full border border-slate-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40">
  <X className="w-5 h-5" />
  </button>
  </div>
@@ -37,13 +37,13 @@ export default function CVViewModal({ viewingCV, onClose }: CVViewModalProps) {
  <div className="p-6 space-y-6">
  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
  <div className="bg-slate-50 rounded-2xl p-4">
- <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+ <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1.5">
  <Phone className="w-3.5 h-3.5" /> Điện thoại
  </p>
  <p className="font-semibold text-slate-900">{viewingCV.phone ||"Chưa cập nhật"}</p>
  </div>
  <div className="bg-slate-50 rounded-2xl p-4">
- <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+ <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1.5">
  <GraduationCap className="w-3.5 h-3.5" /> Học vấn
  </p>
  <p className="font-semibold text-slate-900 truncate" title={viewingCV.university}>
@@ -53,7 +53,7 @@ export default function CVViewModal({ viewingCV, onClose }: CVViewModalProps) {
  </div>
  
  <div>
- <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+ <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2 flex items-center gap-1.5">
  <Sparkles className="w-3.5 h-3.5" /> Kỹ năng
  </p>
  <div className="flex flex-wrap gap-2">
@@ -70,14 +70,14 @@ export default function CVViewModal({ viewingCV, onClose }: CVViewModalProps) {
  </div>
  
  <div>
- <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Giới thiệu bản thân</p>
+ <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Giới thiệu bản thân</p>
  <div className="bg-slate-50 rounded-2xl p-4 text-sm font-medium text-slate-700 leading-relaxed">
- {viewingCV.bio || <span className="italic text-slate-400">Không có giới thiệu.</span>}
+ {viewingCV.bio || <span className="italic text-slate-500">Không có giới thiệu.</span>}
  </div>
  </div>
  </div>
 
- <div className="p-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+ <div className="p-4 bg-slate-50 border-t border-slate-200 flex justify-end">
  <Button onClick={onClose} className="bg-slate-900 text-white rounded-xl hover:bg-slate-800 font-bold px-6">Đóng</Button>
  </div>
  </div>

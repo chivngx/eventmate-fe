@@ -64,15 +64,15 @@ export default function ReviewModal({
  }
 
  return (
- <Modal isOpen={isOpen} onClose={onClose} label="Đánh giá dịch vụ" maxWidthClassName="max-w-md" panelClassName="rounded-[2rem] border-2 border-slate-100 p-6 overflow-hidden">
- <h3 className="text-xl font-black text-slate-900 mb-2">Đánh giá dịch vụ</h3>
+ <Modal isOpen={isOpen} onClose={onClose} label="Đánh giá dịch vụ" maxWidthClassName="max-w-md" panelClassName="rounded-2xl border border-slate-200 p-6 sm:p-8 overflow-hidden">
+ <h3 className="text-xl font-bold text-slate-900 mb-2">Đánh giá dịch vụ</h3>
  <p className="text-sm font-semibold text-slate-500 mb-6">
  Nhận xét của bạn về: <strong className="text-emerald-600">{revieweeName}</strong>
  </p>
 
  <form onSubmit={handleSubmit} className="space-y-6">
  <div className="flex flex-col items-center justify-center gap-2">
- <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Mức độ hài lòng</span>
+ <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Mức độ hài lòng</span>
  <div className="flex items-center gap-1.5">
  {[1, 2, 3, 4, 5].map((star) => (
  <button
@@ -102,7 +102,7 @@ export default function ReviewModal({
  placeholder="Chia sẻ trải nghiệm làm việc của bạn..."
  value={comment}
  onChange={(e) => setComment(e.target.value)}
- className="w-full rounded-xl bg-slate-50 border-2 border-slate-200 p-3.5 text-sm font-medium focus:outline-none focus:border-emerald-500 transition-colors resize-none leading-relaxed"
+ className="w-full rounded-xl bg-slate-50 border border-slate-200 p-3.5 text-sm font-medium focus:outline-none focus:border-emerald-500 transition-colors resize-none leading-relaxed"
  />
  </div>
 

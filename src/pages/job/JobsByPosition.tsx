@@ -158,7 +158,7 @@ export default function JobsByPosition() {
  <div className="space-y-6 pb-12 animate-in fade-in duration-300">
  
  {/* BANNER TÌM KIẾM TRÊN CÙNG (DẠNG TOPCV) */}
- <div className="p-8 rounded-[2rem] text-white shadow-xl relative overflow-hidden">
+ <div className="p-8 rounded-2xl text-white shadow-md relative overflow-hidden">
  <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
  <div className="max-w-3xl space-y-4 relative z-10">
  <h1 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">
@@ -169,7 +169,7 @@ export default function JobsByPosition() {
  </p>
 
  {/* THANH TÌM KIẾM CHI TIẾT */}
- <form onSubmit={handleSearchSubmit} className="bg-white p-2 rounded-2xl shadow-lg flex flex-col md:flex-row gap-2">
+ <form onSubmit={handleSearchSubmit} className="bg-white p-2 rounded-2xl shadow-md flex flex-col md:flex-row gap-2">
  <div className="flex-1 flex items-center gap-2 px-3 bg-slate-50 rounded-xl">
  <Search className="w-5 h-5 text-slate-400 shrink-0" />
  <input
@@ -210,7 +210,7 @@ export default function JobsByPosition() {
  
  {/* CỘT TRÁI: BỘ LỌC TÌM KIẾM */}
  <div className="lg:col-span-3 space-y-6">
- <div className="bg-white border-2 border-slate-100 p-5 rounded-[2rem] shadow-sm space-y-6">
+ <div className="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm space-y-6">
  <div>
  <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider border-b pb-3 border-slate-100">
  Lọc theo Quyền lợi
@@ -253,7 +253,7 @@ export default function JobsByPosition() {
 
  {/* CỘT PHẢI: DANH SÁCH VIỆC LÀM */}
  <div className="lg:col-span-9 space-y-6">
- <div className="bg-white border-2 border-slate-100 p-6 rounded-[2rem] shadow-sm">
+ <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
  <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
  <h3 className="text-base font-black text-slate-900">
  Kết quả tìm kiếm Vị trí
@@ -277,7 +277,7 @@ export default function JobsByPosition() {
  ) : (
  <div className="grid grid-cols-1 gap-4">
  {events.map(job => (
- <div key={job.id} className="border-2 border-slate-50 hover:border-emerald-200 rounded-2xl p-5 hover:shadow-xl hover:shadow-emerald-950/5 transition-all duration-300 flex gap-4 bg-slate-50/10 relative">
+ <div key={job.id} className="border border-slate-200 hover:border-primary/30 rounded-2xl p-5 hover:shadow-md hover:shadow-emerald-950/5 transition-all duration-300 flex gap-4 bg-slate-50/10 relative">
  <Avatar className="h-16 w-16 border rounded-2xl shrink-0 bg-white shadow-sm">
  <AvatarImage src={job.profiles?.avatar_url} className="object-cover rounded-2xl" />
  <AvatarFallback className="bg-emerald-50 text-emerald-600 font-black rounded-2xl text-lg">

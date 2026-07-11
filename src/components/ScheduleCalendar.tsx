@@ -142,7 +142,7 @@ export default function ScheduleCalendar({ applications, interviews = [] }: Sche
  const todayStr = new Date().toISOString().split("T")[0]
 
  return (
- <div className="max-w-md mx-auto bg-white rounded-[1.5rem] border-2 border-slate-100 p-4 shadow-lg shadow-slate-100/40 transition-all">
+ <div className="max-w-md mx-auto bg-white rounded-xl border border-slate-200 p-4 shadow-md shadow-slate-100/40 transition-all">
  <div className="flex items-center justify-between mb-4">
  <div className="flex items-center gap-2">
  <div className="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
@@ -208,7 +208,7 @@ export default function ScheduleCalendar({ applications, interviews = [] }: Sche
  isToday
  ?"bg-slate-900 text-white shadow-md font-black"
  : hasEntries
- ?"bg-emerald-50/50 text-emerald-855 border border-emerald-100/50 hover:bg-primary/10"
+ ?"bg-emerald-50/50 text-emerald-855 border border-primary/20 hover:bg-primary/10"
  :"text-slate-755 hover:bg-slate-50 font-medium"
  }`}
  >
@@ -254,7 +254,7 @@ export default function ScheduleCalendar({ applications, interviews = [] }: Sche
  <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${
  entry.type ==="interview" 
  ?"bg-blue-50 text-blue-600 border border-blue-100/55" 
- :"bg-emerald-50 text-emerald-600 border border-emerald-100/55"
+ :"bg-emerald-50 text-emerald-600 border border-primary/20/55"
  }`}>
  {entry.type ==="interview" ?"Phỏng vấn" :"Sự kiện"}
  </span>
