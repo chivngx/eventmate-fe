@@ -140,7 +140,7 @@ function LoginForm({
  <button
  type="submit"
  disabled={loading}
- className="mt-4 w-full h-[48px] rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold transition-all flex items-center justify-center disabled:opacity-75"
+ className="mt-4 w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold transition-all flex items-center justify-center disabled:opacity-75"
  >
  {loading ?"Đang xác thực..." :"Đăng nhập"}
  </button>
@@ -266,7 +266,7 @@ function StudentRegisterForm({
  <button
  type="submit"
  disabled={loading}
- className="mt-4 w-full h-[48px] rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-all flex items-center justify-center disabled:opacity-75"
+ className="mt-4 w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold transition-all flex items-center justify-center disabled:opacity-75"
  >
  {loading ?"Đang xử lý..." :"Đăng ký làm Sinh viên"}
  </button>
@@ -368,7 +368,7 @@ function OrgRegisterForm({
  <button
  type="submit"
  disabled={loading}
- className="mt-4 w-full h-[48px] rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold transition-all flex items-center justify-center disabled:opacity-75"
+ className="mt-4 w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold transition-all flex items-center justify-center disabled:opacity-75"
  >
  {loading ?"Đang xử lý..." :"Đăng ký Ban tổ chức"}
  </button>
@@ -410,7 +410,7 @@ export default function AuthModal({ isOpen, initialMode ="login", onClose }: Aut
  <div className="absolute inset-0" onClick={onClose}></div>
 
  {/* Modal Card */}
- <div className="relative w-full max-w-[450px] bg-white rounded-3xl shadow-md border border-slate-100 p-8 flex flex-col gap-4 max-h-[95vh] overflow-y-auto z-10 animate-in zoom-in-95 duration-200">
+ <div className="relative w-full max-w-md bg-white rounded-2xl shadow-md border border-slate-100 p-8 flex flex-col gap-4 max-h-[95vh] overflow-y-auto z-10 animate-in zoom-in-95 duration-200">
 
  {/* Close Button */}
  <button

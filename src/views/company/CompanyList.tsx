@@ -96,7 +96,7 @@ export default function CompanyList() {
           </div>
         ) : filteredOrganizers.length === 0 ? (
           <div className="text-center py-20 bg-white rounded-2xl border border-dashed border-slate-300">
-            <Building2 className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+            <Building2 className="w-10 h-10 text-slate-400 mx-auto mb-3" />
             <h3 className="text-lg font-bold text-foreground">Không tìm thấy Ban tổ chức nào</h3>
             <p className="text-slate-500 text-sm mt-1">Hãy thử tìm kiếm với từ khóa khác.</p>
           </div>
@@ -164,7 +164,7 @@ export default function CompanyList() {
                         </span>
                       )}
                       {!org.email && !org.phone && (
-                        <span className="text-slate-300">Chưa có liên hệ</span>
+                        <span className="text-slate-400">Chưa có liên hệ</span>
                       )}
                     </div>
                     <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-slate-900 group-hover:translate-x-0.5 transition-all shrink-0" />

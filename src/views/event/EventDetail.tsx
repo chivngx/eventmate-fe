@@ -135,7 +135,7 @@ export default function EventDetail() {
  if (!event) return (
  <MainLayout role="guest">
  <div className="text-center py-20">
- <h2 className="text-2xl font-black text-slate-900">Không tìm thấy sự kiện</h2>
+ <h2 className="text-2xl font-bold text-slate-900">Không tìm thấy sự kiện</h2>
  <p className="text-slate-500 mt-2">Sự kiện này có thể đã bị xóa hoặc không tồn tại.</p>
  <Button onClick={() => navigate(-1)} className="mt-4 rounded-xl bg-slate-900 text-white">Quay lại</Button>
  </div>

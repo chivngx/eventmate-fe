@@ -149,7 +149,7 @@ export default function ScheduleCalendar({ applications, interviews = [] }: Sche
  <Calendar className="w-4 h-4" />
  </div>
  <div>
- <h2 className="text-sm font-black text-slate-900">Lịch trình cá nhân</h2>
+ <h2 className="text-sm font-bold text-slate-900">Lịch trình cá nhân</h2>
  <p className="text-xs font-semibold text-slate-400">Các công việc & lịch phỏng vấn</p>
  </div>
  </div>
@@ -162,7 +162,7 @@ export default function ScheduleCalendar({ applications, interviews = [] }: Sche
  >
  <ChevronLeft className="w-3.5 h-3.5" />
  </button>
- <span className="text-xs font-black text-slate-800 px-1 min-w-[70px] text-center">
+ <span className="text-xs font-bold text-slate-800 px-1 min-w-[70px] text-center">
  {monthNames[month]} {year}
  </span>
  <button
@@ -180,7 +180,7 @@ export default function ScheduleCalendar({ applications, interviews = [] }: Sche
  {["CN","T2","T3","T4","T5","T6","T7"].map((dayName, idx) => (
  <span
  key={dayName}
- className={`text-xs font-black pb-1 ${
+ className={`text-xs font-bold pb-1 ${
  idx === 0 ?"text-destructive" :"text-slate-400"
  }`}
  >
@@ -206,7 +206,7 @@ export default function ScheduleCalendar({ applications, interviews = [] }: Sche
  onClick={() => handleDateClick(date)}
  className={`aspect-square rounded-xl flex flex-col items-center justify-center relative transition-all group ${
  isToday
- ?"bg-slate-900 text-white shadow-md font-black"
+ ?"bg-slate-900 text-white shadow-md font-bold"
  : hasEntries
  ?"bg-slate-100/50 text-emerald-855 border border-slate-200 hover:bg-slate-100"
  :"text-slate-755 hover:bg-slate-50 font-medium"
@@ -228,7 +228,7 @@ export default function ScheduleCalendar({ applications, interviews = [] }: Sche
  {selectedDateEntries && selectedDateStr && (
  <div className="mt-4 p-3 bg-slate-50 rounded-xl border border-slate-105 animate-in fade-in slide-in-from-top-2 duration-300">
  <div className="flex items-center justify-between mb-2">
- <h4 className="text-xs font-black text-slate-500">
+ <h4 className="text-xs font-bold text-slate-500">
  Lịch trình ngày {selectedDateStr}
  </h4>
  <button
@@ -236,7 +236,7 @@ export default function ScheduleCalendar({ applications, interviews = [] }: Sche
  setSelectedDateEntries(null)
  setSelectedDateStr(null)
  }}
- className="text-xs font-black text-slate-400 hover:text-slate-655"
+ className="text-xs font-bold text-slate-400 hover:text-slate-655"
  >
  Đóng
  </button>
@@ -251,7 +251,7 @@ export default function ScheduleCalendar({ applications, interviews = [] }: Sche
  <h5 className="text-xs font-extrabold text-slate-900 leading-tight">
  {entry.title}
  </h5>
- <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${
+ <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0 ${
  entry.type ==="interview" 
  ?"bg-slate-100 text-slate-600 border border-blue-100/55" 
  :"bg-slate-100 text-slate-600 border border-slate-200/55"
@@ -287,7 +287,7 @@ export default function ScheduleCalendar({ applications, interviews = [] }: Sche
  href={entry.meetingLink.startsWith("http") ? entry.meetingLink : `https://${entry.meetingLink}`}
  target="_blank"
  rel="noopener noreferrer"
- className="flex items-center gap-1 col-span-full font-black text-slate-600 hover:underline mt-0.5"
+ className="flex items-center gap-1 col-span-full font-bold text-slate-600 hover:underline mt-0.5"
  >
  <Video className="w-3 h-3" />
  Tham gia cuộc họp online &rarr;

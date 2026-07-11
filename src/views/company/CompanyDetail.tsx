@@ -471,7 +471,7 @@ export default function CompanyDetail() {
                   <span>{company.address || "Chưa cập nhật địa chỉ"}</span>
                 </p>
                 <div className="aspect-[4/3] rounded-lg border border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center gap-2 p-4">
-                  <MapPin className="w-8 h-8 text-slate-300" />
+                  <MapPin className="w-8 h-8 text-slate-400" />
                   <p className="text-xs text-slate-400 font-medium text-center">Bản đồ chưa khả dụng</p>
                   <a
                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(company.address || company.full_name)}`}

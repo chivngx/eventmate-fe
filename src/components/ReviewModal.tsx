@@ -95,7 +95,7 @@ export default function ReviewModal({
  </div>
 
  <div className="space-y-2">
- <label className="text-xs font-black text-slate-500 uppercase tracking-widest">Ý kiến đóng góp</label>
+ <label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Ý kiến đóng góp</label>
  <textarea
  required
  rows={4}
@@ -118,7 +118,7 @@ export default function ReviewModal({
  <Button
  type="submit"
  disabled={submitting}
- className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-11 text-xs shadow-md shadow-slate-200"
+ className="flex-1 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold h-11 text-xs shadow-md shadow-slate-200"
  >
  {submitting ?"Đang gửi..." :"Gửi đánh giá"}
  </Button>

@@ -47,7 +47,7 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  }
  default:
  return {
- bg:"bg-emerald-600",
+ bg:"bg-primary",
  text:"text-slate-600",
  border:"border-emerald-600",
  lightBg:"bg-slate-100",
@@ -73,7 +73,7 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  {/* THANH ĐIỀU KHIỂN TRÊN - ẨN KHI IN */}
  <div className="flex items-center justify-between p-4 bg-white border-b border-slate-200 shrink-0 print:hidden">
  <div className="flex items-center gap-3">
- <h3 className="font-black text-slate-800 text-lg">Mẫu hồ sơ Cá Nhân</h3>
+ <h3 className="font-bold text-slate-800 text-lg">Mẫu hồ sơ Cá Nhân</h3>
  {/* Bộ chọn Accent Color */}
  <div className="flex items-center gap-1.5 ml-4 bg-slate-100 p-1 rounded-full">
  <button
@@ -131,13 +131,13 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  <div className="flex flex-col md:flex-row items-center md:items-start gap-6 border-b pb-8 border-slate-100">
  <Avatar className="h-24 w-24 rounded-2xl border border-slate-200 shadow-sm shrink-0">
  <AvatarImage src={profile.avatar_url} className="object-cover" />
- <AvatarFallback className={`${classes.bg} text-white font-black text-3xl rounded-2xl`}>
+ <AvatarFallback className={`${classes.bg} text-white font-bold text-3xl rounded-2xl`}>
  {profile.full_name ? profile.full_name.charAt(0).toUpperCase() : <User className="w-10 h-10" />}
  </AvatarFallback>
  </Avatar>
  <div className="text-center md:text-left flex-1 space-y-1.5">
- <h1 className="text-3xl font-black text-slate-900 tracking-tight">{profile.full_name}</h1>
- <p className={`text-sm font-black uppercase tracking-widest ${classes.text}`}>Người tham gia năng động</p>
+ <h1 className="text-3xl font-bold text-slate-900 tracking-tight">{profile.full_name}</h1>
+ <p className={`text-sm font-bold uppercase tracking-widest ${classes.text}`}>Người tham gia năng động</p>
  <div className="flex flex-wrap justify-center md:justify-start gap-x-4 gap-y-1.5 text-xs font-bold text-slate-500 pt-2">
  <span className="flex items-center gap-1">
  <Mail className="w-3.5 h-3.5" /> {profile.email}
@@ -165,11 +165,11 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  {/* Học vấn */}
  {profile.university && (
  <div className="space-y-3">
- <h3 className={`text-sm font-black uppercase tracking-wider ${classes.text} border-b pb-1.5 ${classes.border}`}>
+ <h3 className={`text-sm font-bold uppercase tracking-wider ${classes.text} border-b pb-1.5 ${classes.border}`}>
  Học Vấn
  </h3>
  <div className="space-y-1">
- <p className="text-sm font-black text-slate-800">{profile.university}</p>
+ <p className="text-sm font-bold text-slate-800">{profile.university}</p>
  <p className="text-xs font-bold text-slate-500">Sinh viên chính quy</p>
  </div>
  </div>
@@ -178,14 +178,14 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  {/* Kỹ năng */}
  {skillList.length > 0 && (
  <div className="space-y-3">
- <h3 className={`text-sm font-black uppercase tracking-wider ${classes.text} border-b pb-1.5 ${classes.border}`}>
+ <h3 className={`text-sm font-bold uppercase tracking-wider ${classes.text} border-b pb-1.5 ${classes.border}`}>
  Kỹ Năng
  </h3>
  <div className="flex flex-wrap gap-1.5">
  {skillList.map((skill, index) => (
  <span
  key={index}
- className={`text-xs font-black px-2 py-0.5 rounded border ${classes.badge}`}
+ className={`text-xs font-bold px-2 py-0.5 rounded border ${classes.badge}`}
  >
  {skill}
  </span>
@@ -196,7 +196,7 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
 
  {/* Cam kết / Mục tiêu */}
  <div className="space-y-3">
- <h3 className={`text-sm font-black uppercase tracking-wider ${classes.text} border-b pb-1.5 ${classes.border}`}>
+ <h3 className={`text-sm font-bold uppercase tracking-wider ${classes.text} border-b pb-1.5 ${classes.border}`}>
  Chứng nhận
  </h3>
  <div className="flex items-center gap-2 text-xs font-bold text-slate-500">
@@ -211,7 +211,7 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
  
  {/* Giới thiệu bản thân */}
  <div className="space-y-3">
- <h3 className={`text-sm font-black uppercase tracking-wider ${classes.text} border-b pb-1.5 ${classes.border} flex items-center gap-1.5`}>
+ <h3 className={`text-sm font-bold uppercase tracking-wider ${classes.text} border-b pb-1.5 ${classes.border} flex items-center gap-1.5`}>
  <User className="w-4 h-4" /> Giới thiệu bản thân
  </h3>
  <p className="text-sm font-medium text-slate-600 leading-relaxed whitespace-pre-line">
@@ -221,15 +221,15 @@ export default function CVPreviewModal({ isOpen, onClose, profile }: CVPreviewMo
 
  {/* Hoạt động/Kinh nghiệm */}
  <div className="space-y-4">
- <h3 className={`text-sm font-black uppercase tracking-wider ${classes.text} border-b pb-1.5 ${classes.border} flex items-center gap-1.5`}>
+ <h3 className={`text-sm font-bold uppercase tracking-wider ${classes.text} border-b pb-1.5 ${classes.border} flex items-center gap-1.5`}>
  <Sparkles className="w-4 h-4" /> Hoạt động ngoại khóa & Dự án
  </h3>
  <div className="relative border-l border-slate-100 pl-4 ml-1.5 space-y-4 pt-1">
  <div className="relative">
  <div className={`absolute -left-[20.5px] top-1 w-3.5 h-3.5 rounded-full border bg-white ${classes.border}`} />
  <div className="space-y-1">
- <p className="text-xs font-black text-slate-500">2025 - Hiện tại</p>
- <p className="text-sm font-black text-slate-800">Thành viên Ban tổ chức sự kiện cộng đồng</p>
+ <p className="text-xs font-bold text-slate-500">2025 - Hiện tại</p>
+ <p className="text-sm font-bold text-slate-800">Thành viên Ban tổ chức sự kiện cộng đồng</p>
  <p className="text-xs font-medium text-slate-500">Tham gia điều phối, hỗ trợ check-in và tổ chức các sự kiện lớn kết nối qua cổng EventMate.</p>
  </div>
  </div>

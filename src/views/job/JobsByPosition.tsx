@@ -166,9 +166,9 @@ export default function JobsByPosition() {
           {/* Breadcrumb */}
           <nav className="text-xs text-slate-500 flex items-center gap-1.5 flex-wrap">
             <button onClick={() => navigate("/")} className="hover:text-slate-900 transition-colors">Trang chủ</button>
-            <ChevronRight className="w-3 h-3 shrink-0 text-slate-300" />
+            <ChevronRight className="w-3 h-3 shrink-0 text-slate-400" />
             <span className="text-slate-400">Sự kiện theo vị trí</span>
-            <ChevronRight className="w-3 h-3 shrink-0 text-slate-300" />
+            <ChevronRight className="w-3 h-3 shrink-0 text-slate-400" />
             <span className="text-foreground font-medium truncate">{positionParam}</span>
           </nav>
 
@@ -271,12 +271,12 @@ export default function JobsByPosition() {
 
             {loading ? (
               <div className="text-center py-20 bg-white border border-slate-200 rounded-2xl">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent mx-auto"></div>
                 <p className="text-xs text-slate-500 mt-3">Đang tải dữ liệu...</p>
               </div>
             ) : events.length === 0 ? (
               <div className="text-center py-20 bg-white border border-dashed border-slate-300 rounded-2xl">
-                <Briefcase className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+                <Briefcase className="w-10 h-10 text-slate-400 mx-auto mb-3" />
                 <p className="text-base font-bold text-foreground">Không tìm thấy sự kiện phù hợp.</p>
                 <p className="text-slate-500 text-sm mt-1">Hãy thử đổi bộ lọc hoặc nhập từ khóa tìm kiếm khác.</p>
               </div>

@@ -40,7 +40,7 @@ export default function OrgEventApplicationsDetail({
  <ArrowLeft className="w-4 h-4" /> Quay lại
  </Button>
  <div className="min-w-0">
- <h2 className="text-xl font-black text-slate-900 truncate">
+ <h2 className="text-xl font-bold text-slate-900 truncate">
  Người tham gia của sự kiện
  </h2>
  </div>
@@ -53,7 +53,7 @@ export default function OrgEventApplicationsDetail({
  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
  <div className="space-y-2 max-w-2xl">
  <div className="flex items-center gap-2 flex-wrap">
- <Badge className="bg-emerald-600 hover:bg-emerald-600 border-none font-bold text-xs uppercase tracking-wider px-2 py-0.5">
+ <Badge className="bg-primary hover:bg-primary border-none font-bold text-xs uppercase tracking-wider px-2 py-0.5">
  {event.position_type ||"Vị trí tuyển"}
  </Badge>
  {event.status === 'upcoming' ? (
@@ -62,9 +62,9 @@ export default function OrgEventApplicationsDetail({
  <Badge className="bg-slate-700 hover:bg-slate-700 border-none font-bold text-xs uppercase tracking-wider px-2 py-0.5">Đã hoàn thành</Badge>
  )}
  </div>
- <h1 className="text-2xl font-black tracking-tight text-white leading-tight">{event.title}</h1>
+ <h1 className="text-2xl font-bold tracking-tight text-white leading-tight">{event.title}</h1>
  
- <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-bold text-slate-350 pt-1">
+ <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs font-bold text-slate-400 pt-1">
  <span className="flex items-center gap-1">
  <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" />
  {event.location ||"Đà Nẵng"}
@@ -78,8 +78,8 @@ export default function OrgEventApplicationsDetail({
 
  <div className="bg-white/5 border border-white/10 rounded-2xl p-4 md:w-48 shrink-0 flex items-center justify-between">
  <div>
- <p className="text-xs font-black text-slate-450 uppercase tracking-wider">Cần tuyển</p>
- <h3 className="text-2xl font-black text-white mt-0.5">{event.slots_needed || 1} vị trí</h3>
+ <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">Cần tuyển</p>
+ <h3 className="text-2xl font-bold text-white mt-0.5">{event.slots_needed || 1} vị trí</h3>
  </div>
  <div className="w-10 h-10 rounded-xl bg-slate-1000/10 flex items-center justify-center text-emerald-450 shrink-0">
  <Users className="w-5 h-5" />
@@ -91,7 +91,7 @@ export default function OrgEventApplicationsDetail({
  {/* Danh sách Người tham gia */}
  <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
  <div className="p-6 sm:p-8 border-b border-slate-100">
- <h3 className="text-base font-black text-slate-900 flex items-center gap-2">
+ <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
  📩 Đơn đăng ký đã nhận ({applications.length})
  </h3>
  </div>
@@ -101,7 +101,7 @@ export default function OrgEventApplicationsDetail({
  <div className="text-center py-12 text-slate-500 font-medium">Đang tải hồ sơ người tham gia...</div>
  ) : applications.length === 0 ? (
  <div className="text-center py-16 border-2 border-dashed border-slate-100 rounded-2xl">
- <Users className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+ <Users className="w-12 h-12 text-slate-400 mx-auto mb-4" />
  <h3 className="text-lg font-bold text-slate-700">Chưa có người tham gia đăng ký</h3>
  <p className="text-slate-500 font-medium mt-1">Hồ sơ đăng ký của sinh viên vào sự kiện này sẽ xuất hiện tại đây.</p>
  </div>
@@ -160,7 +160,7 @@ export default function OrgEventApplicationsDetail({
  <div className="flex items-center gap-2 flex-wrap">
  <h4 className="text-base font-bold text-slate-900">{displayName}</h4>
  {candidateMatchScore !== null && (
- <span className="bg-slate-100 text-slate-600 text-xs font-black px-2 py-0.5 rounded border border-slate-200">
+ <span className="bg-slate-100 text-slate-600 text-xs font-bold px-2 py-0.5 rounded border border-slate-200">
  🔥 Match: {candidateMatchScore}%
  </span>
  )}
@@ -210,7 +210,7 @@ export default function OrgEventApplicationsDetail({
  <div className="flex items-center gap-1.5">
  <Button
  onClick={() => handleUpdateStatus(app.id, 'approved')}
- className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-none h-10 font-bold px-4 flex items-center gap-1"
+ className="rounded-xl bg-primary hover:bg-primary/90 text-white shadow-none h-10 font-bold px-4 flex items-center gap-1"
  >
  <CheckCircle className="w-4 h-4" /> Duyệt
  </Button>

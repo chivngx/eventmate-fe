@@ -202,7 +202,7 @@ export default function EventFormModal({
  </div>
  <div className="flex justify-end pt-2 gap-3">
  <Button type="button" onClick={resetForm} variant="outline" className="rounded-xl font-bold h-12 px-6">Hủy</Button>
- <Button type="submit" disabled={loading} className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-12 px-8">
+ <Button type="submit" disabled={loading} className="rounded-xl bg-primary hover:bg-primary/90 text-white font-bold h-12 px-8">
  {loading ?"Đang xử lý..." : editingId ?"Lưu thay đổi" :"Xuất bản sự kiện"}
  </Button>
  </div>

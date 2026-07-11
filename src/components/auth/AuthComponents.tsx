@@ -127,7 +127,7 @@ export function AuthInput({
  {label}
  </label>
  <div
- className={`inputForm flex items-center border rounded-lg h-12 pl-3 pr-3 transition-all duration-200 bg-slate-50 ${error
+ className={` flex items-center border rounded-lg h-12 pl-3 pr-3 transition-all duration-200 bg-slate-50 ${error
  ?"border-red-500 focus-within:border-red-500"
  :"border-slate-200 focus-within:border-primary"
  }`}

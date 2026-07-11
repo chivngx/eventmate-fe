@@ -241,7 +241,7 @@ export default function OnboardingOverlay() {
  >
  <div className={`p-4 rounded-full mb-3 transition-colors ${
  selectedRole ==="student" 
- ?"bg-emerald-600 text-white" 
+ ?"bg-primary text-white" 
  :"bg-slate-100 text-slate-600 group-hover/role:bg-slate-100 group-hover/role:text-slate-600"
  }`}>
  <GraduationCap className="w-8 h-8" />
@@ -260,7 +260,7 @@ export default function OnboardingOverlay() {
  >
  <div className={`p-4 rounded-full mb-3 transition-colors ${
  selectedRole ==="organizer" 
- ?"bg-emerald-600 text-white" 
+ ?"bg-primary text-white" 
  :"bg-slate-100 text-slate-600 group-hover/role:bg-slate-100 group-hover/role:text-slate-600"
  }`}>
  <Building2 className="w-8 h-8" />
@@ -343,7 +343,7 @@ export default function OnboardingOverlay() {
  >
  {/* Text Group */}
  <div className="space-y-2">
- <h3 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight">
+ <h3 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">
  {slides[currentSlide].title}
  </h3>
  <p className="text-xs md:text-sm text-slate-500 leading-relaxed max-w-sm mx-auto">
@@ -391,7 +391,7 @@ export default function OnboardingOverlay() {
  className={`flex items-center gap-1.5 px-6 py-2.5 rounded-full text-xs font-bold shadow-md shadow-emerald-500/10 transition-all cursor-pointer ${
  currentSlide === slides.length - 1 && !selectedRole
  ?"bg-slate-200 text-slate-500 cursor-not-allowed"
- :"bg-emerald-600 hover:bg-emerald-700 text-white hover:scale-[1.02] active:scale-[0.98]"
+ :"bg-primary hover:bg-primary/90 text-white hover:scale-[1.02] active:scale-[0.98]"
  }`}
  >
  {currentSlide === slides.length - 1 ? (

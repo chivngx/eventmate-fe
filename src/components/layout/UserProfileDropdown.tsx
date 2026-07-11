@@ -54,7 +54,7 @@ export default function UserProfileDropdown({
  {role === 'organizer' ?"Nhà tuyển nhân sự" :"Sinh viên"}
  </p>
  <p className="text-xs text-slate-400 mt-1 truncate">
- {user?.id ? `ID ${user.id.substring(0, 7).toUpperCase()}` :"ID 123456"} <span className="text-slate-300">|</span> {email}
+ {user?.id ? `ID ${user.id.substring(0, 7).toUpperCase()}` :"ID 123456"} <span className="text-slate-400">|</span> {email}
  </p>
  </div>
  </div>

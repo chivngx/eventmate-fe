@@ -195,13 +195,13 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
  <h3 className="text-xs font-bold truncate leading-tight">
  {getPartnerProfile(activeChat).full_name}
  </h3>
- <p className="text-[9px] text-white/80 truncate font-semibold leading-none">
+ <p className="text-[10px] text-white/80 truncate font-semibold leading-none">
  {activeChat.events.title}
  </p>
  </div>
  </div>
  ) : (
- <h3 className="text-sm font-black flex items-center gap-1.5">
+ <h3 className="text-sm font-bold flex items-center gap-1.5">
  <MessageSquare className="w-4 h-4" />
  Hộp thư trò chuyện
  </h3>
@@ -237,7 +237,7 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
  }`}
  >
  <p className="break-words">{msg.content}</p>
- <span className={`block text-[8px] text-right mt-1 font-bold ${isMe ?"text-emerald-100" :"text-slate-400"}`}>
+ <span className={`block text-[10px] text-right mt-1 font-bold ${isMe ?"text-emerald-100" :"text-slate-400"}`}>
  {new Date(msg.created_at).toLocaleTimeString("vi-VN", {
  hour:"2-digit",
  minute:"2-digit"
@@ -298,7 +298,7 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
  <h4 className="text-xs font-bold text-slate-850 truncate">
  {partner.full_name}
  </h4>
- <p className="text-[9px] text-slate-400 truncate font-semibold">
+ <p className="text-[10px] text-slate-400 truncate font-semibold">
  Sự kiện: {chat.events.title}
  </p>
  </div>

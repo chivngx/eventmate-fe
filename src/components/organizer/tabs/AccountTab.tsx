@@ -73,7 +73,7 @@ export default function AccountTab({
  <div className="flex bg-slate-100 p-1.5 rounded-2xl max-w-md mx-auto shadow-sm">
  <button
  onClick={() => setActiveSubTab("info")}
- className={`flex-1 py-3 px-4 rounded-xl text-sm font-black transition-all ${activeSubTab ==="info"
+ className={`flex-1 py-3 px-4 rounded-xl text-sm font-bold transition-all ${activeSubTab ==="info"
  ?"bg-white text-slate-600 shadow-sm"
  :"text-slate-500 hover:text-slate-800"
  }`}
@@ -82,7 +82,7 @@ export default function AccountTab({
  </button>
  <button
  onClick={() => setActiveSubTab("password")}
- className={`flex-1 py-3 px-4 rounded-xl text-sm font-black transition-all ${activeSubTab ==="password"
+ className={`flex-1 py-3 px-4 rounded-xl text-sm font-bold transition-all ${activeSubTab ==="password"
  ?"bg-white text-slate-600 shadow-sm"
  :"text-slate-500 hover:text-slate-800"
  }`}
@@ -98,7 +98,7 @@ export default function AccountTab({
  {/* LOGO UPLOAD CARD */}
  <div className="bg-white border border-slate-200 rounded-2xl p-6 text-center shadow-sm flex flex-col items-center">
  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">Logo Công ty / CLB</h3>
- <div className="relative w-32 h-32 rounded-3xl overflow-hidden border-4 border-slate-50 shadow-md group">
+ <div className="relative w-32 h-32 rounded-2xl overflow-hidden border-2 border-slate-100 shadow-md group">
  <img
  src={profileData.avatarUrl ||"https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=150&h=150&q=80"}
  alt="Company Logo"
@@ -108,7 +108,7 @@ export default function AccountTab({
  htmlFor="logo-upload"
  className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white cursor-pointer transition-all duration-200"
  >
- <span className="text-xs font-black">Thay đổi Logo</span>
+ <span className="text-xs font-bold">Thay đổi Logo</span>
  </label>
  <input
  type="file"
@@ -124,7 +124,7 @@ export default function AccountTab({
  <button
  type="button"
  onClick={() => document.getElementById("logo-upload")?.click()}
- className="mt-4 px-4 py-2 bg-slate-50 hover:bg-slate-100 border rounded-xl text-xs font-black transition-all"
+ className="mt-4 px-4 py-2 bg-slate-50 hover:bg-slate-100 border rounded-xl text-xs font-bold transition-all"
  >
  {uploadingAvatar ?"Đang tải lên..." :"Tải ảnh mới"}
  </button>
@@ -166,7 +166,7 @@ export default function AccountTab({
  <button
  type="button"
  onClick={() => document.getElementById("company-image-upload")?.click()}
- className="w-full py-2.5 border-2 border-dashed border-slate-200 hover:border-emerald-500 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1.5 text-slate-500 hover:text-slate-900"
+ className="w-full py-2.5 border-2 border-dashed border-slate-200 hover:border-emerald-500 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 text-slate-500 hover:text-slate-900"
  >
  {uploadingCompanyImage ?"Đang tải ảnh..." :"Thêm ảnh hoạt động"}
  </button>
@@ -177,7 +177,7 @@ export default function AccountTab({
  <div className="lg:col-span-2">
  <form onSubmit={handleUpdateProfile} className="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm">
  <div>
- <h2 className="text-xl font-black text-slate-900">Thông tin công ty/CLB</h2>
+ <h2 className="text-xl font-bold text-slate-900">Thông tin công ty/CLB</h2>
  <p className="text-slate-400 text-xs font-semibold mt-0.5">Cập nhật và hoàn thiện hồ sơ tuyển nhân sự của bạn.</p>
  </div>
 
@@ -253,7 +253,7 @@ export default function AccountTab({
  placeholder="Giới thiệu chung về công ty hoặc câu lạc bộ..." />
  </div>
 
- <Button type="submit" disabled={isUpdatingProfile} className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black h-12 shadow-md">
+ <Button type="submit" disabled={isUpdatingProfile} className="w-full rounded-xl bg-primary hover:bg-primary/90 text-white font-bold h-12 shadow-md">
  {isUpdatingProfile ?"Đang lưu thay đổi..." :"Lưu thay đổi"}
  </Button>
  </form>
@@ -262,7 +262,7 @@ export default function AccountTab({
  ) : (
  <form onSubmit={handleChangePassword} className="max-w-2xl mx-auto bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 space-y-6 shadow-sm">
  <div>
- <h2 className="text-xl font-black text-slate-900">Đổi mật khẩu</h2>
+ <h2 className="text-xl font-bold text-slate-900">Đổi mật khẩu</h2>
  <p className="text-slate-400 text-xs font-semibold mt-0.5">Đặt lại mật khẩu bảo mật mới.</p>
  </div>
  <div className="space-y-1.5">
@@ -279,7 +279,7 @@ export default function AccountTab({
  className="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white text-sm font-bold transition-all focus:border-emerald-500"
  placeholder="Xác nhận lại mật khẩu..." />
  </div>
- <Button type="submit" disabled={isUpdatingPassword} className="w-full rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black h-12 shadow-md">
+ <Button type="submit" disabled={isUpdatingPassword} className="w-full rounded-xl bg-primary hover:bg-primary/90 text-white font-bold h-12 shadow-md">
  {isUpdatingPassword ?"Đang đổi mật khẩu..." :"Xác nhận đổi mật khẩu"}
  </Button>
  </form>

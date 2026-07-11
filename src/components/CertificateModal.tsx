@@ -218,7 +218,7 @@ export default function CertificateModal({
 
  {/* Header */}
  <div className="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50">
- <h3 className="font-black text-lg text-slate-900 flex items-center gap-2">
+ <h3 className="font-bold text-lg text-slate-900 flex items-center gap-2">
  <Award className="w-5 h-5 text-slate-500" />
  Chứng Nhận Sự Kiện
  </h3>
@@ -270,7 +270,7 @@ export default function CertificateModal({
  <div className="w-40 border-t border-slate-300 mt-8 pt-1.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">
  BAN TỔ CHỨC EVENTMATE
  </div>
- <span className="text-[9px] text-slate-500 mt-0.5">Hệ thống Quản lý Sự kiện</span>
+ <span className="text-[10px] text-slate-500 mt-0.5">Hệ thống Quản lý Sự kiện</span>
  </div>
 
  <div className="flex flex-col items-center select-none">
@@ -278,7 +278,7 @@ export default function CertificateModal({
  <div className="w-40 border-t border-slate-300 mt-8 pt-1.5 text-xs font-extrabold text-slate-500 uppercase tracking-wider">
  ĐƠN VỊ TỔ CHỨC
  </div>
- <span className="text-[9px] text-slate-500 mt-0.5">Đại diện Đơn vị Đối tác</span>
+ <span className="text-[10px] text-slate-500 mt-0.5">Đại diện Đơn vị Đối tác</span>
  </div>
  </div>
  </div>
@@ -296,7 +296,7 @@ export default function CertificateModal({
  </Button>
  <Button
  onClick={handlePrint}
- className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold flex items-center gap-2 px-6"
+ className="rounded-xl bg-primary hover:bg-primary/90 text-white font-bold flex items-center gap-2 px-6"
  >
  <Printer className="w-4 h-4" />
  In & Tải xuống PDF

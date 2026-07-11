@@ -81,7 +81,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
  {toast.actionLink && (
  <a
  href={toast.actionLink}
- className="inline-block text-xs font-black text-slate-600 mt-2 hover:underline"
+ className="inline-block text-xs font-bold text-slate-600 mt-2 hover:underline"
  >
  {toast.actionText ||"Xem ngay"} &rarr;
  </a>

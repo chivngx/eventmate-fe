@@ -33,7 +33,7 @@ export default function OrgEventsTab({
  <Calendar className="w-8 h-8" />
  </div>
  <div className="space-y-1">
- <h3 className="text-lg font-black text-slate-800">Chưa có sự kiện</h3>
+ <h3 className="text-lg font-bold text-slate-800">Chưa có sự kiện</h3>
  <p className="text-slate-500 text-xs font-semibold">
  Bắt đầu tạo bài tuyển nhân sự tình nguyện viên đầu tiên để tiếp cận hàng ngàn sinh viên tài năng tại Đà Nẵng!
  </p>
@@ -60,17 +60,17 @@ export default function OrgEventsTab({
  {/* Header: Title and Status Badge */}
  <div className="flex items-start justify-between gap-3">
  <div className="space-y-1 min-w-0">
- <span className="text-xs font-black tracking-widest text-slate-600 uppercase flex items-center gap-1">
+ <span className="text-xs font-bold tracking-widest text-slate-600 uppercase flex items-center gap-1">
  <Tag className="w-3 h-3" /> {job.category}
  </span>
- <h4 className="font-black text-slate-900 text-lg leading-snug line-clamp-2 group-hover:text-slate-900 transition-colors">
+ <h4 className="font-bold text-slate-900 text-lg leading-snug line-clamp-2 group-hover:text-slate-900 transition-colors">
  {job.title}
  </h4>
  </div>
 
  <div className="flex flex-col items-end gap-1.5 shrink-0">
  <Badge
- className={`border-none font-black text-xs uppercase px-2.5 py-0.5 rounded-full ${job.status === 'upcoming'
+ className={`border-none font-bold text-xs uppercase px-2.5 py-0.5 rounded-full ${job.status === 'upcoming'
  ? 'bg-slate-100 text-slate-600'
  : 'bg-slate-100 text-slate-600'
  }`}
@@ -79,7 +79,7 @@ export default function OrgEventsTab({
  </Badge>
 
  {candidateCount > 0 && (
- <Badge className="bg-slate-100 text-indigo-700 border-none font-black text-xs rounded-full">
+ <Badge className="bg-slate-100 text-indigo-700 border-none font-bold text-xs rounded-full">
  {candidateCount} hồ sơ
  </Badge>
  )}
@@ -117,7 +117,7 @@ export default function OrgEventsTab({
  <div className="flex items-center justify-between gap-3 border-t border-slate-100 pt-4 mt-2">
  <Button
  onClick={() => onViewApplications(job)}
- className="rounded-xl bg-slate-100 hover:bg-slate-100/80 text-slate-600 font-black text-xs h-10 px-4 flex items-center gap-1.5 shadow-sm active:scale-98 transition-all border border-emerald-250/20"
+ className="rounded-xl bg-slate-100 hover:bg-slate-100/80 text-slate-600 font-bold text-xs h-10 px-4 flex items-center gap-1.5 shadow-sm active:scale-98 transition-all border border-emerald-250/20"
  >
  <Users className="w-4 h-4" />
  Xem hồ sơ người tham gia

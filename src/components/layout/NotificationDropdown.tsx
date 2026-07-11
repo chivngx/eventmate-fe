@@ -40,7 +40,7 @@ export default function NotificationDropdown({
  notifications.map(n => (
  <div
  key={n.id}
- className={`p-4 border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors ${
+ className={`p-4 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors ${
  !n.is_read ? 'bg-slate-100/30' : 'bg-white'
  }`}
  >
