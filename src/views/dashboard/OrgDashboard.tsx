@@ -1,333 +1,333 @@
 "use client"
 
-import { useState, useEffect } from"react"
+import { useState, useEffect } from "react"
 import { useOrgDashboard } from "@/hooks/useOrgDashboard"
-import { Button } from"@/components/ui/button"
+import { Button } from "@/components/ui/button"
 import {
- Briefcase,
- Calendar,
- Users,
- MessageSquare,
- Lock,
- Crown,
- Check,
- TrendingUp,
- ArrowRight,
- ChevronRight
-} from"lucide-react"
-import OrgEventsTab from"@/components/event/OrgEventsTab"
-import OrgEventApplicationsDetail from"@/components/organizer/OrgEventApplicationsDetail"
-import EventFormModal from"@/components/event/EventFormModal"
-import ReviewModal from"@/components/ReviewModal"
-import CVViewModal from"@/components/cv/CVViewModal"
-import OrgLayout from"@/components/layout/OrgLayout"
-import AccountTab from"@/components/organizer/tabs/AccountTab"
-import { supabase } from"@/lib/supabase"
-import { getUserFacingMessage } from"@/lib/error"
-import { useUser } from"@/components/providers/AuthProvider"
-import { useToast } from"@/components/ui/ToastProvider"
+  Briefcase,
+  Calendar,
+  Users,
+  MessageSquare,
+  Lock,
+  Crown,
+  Check,
+  TrendingUp,
+  ArrowRight,
+  ChevronRight
+} from "lucide-react"
+import OrgEventsTab from "@/components/event/OrgEventsTab"
+import OrgEventApplicationsDetail from "@/components/organizer/OrgEventApplicationsDetail"
+import EventFormModal from "@/components/event/EventFormModal"
+import ReviewModal from "@/components/ReviewModal"
+import CVViewModal from "@/components/cv/CVViewModal"
+import OrgLayout from "@/components/layout/OrgLayout"
+import AccountTab from "@/components/organizer/tabs/AccountTab"
+import { supabase } from "@/lib/supabase"
+import { getUserFacingMessage } from "@/lib/error"
+import { useUser } from "@/components/providers/AuthProvider"
+import { useToast } from "@/components/ui/ToastProvider"
 
 export default function OrgDashboard() {
- const { showToast } = useToast()
- // 🔒 P1.1: user từ context (thay getUser() lặp 6 lần)
- const { user } = useUser()
- const {
- events, title, setTitle, desc, setDesc, location, setLocation,
- wardId, setWardId, wards,
- positionType, setPositionType, benefits, setBenefits,
- category, setCategory, slotsNeeded, setSlotsNeeded,
- eventDate, setEventDate, applicationDeadline, setApplicationDeadline,
- loading, fetching, showForm, setShowForm, editingId,
- viewingCV, setViewingCV, applications, loadingApps,
- selectedEventForCandidates, handleBackToEvents,
- handleSubmitEvent, handleEditClick, handleDeleteEvent,
- handleViewApplications, handleUpdateStatus, handleStartChatWithStudent, resetForm,
- totalEvents, activeEvents, userId,
- activeTab, setActiveTab, isPremium, handleBuyPremium
- } = useOrgDashboard()
+  const { showToast } = useToast()
+  // 🔒 P1.1: user từ context (thay getUser() lặp 6 lần)
+  const { user } = useUser()
+  const {
+    events, title, setTitle, desc, setDesc, location, setLocation,
+    wardId, setWardId, wards,
+    positionType, setPositionType, benefits, setBenefits,
+    category, setCategory, slotsNeeded, setSlotsNeeded,
+    eventDate, setEventDate, applicationDeadline, setApplicationDeadline,
+    loading, fetching, showForm, setShowForm, editingId,
+    viewingCV, setViewingCV, applications, loadingApps,
+    selectedEventForCandidates, handleBackToEvents,
+    handleSubmitEvent, handleEditClick, handleDeleteEvent,
+    handleViewApplications, handleUpdateStatus, handleStartChatWithStudent, resetForm,
+    totalEvents, activeEvents, userId,
+    activeTab, setActiveTab, isPremium, handleBuyPremium
+  } = useOrgDashboard()
 
- const [reviewingStudent, setReviewingStudent] = useState<{ eventId: string; studentId: string; studentName: string } | null>(null)
+  const [reviewingStudent, setReviewingStudent] = useState<{ eventId: string; studentId: string; studentName: string } | null>(null)
 
- // Profile update state
- const [profileData, setProfileData] = useState({
- fullName:"",
- phone:"",
- university:"", // represents Company Name
- bio:"",
- avatarUrl:"",
- email:"",
- mst:"",
- website:"",
- scale:"",
- address:"",
- companyImages:""
- })
- const [isUpdatingProfile, setIsUpdatingProfile] = useState(false)
- const [activeSubTab, setActiveSubTab] = useState<"info" |"password">("info")
- const [uploadingAvatar, setUploadingAvatar] = useState(false)
- const [uploadingCompanyImage, setUploadingCompanyImage] = useState(false)
+  // Profile update state
+  const [profileData, setProfileData] = useState({
+    fullName: "",
+    phone: "",
+    university: "", // represents Company Name
+    bio: "",
+    avatarUrl: "",
+    email: "",
+    mst: "",
+    website: "",
+    scale: "",
+    address: "",
+    companyImages: ""
+  })
+  const [isUpdatingProfile, setIsUpdatingProfile] = useState(false)
+  const [activeSubTab, setActiveSubTab] = useState<"info" | "password">("info")
+  const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const [uploadingCompanyImage, setUploadingCompanyImage] = useState(false)
 
- // Password change state
- const [passwordState, setPasswordState] = useState({
- newPassword:"",
- confirmPassword:""
- })
- const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
+  // Password change state
+  const [passwordState, setPasswordState] = useState({
+    newPassword: "",
+    confirmPassword: ""
+  })
+  const [isUpdatingPassword, setIsUpdatingPassword] = useState(false)
 
- // Fetch / sync organizer profile
- const fetchProfile = async () => {
- if (user) {
- const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
- if (data) {
- setProfileData({
- fullName: data.full_name ||"",
- phone: data.phone ||"",
- university: data.university ||"",
- bio: data.bio ||"",
- avatarUrl: data.avatar_url ||"",
- email: data.email ||"",
- mst: data.mst ||"",
- website: data.website ||"",
- scale: data.scale ||"",
- address: data.address ||"",
- companyImages: data.company_images ||""
- })
- }
- }
- }
+  // Fetch / sync organizer profile
+  const fetchProfile = async () => {
+    if (user) {
+      const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle()
+      if (data) {
+        setProfileData({
+          fullName: data.full_name || "",
+          phone: data.phone || "",
+          university: data.university || "",
+          bio: data.bio || "",
+          avatarUrl: data.avatar_url || "",
+          email: data.email || "",
+          mst: data.mst || "",
+          website: data.website || "",
+          scale: data.scale || "",
+          address: data.address || "",
+          companyImages: data.company_images || ""
+        })
+      }
+    }
+  }
 
- useEffect(() => {
- fetchProfile()
- }, [userId])
+  useEffect(() => {
+    fetchProfile()
+  }, [userId])
 
- const handleUpdateProfile = async (e: React.FormEvent) => {
- e.preventDefault()
- setIsUpdatingProfile(true)
- if (user) {
- const { error } = await supabase.from("profiles").update({
- full_name: profileData.fullName,
- phone: profileData.phone,
- university: profileData.fullName, // Keep university field synced with Company Name/CLB
- bio: profileData.bio,
- avatar_url: profileData.avatarUrl,
- mst: profileData.mst,
- website: profileData.website,
- scale: profileData.scale,
- address: profileData.address,
- company_images: profileData.companyImages
- }).eq("id", user.id)
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsUpdatingProfile(true)
+    if (user) {
+      const { error } = await supabase.from("profiles").update({
+        full_name: profileData.fullName,
+        phone: profileData.phone,
+        university: profileData.fullName, // Keep university field synced with Company Name/CLB
+        bio: profileData.bio,
+        avatar_url: profileData.avatarUrl,
+        mst: profileData.mst,
+        website: profileData.website,
+        scale: profileData.scale,
+        address: profileData.address,
+        company_images: profileData.companyImages
+      }).eq("id", user.id)
 
- if (!error) {
- showToast({
- title:"Thành công",
- message:"Cập nhật thông tin công ty thành công!",
- type:"success"
- })
- fetchProfile()
- } else {
- showToast({
- title:"Lỗi cập nhật",
- message: getUserFacingMessage(error,"Cập nhật hồ sơ thất bại. Vui lòng thử lại."),
- type:"error"
- })
- }
- }
- setIsUpdatingProfile(false)
- }
+      if (!error) {
+        showToast({
+          title: "Thành công",
+          message: "Cập nhật thông tin công ty thành công!",
+          type: "success"
+        })
+        fetchProfile()
+      } else {
+        showToast({
+          title: "Lỗi cập nhật",
+          message: getUserFacingMessage(error, "Cập nhật hồ sơ thất bại. Vui lòng thử lại."),
+          type: "error"
+        })
+      }
+    }
+    setIsUpdatingProfile(false)
+  }
 
- // Upload Logo handler
- const handleUploadLogo = async (file: File) => {
- try {
- setUploadingAvatar(true)
- if (!user) return
+  // Upload Logo handler
+  const handleUploadLogo = async (file: File) => {
+    try {
+      setUploadingAvatar(true)
+      if (!user) return
 
- const fileExt = file.name.split('.').pop()
- const fileName = `${user.id}-logo-${Math.random().toString(36).substring(7)}.${fileExt}`
- const filePath = fileName
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${user.id}-logo-${Math.random().toString(36).substring(7)}.${fileExt}`
+      const filePath = fileName
 
- const { error: uploadError } = await supabase.storage
- .from('avatars')
- .upload(filePath, file, { cacheControl: '3600', upsert: true })
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { cacheControl: '3600', upsert: true })
 
- if (uploadError) throw uploadError
+      if (uploadError) throw uploadError
 
- const { data: { publicUrl } } = supabase.storage
- .from('avatars')
- .getPublicUrl(filePath)
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath)
 
- // Update local state and also sync to db
- const { error: updateError } = await supabase
- .from('profiles')
- .update({ avatar_url: publicUrl })
- .eq('id', user.id)
+      // Update local state and also sync to db
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', user.id)
 
- if (updateError) throw updateError
+      if (updateError) throw updateError
 
- setProfileData(prev => ({ ...prev, avatarUrl: publicUrl }))
- showToast({
- title:"Thành công",
- message:"Tải lên logo thành công!",
- type:"success"
- })
- fetchProfile()
- } catch (err: any) {
- showToast({
- title:"Lỗi tải ảnh lên",
- message: getUserFacingMessage(err,"Không thể tải ảnh lên. Vui lòng thử lại."),
- type:"error"
- })
- } finally {
- setUploadingAvatar(false)
- }
- }
+      setProfileData(prev => ({ ...prev, avatarUrl: publicUrl }))
+      showToast({
+        title: "Thành công",
+        message: "Tải lên logo thành công!",
+        type: "success"
+      })
+      fetchProfile()
+    } catch (err: any) {
+      showToast({
+        title: "Lỗi tải ảnh lên",
+        message: getUserFacingMessage(err, "Không thể tải ảnh lên. Vui lòng thử lại."),
+        type: "error"
+      })
+    } finally {
+      setUploadingAvatar(false)
+    }
+  }
 
- // Upload Company Image handler
- const handleUploadCompanyImage = async (file: File) => {
- try {
- setUploadingCompanyImage(true)
- if (!user) return
+  // Upload Company Image handler
+  const handleUploadCompanyImage = async (file: File) => {
+    try {
+      setUploadingCompanyImage(true)
+      if (!user) return
 
- const fileExt = file.name.split('.').pop()
- const fileName = `${user.id}-company-${Math.random().toString(36).substring(7)}.${fileExt}`
- const filePath = fileName
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${user.id}-company-${Math.random().toString(36).substring(7)}.${fileExt}`
+      const filePath = fileName
 
- const { error: uploadError } = await supabase.storage
- .from('avatars')
- .upload(filePath, file, { cacheControl: '3600', upsert: true })
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { cacheControl: '3600', upsert: true })
 
- if (uploadError) throw uploadError
+      if (uploadError) throw uploadError
 
- const { data: { publicUrl } } = supabase.storage
- .from('avatars')
- .getPublicUrl(filePath)
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath)
 
- const currentImages = profileData.companyImages ? profileData.companyImages.split(',').filter(Boolean) : []
- const newImages = [...currentImages, publicUrl].join(',')
+      const currentImages = profileData.companyImages ? profileData.companyImages.split(',').filter(Boolean) : []
+      const newImages = [...currentImages, publicUrl].join(',')
 
- const { error: updateError } = await supabase
- .from('profiles')
- .update({ company_images: newImages })
- .eq('id', user.id)
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ company_images: newImages })
+        .eq('id', user.id)
 
- if (updateError) throw updateError
+      if (updateError) throw updateError
 
- setProfileData(prev => ({ ...prev, companyImages: newImages }))
- showToast({
- title:"Thành công",
- message:"Tải lên hình ảnh công ty thành công!",
- type:"success"
- })
- fetchProfile()
- } catch (err: any) {
- showToast({
- title:"Lỗi tải ảnh lên",
- message: getUserFacingMessage(err,"Không thể tải ảnh lên. Vui lòng thử lại."),
- type:"error"
- })
- } finally {
- setUploadingCompanyImage(false)
- }
- }
+      setProfileData(prev => ({ ...prev, companyImages: newImages }))
+      showToast({
+        title: "Thành công",
+        message: "Tải lên hình ảnh công ty thành công!",
+        type: "success"
+      })
+      fetchProfile()
+    } catch (err: any) {
+      showToast({
+        title: "Lỗi tải ảnh lên",
+        message: getUserFacingMessage(err, "Không thể tải ảnh lên. Vui lòng thử lại."),
+        type: "error"
+      })
+    } finally {
+      setUploadingCompanyImage(false)
+    }
+  }
 
- // Delete Company Image handler
- const handleDeleteCompanyImage = async (indexToDelete: number) => {
- try {
- if (!user) return
+  // Delete Company Image handler
+  const handleDeleteCompanyImage = async (indexToDelete: number) => {
+    try {
+      if (!user) return
 
- const currentImages = profileData.companyImages ? profileData.companyImages.split(',').filter(Boolean) : []
- const updatedImagesList = currentImages.filter((_, idx) => idx !== indexToDelete)
- const newImages = updatedImagesList.join(',')
+      const currentImages = profileData.companyImages ? profileData.companyImages.split(',').filter(Boolean) : []
+      const updatedImagesList = currentImages.filter((_, idx) => idx !== indexToDelete)
+      const newImages = updatedImagesList.join(',')
 
- const { error: updateError } = await supabase
- .from('profiles')
- .update({ company_images: newImages })
- .eq('id', user.id)
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ company_images: newImages })
+        .eq('id', user.id)
 
- if (updateError) throw updateError
+      if (updateError) throw updateError
 
- setProfileData(prev => ({ ...prev, companyImages: newImages }))
- showToast({
- title:"Thành công",
- message:"Xóa hình ảnh thành công!",
- type:"success"
- })
- fetchProfile()
- } catch (err: any) {
- showToast({
- title:"Lỗi xóa ảnh",
- message: getUserFacingMessage(err,"Không thể xóa ảnh. Vui lòng thử lại."),
- type:"error"
- })
- }
- }
+      setProfileData(prev => ({ ...prev, companyImages: newImages }))
+      showToast({
+        title: "Thành công",
+        message: "Xóa hình ảnh thành công!",
+        type: "success"
+      })
+      fetchProfile()
+    } catch (err: any) {
+      showToast({
+        title: "Lỗi xóa ảnh",
+        message: getUserFacingMessage(err, "Không thể xóa ảnh. Vui lòng thử lại."),
+        type: "error"
+      })
+    }
+  }
 
- const handleChangePassword = async (e: React.FormEvent) => {
- e.preventDefault()
- if (!passwordState.newPassword) {
- showToast({
- title:"Lỗi",
- message:"Vui lòng nhập mật khẩu mới",
- type:"error"
- })
- return
- }
- if (passwordState.newPassword !== passwordState.confirmPassword) {
- showToast({
- title:"Lỗi",
- message:"Mật khẩu xác nhận không khớp",
- type:"error"
- })
- return
- }
- setIsUpdatingPassword(true)
- const { error } = await supabase.auth.updateUser({
- password: passwordState.newPassword
- })
- if (!error) {
- showToast({
- title:"Thành công",
- message:"Đổi mật khẩu thành công!",
- type:"success"
- })
- setPasswordState({ newPassword:"", confirmPassword:"" })
- } else {
- showToast({
- title:"Lỗi",
- message: getUserFacingMessage(error,"Đổi mật khẩu thất bại. Vui lòng thử lại."),
- type:"error"
- })
- }
- setIsUpdatingPassword(false)
- }
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!passwordState.newPassword) {
+      showToast({
+        title: "Lỗi",
+        message: "Vui lòng nhập mật khẩu mới",
+        type: "error"
+      })
+      return
+    }
+    if (passwordState.newPassword !== passwordState.confirmPassword) {
+      showToast({
+        title: "Lỗi",
+        message: "Mật khẩu xác nhận không khớp",
+        type: "error"
+      })
+      return
+    }
+    setIsUpdatingPassword(true)
+    const { error } = await supabase.auth.updateUser({
+      password: passwordState.newPassword
+    })
+    if (!error) {
+      showToast({
+        title: "Thành công",
+        message: "Đổi mật khẩu thành công!",
+        type: "success"
+      })
+      setPasswordState({ newPassword: "", confirmPassword: "" })
+    } else {
+      showToast({
+        title: "Lỗi",
+        message: getUserFacingMessage(error, "Đổi mật khẩu thất bại. Vui lòng thử lại."),
+        type: "error"
+      })
+    }
+    setIsUpdatingPassword(false)
+  }
 
- const handleBuyPremiumService = () => {
- handleBuyPremium()
- showToast({
- title:"Kích hoạt thành công",
- message:"Chúc mừng! Bạn đã nâng cấp tài khoản VIP Tuyển nhân sự thành công.",
- type:"success"
- })
- }
+  const handleBuyPremiumService = () => {
+    handleBuyPremium()
+    showToast({
+      title: "Kích hoạt thành công",
+      message: "Chúc mừng! Bạn đã nâng cấp tài khoản VIP Tuyển nhân sự thành công.",
+      type: "success"
+    })
+  }
 
- const userProfileCached = {
- fullName: profileData.fullName ||"Nhà tuyển nhân sự",
- avatarUrl: profileData.avatarUrl ||"",
- email: profileData.email ||""
- }
+  const userProfileCached = {
+    fullName: profileData.fullName || "Nhà tuyển nhân sự",
+    avatarUrl: profileData.avatarUrl || "",
+    email: profileData.email || ""
+  }
 
- // Active Chats list for the Recruiter
- const [activeChats, setActiveChats] = useState<any[]>([])
- const [loadingChats, setLoadingChats] = useState(false)
+  // Active Chats list for the Recruiter
+  const [activeChats, setActiveChats] = useState<any[]>([])
+  const [loadingChats, setLoadingChats] = useState(false)
 
- // 🔒 P2.8: CV recommendations — fetch applicants thật (thay mock 4 fake students)
- const [recommendedCVs, setRecommendedCVs] = useState<any[]>([])
- useEffect(() => {
- if (activeTab !=="recommended" || !isPremium || !userId) return
- const fetchRecommended = async () => {
- // Lấy applicants mới nhất join profiles + events (lấy skills từ profile + position_type từ event để match)
- const { data } = await supabase
- .from("applications")
- .select(`
+  // 🔒 P2.8: CV recommendations — fetch applicants thật (thay mock 4 fake students)
+  const [recommendedCVs, setRecommendedCVs] = useState<any[]>([])
+  useEffect(() => {
+    if (activeTab !== "recommended" || !isPremium || !userId) return
+    const fetchRecommended = async () => {
+      // Lấy applicants mới nhất join profiles + events (lấy skills từ profile + position_type từ event để match)
+      const { data } = await supabase
+        .from("applications")
+        .select(`
  id,
  status,
  applied_at,
@@ -336,83 +336,83 @@ export default function OrgDashboard() {
  events (title, position_type, benefits),
  profiles!applications_student_id_fkey (id, full_name, avatar_url, university, skills, cv_completion_percent)
  `)
- .eq("events.organizer_id", userId)
- .order("applied_at", { ascending: false })
- .limit(8)
- if (data) {
- // Compute match score đơn giản: cv_completion_percent + bonus nếu skills chứa position_type keyword
- const scored = data.map((app: any) => {
- const skills = (app.profiles?.skills ||"").toLowerCase()
- const position = (app.events?.position_type ||"").toLowerCase()
- let match = app.profiles?.cv_completion_percent || 50
- if (position && skills.includes(position.split("")[0])) match = Math.min(99, match + 10)
- return {
- name: app.profiles?.full_name ||"Sinh viên",
- university: app.profiles?.university ||"Chưa cập nhật",
- skills: app.profiles?.skills ||"Chưa cập nhật kỹ năng",
- match,
- completion: app.profiles?.cv_completion_percent || 0,
- avatar: app.profiles?.avatar_url ||"",
- studentId: app.profiles?.id,
- eventId: app.event_id,
- }
- })
- setRecommendedCVs(scored)
- }
- }
- fetchRecommended()
- }, [activeTab, isPremium, userId])
+        .eq("events.organizer_id", userId)
+        .order("applied_at", { ascending: false })
+        .limit(8)
+      if (data) {
+        // Compute match score đơn giản: cv_completion_percent + bonus nếu skills chứa position_type keyword
+        const scored = data.map((app: any) => {
+          const skills = (app.profiles?.skills || "").toLowerCase()
+          const position = (app.events?.position_type || "").toLowerCase()
+          let match = app.profiles?.cv_completion_percent || 50
+          if (position && skills.includes(position.split("")[0])) match = Math.min(99, match + 10)
+          return {
+            name: app.profiles?.full_name || "Sinh viên",
+            university: app.profiles?.university || "Chưa cập nhật",
+            skills: app.profiles?.skills || "Chưa cập nhật kỹ năng",
+            match,
+            completion: app.profiles?.cv_completion_percent || 0,
+            avatar: app.profiles?.avatar_url || "",
+            studentId: app.profiles?.id,
+            eventId: app.event_id,
+          }
+        })
+        setRecommendedCVs(scored)
+      }
+    }
+    fetchRecommended()
+  }, [activeTab, isPremium, userId])
 
- useEffect(() => {
- const fetchChats = async () => {
- if (!user) return
- setLoadingChats(true)
- const { data } = await supabase
- .from("chats")
- .select(`
+  useEffect(() => {
+    const fetchChats = async () => {
+      if (!user) return
+      setLoadingChats(true)
+      const { data } = await supabase
+        .from("chats")
+        .select(`
  id,
  created_at,
  events (id, title),
  profiles!chats_student_id_fkey (id, full_name, avatar_url, university)
  `)
- .eq("organizer_id", user.id)
- if (data) setActiveChats(data)
- setLoadingChats(false)
- }
- if (activeTab ==="chat") {
- fetchChats()
- }
- }, [activeTab])
+        .eq("organizer_id", user.id)
+      if (data) setActiveChats(data)
+      setLoadingChats(false)
+    }
+    if (activeTab === "chat") {
+      fetchChats()
+    }
+  }, [activeTab])
 
- // 🔒 P2.8: mockCVs removed — using recommendedCVs (real applicants from DB)
+  // 🔒 P2.8: mockCVs removed — using recommendedCVs (real applicants from DB)
 
- // 🔒 P2.8: feed stats — approval rate + weekly applications (thay 85% / 142 lượt / chart mock)
- const [feedStats, setFeedStats] = useState<{ approvalRate: number; weeklyApps: number[] }>({ approvalRate: 0, weeklyApps: [0, 0, 0, 0] })
- useEffect(() => {
- if (activeTab !=="feed" || !userId) return
- const fetchStats = async () => {
- // Approval rate: approved / total applications cho events của organizer
- const { data: apps } = await supabase
- .from("applications")
- .select("status, applied_at")
- .in("event_id", (await supabase.from("events").select("id").eq("organizer_id", userId)).data?.map((e: any) => e.id) || [])
- if (apps && apps.length > 0) {
- const approved = apps.filter((a: any) => a.status ==="approved").length
- const rate = Math.round((approved / apps.length) * 100)
- // Weekly applications (4 tuần gần nhất)
- const now = Date.now()
- const weekMs = 7 * 24 * 60 * 60 * 1000
- const weekly = [0, 0, 0, 0]
- apps.forEach((a: any) => {
- const applied = new Date(a.applied_at).getTime()
- const weeksAgo = Math.floor((now - applied) / weekMs)
- if (weeksAgo >= 0 && weeksAgo < 4) weekly[3 - weeksAgo]++
- })
- setFeedStats({ approvalRate: rate, weeklyApps: weekly })
- }
- }
- fetchStats()
- }, [activeTab, userId])
+  // 🔒 P2.8: feed stats — approval rate + weekly applications (thay 85% / 142 lượt / chart mock)
+  const [feedStats, setFeedStats] = useState<{ approvalRate: number; weeklyApps: number[] }>({ approvalRate: 0, weeklyApps: [0, 0, 0, 0] })
+  useEffect(() => {
+    if (activeTab !== "feed" || !userId) return
+    const fetchStats = async () => {
+      // Approval rate: approved / total applications cho events của organizer
+      const { data: apps } = await supabase
+        .from("applications")
+        .select("status, applied_at")
+        .in("event_id", (await supabase.from("events").select("id").eq("organizer_id", userId)).data?.map((e: any) => e.id) || [])
+      if (apps && apps.length > 0) {
+        const approved = apps.filter((a: any) => a.status === "approved").length
+        const rate = Math.round((approved / apps.length) * 100)
+        // Weekly applications (4 tuần gần nhất)
+        const now = Date.now()
+        const weekMs = 7 * 24 * 60 * 60 * 1000
+        const weekly = [0, 0, 0, 0]
+        apps.forEach((a: any) => {
+          const applied = new Date(a.applied_at).getTime()
+          const weeksAgo = Math.floor((now - applied) / weekMs)
+          if (weeksAgo >= 0 && weeksAgo < 4) weekly[3 - weeksAgo]++
+        })
+        setFeedStats({ approvalRate: rate, weeklyApps: weekly })
+      }
+    }
+    fetchStats()
+  }, [activeTab, userId])
 
   return (
     <OrgLayout
@@ -769,11 +769,10 @@ export default function OrgDashboard() {
               <Button
                 onClick={handleBuyPremiumService}
                 disabled={isPremium}
-                className={`mt-6 h-11 w-full rounded-lg text-sm font-medium ${
-                  isPremium
+                className={`mt-6 h-11 w-full rounded-lg text-sm font-medium ${isPremium
                     ? "bg-muted text-muted-foreground"
                     : "bg-primary text-primary-foreground hover:bg-primary/90"
-                }`}
+                  }`}
               >
                 {isPremium ? "Đã được kích hoạt" : "Kích hoạt ngay"}
               </Button>

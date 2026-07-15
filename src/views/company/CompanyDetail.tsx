@@ -279,11 +279,10 @@ export default function CompanyDetail() {
 
             <Button
               onClick={() => setIsFollowed(!isFollowed)}
-              className={`shrink-0 rounded-lg font-semibold h-10 px-5 transition-all active:scale-95 ${
-                isFollowed
+              className={`shrink-0 rounded-lg font-semibold h-10 px-5 transition-all active:scale-95 ${isFollowed
                   ? "bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200"
                   : "bg-primary hover:bg-primary/90 text-white border border-primary"
-              }`}
+                }`}
             >
               {isFollowed ? (
                 <span className="flex items-center gap-1.5">
@@ -299,26 +298,23 @@ export default function CompanyDetail() {
           <nav className="flex gap-1 mt-5 pt-4 border-t border-slate-100">
             <button
               onClick={() => setActiveTab("about")}
-              className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${
-                activeTab === "about"
+              className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors ${activeTab === "about"
                   ? "bg-slate-100 text-slate-600"
                   : "text-slate-500 hover:text-foreground hover:bg-slate-50"
-              }`}
+                }`}
             >
               Trang chủ
             </button>
             <button
               onClick={() => setActiveTab("jobs")}
-              className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors inline-flex items-center gap-1.5 ${
-                activeTab === "jobs"
+              className={`px-4 py-2 text-sm font-semibold rounded-lg transition-colors inline-flex items-center gap-1.5 ${activeTab === "jobs"
                   ? "bg-slate-100 text-slate-600"
                   : "text-slate-500 hover:text-foreground hover:bg-slate-50"
-              }`}
+                }`}
             >
               Sự kiện
-              <span className={`text-xs px-1.5 py-0.5 rounded ${
-                activeTab === "jobs" ? "bg-slate-200 text-slate-700" : "bg-slate-100 text-slate-500"
-              }`}>
+              <span className={`text-xs px-1.5 py-0.5 rounded ${activeTab === "jobs" ? "bg-slate-200 text-slate-700" : "bg-slate-100 text-slate-500"
+                }`}>
                 {companyEvents.length}
               </span>
             </button>
@@ -385,9 +381,8 @@ export default function CompanyDetail() {
                   {galleryImages.map((imgUrl: string, idx: number) => (
                     <div
                       key={imgUrl + idx}
-                      className={`relative aspect-[4/3] rounded-lg overflow-hidden group border ${
-                        idx === currentImageIndex ? "border-slate-400 ring-2 ring-slate-200" : "border-slate-200"
-                      }`}
+                      className={`relative aspect-[4/3] rounded-lg overflow-hidden group border ${idx === currentImageIndex ? "border-slate-400 ring-2 ring-slate-200" : "border-slate-200"
+                        }`}
                     >
                       <img
                         src={imgUrl}
