@@ -45,6 +45,10 @@ export interface Profile {
  scale: string | null
  address: string | null
  company_images: string | null
+ shirt_size: string | null
+ height: number | null
+ zalo_phone: string | null
+ reliability_score: number | null
 }
 
 interface AuthContextValue {

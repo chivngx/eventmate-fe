@@ -6,8 +6,9 @@ import { supabase } from "@/lib/supabase"
 import { getUserFacingMessage } from "@/lib/error"
 import { useUser } from "@/components/providers/AuthProvider"
 import MainLayout from "@/components/layout/MainLayout"
-import { MapPin, Calendar, CheckCircle, XCircle, Clock3, Bookmark, DollarSign, Users, ExternalLink, Building2 } from "lucide-react"
+import { MapPin, Calendar, CheckCircle, XCircle, Clock3, Bookmark, DollarSign, Users, ExternalLink, Building2, Banknote, Clock, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Modal } from "@/components/ui/modal"
 import { useToast } from "@/components/ui/ToastProvider"
 import { SkeletonEventDetail } from "@/components/ui/Skeleton"
 
@@ -16,12 +17,18 @@ export default function EventDetail() {
     const navigate = useNavigate()
     const { showToast } = useToast()
     // 🔒 P1.1: user + role từ context (thay getUser() + profiles.select lặp)
-    const { user, role, loading: authLoading } = useUser()
+    const { user, role, profile, loading: authLoading } = useUser()
     const [event, setEvent] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const [applyStatus, setApplyStatus] = useState<string | null>(null)
     const [isApplying, setIsApplying] = useState(false)
     const [isBookmarked, setIsBookmarked] = useState(false)
+
+    // Modal đăng ký & thông tin sự kiện
+    const [showApplyModal, setShowApplyModal] = useState(false)
+    const [studentNote, setStudentNote] = useState("")
+    const [shirtSize, setShirtSize] = useState("M")
+    const [zaloPhone, setZaloPhone] = useState("")
 
     useEffect(() => {
         if (authLoading) return
@@ -78,22 +85,45 @@ export default function EventDetail() {
         fetchEventDetails()
     }, [id, user, role, authLoading, navigate])
 
-    const handleApply = async () => {
-        setIsApplying(true)
-
+    const handleApply = () => {
         if (!user) {
             window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { mode: "login" } }))
             return
         }
+        setShirtSize(profile?.shirt_size || "M")
+        setZaloPhone(profile?.zalo_phone || profile?.phone || "")
+        setShowApplyModal(true)
+    }
+
+    const handleConfirmApply = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!user || !event) return
+        setIsApplying(true)
+
+        // Cập nhật profile nếu user nhập size áo hoặc số zalo
+        if (shirtSize || zaloPhone) {
+            await supabase
+                .from("profiles")
+                .update({
+                    shirt_size: shirtSize,
+                    zalo_phone: zaloPhone || null
+                })
+                .eq("id", user.id)
+        }
 
         const { error } = await supabase.from("applications").insert([
-            { event_id: event.id, student_id: user.id }
+            {
+                event_id: event.id,
+                student_id: user.id,
+                student_note: studentNote ? studentNote.trim() : null
+            }
         ])
 
         if (error) {
             showToast({ title: "Đã xảy ra lỗi", message: getUserFacingMessage(error, "Vui lòng thử lại."), type: "error" })
         } else {
             setApplyStatus('pending')
+            setShowApplyModal(false)
             showToast({ title: "Đăng ký thành công", message: "Đơn đăng ký của bạn đã được gửi. Vui lòng chờ BTC phê duyệt.", type: "success" })
         }
         setIsApplying(false)
@@ -181,9 +211,55 @@ export default function EventDetail() {
         )
     }
 
+    const formatSalary = (amount: number | null, type: string | null) => {
+        if (!amount) return "Thỏa thuận"
+        const formatted = amount.toLocaleString("vi-VN") + "đ"
+        switch (type) {
+            case "per_hour": return `${formatted}/giờ`
+            case "per_shift": return `${formatted}/ca`
+            case "per_event": return `${formatted}/sự kiện`
+            case "volunteer": return "Tình nguyện"
+            default: return formatted
+        }
+    }
+
+    const formatShiftTime = (startTime: string | null, endTime: string | null) => {
+        if (!startTime && !endTime) return null
+        const start = startTime ? startTime.slice(0, 5) : ""
+        const end = endTime ? endTime.slice(0, 5) : ""
+        return `${start} - ${end}`
+    }
+
     return (
         <MainLayout role={role || "guest"}>
             <div className="max-w-5xl mx-auto pb-8 animate-in fade-in slide-in-from-bottom-3 duration-300">
+
+                {/* APPROVED STUDENT: Zalo coordination banner */}
+                {applyStatus === 'approved' && event.zalo_group_link && (
+                    <div className="mb-5 bg-emerald-50 border border-emerald-200 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0 text-emerald-600">
+                                <MessageCircle className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <h3 className="text-sm sm:text-base font-bold text-emerald-950">
+                                    🎉 Bạn đã trúng tuyển! Hãy tham gia nhóm Zalo điều phối sự kiện
+                                </h3>
+                                <p className="text-xs sm:text-sm text-emerald-700 mt-0.5">
+                                    Nhận phân công vị trí, hướng dẫn đồng phục và điểm danh vào ngày diễn ra sự kiện.
+                                </p>
+                            </div>
+                        </div>
+                        <a
+                            href={event.zalo_group_link}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-5 py-2.5 rounded-xl text-sm transition-all shadow-sm shrink-0"
+                        >
+                            Vào nhóm Zalo <ExternalLink className="w-4 h-4" />
+                        </a>
+                    </div>
+                )}
 
                 {/* EVENT HERO — title + date prominent + status badge */}
                 <div className="bg-white border border-slate-200 rounded-2xl p-5 sm:p-7 mb-5">
@@ -232,8 +308,8 @@ export default function EventDetail() {
                         </div>
                     </div>
 
-                    {/* Quick info grid — 3 cols responsive */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 pt-5 border-t border-slate-100">
+                    {/* Quick info grid — 6 cols responsive */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mt-5 pt-5 border-t border-slate-100">
                         <div className="flex items-center gap-2.5">
                             <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
                                 <MapPin className="w-4 h-4 text-slate-600" />
@@ -256,11 +332,35 @@ export default function EventDetail() {
                         </div>
                         <div className="flex items-center gap-2.5">
                             <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+                                <Clock className="w-4 h-4 text-slate-600" />
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-xs text-slate-500">Ca làm việc</p>
+                                <p className="text-sm font-semibold text-foreground truncate">
+                                    {formatShiftTime(event.start_time, event.end_time) || "Theo lịch"}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
+                                <Banknote className="w-4 h-4 text-emerald-600" />
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-xs text-slate-500">Thù lao</p>
+                                <p className="text-sm font-semibold text-emerald-600 truncate" title={formatSalary(event.salary_amount, event.salary_type)}>
+                                    {formatSalary(event.salary_amount, event.salary_type)}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center shrink-0">
                                 <DollarSign className="w-4 h-4 text-slate-600" />
                             </div>
                             <div className="min-w-0">
-                                <p className="text-xs text-slate-500">Quyền lợi</p>
-                                <p className="text-sm font-semibold text-foreground truncate" title={event.benefits}>{event.benefits || "Thỏa thuận"}</p>
+                                <p className="text-xs text-slate-500">Thanh toán</p>
+                                <p className="text-sm font-semibold text-foreground truncate" title={event.payment_method === 'cash_after_event' ? 'Tiền mặt cuối buổi' : event.payment_method === 'bank_transfer' ? 'Chuyển khoản' : (event.benefits || "Thỏa thuận")}>
+                                    {event.payment_method === 'cash_after_event' ? 'Tiền mặt cuối buổi' : event.payment_method === 'bank_transfer' ? 'Chuyển khoản' : (event.benefits || "Thỏa thuận")}
+                                </p>
                             </div>
                         </div>
                         <div className="flex items-center gap-2.5">
@@ -393,6 +493,99 @@ export default function EventDetail() {
                     </div>
                 </div>
             </div>
+
+            {/* Modal ứng tuyển sự kiện */}
+            <Modal
+                isOpen={showApplyModal}
+                onClose={() => setShowApplyModal(false)}
+                titleId="apply-modal-title"
+                maxWidthClassName="max-w-lg"
+            >
+                <div className="p-6">
+                    <h2 id="apply-modal-title" className="text-lg font-bold text-slate-900 mb-1">
+                        Ứng tuyển sự kiện
+                    </h2>
+                    <p className="text-xs text-slate-500 mb-5 truncate">
+                        {event.title}
+                    </p>
+
+                    <form onSubmit={handleConfirmApply} className="space-y-4">
+                        <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                Số điện thoại / Zalo nhận liên hệ <span className="text-rose-500">*</span>
+                            </label>
+                            <input
+                                type="tel"
+                                required
+                                value={zaloPhone}
+                                onChange={(e) => setZaloPhone(e.target.value)}
+                                placeholder="VD: 0905123456"
+                                className="w-full h-10 px-3 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                            />
+                            <p className="text-[11px] text-slate-400 mt-1">
+                                Dùng để BTC add vào nhóm điều phối hoặc thông báo trúng tuyển.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                    Size áo đồng phục
+                                </label>
+                                <select
+                                    value={shirtSize}
+                                    onChange={(e) => setShirtSize(e.target.value)}
+                                    className="w-full h-10 px-3 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary bg-white"
+                                >
+                                    <option value="S">Size S (Dưới 50kg)</option>
+                                    <option value="M">Size M (50 - 60kg)</option>
+                                    <option value="L">Size L (60 - 70kg)</option>
+                                    <option value="XL">Size XL (70 - 80kg)</option>
+                                    <option value="XXL">Size XXL (Trên 80kg)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                    Thù lao dự kiến
+                                </label>
+                                <div className="h-10 px-3 text-sm rounded-lg bg-slate-50 border border-slate-200 flex items-center font-medium text-emerald-600 truncate">
+                                    {formatSalary(event.salary_amount, event.salary_type)}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-slate-700 mb-1">
+                                Lời nhắn cho Ban tổ chức
+                            </label>
+                            <textarea
+                                rows={3}
+                                value={studentNote}
+                                onChange={(e) => setStudentNote(e.target.value)}
+                                placeholder="Kinh nghiệm sự kiện đã từng làm, ca muốn đăng ký, hoặc câu hỏi cho BTC..."
+                                className="w-full p-3 text-sm rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary resize-none"
+                            />
+                        </div>
+
+                        <div className="pt-3 border-t border-slate-100 flex items-center justify-end gap-2.5">
+                            <button
+                                type="button"
+                                onClick={() => setShowApplyModal(false)}
+                                className="px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+                            >
+                                Hủy
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={isApplying}
+                                className="px-5 py-2 text-sm font-semibold bg-primary hover:bg-primary/90 text-white rounded-lg transition-all disabled:opacity-50 cursor-pointer"
+                            >
+                                {isApplying ? "Đang gửi..." : "Xác nhận nộp đơn"}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </Modal>
         </MainLayout>
     )
 }

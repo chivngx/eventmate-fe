@@ -28,6 +28,15 @@ export function useOrgDashboard() {
   // [MỚI] State lưu trữ Phường/Xã đang chọn cho form (wards lấy từ useWards hook ở dưới)
   const [wardId, setWardId] = useState("")
 
+  // [MỚI] Các trường chuyên sâu cho sự kiện (thù lao, ca làm, Zalo)
+  const [salaryAmount, setSalaryAmount] = useState("200000")
+  const [salaryType, setSalaryType] = useState("per_shift")
+  const [paymentMethod, setPaymentMethod] = useState("cash_after_event")
+  const [startTime, setStartTime] = useState("07:30")
+  const [endTime, setEndTime] = useState("17:00")
+  const [endDate, setEndDate] = useState("")
+  const [zaloGroupLink, setZaloGroupLink] = useState("")
+
   const [loading, setLoading] = useState(false)
   const [fetching, setFetching] = useState(true)
 
@@ -115,6 +124,13 @@ export function useOrgDashboard() {
     setSlotsNeeded("1")
     setEventDate("")
     setApplicationDeadline("")
+    setSalaryAmount("200000")
+    setSalaryType("per_shift")
+    setPaymentMethod("cash_after_event")
+    setStartTime("07:30")
+    setEndTime("17:00")
+    setEndDate("")
+    setZaloGroupLink("")
     setEditingId(null)
     setShowForm(false)
     setSearchParams({})
@@ -140,6 +156,13 @@ export function useOrgDashboard() {
         category,
         slots_needed: parseInt(slotsNeeded) || 1,
         event_date: eventDate ? new Date(eventDate).toISOString() : null,
+        end_date: endDate ? new Date(endDate).toISOString() : null,
+        start_time: startTime || null,
+        end_time: endTime || null,
+        salary_amount: salaryAmount ? Number(salaryAmount) : 0,
+        salary_type: salaryType,
+        payment_method: paymentMethod,
+        zalo_group_link: zaloGroupLink ? zaloGroupLink.trim() : null,
         application_deadline: applicationDeadline ? new Date(applicationDeadline).toISOString() : null
       }
 
@@ -184,6 +207,13 @@ export function useOrgDashboard() {
     setCategory(ev.category || "Lễ hội Âm nhạc")
     setSlotsNeeded(String(ev.slots_needed || 1))
     setEventDate(ev.event_date ? ev.event_date.split('T')[0] : "")
+    setEndDate(ev.end_date ? ev.end_date.split('T')[0] : "")
+    setStartTime(ev.start_time || "07:30")
+    setEndTime(ev.end_time || "17:00")
+    setSalaryAmount(ev.salary_amount != null ? String(ev.salary_amount) : "0")
+    setSalaryType(ev.salary_type || "per_shift")
+    setPaymentMethod(ev.payment_method || "cash_after_event")
+    setZaloGroupLink(ev.zalo_group_link || "")
     setApplicationDeadline(ev.application_deadline ? ev.application_deadline.split('T')[0] : "")
     setShowForm(true)
   }
@@ -208,9 +238,9 @@ export function useOrgDashboard() {
     const { data, error } = await supabase
       .from("applications")
       .select(`
-        id, status, applied_at, student_id, event_id,
-        events (id, title, status, location, event_date, position_type),
-        profiles!applications_student_id_fkey (id, full_name, email, avatar_url, phone, university, bio, skills)
+        id, status, applied_at, student_id, event_id, attendance_status, student_note,
+        events (id, title, status, location, event_date, end_date, position_type, salary_amount, salary_type, start_time, end_time, zalo_group_link),
+        profiles!applications_student_id_fkey (id, full_name, email, avatar_url, phone, university, bio, skills, shirt_size, height, zalo_phone, reliability_score)
       `)
       .eq("event_id", event.id)
       .order("applied_at", { ascending: false })
@@ -234,6 +264,16 @@ export function useOrgDashboard() {
       setApplications((apps: any[]) => apps.map((app: any) => app.id === appId ? { ...app, status: newStatus } : app))
     } else {
       alert(getUserFacingMessage(error, "Không thể cập nhật trạng thái. Vui lòng thử lại."))
+    }
+  }
+
+  const handleUpdateAttendanceStatus = async (appId: string, attendanceStatus: string) => {
+    const { error } = await supabase.from("applications").update({ attendance_status: attendanceStatus }).eq("id", appId)
+
+    if (!error) {
+      setApplications((apps: any[]) => apps.map((app: any) => app.id === appId ? { ...app, attendance_status: attendanceStatus } : app))
+    } else {
+      alert(getUserFacingMessage(error, "Không thể cập nhật điểm danh. Vui lòng thử lại."))
     }
   }
 
@@ -296,6 +336,20 @@ export function useOrgDashboard() {
     setSlotsNeeded,
     eventDate,
     setEventDate,
+    endDate,
+    setEndDate,
+    startTime,
+    setStartTime,
+    endTime,
+    setEndTime,
+    salaryAmount,
+    setSalaryAmount,
+    salaryType,
+    setSalaryType,
+    paymentMethod,
+    setPaymentMethod,
+    zaloGroupLink,
+    setZaloGroupLink,
     applicationDeadline,
     setApplicationDeadline,
     loading,
@@ -314,6 +368,7 @@ export function useOrgDashboard() {
     handleDeleteEvent,
     handleViewApplications,
     handleUpdateStatus,
+    handleUpdateAttendanceStatus,
     handleStartChatWithStudent,
     resetForm,
     totalEvents,

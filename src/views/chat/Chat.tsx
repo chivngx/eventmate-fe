@@ -25,10 +25,10 @@ interface ChatItem {
 
 interface Message {
   id: string
-  chat_id: string
-  sender_id: string
+  chat_id: string | null
+  sender_id: string | null
   content: string
-  created_at: string
+  created_at: string | null
 }
 
 export default function Chat() {
@@ -583,7 +583,7 @@ export default function Chat() {
                     >
                       <p className="break-words">{msg.content}</p>
                       <span className={`mt-1 block text-right text-xs ${isMe ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
-                        {new Date(msg.created_at).toLocaleTimeString("vi-VN", {
+                        {new Date(msg.created_at || Date.now()).toLocaleTimeString("vi-VN", {
                           hour: "2-digit",
                           minute: "2-digit"
                         })}

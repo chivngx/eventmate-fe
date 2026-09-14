@@ -12,6 +12,7 @@ interface OrgEventApplicationsDetailProps {
     onBack: () => void
     setViewingCV: (cv: any) => void
     handleUpdateStatus: (appId: string, status: string) => void
+    handleUpdateAttendanceStatus?: (appId: string, status: string) => void
     onStartChatWithStudent: (eventId: string, studentId: string) => void
     onRateStudent: (eventId: string, studentId: string, studentName: string) => void
 }
@@ -23,6 +24,7 @@ export default function OrgEventApplicationsDetail({
     onBack,
     setViewingCV,
     handleUpdateStatus,
+    handleUpdateAttendanceStatus,
     onStartChatWithStudent,
     onRateStudent
 }: OrgEventApplicationsDetailProps) {
@@ -170,12 +172,57 @@ export default function OrgEventApplicationsDetail({
                                                     {student?.university || "Chưa cập nhật trường học"}
                                                 </p>
 
-                                                <div className="flex items-center gap-3 mt-2 flex-wrap">
+                                                {/* Event specifics: Size áo, chiều cao, Zalo, Điểm uy tín */}
+                                                <div className="flex items-center gap-2 mt-2 flex-wrap text-xs">
+                                                    <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold border border-slate-200">
+                                                        👕 Size áo: {student?.shirt_size || 'M'}
+                                                    </span>
+                                                    {student?.height && (
+                                                        <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-semibold border border-slate-200">
+                                                            📏 Cao: {student.height} cm
+                                                        </span>
+                                                    )}
+                                                    {student?.zalo_phone && (
+                                                        <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-semibold border border-blue-200">
+                                                            💬 Zalo: {student.zalo_phone}
+                                                        </span>
+                                                    )}
+                                                    <span className="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded font-bold border border-emerald-200">
+                                                        ⭐ Tín nhiệm: {student?.reliability_score ?? 100}%
+                                                    </span>
+                                                </div>
+
+                                                {/* Lời nhắn ứng tuyển từ sinh viên */}
+                                                {app.student_note && (
+                                                    <div className="mt-2.5 p-2.5 rounded-xl bg-amber-50/70 border border-amber-200/60 text-xs text-amber-900">
+                                                        <span className="font-bold">📝 Lời nhắn:</span> {app.student_note}
+                                                    </div>
+                                                )}
+
+                                                <div className="flex items-center gap-3 mt-2.5 flex-wrap">
                                                     <span className="text-xs font-semibold text-slate-400">{student?.email}</span>
                                                     <span className="text-slate-200">|</span>
                                                     <span className="text-xs font-bold text-slate-400">Nộp ngày {new Date(app.applied_at).toLocaleDateString('vi-VN')}</span>
                                                     <span className="text-slate-200">|</span>
                                                     {statusBadge}
+
+                                                    {/* Trạng thái điểm danh nếu trúng tuyển */}
+                                                    {app.status === 'approved' && (
+                                                        <span className={`text-xs font-bold px-2 py-0.5 rounded border ${
+                                                            app.attendance_status === 'checked_in' 
+                                                                ? 'bg-blue-50 text-blue-700 border-blue-200' 
+                                                                : app.attendance_status === 'completed'
+                                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                                                    : app.attendance_status === 'no_show'
+                                                                        ? 'bg-destructive/10 text-destructive border-destructive/20'
+                                                                        : 'bg-slate-100 text-slate-600 border-slate-200'
+                                                        }`}>
+                                                            {app.attendance_status === 'checked_in' ? '✅ Đã điểm danh' :
+                                                             app.attendance_status === 'completed' ? '🎉 Hoàn thành ca' :
+                                                             app.attendance_status === 'no_show' ? '⚠️ Bùng ca / Vắng' :
+                                                             '⏳ Chờ ngày sự kiện'}
+                                                        </span>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
@@ -196,6 +243,42 @@ export default function OrgEventApplicationsDetail({
                                             >
                                                 <MessageSquare className="w-4 h-4 text-slate-500" /> Nhắn tin
                                             </Button>
+
+                                            {/* Điểm danh ngày sự kiện cho ứng viên trúng tuyển */}
+                                            {app.status === 'approved' && handleUpdateAttendanceStatus && (
+                                                <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleUpdateAttendanceStatus(app.id, 'checked_in')}
+                                                        className={`text-xs px-2 py-1 rounded-lg font-semibold transition-colors ${
+                                                            app.attendance_status === 'checked_in' ? 'bg-white shadow-xs text-blue-700 font-bold' : 'text-slate-600 hover:text-slate-900'
+                                                        }`}
+                                                        title="Điểm danh sinh viên đã có mặt tại sự kiện"
+                                                    >
+                                                        Điểm danh
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleUpdateAttendanceStatus(app.id, 'completed')}
+                                                        className={`text-xs px-2 py-1 rounded-lg font-semibold transition-colors ${
+                                                            app.attendance_status === 'completed' ? 'bg-white shadow-xs text-emerald-700 font-bold' : 'text-slate-600 hover:text-slate-900'
+                                                        }`}
+                                                        title="Xác nhận sinh viên đã hoàn thành ca làm"
+                                                    >
+                                                        Hoàn thành
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleUpdateAttendanceStatus(app.id, 'no_show')}
+                                                        className={`text-xs px-2 py-1 rounded-lg font-semibold transition-colors ${
+                                                            app.attendance_status === 'no_show' ? 'bg-white shadow-xs text-destructive font-bold' : 'text-slate-500 hover:text-destructive'
+                                                        }`}
+                                                        title="Đánh dấu sinh viên không đến làm việc"
+                                                    >
+                                                        Bùng ca
+                                                    </button>
+                                                </div>
+                                            )}
 
                                             {app.status === 'approved' && event.status === 'completed' && (
                                                 <Button

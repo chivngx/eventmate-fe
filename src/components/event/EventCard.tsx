@@ -1,7 +1,7 @@
 "use client"
 
 import { memo } from "react"
-import { Heart, MapPin, Calendar, Clock, Users } from "lucide-react"
+import { Heart, MapPin, Calendar, Clock, Users, Banknote } from "lucide-react"
 import { useNavigate } from "@/lib/router"
 import { cn } from "@/lib/utils"
 
@@ -22,6 +22,23 @@ function formatDay(dateStr?: string): { day: string; month: string } | null {
     day: String(d.getDate()).padStart(2, "0"),
     month: `Th${d.getMonth() + 1}`,
   }
+}
+
+function formatSalary(amount?: number | null, type?: string | null) {
+  if (!amount || amount === 0 || type === 'volunteer') return 'Tình nguyện viên'
+  const formatted = new Intl.NumberFormat('vi-VN').format(amount) + 'đ'
+  if (type === 'per_hour') return `${formatted}/h`
+  if (type === 'per_shift') return `${formatted}/ca`
+  if (type === 'per_event') return `${formatted}/trọn gói`
+  return formatted
+}
+
+function formatShiftTime(start?: string | null, end?: string | null) {
+  if (!start && !end) return null
+  const s = start ? start.slice(0, 5) : ''
+  const e = end ? end.slice(0, 5) : ''
+  if (s && e) return `${s} - ${e}`
+  return s || e
 }
 
 function EventCard({
@@ -82,8 +99,12 @@ function EventCard({
           >
             {job.profiles?.full_name || "Đơn vị ẩn danh"}
           </button>
-          {/* Category + position tags */}
+          {/* Category + position + salary tags */}
           <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+            <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/60 inline-flex items-center gap-1">
+              <Banknote className="w-3 h-3 text-emerald-600" />
+              {formatSalary(job.salary_amount, job.salary_type)}
+            </span>
             {job.category && (
               <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-2 py-0.5 rounded">
                 {job.category}
@@ -116,12 +137,18 @@ function EventCard({
         </button>
       </div>
 
-      {/* Bottom strip: location + deadline + slots */}
+      {/* Bottom strip: location + shift time + slots + deadline */}
       <div className="flex items-center gap-3 px-4 py-2.5 border-t border-slate-100 text-xs text-slate-500 bg-slate-50/50">
         <span className="flex items-center gap-1 min-w-0 truncate">
           <MapPin className="w-3.5 h-3.5 shrink-0 text-slate-400" />
           <span className="truncate">{job.danang_wards?.name || job.location || "Đà Nẵng"}</span>
         </span>
+        {formatShiftTime(job.start_time, job.end_time) && (
+          <span className="flex items-center gap-1 shrink-0 text-slate-600 font-medium">
+            <Clock className="w-3 h-3 text-slate-400" />
+            <span>{formatShiftTime(job.start_time, job.end_time)}</span>
+          </span>
+        )}
         {slotsLeft > 0 && (
           <span className="flex items-center gap-1 shrink-0">
             <Users className="w-3.5 h-3.5 text-slate-400" />

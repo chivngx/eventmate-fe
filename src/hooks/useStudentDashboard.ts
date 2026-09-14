@@ -73,7 +73,9 @@ export function useStudentDashboard() {
 
       if (appsData) {
         const appMap: Record<string, string> = {}
-        appsData.forEach(app => { appMap[app.event_id] = app.status })
+        appsData.forEach(app => {
+          if (app.event_id) appMap[app.event_id] = app.status || "pending"
+        })
         setMyApplications(appMap)
       }
 
@@ -84,9 +86,11 @@ export function useStudentDashboard() {
 
       if (bookmarksData) {
         const bookmarkMap: Record<string, boolean> = {}
-        bookmarksData.forEach(b => { bookmarkMap[b.event_id] = true })
+        bookmarksData.forEach(b => {
+          if (b.event_id) bookmarkMap[b.event_id] = true
+        })
         setBookmarkedEvents(bookmarkMap)
-        bookmarkedIds = bookmarksData.map(b => b.event_id)
+        bookmarkedIds = bookmarksData.map(b => b.event_id).filter(Boolean) as string[]
       }
     }
 

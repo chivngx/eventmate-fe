@@ -36,12 +36,14 @@ export default function OrgDashboard() {
     wardId, setWardId, wards,
     positionType, setPositionType, benefits, setBenefits,
     category, setCategory, slotsNeeded, setSlotsNeeded,
-    eventDate, setEventDate, applicationDeadline, setApplicationDeadline,
+    eventDate, setEventDate, endDate, setEndDate, startTime, setStartTime, endTime, setEndTime,
+    salaryAmount, setSalaryAmount, salaryType, setSalaryType, paymentMethod, setPaymentMethod,
+    zaloGroupLink, setZaloGroupLink, applicationDeadline, setApplicationDeadline,
     loading, fetching, showForm, setShowForm, editingId,
     viewingCV, setViewingCV, applications, loadingApps,
     selectedEventForCandidates, handleBackToEvents,
     handleSubmitEvent, handleEditClick, handleDeleteEvent,
-    handleViewApplications, handleUpdateStatus, handleStartChatWithStudent, resetForm,
+    handleViewApplications, handleUpdateStatus, handleUpdateAttendanceStatus, handleStartChatWithStudent, resetForm,
     totalEvents, activeEvents, userId,
     activeTab, setActiveTab, isPremium, handleBuyPremium
   } = useOrgDashboard()
@@ -536,6 +538,7 @@ export default function OrgDashboard() {
               onBack={handleBackToEvents}
               setViewingCV={setViewingCV}
               handleUpdateStatus={handleUpdateStatus}
+              handleUpdateAttendanceStatus={handleUpdateAttendanceStatus}
               onStartChatWithStudent={handleStartChatWithStudent}
               onRateStudent={(eventId, studentId, studentName) => setReviewingStudent({ eventId, studentId, studentName })}
             />
@@ -903,6 +906,20 @@ export default function OrgDashboard() {
         wards={wards}
         eventDate={eventDate}
         setEventDate={setEventDate}
+        endDate={endDate}
+        setEndDate={setEndDate}
+        startTime={startTime}
+        setStartTime={setStartTime}
+        endTime={endTime}
+        setEndTime={setEndTime}
+        salaryAmount={salaryAmount}
+        setSalaryAmount={setSalaryAmount}
+        salaryType={salaryType}
+        setSalaryType={setSalaryType}
+        paymentMethod={paymentMethod}
+        setPaymentMethod={setPaymentMethod}
+        zaloGroupLink={zaloGroupLink}
+        setZaloGroupLink={setZaloGroupLink}
         applicationDeadline={applicationDeadline}
         setApplicationDeadline={setApplicationDeadline}
         positionType={positionType}

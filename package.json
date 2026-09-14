@@ -8,9 +8,6 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "prepare": "husky || true",
     "db:push": "echo '[db:push] Frontend-only (Supabase) project — no local DB setup needed.'",
     "db:generate": "echo '[db:generate] Frontend-only (Supabase) project — no local DB setup needed.'"
   },
@@ -38,20 +35,14 @@
   "devDependencies": {
     "@eslint/js": "^9",
     "@tailwindcss/postcss": "^4.3.1",
-    "@testing-library/jest-dom": "^6",
-    "@testing-library/react": "^16",
     "@types/node": "^24.13.2",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "eslint": "^9.34.0",
-    "husky": "^9",
-    "jsdom": "^25",
-    "lint-staged": "^15",
     "postcss": "^8.5.15",
     "shadcn": "^4.11.0",
     "tailwindcss": "^4.3.1",
     "typescript": "~6.0.2",
-    "typescript-eslint": "^8",
-    "vitest": "^2"
+    "typescript-eslint": "^8"
   }
 }

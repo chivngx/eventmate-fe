@@ -28,7 +28,13 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     website TEXT,
     scale TEXT,
     address TEXT,
-    company_images TEXT
+    company_images TEXT,
+    is_premium BOOLEAN NOT NULL DEFAULT FALSE,
+    premium_until TIMESTAMPTZ,
+    shirt_size TEXT DEFAULT 'M',
+    height INT,
+    zalo_phone TEXT,
+    reliability_score NUMERIC DEFAULT 100
 );
 
 -- 3. Bảng EVENTS (Sự kiện & Vị trí tuyển dụng)
@@ -39,6 +45,13 @@ CREATE TABLE IF NOT EXISTS public.events (
     description TEXT,
     location TEXT,
     event_date TIMESTAMP WITH TIME ZONE,
+    end_date TIMESTAMP WITH TIME ZONE,
+    start_time TIME DEFAULT '07:30:00',
+    end_time TIME DEFAULT '17:00:00',
+    salary_amount NUMERIC DEFAULT 0,
+    salary_type TEXT DEFAULT 'per_shift', -- per_shift, per_hour, per_event, volunteer
+    payment_method TEXT DEFAULT 'cash_after_event', -- cash_after_event, bank_transfer
+    zalo_group_link TEXT,
     status TEXT DEFAULT 'upcoming'::text, -- upcoming, ongoing, completed
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
     application_deadline TIMESTAMP WITH TIME ZONE,
@@ -56,6 +69,8 @@ CREATE TABLE IF NOT EXISTS public.applications (
     event_id UUID REFERENCES public.events(id) ON DELETE CASCADE NOT NULL,
     student_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
     status TEXT DEFAULT 'pending'::text, -- pending, approved, rejected
+    attendance_status TEXT DEFAULT 'pending_event', -- pending_event, checked_in, completed, no_show
+    student_note TEXT,
     applied_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
     CONSTRAINT unique_event_student UNIQUE (event_id, student_id)
 );
