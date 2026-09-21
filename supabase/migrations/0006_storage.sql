@@ -14,7 +14,6 @@ CREATE POLICY "Allow public select on avatars"
   ON storage.objects FOR SELECT
   USING (bucket_id = 'avatars');
 
-DROP POLICY IF EXISTS "Allow authenticated insert on avatars" ON storage.objects;
 DROP POLICY IF EXISTS "avatars_insert_owner" ON storage.objects;
 CREATE POLICY "avatars_insert_owner"
   ON storage.objects FOR INSERT TO authenticated
@@ -23,7 +22,6 @@ CREATE POLICY "avatars_insert_owner"
     AND (storage.foldername(name))[1] = auth.uid()::text
   );
 
-DROP POLICY IF EXISTS "Allow authenticated update on avatars" ON storage.objects;
 DROP POLICY IF EXISTS "avatars_update_owner" ON storage.objects;
 CREATE POLICY "avatars_update_owner"
   ON storage.objects FOR UPDATE TO authenticated
@@ -36,7 +34,6 @@ CREATE POLICY "avatars_update_owner"
     AND (storage.foldername(name))[1] = auth.uid()::text
   );
 
-DROP POLICY IF EXISTS "Allow authenticated delete on avatars" ON storage.objects;
 DROP POLICY IF EXISTS "avatars_delete_owner" ON storage.objects;
 CREATE POLICY "avatars_delete_owner"
   ON storage.objects FOR DELETE TO authenticated
@@ -45,9 +42,8 @@ CREATE POLICY "avatars_delete_owner"
     AND (storage.foldername(name))[1] = auth.uid()::text
   );
 
-
 -- =========================================================================
--- 2. BUCKET 'cvs' (Lưu trữ file hồ sơ PDF CV của sinh viên)
+-- 2. BUCKET 'cvs' (Lưu trữ file hồ sơ PDF CV của ứng viên)
 -- =========================================================================
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('cvs', 'cvs', true)

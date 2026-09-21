@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react"
 import { supabase } from "@/lib/supabase"
 import { useUser } from "@/components/providers/AuthProvider"
-import { useWards } from "@/hooks/useLookups"
+import { useWards, useEventCategories } from "@/hooks/useLookups"
 import MainLayout from "@/components/layout/MainLayout"
 import CompanyCard, { OrganizerProfile } from "./components/CompanyCard"
 import CompanySearchBar, { QuickFilterType } from "./components/CompanySearchBar"
@@ -27,14 +27,16 @@ export default function CompanyList() {
 
   // Lookups
   const { data: wards = [] } = useWards()
+  const { data: categories = [] } = useEventCategories()
 
   // Search & Filter state
   const [searchTerm, setSearchTerm] = useState("")
   const [selectedLocation, setSelectedLocation] = useState("")
-  const [activeQuickFilter, setActiveQuickFilter] = useState<QuickFilterType>("popular")
   const [sidebarFilters, setSidebarFilters] = useState<FilterState>({
     onlyHiring: false,
-    wards: [],
+    verifiedOnly: false,
+    categories: [],
+    sortBy: "popular",
   })
 
   // Followed company state (synced with Supabase public.company_follows)
@@ -66,7 +68,19 @@ export default function CompanyList() {
             scale,
             address,
             reliability_score,
-            events (id, title, status)
+            is_verified,
+            events (
+              id,
+              title,
+              status,
+              category,
+              ward_id,
+              location,
+              danang_wards (
+                id,
+                name
+              )
+            )
           `)
           .eq("role", "organizer")
 
@@ -168,10 +182,11 @@ export default function CompanyList() {
   const handleResetFilters = useCallback(() => {
     setSearchTerm("")
     setSelectedLocation("")
-    setActiveQuickFilter("popular")
     setSidebarFilters({
       onlyHiring: false,
-      wards: [],
+      verifiedOnly: false,
+      categories: [],
+      sortBy: "popular",
     })
     setCurrentPage(1)
   }, [])
@@ -180,7 +195,7 @@ export default function CompanyList() {
   const filteredOrganizers = useMemo(() => {
     let result = [...organizers]
 
-    // Search filter (keyword in name, bio, university, address)
+    // Search filter (keyword in name, bio, university, address, or organized event titles)
     if (searchTerm.trim()) {
       const query = searchTerm.toLowerCase().trim()
       result = result.filter(
@@ -188,7 +203,8 @@ export default function CompanyList() {
           org.full_name?.toLowerCase().includes(query) ||
           org.bio?.toLowerCase().includes(query) ||
           org.university?.toLowerCase().includes(query) ||
-          org.address?.toLowerCase().includes(query)
+          org.address?.toLowerCase().includes(query) ||
+          org.events?.some((e) => e.title?.toLowerCase().includes(query))
       )
     }
 
@@ -198,7 +214,13 @@ export default function CompanyList() {
       result = result.filter(
         (org) =>
           org.address?.toLowerCase().includes(loc) ||
-          org.university?.toLowerCase().includes(loc)
+          org.university?.toLowerCase().includes(loc) ||
+          org.events?.some(
+            (e) =>
+              e.danang_wards?.name?.toLowerCase().includes(loc) ||
+              e.location?.toLowerCase().includes(loc) ||
+              String(e.ward_id) === loc
+          )
       )
     }
 
@@ -211,21 +233,27 @@ export default function CompanyList() {
       )
     }
 
-    // Sidebar wards filter
-    if (sidebarFilters.wards.length > 0) {
+    // Sidebar verified filter
+    if (sidebarFilters.verifiedOnly) {
+      result = result.filter((org) => Boolean(org.is_verified))
+    }
+
+    // Sidebar categories filter
+    if (sidebarFilters.categories.length > 0) {
       result = result.filter((org) =>
-        sidebarFilters.wards.some((w) => {
-          const wardLower = w.toLowerCase()
-          return (
-            org.address?.toLowerCase().includes(wardLower) ||
-            org.university?.toLowerCase().includes(wardLower)
-          )
-        })
+        org.events?.some(
+          (e) =>
+            e.category &&
+            sidebarFilters.categories.some(
+              (c) => e.category?.toLowerCase() === c.toLowerCase()
+            )
+        )
       )
     }
 
+
     // Quick filter sorting
-    switch (activeQuickFilter) {
+    switch (sidebarFilters.sortBy) {
       case "popular":
         result.sort((a, b) => {
           const scoreA = (a.events?.length || 0) * 10 + (a.reliability_score || 80)
@@ -248,12 +276,12 @@ export default function CompanyList() {
     }
 
     return result
-  }, [organizers, searchTerm, selectedLocation, sidebarFilters, activeQuickFilter])
+  }, [organizers, searchTerm, selectedLocation, sidebarFilters])
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchTerm, selectedLocation, sidebarFilters, activeQuickFilter])
+  }, [searchTerm, selectedLocation, sidebarFilters])
 
   // Pagination calculations
   const totalItems = filteredOrganizers.length
@@ -267,7 +295,9 @@ export default function CompanyList() {
     Boolean(searchTerm) ||
     Boolean(selectedLocation) ||
     sidebarFilters.onlyHiring ||
-    sidebarFilters.wards.length > 0
+    sidebarFilters.verifiedOnly ||
+    sidebarFilters.categories.length > 0 ||
+    sidebarFilters.sortBy !== "popular"
 
   return (
     <MainLayout role={userRole}>
@@ -288,8 +318,6 @@ export default function CompanyList() {
               onSearchChange={setSearchTerm}
               selectedLocation={selectedLocation}
               onLocationChange={setSelectedLocation}
-              activeQuickFilter={activeQuickFilter}
-              onQuickFilterChange={setActiveQuickFilter}
               wards={wards}
             />
           </div>
@@ -302,7 +330,7 @@ export default function CompanyList() {
             filters={sidebarFilters}
             onFilterChange={setSidebarFilters}
             onResetFilters={handleResetFilters}
-            availableWards={wards}
+            availableCategories={categories}
           />
 
           {/* Right Cards Content (Figma node 5875:24887) */}

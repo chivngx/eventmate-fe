@@ -315,8 +315,8 @@ export default function EventDetail() {
 
     if (!event) {
         return (
-            <MainLayout role="guest">
-                <div className="text-center py-24">
+            <MainLayout role="guest" fullWidth={true} className="bg-[#f3f5f7]">
+                <div className="bg-[#f3f5f7] min-h-screen text-center py-24">
                     <h2 className="text-2xl font-bold text-slate-900">Không tìm thấy sự kiện</h2>
                     <p className="text-slate-500 mt-2">Sự kiện này có thể đã bị xóa hoặc không tồn tại.</p>
                     <Button onClick={() => navigate(-1)} className="mt-5 rounded-xl bg-slate-900 text-white hover:bg-slate-800">
@@ -406,8 +406,8 @@ export default function EventDetail() {
     const userAvatar = profile?.avatar_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=128&h=128&q=80"
 
     return (
-        <MainLayout role={role || "guest"} fullWidth={true}>
-            <div className="bg-white min-h-screen pb-20 pt-6 sm:pt-10">
+        <MainLayout role={role || "guest"} fullWidth={true} className="bg-[#f3f5f7]">
+            <div className="bg-[#f3f5f7] min-h-screen pb-20 pt-6 sm:pt-10">
                 <div className="w-full max-w-[1232px] mx-auto px-4 sm:px-6 lg:px-0 flex flex-col gap-[48px]">
 
                     {/* ZALO COORDINATION BANNER (For Approved Students) */}
@@ -437,8 +437,10 @@ export default function EventDetail() {
                         </div>
                     )}
 
-                    {/* TOP HERO ROW: Job Header Left & Profile Card Right (Figma: Frame 2147225888 - node 6365:34765) */}
-                    <div className="flex flex-col lg:flex-row items-start justify-between gap-6 lg:gap-12 w-full" data-node-id="6365:34765">
+                    {/* HEADER HERO & KEY STATS CARD (Merged into 1 white frame) */}
+                    <div className="bg-white rounded-[12px] border border-[#ededed] p-6 sm:p-8 flex flex-col gap-6 shadow-xs">
+                        {/* TOP HERO ROW: Job Header Left & Profile Card Right (Figma: Frame 2147225888 - node 6365:34765) */}
+                        <div className="flex flex-col lg:flex-row items-start justify-between gap-6 lg:gap-8 w-full" data-node-id="6365:34765">
                         {/* LEFT: Logo + Title + Buttons (Figma: Frame 2147225887 w-742 - node 6365:34766) */}
                         <div className="flex flex-col sm:flex-row items-start gap-[16px] flex-1 min-w-0" data-node-id="6365:34766">
                             {/* Company Logo (Figma: size 117x117 rounded-full - node 6365:34767) */}
@@ -513,8 +515,11 @@ export default function EventDetail() {
                             </div>
                         </div>
 
-                        {/* RIGHT: Profile Resume Completion Card (Figma: profile card - node 6365:34780 w-282 h-187) */}
-                        <div className="w-full lg:w-[282px] bg-[#FCFCFC] border border-[#ECECEC] rounded-[8px] p-[16px] flex flex-col gap-[8px] items-center justify-center shrink-0 min-h-[187px]" data-node-id="6365:34780" data-name="profile card">
+                            {/* Vertical divider on desktop */}
+                            <div className="hidden lg:block w-px bg-[#ededed] self-stretch my-1" />
+
+                            {/* RIGHT: Profile Resume Completion (Inside the single white frame) */}
+                            <div className="w-full lg:w-[260px] flex flex-col gap-[8px] items-center justify-center shrink-0 py-2" data-node-id="6365:34780" data-name="profile card">
                             {/* Circular Avatar Progress Gauge (Figma: Frame 2147225274 size 64x64 border 2.25px - node 6365:34781) */}
                             <div className="relative size-[64px] flex items-center justify-center shrink-0" data-node-id="6365:34781">
                                 <svg className="absolute inset-0 size-full transform -rotate-90" viewBox="0 0 64 64">
@@ -578,7 +583,7 @@ export default function EventDetail() {
                     <div className="w-full h-px bg-[#ededed]" />
 
                     {/* 4-COLUMN ACHIEVEMENT / KEY STATS BAR (Figma: achievement - node 6365:34789) */}
-                    <div className="bg-white flex flex-col md:flex-row items-center justify-between py-[34px] w-full gap-6 md:gap-0" data-node-id="6365:34789" data-name="achievement">
+                    <div className="flex flex-col md:flex-row items-center justify-between py-2 w-full gap-6 md:gap-0" data-node-id="6365:34789" data-name="achievement">
                         {/* 1. Employment Type */}
                         <div className="flex gap-[8px] items-center justify-start md:justify-center px-4 w-full md:w-1/4" data-node-id="6365:34790" data-name="Job cart/diffrent states/achievement">
                             <StatClockIcon />
@@ -648,6 +653,7 @@ export default function EventDetail() {
                             </div>
                         </div>
                     </div>
+                </div>
 
                     {/* MAIN CONTENT STACK (Figma: Frame 2147225834 gap-88) */}
                     <div className="flex flex-col gap-[48px] w-full">

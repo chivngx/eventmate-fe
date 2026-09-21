@@ -135,7 +135,7 @@ export function SkeletonCompanyDetail() {
 
 export function SkeletonEventDetail() {
     return (
-        <div className="min-h-screen bg-white flex flex-col font-sans">
+        <div className="min-h-screen bg-[#f3f5f7] flex flex-col font-sans">
             <SkeletonHeader />
             <main className="max-w-6xl mx-auto py-8 sm:py-10 px-4 sm:px-6 lg:px-8 w-full flex-1 space-y-9">
                 {/* Top Job Header */}

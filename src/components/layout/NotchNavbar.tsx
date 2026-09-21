@@ -44,10 +44,21 @@ export function NotchNavbar({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [isScrolled, setIsScrolled] = useState(false)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const searchContainerRef = useRef<HTMLDivElement>(null)
 
   const isGuest = role === "guest" || (!role && !rightActions)
+
+  // Track window scroll to detect when navbar touches top edge
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 15)
+    }
+    handleScroll()
+    window.addEventListener("scroll", handleScroll, { passive: true })
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   // Focus search input when opened
   useEffect(() => {
@@ -137,16 +148,22 @@ export function NotchNavbar({
     <>
       <header
         className={cn(
+          "sticky top-0 z-50 w-full transition-all duration-300 ease-in-out",
           isFloating
-            ? "w-full relative z-40"
-            : "sticky top-0 z-50 bg-white border-b border-[#cbcbcb]",
+            ? isScrolled
+              ? "bg-white/95 backdrop-blur-md border-b border-[#cbcbcb] shadow-xs pt-0 px-0"
+              : "bg-transparent border-b border-transparent shadow-none pt-3 sm:pt-4 px-4 sm:px-6 lg:px-8"
+            : "bg-white border-b border-[#cbcbcb]",
           className
         )}
       >
         <div
           className={cn(
+            "transition-all duration-300 ease-in-out",
             isFloating
-              ? "mx-auto max-w-[1232px] w-full bg-white rounded-[12px] px-4 sm:px-6 shadow-[0px_0px_14px_0px_#00000008]"
+              ? isScrolled
+                ? "mx-auto max-w-7xl w-full bg-transparent rounded-none px-4 sm:px-6 lg:px-8 border-transparent shadow-none"
+                : "mx-auto max-w-[1232px] w-full bg-white rounded-[12px] px-4 sm:px-6 border border-[#ededed] shadow-sm"
               : "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
           )}
           data-node-id={isEmployer ? "5875:27178" : "7182:22172"}
@@ -349,9 +366,9 @@ export function NotchNavbar({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             className={cn(
-              "lg:hidden z-50 bg-white shadow-lg overflow-y-auto",
-              isFloating
-                ? "mt-2 mx-auto max-w-[1232px] w-full rounded-[12px] shadow-[0px_0px_14px_0px_#00000008] max-h-[calc(100vh-120px)]"
+              "lg:hidden z-50 bg-white shadow-lg overflow-y-auto transition-all duration-300",
+              isFloating && !isScrolled
+                ? "mt-2 mx-auto max-w-[1232px] w-full rounded-[12px] border border-[#ededed] shadow-[0px_0px_14px_0px_#00000008] max-h-[calc(100vh-120px)]"
                 : "fixed inset-x-0 top-[80px] border-b border-[#cbcbcb] max-h-[calc(100vh-80px)]"
             )}
           >

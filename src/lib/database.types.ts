@@ -556,6 +556,7 @@ export type Database = {
           id: string
           is_premium: boolean
           is_verified: boolean | null
+          map_embed_url: string | null
           mst: string | null
           phone: string | null
           premium_until: string | null
@@ -567,7 +568,6 @@ export type Database = {
           social_link: string | null
           university: string | null
           website: string | null
-          map_embed_url: string | null
         }
         Insert: {
           address?: string | null
@@ -584,6 +584,7 @@ export type Database = {
           id: string
           is_premium?: boolean
           is_verified?: boolean | null
+          map_embed_url?: string | null
           mst?: string | null
           phone?: string | null
           premium_until?: string | null
@@ -595,7 +596,6 @@ export type Database = {
           social_link?: string | null
           university?: string | null
           website?: string | null
-          map_embed_url?: string | null
         }
         Update: {
           address?: string | null
@@ -612,6 +612,7 @@ export type Database = {
           id?: string
           is_premium?: boolean
           is_verified?: boolean | null
+          map_embed_url?: string | null
           mst?: string | null
           phone?: string | null
           premium_until?: string | null
@@ -623,7 +624,6 @@ export type Database = {
           social_link?: string | null
           university?: string | null
           website?: string | null
-          map_embed_url?: string | null
         }
         Relationships: []
       }
@@ -685,6 +685,8 @@ export type Database = {
           billing_cycle: string
           created_at: string
           id: string
+          order_code: number | null
+          payment_link_id: string | null
           payment_method: string
           plan_id: string
           status: string
@@ -695,6 +697,8 @@ export type Database = {
           billing_cycle: string
           created_at?: string
           id?: string
+          order_code?: number | null
+          payment_link_id?: string | null
           payment_method: string
           plan_id: string
           status?: string
@@ -705,6 +709,8 @@ export type Database = {
           billing_cycle?: string
           created_at?: string
           id?: string
+          order_code?: number | null
+          payment_link_id?: string | null
           payment_method?: string
           plan_id?: string
           status?: string
@@ -734,6 +740,7 @@ export type Database = {
         }
         Returns: Json
       }
+      confirm_payos_payment: { Args: { p_order_code: number }; Returns: Json }
       record_profile_view: { Args: { p_student_id: string }; Returns: boolean }
       slugify: { Args: { t: string }; Returns: string }
     }

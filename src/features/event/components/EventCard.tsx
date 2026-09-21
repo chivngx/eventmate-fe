@@ -15,6 +15,7 @@ export interface JobItem {
   location?: string | null
   salary_amount?: number | null
   salary_type?: string | null
+  payment_method?: string | null
   work_mode?: string | null
   job_type?: string | null
   created_at?: string | null

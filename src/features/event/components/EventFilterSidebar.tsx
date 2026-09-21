@@ -5,10 +5,11 @@ import { ChevronUp, ChevronDown, RotateCcw, Filter, X } from "lucide-react"
 import Checkbox from "@/components/ui/checkbox"
 
 export interface JobFilterState {
-  workModes: string[]
-  jobTypes: string[]
-  dateRange: string
+  categories: string[]
+  positions: string[]
   salaryTypes: string[]
+  paymentMethods: string[]
+  dateRange: string
   wards: string[]
 }
 
@@ -17,20 +18,39 @@ export interface EventFilterSidebarProps {
   onFilterChange: (newFilters: JobFilterState) => void
   onResetFilters: () => void
   availableWards: Array<{ id: number; name: string }>
+  availableCategories?: Array<{ id?: number | string; name: string }>
+  availablePositions?: Array<{ id?: number | string; name: string }>
 }
 
-export const WORK_MODE_OPTIONS = [
-  { id: "onsite", label: "Tại sự kiện (Onsite)" },
-  { id: "hybrid", label: "Linh hoạt (Hybrid)" },
-  { id: "remote", label: "Từ xa (Remote)" },
+export const DEFAULT_CATEGORY_OPTIONS = [
+  { id: "Lễ hội Âm nhạc", label: "Lễ hội Âm nhạc" },
+  { id: "Hội thảo / Workshop", label: "Hội thảo / Workshop" },
+  { id: "Giải đấu Thể thao", label: "Giải đấu Thể thao" },
+  { id: "Giao lưu Văn hóa", label: "Giao lưu Văn hóa" },
+  { id: "Triển lãm / Hội chợ", label: "Triển lãm / Hội chợ" },
+  { id: "Sự kiện Công nghệ", label: "Sự kiện Công nghệ" },
 ]
 
-export const JOB_TYPE_OPTIONS = [
-  { id: "fulltime", label: "Toàn thời gian" },
-  { id: "parttime", label: "Bán thời gian" },
-  { id: "shift", label: "Theo ca / Thời vụ" },
+export const DEFAULT_POSITION_OPTIONS = [
+  { id: "Tình nguyện viên", label: "Tình nguyện viên" },
+  { id: "Điều phối viên (Coordinator)", label: "Điều phối viên (Coordinator)" },
+  { id: "CTV Truyền thông", label: "CTV Truyền thông" },
+  { id: "Hậu cần & Setup", label: "Hậu cần & Setup" },
+  { id: "MC / Hoạt náo viên", label: "MC / Hoạt náo viên" },
+  { id: "Hỗ trợ khách mời", label: "Hỗ trợ khách mời" },
+]
+
+export const SALARY_TYPE_OPTIONS = [
+  { id: "per_shift", label: "Thù lao theo ca" },
+  { id: "per_hour", label: "Thù lao theo giờ" },
+  { id: "per_event", label: "Trọn gói sự kiện" },
   { id: "volunteer", label: "Tình nguyện viên" },
-  { id: "contract", label: "Hợp đồng" },
+]
+
+export const PAYMENT_METHOD_OPTIONS = [
+  { id: "cash_after_event", label: "Tiền mặt sau sự kiện" },
+  { id: "bank_transfer", label: "Chuyển khoản sau ca" },
+  { id: "after_project", label: "Quyết toán sau sự kiện" },
 ]
 
 export const DATE_OPTIONS = [
@@ -41,25 +61,20 @@ export const DATE_OPTIONS = [
   { id: "14d", label: "14 ngày qua" },
 ]
 
-export const SALARY_OPTIONS = [
-  { id: "hourly", label: "Thù lao theo giờ" },
-  { id: "shift", label: "Thù lao theo ca" },
-  { id: "fixed", label: "Trọn gói sự kiện" },
-  { id: "negotiable", label: "Thỏa thuận" },
-  { id: "volunteer", label: "Tình nguyện viên" },
-]
-
 export default function EventFilterSidebar({
   filters,
   onFilterChange,
   onResetFilters,
   availableWards,
+  availableCategories,
+  availablePositions,
 }: EventFilterSidebarProps) {
   const [openSections, setOpenSections] = useState({
-    workModes: true,
-    jobTypes: true,
-    date: true,
+    categories: true,
+    positions: true,
     salary: true,
+    payment: false,
+    date: false,
     wards: true,
   })
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false)
@@ -70,31 +85,25 @@ export default function EventFilterSidebar({
 
   // Active filters count
   const activeCount =
-    filters.workModes.length +
-    filters.jobTypes.length +
-    (filters.dateRange && filters.dateRange !== "all" ? 1 : 0) +
+    filters.categories.length +
+    filters.positions.length +
     filters.salaryTypes.length +
+    filters.paymentMethods.length +
+    (filters.dateRange && filters.dateRange !== "all" ? 1 : 0) +
     filters.wards.length
 
-  const handleToggleWorkMode = (mode: string) => {
-    const updated = filters.workModes.includes(mode)
-      ? filters.workModes.filter((m) => m !== mode)
-      : [...filters.workModes, mode]
-    onFilterChange({ ...filters, workModes: updated })
+  const handleToggleCategory = (catName: string) => {
+    const updated = filters.categories.includes(catName)
+      ? filters.categories.filter((c) => c !== catName)
+      : [...filters.categories, catName]
+    onFilterChange({ ...filters, categories: updated })
   }
 
-  const handleToggleJobType = (type: string) => {
-    const updated = filters.jobTypes.includes(type)
-      ? filters.jobTypes.filter((t) => t !== type)
-      : [...filters.jobTypes, type]
-    onFilterChange({ ...filters, jobTypes: updated })
-  }
-
-  const handleSelectDate = (dateId: string) => {
-    onFilterChange({
-      ...filters,
-      dateRange: filters.dateRange === dateId ? "all" : dateId,
-    })
+  const handleTogglePosition = (posName: string) => {
+    const updated = filters.positions.includes(posName)
+      ? filters.positions.filter((p) => p !== posName)
+      : [...filters.positions, posName]
+    onFilterChange({ ...filters, positions: updated })
   }
 
   const handleToggleSalary = (sal: string) => {
@@ -104,6 +113,20 @@ export default function EventFilterSidebar({
     onFilterChange({ ...filters, salaryTypes: updated })
   }
 
+  const handleTogglePaymentMethod = (method: string) => {
+    const updated = filters.paymentMethods.includes(method)
+      ? filters.paymentMethods.filter((m) => m !== method)
+      : [...filters.paymentMethods, method]
+    onFilterChange({ ...filters, paymentMethods: updated })
+  }
+
+  const handleSelectDate = (dateId: string) => {
+    onFilterChange({
+      ...filters,
+      dateRange: filters.dateRange === dateId ? "all" : dateId,
+    })
+  }
+
   const handleToggleWard = (wardName: string) => {
     const updated = filters.wards.includes(wardName)
       ? filters.wards.filter((w) => w !== wardName)
@@ -111,9 +134,21 @@ export default function EventFilterSidebar({
     onFilterChange({ ...filters, wards: updated })
   }
 
+  // Categories list to render (dynamic or default)
+  const categoryOptions =
+    availableCategories && availableCategories.length > 0
+      ? availableCategories.map((c) => ({ id: c.name, label: c.name }))
+      : DEFAULT_CATEGORY_OPTIONS
+
+  // Positions list to render (dynamic or default)
+  const positionOptions =
+    availablePositions && availablePositions.length > 0
+      ? availablePositions.map((p) => ({ id: p.name, label: p.name }))
+      : DEFAULT_POSITION_OPTIONS
+
   const filterContent = (
     <div className="flex flex-col gap-2 text-sm w-full">
-      {/* Header: All Filters / Active count (Figma node 5387:22482) */}
+      {/* Header: All Filters / Active count */}
       <div className="flex items-center justify-between pb-3 border-b border-[#ededed]">
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-[#282828]" />
@@ -136,45 +171,83 @@ export default function EventFilterSidebar({
         )}
       </div>
 
-      {/* Active Filter Tags (Figma node 4343:66317) */}
+      {/* Active Filter Tags */}
       {activeCount > 0 && (
         <div className="py-2.5 border-b border-[#ededed] flex flex-wrap gap-1.5">
-          {filters.jobTypes.map((t) => {
-            const opt = JOB_TYPE_OPTIONS.find((o) => o.id === t)
+          {filters.categories.map((c) => (
+            <span
+              key={`cat-${c}`}
+              className="bg-[#ededed] text-[#353535] text-[13px] font-medium px-2 py-1 rounded-[6px] flex items-center gap-1"
+            >
+              {c}
+              <button
+                type="button"
+                onClick={() => handleToggleCategory(c)}
+                className="hover:text-red-500 cursor-pointer"
+                title="Bỏ chọn danh mục"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </span>
+          ))}
+
+          {filters.positions.map((p) => (
+            <span
+              key={`pos-${p}`}
+              className="bg-[#ededed] text-[#353535] text-[13px] font-medium px-2 py-1 rounded-[6px] flex items-center gap-1"
+            >
+              {p}
+              <button
+                type="button"
+                onClick={() => handleTogglePosition(p)}
+                className="hover:text-red-500 cursor-pointer"
+                title="Bỏ chọn vị trí"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </span>
+          ))}
+
+          {filters.salaryTypes.map((s) => {
+            const opt = SALARY_TYPE_OPTIONS.find((o) => o.id === s)
             return (
               <span
-                key={t}
+                key={`sal-${s}`}
                 className="bg-[#ededed] text-[#353535] text-[13px] font-medium px-2 py-1 rounded-[6px] flex items-center gap-1"
               >
-                {opt?.label || t}
+                {opt?.label || s}
                 <button
                   type="button"
-                  onClick={() => handleToggleJobType(t)}
+                  onClick={() => handleToggleSalary(s)}
                   className="hover:text-red-500 cursor-pointer"
+                  title="Bỏ chọn mức thù lao"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
               </span>
             )
           })}
-          {filters.workModes.map((m) => {
-            const opt = WORK_MODE_OPTIONS.find((o) => o.id === m)
+
+          {filters.paymentMethods.map((m) => {
+            const opt = PAYMENT_METHOD_OPTIONS.find((o) => o.id === m)
             return (
               <span
-                key={m}
+                key={`pay-${m}`}
                 className="bg-[#ededed] text-[#353535] text-[13px] font-medium px-2 py-1 rounded-[6px] flex items-center gap-1"
               >
                 {opt?.label || m}
                 <button
                   type="button"
-                  onClick={() => handleToggleWorkMode(m)}
+                  onClick={() => handleTogglePaymentMethod(m)}
                   className="hover:text-red-500 cursor-pointer"
+                  title="Bỏ chọn phương thức thanh toán"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
               </span>
             )
           })}
+
           {filters.dateRange && filters.dateRange !== "all" && (
             <span className="bg-[#ededed] text-[#353535] text-[13px] font-medium px-2 py-1 rounded-[6px] flex items-center gap-1">
               {DATE_OPTIONS.find((o) => o.id === filters.dateRange)?.label}
@@ -182,14 +255,16 @@ export default function EventFilterSidebar({
                 type="button"
                 onClick={() => handleSelectDate("all")}
                 className="hover:text-red-500 cursor-pointer"
+                title="Bỏ lọc thời gian"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             </span>
           )}
+
           {filters.wards.map((w) => (
             <span
-              key={w}
+              key={`ward-${w}`}
               className="bg-[#ededed] text-[#353535] text-[13px] font-medium px-2 py-1 rounded-[6px] flex items-center gap-1"
             >
               {w}
@@ -197,6 +272,7 @@ export default function EventFilterSidebar({
                 type="button"
                 onClick={() => handleToggleWard(w)}
                 className="hover:text-red-500 cursor-pointer"
+                title="Bỏ chọn khu vực"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -205,27 +281,27 @@ export default function EventFilterSidebar({
         </div>
       )}
 
-      {/* Accordion 1: Loại hình công việc (Figma node 6242:29597) */}
+      {/* Accordion 1: Danh mục sự kiện */}
       <div className="border-b border-[#ededed] py-2.5">
         <button
           type="button"
-          onClick={() => toggleSection("jobTypes")}
+          onClick={() => toggleSection("categories")}
           className="w-full flex items-center justify-between py-1 font-medium text-[#282828] text-[18px] text-left cursor-pointer"
         >
-          <span>Loại hình công việc</span>
-          {openSections.jobTypes ? (
+          <span>Danh mục sự kiện</span>
+          {openSections.categories ? (
             <ChevronUp className="w-5 h-5 text-[#515151]" />
           ) : (
             <ChevronDown className="w-5 h-5 text-[#515151]" />
           )}
         </button>
-        {openSections.jobTypes && (
+        {openSections.categories && (
           <div className="mt-2 flex flex-col gap-1">
-            {JOB_TYPE_OPTIONS.map((opt) => (
+            {categoryOptions.map((opt) => (
               <Checkbox
                 key={opt.id}
-                checked={filters.jobTypes.includes(opt.id)}
-                onChange={() => handleToggleJobType(opt.id)}
+                checked={filters.categories.includes(opt.id)}
+                onChange={() => handleToggleCategory(opt.id)}
                 label={opt.label}
               />
             ))}
@@ -233,7 +309,91 @@ export default function EventFilterSidebar({
         )}
       </div>
 
-      {/* Accordion 2: Thời gian đăng (Figma node 6242:26584) */}
+      {/* Accordion 2: Vị trí tuyển dụng */}
+      <div className="border-b border-[#ededed] py-2.5">
+        <button
+          type="button"
+          onClick={() => toggleSection("positions")}
+          className="w-full flex items-center justify-between py-1 font-medium text-[#282828] text-[18px] text-left cursor-pointer"
+        >
+          <span>Vị trí tuyển dụng</span>
+          {openSections.positions ? (
+            <ChevronUp className="w-5 h-5 text-[#515151]" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-[#515151]" />
+          )}
+        </button>
+        {openSections.positions && (
+          <div className="mt-2 flex flex-col gap-1">
+            {positionOptions.map((opt) => (
+              <Checkbox
+                key={opt.id}
+                checked={filters.positions.includes(opt.id)}
+                onChange={() => handleTogglePosition(opt.id)}
+                label={opt.label}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Accordion 3: Hình thức thù lao */}
+      <div className="border-b border-[#ededed] py-2.5">
+        <button
+          type="button"
+          onClick={() => toggleSection("salary")}
+          className="w-full flex items-center justify-between py-1 font-medium text-[#282828] text-[18px] text-left cursor-pointer"
+        >
+          <span>Hình thức thù lao</span>
+          {openSections.salary ? (
+            <ChevronUp className="w-5 h-5 text-[#515151]" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-[#515151]" />
+          )}
+        </button>
+        {openSections.salary && (
+          <div className="mt-2 flex flex-col gap-1">
+            {SALARY_TYPE_OPTIONS.map((opt) => (
+              <Checkbox
+                key={opt.id}
+                checked={filters.salaryTypes.includes(opt.id)}
+                onChange={() => handleToggleSalary(opt.id)}
+                label={opt.label}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Accordion 4: Phương thức thanh toán */}
+      <div className="border-b border-[#ededed] py-2.5">
+        <button
+          type="button"
+          onClick={() => toggleSection("payment")}
+          className="w-full flex items-center justify-between py-1 font-medium text-[#282828] text-[18px] text-left cursor-pointer"
+        >
+          <span>Phương thức thanh toán</span>
+          {openSections.payment ? (
+            <ChevronUp className="w-5 h-5 text-[#515151]" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-[#515151]" />
+          )}
+        </button>
+        {openSections.payment && (
+          <div className="mt-2 flex flex-col gap-1">
+            {PAYMENT_METHOD_OPTIONS.map((opt) => (
+              <Checkbox
+                key={opt.id}
+                checked={filters.paymentMethods.includes(opt.id)}
+                onChange={() => handleTogglePaymentMethod(opt.id)}
+                label={opt.label}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Accordion 5: Thời gian đăng */}
       <div className="border-b border-[#ededed] py-2.5">
         <button
           type="button"
@@ -261,63 +421,7 @@ export default function EventFilterSidebar({
         )}
       </div>
 
-      {/* Accordion 3: Hình thức làm việc (Figma node 6242:40091) */}
-      <div className="border-b border-[#ededed] py-2.5">
-        <button
-          type="button"
-          onClick={() => toggleSection("workModes")}
-          className="w-full flex items-center justify-between py-1 font-medium text-[#282828] text-[18px] text-left cursor-pointer"
-        >
-          <span>Hình thức làm việc</span>
-          {openSections.workModes ? (
-            <ChevronUp className="w-5 h-5 text-[#515151]" />
-          ) : (
-            <ChevronDown className="w-5 h-5 text-[#515151]" />
-          )}
-        </button>
-        {openSections.workModes && (
-          <div className="mt-2 flex flex-col gap-1">
-            {WORK_MODE_OPTIONS.map((opt) => (
-              <Checkbox
-                key={opt.id}
-                checked={filters.workModes.includes(opt.id)}
-                onChange={() => handleToggleWorkMode(opt.id)}
-                label={opt.label}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Accordion 4: Mức thù lao (Figma node 6242:41546) */}
-      <div className="border-b border-[#ededed] py-2.5">
-        <button
-          type="button"
-          onClick={() => toggleSection("salary")}
-          className="w-full flex items-center justify-between py-1 font-medium text-[#282828] text-[18px] text-left cursor-pointer"
-        >
-          <span>Mức thù lao</span>
-          {openSections.salary ? (
-            <ChevronUp className="w-5 h-5 text-[#515151]" />
-          ) : (
-            <ChevronDown className="w-5 h-5 text-[#515151]" />
-          )}
-        </button>
-        {openSections.salary && (
-          <div className="mt-2 flex flex-col gap-1">
-            {SALARY_OPTIONS.map((opt) => (
-              <Checkbox
-                key={opt.id}
-                checked={filters.salaryTypes.includes(opt.id)}
-                onChange={() => handleToggleSalary(opt.id)}
-                label={opt.label}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Accordion 5: Khu vực tại Đà Nẵng */}
+      {/* Accordion 6: Khu vực tại Đà Nẵng */}
       <div className="py-2.5">
         <button
           type="button"
@@ -333,14 +437,18 @@ export default function EventFilterSidebar({
         </button>
         {openSections.wards && (
           <div className="mt-2 max-h-52 overflow-y-auto pr-1 flex flex-col gap-1 custom-scrollbar">
-            {availableWards.map((ward) => (
-              <Checkbox
-                key={ward.id}
-                checked={filters.wards.includes(ward.name)}
-                onChange={() => handleToggleWard(ward.name)}
-                label={ward.name}
-              />
-            ))}
+            {availableWards.length > 0 ? (
+              availableWards.map((ward) => (
+                <Checkbox
+                  key={ward.id}
+                  checked={filters.wards.includes(ward.name)}
+                  onChange={() => handleToggleWard(ward.name)}
+                  label={ward.name}
+                />
+              ))
+            ) : (
+              <p className="text-xs text-[#757575] py-1">Đang tải danh sách khu vực...</p>
+            )}
           </div>
         )}
       </div>
@@ -401,7 +509,7 @@ export default function EventFilterSidebar({
       )}
 
       {/* Desktop Persistent Sidebar (Figma node 6295:27389: 296px width, rounded 8px) */}
-      <aside className="hidden lg:block w-[296px] shrink-0 bg-white border border-[#ededed] rounded-[8px] p-4 shadow-xs sticky top-24 self-start">
+      <aside className="hidden lg:block w-[296px] shrink-0 bg-white border border-[#ededed] rounded-[8px] p-4 shadow-xs sticky top-24 self-start max-h-[calc(100vh-7rem)] overflow-y-auto custom-scrollbar">
         {filterContent}
       </aside>
     </>

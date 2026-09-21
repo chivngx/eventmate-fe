@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react"
 import { supabase } from "@/lib/supabase"
 import { useUser } from "@/components/providers/AuthProvider"
-import { useActiveWards } from "@/hooks/useLookups"
+import { useActiveWards, useEventCategories, useJobPositions } from "@/hooks/useLookups"
 import MainLayout from "@/components/layout/MainLayout"
 import JobSearchBar from "./components/EventSearchBar"
 import EventCard, { JobItem } from "./components/EventCard"
@@ -122,8 +122,10 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
     }
   }, [user, bookmarkedEvents, showToast])
 
-  // Lookups: Only wards that have active/valid events
+  // Lookups: Only wards that have active/valid events + categories + positions
   const { data: wards = [] } = useActiveWards()
+  const { data: categories = [] } = useEventCategories()
+  const { data: positions = [] } = useJobPositions()
 
   // Search & Filter state initialized from URL
   const [searchTerm, setSearchTerm] = useState(
@@ -147,10 +149,11 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
   }, [searchParams])
 
   const [sidebarFilters, setSidebarFilters] = useState<JobFilterState>({
-    workModes: [],
-    jobTypes: [],
-    dateRange: "all",
+    categories: [],
+    positions: [],
     salaryTypes: [],
+    paymentMethods: [],
+    dateRange: "all",
     wards: [],
   })
 
@@ -179,6 +182,8 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
             location,
             salary_amount,
             salary_type,
+            payment_method,
+            slug,
             created_at,
             organizer_id,
             slots_needed,
@@ -223,10 +228,11 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
     setSearchTerm("")
     setSelectedLocation("")
     setSidebarFilters({
-      workModes: [],
-      jobTypes: [],
-      dateRange: "all",
+      categories: [],
+      positions: [],
       salaryTypes: [],
+      paymentMethods: [],
+      dateRange: "all",
       wards: [],
     })
     setCurrentPage(1)
@@ -273,48 +279,43 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
       )
     }
 
-    // Sidebar Job Types filter
-    if (sidebarFilters.jobTypes.length > 0) {
+    // Sidebar Categories filter (event_categories)
+    if (sidebarFilters.categories.length > 0) {
+      result = result.filter((job) =>
+        job.category && sidebarFilters.categories.some((c) =>
+          job.category?.toLowerCase() === c.toLowerCase()
+        )
+      )
+    }
+
+    // Sidebar Positions filter (job_positions)
+    if (sidebarFilters.positions.length > 0) {
+      result = result.filter((job) =>
+        job.position_type && sidebarFilters.positions.some((p) =>
+          job.position_type?.toLowerCase().includes(p.toLowerCase()) ||
+          p.toLowerCase().includes(job.position_type?.toLowerCase() || "")
+        )
+      )
+    }
+
+    // Sidebar Salary Types filter (per_shift, per_hour, per_event, volunteer)
+    if (sidebarFilters.salaryTypes.length > 0) {
       result = result.filter((job) => {
-        return sidebarFilters.jobTypes.some((type) => {
-          if (type === "volunteer") {
-            return (
-              job.salary_type === "volunteer" ||
-              job.position_type?.toLowerCase().includes("tình nguyện") ||
-              !job.salary_amount
-            )
-          }
-          if (type === "fulltime") {
-            return job.job_type?.toLowerCase().includes("toàn thời gian") || job.position_type?.toLowerCase().includes("toàn thời gian")
-          }
-          if (type === "parttime") {
-            return job.job_type?.toLowerCase().includes("bán thời gian") || job.position_type?.toLowerCase().includes("bán thời gian")
-          }
-          if (type === "shift") {
-            return (
-              job.salary_type === "per_shift" ||
-              job.salary_type === "per_hour" ||
-              job.job_type?.toLowerCase().includes("ca") ||
-              job.job_type?.toLowerCase().includes("thời vụ")
-            )
-          }
-          if (type === "contract") {
-            return job.salary_type === "per_event" || job.job_type?.toLowerCase().includes("hợp đồng")
-          }
-          return true
+        return sidebarFilters.salaryTypes.some((s) => {
+          if (s === "volunteer") return job.salary_type === "volunteer" || !job.salary_amount || job.salary_amount === 0
+          return job.salary_type === s
         })
       })
     }
 
-    // Sidebar Work Modes filter
-    if (sidebarFilters.workModes.length > 0) {
-      result = result.filter((job) => {
-        const mode = (job.work_mode || "onsite").toLowerCase()
-        return sidebarFilters.workModes.some((m) => mode.includes(m))
-      })
+    // Sidebar Payment Methods filter (cash_after_event, bank_transfer, after_project)
+    if (sidebarFilters.paymentMethods.length > 0) {
+      result = result.filter((job) =>
+        job.payment_method && sidebarFilters.paymentMethods.includes(job.payment_method)
+      )
     }
 
-    // Sidebar Date Range filter
+    // Sidebar Date Range filter (created_at)
     if (sidebarFilters.dateRange && sidebarFilters.dateRange !== "all") {
       const now = Date.now()
       const ranges: Record<string, number> = {
@@ -333,21 +334,7 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
       }
     }
 
-    // Sidebar Salary Types filter
-    if (sidebarFilters.salaryTypes.length > 0) {
-      result = result.filter((job) => {
-        return sidebarFilters.salaryTypes.some((s) => {
-          if (s === "volunteer") return job.salary_type === "volunteer" || !job.salary_amount
-          if (s === "hourly") return job.salary_type === "per_hour"
-          if (s === "shift") return job.salary_type === "per_shift"
-          if (s === "fixed") return job.salary_type === "per_event"
-          if (s === "negotiable") return job.salary_type === "negotiable"
-          return true
-        })
-      })
-    }
-
-    // Sidebar Wards filter
+    // Sidebar Wards filter (danang_wards)
     if (sidebarFilters.wards.length > 0) {
       result = result.filter((job) => {
         return sidebarFilters.wards.some((w) => {
@@ -380,10 +367,11 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
     Boolean(selectedPosition) ||
     Boolean(searchTerm) ||
     Boolean(selectedLocation) ||
-    sidebarFilters.workModes.length > 0 ||
-    sidebarFilters.jobTypes.length > 0 ||
-    (sidebarFilters.dateRange && sidebarFilters.dateRange !== "all") ||
+    sidebarFilters.categories.length > 0 ||
+    sidebarFilters.positions.length > 0 ||
     sidebarFilters.salaryTypes.length > 0 ||
+    sidebarFilters.paymentMethods.length > 0 ||
+    (sidebarFilters.dateRange && sidebarFilters.dateRange !== "all") ||
     sidebarFilters.wards.length > 0
 
   return (
@@ -422,6 +410,8 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
             onFilterChange={setSidebarFilters}
             onResetFilters={handleResetFilters}
             availableWards={wards}
+            availableCategories={categories}
+            availablePositions={positions}
           />
 
           {/* Right Cards Grid (Figma node 6295:27390) */}

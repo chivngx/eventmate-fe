@@ -13,11 +13,13 @@ export default function OrganizerHero({ navbar }: { navbar?: React.ReactNode }) 
       className="w-full min-h-screen lg:h-screen lg:max-h-[920px] xl:max-h-[960px] flex flex-col justify-between bg-[#f4f4f4] relative overflow-hidden"
       data-node-id="5875:27309"
     >
-      {/* Floating Navbar inside Hero's top area */}
-      {navbar && (
+      {/* Floating Navbar inside Hero's top area or Spacer */}
+      {navbar ? (
         <div className="pt-4 sm:pt-6 lg:pt-8 px-4 sm:px-6 lg:px-8 max-w-[1280px] mx-auto w-full relative z-40 shrink-0">
           {navbar}
         </div>
+      ) : (
+        <div className="h-[92px] sm:h-[96px] shrink-0" />
       )}
 
       {/* Hero Content (Vertically Centered) */}

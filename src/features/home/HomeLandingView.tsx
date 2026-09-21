@@ -80,11 +80,13 @@ export default function HomeLandingView({ navbar }: { navbar?: React.ReactNode }
     <div className="w-full animate-in fade-in duration-300">
       {/* 1. TOP HERO CONTAINER (Figma node 7182:22144) - #EFF5FF background encloses Navbar & Hero (Full Viewport) */}
       <div className="w-full min-h-screen flex flex-col justify-between bg-[#EFF5FF] relative overflow-hidden">
-        {/* Floating Navbar inside the Hero's top area */}
-        {navbar && (
+        {/* Floating Navbar inside the Hero's top area or Spacer */}
+        {navbar ? (
           <div className="pt-6 sm:pt-8 lg:pt-10 px-4 sm:px-6 lg:px-8 max-w-[1280px] mx-auto w-full relative z-30 shrink-0">
             {navbar}
           </div>
+        ) : (
+          <div className="h-[92px] sm:h-[96px] shrink-0" />
         )}
 
         {/* Hero Section Content (Vertically centered) */}

@@ -197,28 +197,31 @@ export default function MainLayout({
 
 
     const isHomePage = pathname === "/" && !isEmployerContext
+    const isEmployerLanding = pathname === "/for-employers"
+    const hasHeroHeader = isHomePage || isEmployerLanding
     const isRenderProp = typeof children === "function"
-    const hideOuterNavbar = isHomePage || isRenderProp
 
     const navbarElement = (
-        <div className={cn(!hideOuterNavbar && "pt-4 sm:pt-6 lg:pt-8 px-4 sm:px-6 lg:px-8 max-w-[1280px] mx-auto w-full relative z-40")}>
-            <NotchNavbar
-                variant="floating"
-                rightActions={rightActions}
-                role={effectiveUser ? (role || profile?.role || "student") : "guest"}
-                isEmployer={isEmployerContext}
-            />
-        </div>
+        <NotchNavbar
+            variant="floating"
+            rightActions={rightActions}
+            role={effectiveUser ? (role || profile?.role || "student") : "guest"}
+            isEmployer={isEmployerContext}
+        />
     )
 
     return (
         <div className={cn("min-h-screen flex flex-col bg-background text-foreground", className)}>
-            {!hideOuterNavbar && navbarElement}
-            <main className={hideOuterNavbar || fullWidth ? "flex-1 w-full" : "flex-1 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-4 sm:py-6"}>
+            {navbarElement}
+            <main
+                className={cn(
+                    "flex-1 w-full",
+                    hasHeroHeader ? "-mt-[92px] sm:-mt-[96px]" : "",
+                    !hasHeroHeader && !fullWidth ? "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 sm:py-6" : ""
+                )}
+            >
                 {isRenderProp
-                    ? (children as (props: { navbar: React.ReactNode }) => React.ReactNode)({ navbar: navbarElement })
-                    : isHomePage && isValidElement(children)
-                    ? cloneElement(children as React.ReactElement<any>, { navbar: navbarElement })
+                    ? (children as (props: { navbar?: React.ReactNode }) => React.ReactNode)({ navbar: null })
                     : children}
             </main>
 
