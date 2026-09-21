@@ -1,97 +1,270 @@
-"use client"
+"use client";
 
-import Link from"next/link"
-import { Mail, Phone, MapPin } from"lucide-react"
+import React from "react";
+import Link from "next/link";
+import { FaFacebookF, FaInstagram } from "react-icons/fa6";
+import { Button } from "@/components/base-ui/button";
+import { cn } from "@/lib/utils";
 
-export default function Footer() {
- return (
- <footer className="border-t border-slate-200 bg-white">
- <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 sm:py-14">
- <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
- {/* Brand */}
- <div className="lg:col-span-2 space-y-4">
- <Link href="/" className="inline-block text-2xl font-extrabold tracking-tight text-slate-900">
- Event<span className="text-slate-600">Mate</span>
- </Link>
- <p className="text-sm leading-relaxed text-slate-500 max-w-md">
- Nền tảng kết nối sinh viên với cơ hội sự kiện và ban tổ chức tại Đà Nẵng.
- Tìm sự kiện linh hoạt, quản lý nhân sự hiệu quả.
- </p>
- <div className="flex items-center gap-2 pt-2">
- <a
- href="https://facebook.com"
- target="_blank"
- rel="noreferrer"
- aria-label="Facebook"
- className="w-9 h-9 rounded-lg bg-slate-100 hover:bg-slate-100 hover:text-slate-900 text-slate-500 flex items-center justify-center transition-colors"
- >
- <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M9 8H7v3h2v9h3v-9h2.72l.42-3H12V6c0-.55.45-1 1-1h1.72V1H12C9.79 1 8 2.79 8 5v3H9z" /></svg>
- </a>
- <a
- href="https://linkedin.com"
- target="_blank"
- rel="noreferrer"
- aria-label="LinkedIn"
- className="w-9 h-9 rounded-lg bg-slate-100 hover:bg-slate-100 hover:text-slate-900 text-slate-500 flex items-center justify-center transition-colors"
- >
- <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.779-1.75-1.75s.784-1.75 1.75-1.75 1.75.779 1.75 1.75-.784 1.75-1.75 1.75zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" /></svg>
- </a>
- <a
- href="https://youtube.com"
- target="_blank"
- rel="noreferrer"
- aria-label="YouTube"
- className="w-9 h-9 rounded-lg bg-slate-100 hover:bg-slate-100 hover:text-slate-900 text-slate-500 flex items-center justify-center transition-colors"
- >
- <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.163c-.272-1.022-1.074-1.826-2.099-2.099C19.55 3.5 12 3.5 12 3.5s-7.55 0-9.4.564c-1.025.273-1.827 1.077-2.099 2.099C0 8.013 0 12 0 12s0 3.987.502 5.837c.272 1.022 1.074 1.826 2.099 2.099C4.45 20.5 12 20.5 12 20.5s7.55 0 9.4-.564c1.025-.273 1.827-1.077 2.099-2.099C24 15.987 24 12 24 12s0-3.987-.502-5.837zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" /></svg>
- </a>
- </div>
- </div>
+export interface Footer3LinkGroup {
+  title: string;
+  links: { label: string; href: string }[];
+}
 
- {/* For students */}
- <div>
- <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-4">
- Dành cho sinh viên
- </h3>
- <ul className="space-y-2.5 text-sm">
- <li><Link href="/" className="text-slate-500 hover:text-slate-900 transition-colors">Tìm sự kiện</Link></li>
- <li><Link href="/my-jobs" className="text-slate-500 hover:text-slate-900 transition-colors">Việc đã đăng ký</Link></li>
- <li><Link href="/saved" className="text-slate-500 hover:text-slate-900 transition-colors">Việc đã lưu</Link></li>
- <li><Link href="/cv" className="text-slate-500 hover:text-slate-900 transition-colors">Hồ sơ năng lực</Link></li>
- </ul>
- </div>
+export interface Footer3SocialLink {
+  icon: React.ReactNode;
+  href: string;
+  label?: string;
+}
 
- {/* Contact */}
- <div>
- <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-4">
- Liên hệ
- </h3>
- <ul className="space-y-3 text-sm text-slate-500">
- <li className="flex items-start gap-2.5">
- <MapPin className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
- <span>Đường Ngũ Hành Sơn, TP. Đà Nẵng</span>
- </li>
- <li className="flex items-center gap-2.5">
- <Phone className="w-4 h-4 text-slate-400 shrink-0" />
- <span>+84 236 395 1234</span>
- </li>
- <li className="flex items-center gap-2.5">
- <Mail className="w-4 h-4 text-slate-400 shrink-0" />
- <a href="mailto:support@eventmate.vn" className="hover:text-slate-900 transition-colors">support@eventmate.vn</a>
- </li>
- </ul>
- </div>
- </div>
+export interface Footer3Props {
+  logo?: React.ReactNode;
+  brandName?: React.ReactNode;
+  description?: string;
+  socialLinks?: Footer3SocialLink[];
+  linkGroups?: Footer3LinkGroup[];
+  copyright?: string;
+  legalLinks?: { label: string; href: string }[];
+}
 
- {/* Bottom bar */}
- <div className="mt-10 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
- <p>© {new Date().getFullYear()} EventMate. Tất cả các quyền được bảo lưu.</p>
- <div className="flex items-center gap-4">
- <Link href="/" className="hover:text-slate-600 transition-colors">Điều khoản</Link>
- <Link href="/" className="hover:text-slate-600 transition-colors">Bảo mật</Link>
- </div>
- </div>
- </div>
- </footer>
- )
+export function Footer3({
+  logo,
+  brandName,
+  description,
+  socialLinks = [],
+  linkGroups = [],
+  copyright,
+  legalLinks = [],
+}: Footer3Props) {
+  return (
+    <footer className="w-full px-4 py-12 md:px-6">
+      <div className="border-border bg-muted mx-auto max-w-7xl overflow-hidden rounded-4xl border">
+        <div className="p-1">
+          <div className="bg-card rounded-3xl shadow-xs">
+            <div className="px-8 py-12 md:px-12 md:py-16">
+              <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-8">
+                {/* Brand & Bio */}
+                <div className="flex flex-col items-start lg:col-span-4">
+                  <div className="mb-6 flex items-center gap-3">
+                    {logo && <div className="shrink-0">{logo}</div>}
+                    {brandName && (
+                      typeof brandName === "string" ? (
+                        <span className="text-xl font-bold tracking-tight">{brandName}</span>
+                      ) : (
+                        brandName
+                      )
+                    )}
+                  </div>
+                  {description && (
+                    <p className="text-muted-foreground mb-8 max-w-sm text-sm leading-relaxed">
+                      {description}
+                    </p>
+                  )}
+                  {socialLinks.length > 0 && (
+                    <div className="flex items-center gap-3">
+                      {socialLinks.map((link, index) => (
+                        <Button
+                          key={index}
+                          variant="outline"
+                          size="icon"
+                          asChild
+                          className="text-muted-foreground bg-muted hover:text-foreground h-10 w-10 rounded-xl shadow-[0_0_0_0.5px_rgba(0,0,0,0.03),0_2px_4px_0_rgba(0,0,0,0.05),inset_0_2px_0_0px_rgba(255,255,255,0.5)] transition-colors outline-none dark:shadow-[0_0_0_0.5px_rgba(0,0,0,0.03),0_2px_4px_0_rgba(0,0,0,0.05),inset_0_2px_0_0px_rgba(255,255,255,0.1)]"
+                        >
+                          <a
+                            href={link.href}
+                            target="_blank"
+                            aria-label={link.label || "Social link"}
+                            rel="noopener noreferrer"
+                          >
+                            {link.icon}
+                          </a>
+                        </Button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Link Groups */}
+                <div className="lg:col-span-8">
+                  <div className="grid grid-cols-2 gap-8 md:grid-cols-3">
+                    {linkGroups.map((group, index) => (
+                      <div key={index} className="flex flex-col gap-4">
+                        <h4 className="text-foreground mb-1 text-sm font-semibold">
+                          {group.title}
+                        </h4>
+                        <ul className="flex flex-col gap-3">
+                          {group.links.map((link, linkIndex) => {
+                            const isInternal = link.href.startsWith("/");
+                            return (
+                              <li key={linkIndex}>
+                                {isInternal ? (
+                                  <Link
+                                    href={link.href}
+                                    className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+                                  >
+                                    {link.label}
+                                  </Link>
+                                ) : (
+                                  <a
+                                    href={link.href}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-muted-foreground hover:text-foreground text-sm transition-colors"
+                                  >
+                                    {link.label}
+                                  </a>
+                                )}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Legal & Copyright Bar */}
+        <div className="bg-muted/50 px-8 py-6 md:px-12">
+          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+            {copyright && (
+              <p className="text-muted-foreground text-sm">{copyright}</p>
+            )}
+
+            {legalLinks.length > 0 && (
+              <div className="text-muted-foreground flex flex-wrap items-center justify-center gap-4 text-sm">
+                {legalLinks.map((link, index) => {
+                  const isInternal = link.href.startsWith("/");
+                  return (
+                    <React.Fragment key={index}>
+                      {isInternal ? (
+                        <Link
+                          href={link.href}
+                          className="hover:text-foreground transition-colors"
+                        >
+                          {link.label}
+                        </Link>
+                      ) : (
+                        <a
+                          href={link.href}
+                          className="hover:text-foreground transition-colors"
+                        >
+                          {link.label}
+                        </a>
+                      )}
+                      {index < legalLinks.length - 1 && (
+                        <span className="bg-border h-4 w-px"></span>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+// EventMate Brand Assets
+export function EventMateLogoMark({ className }: { className?: string }) {
+  return (
+    <div
+      className={cn(
+        "size-8 rounded-xl bg-gradient-to-tr from-[#005DDC] to-[#2563EB] flex items-center justify-center text-white shadow-xs shrink-0",
+        className
+      )}
+    >
+      <svg
+        width="18"
+        height="18"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M8 2v4" />
+        <path d="M16 2v4" />
+        <rect width="18" height="18" x="3" y="4" rx="3" />
+        <path d="M3 10h18" />
+        <path d="m9 16 2 2 4-4" />
+      </svg>
+    </div>
+  );
+}
+
+const defaultSocialLinks: Footer3SocialLink[] = [
+  { icon: <FaFacebookF className="w-4 h-4" />, href: "https://facebook.com", label: "Facebook" },
+  { icon: <FaInstagram className="w-4 h-4" />, href: "https://instagram.com", label: "Instagram" }
+];
+
+const defaultLinkGroups: Footer3LinkGroup[] = [
+  {
+    title: "Dịch vụ",
+    links: [
+      { label: "Tìm việc làm sự kiện", href: "/events" },
+      { label: "Hồ sơ ứng viên", href: "/profile" },
+      { label: "Tìm Ban tổ chức", href: "/companies" },
+      { label: "Bảng giá dịch vụ", href: "/pricing" },
+    ],
+  },
+  {
+    title: "Khám phá",
+    links: [
+      { label: "Cẩm nang sự kiện", href: "/blog" },
+      { label: "Về chúng tôi", href: "/about" },
+      { label: "Liên hệ hợp tác", href: "/contact" },
+      { label: "Trung tâm trợ giúp", href: "/help" },
+    ],
+  },
+  {
+    title: "Hỗ trợ & Pháp lý",
+    links: [
+      { label: "Điều khoản dịch vụ", href: "/terms" },
+      { label: "Chính sách bảo mật", href: "/privacy" },
+      { label: "Quy chế hoạt động", href: "/rules" },
+      { label: "Câu hỏi thường gặp", href: "/help" },
+    ],
+  },
+];
+
+const defaultLegalLinks = [
+  { label: "Chính sách bảo mật", href: "/privacy" },
+  { label: "Điều khoản dịch vụ", href: "/terms" },
+  { label: "Quy chế hoạt động", href: "/rules" },
+];
+
+export function Footer3Demo(props?: Partial<Footer3Props>) {
+  return (
+    <div className="w-full">
+      <Footer3
+        logo={props?.logo ?? <EventMateLogoMark />}
+        brandName={
+          props?.brandName ?? (
+            <span className="text-xl font-bold tracking-tight text-foreground">
+              Event<span className="text-[#005DDC]">Mate</span>
+            </span>
+          )
+        }
+        description={
+          props?.description ??
+          "Nền tảng kết nối Ban tổ chức sự kiện chuyên nghiệp với lực lượng nhân sự trẻ, năng động hàng đầu tại Đà Nẵng."
+        }
+        socialLinks={props?.socialLinks ?? defaultSocialLinks}
+        linkGroups={props?.linkGroups ?? defaultLinkGroups}
+        copyright={props?.copyright ?? "© 2026 EventMate. Mọi quyền được bảo lưu."}
+        legalLinks={props?.legalLinks ?? defaultLegalLinks}
+      />
+    </div>
+  );
+}
+
+export default function Footer(props?: Partial<Footer3Props>) {
+  return <Footer3Demo {...props} />;
 }

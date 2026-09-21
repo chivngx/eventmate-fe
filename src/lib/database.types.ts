@@ -105,6 +105,42 @@ export type Database = {
           },
         ]
       }
+      company_follows: {
+        Row: {
+          created_at: string
+          id: string
+          organizer_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          organizer_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          organizer_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_follows_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_follows_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       danang_wards: {
         Row: {
           created_at: string
@@ -361,6 +397,7 @@ export type Database = {
           content: string
           created_at: string | null
           id: string
+          is_read: boolean | null
           sender_id: string | null
         }
         Insert: {
@@ -368,6 +405,7 @@ export type Database = {
           content: string
           created_at?: string | null
           id?: string
+          is_read?: boolean | null
           sender_id?: string | null
         }
         Update: {
@@ -375,6 +413,7 @@ export type Database = {
           content?: string
           created_at?: string | null
           id?: string
+          is_read?: boolean | null
           sender_id?: string | null
         }
         Relationships: [
@@ -429,81 +468,162 @@ export type Database = {
           },
         ]
       }
+      profile_likes: {
+        Row: {
+          created_at: string
+          id: string
+          organizer_id: string
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          organizer_id: string
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          organizer_id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_likes_organizer_id_fkey"
+            columns: ["organizer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_likes_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profile_views: {
+        Row: {
+          id: string
+          student_id: string
+          viewed_at: string
+          viewer_id: string
+        }
+        Insert: {
+          id?: string
+          student_id: string
+          viewed_at?: string
+          viewer_id: string
+        }
+        Update: {
+          id?: string
+          student_id?: string
+          viewed_at?: string
+          viewer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profile_views_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profile_views_viewer_id_fkey"
+            columns: ["viewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           address: string | null
           avatar_url: string | null
           bio: string | null
-          company_images: string | null
+          birth_year: number | null
           created_at: string
           cv_completion_percent: number | null
+          cv_url: string | null
           email: string
+          experiences: Json | null
           full_name: string
-          height: number | null
+          gender: string | null
           id: string
           is_premium: boolean
+          is_verified: boolean | null
           mst: string | null
           phone: string | null
           premium_until: string | null
           reliability_score: number | null
           role: string
           scale: string | null
-          shirt_size: string | null
           skills: string | null
           slug: string | null
+          social_link: string | null
           university: string | null
           website: string | null
-          zalo_phone: string | null
+          map_embed_url: string | null
         }
         Insert: {
           address?: string | null
           avatar_url?: string | null
           bio?: string | null
-          company_images?: string | null
+          birth_year?: number | null
           created_at?: string
           cv_completion_percent?: number | null
+          cv_url?: string | null
           email: string
+          experiences?: Json | null
           full_name: string
-          height?: number | null
+          gender?: string | null
           id: string
           is_premium?: boolean
+          is_verified?: boolean | null
           mst?: string | null
           phone?: string | null
           premium_until?: string | null
           reliability_score?: number | null
           role: string
           scale?: string | null
-          shirt_size?: string | null
           skills?: string | null
           slug?: string | null
+          social_link?: string | null
           university?: string | null
           website?: string | null
-          zalo_phone?: string | null
+          map_embed_url?: string | null
         }
         Update: {
           address?: string | null
           avatar_url?: string | null
           bio?: string | null
-          company_images?: string | null
+          birth_year?: number | null
           created_at?: string
           cv_completion_percent?: number | null
+          cv_url?: string | null
           email?: string
+          experiences?: Json | null
           full_name?: string
-          height?: number | null
+          gender?: string | null
           id?: string
           is_premium?: boolean
+          is_verified?: boolean | null
           mst?: string | null
           phone?: string | null
           premium_until?: string | null
           reliability_score?: number | null
           role?: string
           scale?: string | null
-          shirt_size?: string | null
           skills?: string | null
           slug?: string | null
+          social_link?: string | null
           university?: string | null
           website?: string | null
-          zalo_phone?: string | null
+          map_embed_url?: string | null
         }
         Relationships: []
       }
@@ -559,11 +679,62 @@ export type Database = {
           },
         ]
       }
+      transactions: {
+        Row: {
+          amount: number
+          billing_cycle: string
+          created_at: string
+          id: string
+          payment_method: string
+          plan_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          billing_cycle: string
+          created_at?: string
+          id?: string
+          payment_method: string
+          plan_id: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          billing_cycle?: string
+          created_at?: string
+          id?: string
+          payment_method?: string
+          plan_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      complete_checkout_transaction: {
+        Args: {
+          p_amount: number
+          p_billing_cycle: string
+          p_payment_method: string
+          p_plan_id: string
+        }
+        Returns: Json
+      }
+      record_profile_view: { Args: { p_student_id: string }; Returns: boolean }
       slugify: { Args: { t: string }; Returns: string }
     }
     Enums: {

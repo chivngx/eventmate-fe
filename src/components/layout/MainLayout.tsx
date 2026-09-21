@@ -1,202 +1,240 @@
 "use client"
 
-import { useEffect, useState } from"react"
-import { useRouter } from"next/navigation"
-import Link from"next/link"
-import { supabase } from"@/lib/supabase"
-import { useUser } from"@/components/providers/AuthProvider"
-import { NotchNavbar } from"@/components/layout/notch-navbar"
-import { Button } from"@/components/ui/button"
-import AuthModal from"@/components/auth/AuthModal"
-import { useToast } from"@/components/ui/ToastProvider"
-import NotificationDropdown from"./NotificationDropdown"
-import UserProfileDropdown from"./UserProfileDropdown"
-import { MessageSquare } from"lucide-react"
-import FloatingChat from"@/components/chat/FloatingChat"
-import Footer from"./Footer"
+import { useEffect, useState, isValidElement, cloneElement } from "react"
+import { useRouter, usePathname } from "next/navigation"
+import Link from "next/link"
+import { supabase } from "@/lib/supabase"
+import { useUser } from "@/components/providers/AuthProvider"
+import { NotchNavbar } from "@/components/layout/NotchNavbar"
+import { useToast } from "@/components/providers/ToastProvider"
+import NotificationDropdown from "./NotificationDropdown"
+import JobseekerProfileDropdown from "./JobseekerProfileDropdown"
+import FloatingChat from "@/features/chat/components/FloatingChat"
+import Footer from "./Footer"
+import AuthPromptModal from "@/features/auth/components/AuthPromptModal"
+import { isOrganizerRole } from "@/lib/auth-constants"
+import { cn } from "@/lib/utils"
 
-export default function MainLayout({ children, role }: { children: React.ReactNode, role?: string }) {
- const router = useRouter()
- const navigate = (path: string) => router.push(path)
- const { showToast } = useToast()
- // 🔒 P1.1: auth + profile từ context (thay 31 getUser() calls + localStorage cache)
- const { user, profile, loading: loadingAuth } = useUser()
+export default function MainLayout({
+    children,
+    role,
+    fullWidth = false,
+    className,
+}: {
+    children: React.ReactNode | ((props: { navbar: React.ReactNode }) => React.ReactNode)
+    role?: string
+    fullWidth?: boolean
+    className?: string
+}) {
+    const router = useRouter()
+    const pathname = usePathname()
+    const navigate = (path: string) => router.push(path)
+    const { showToast } = useToast()
+    
+    const { user, profile, loading: loadingAuth } = useUser()
 
- // Derive display values from context. `role` prop is kept as a backward-
- // compat override for pages not yet migrated to useUser().
- const fullName = profile?.full_name ||""
- const email = user?.email ||""
- const avatarUrl = profile?.avatar_url ||""
- const userRole = role || profile?.role ||"guest"
+    const fullName = profile?.full_name || ""
+    const email = user?.email || ""
+    const avatarUrl = profile?.avatar_url || ""
+    const userRole = role || profile?.role || "guest"
 
- const [authModal, setAuthModal] = useState<{ isOpen: boolean; mode:"login" |"register" }>({
- isOpen: false,
- mode:"login"
- })
+    // Detect if current page/context is for Employer / Organizer
+    const isEmployerContext =
+        isOrganizerRole(role) ||
+        isOrganizerRole(profile?.role) ||
+        pathname?.startsWith("/for-employers") ||
+        pathname?.startsWith("/organizer")
 
- const [notifications, setNotifications] = useState<any[]>([])
- const unreadCount = notifications.filter(n => !n.is_read).length
+    const [isGuestMode, setIsGuestMode] = useState(false)
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            const params = new URLSearchParams(window.location.search)
+            if (params.get("guest") === "1" || params.get("mode") === "guest") {
+                setIsGuestMode(true)
+            }
+        }
+    }, [])
 
- const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
- jobSearch: true,
- cvManage: true,
- emailConfig: false,
- personalSecurity: false,
- upgrade: false,
- })
+    const effectiveUser = isGuestMode ? null : user
+    const [notifications, setNotifications] = useState<any[]>([])
+    const unreadCount = notifications.filter(n => !n.is_read).length
 
- const toggleSection = (section: string) => {
- setExpandedSections(prev => ({
- ...prev,
- [section]: !prev[section]
- }))
- }
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+    const [authModalMessage, setAuthModalMessage] = useState<string | undefined>()
+    const [authModalRedirect, setAuthModalRedirect] = useState<string | undefined>()
 
- // Open auth modal from anywhere via CustomEvent (kept for backward compat
- // with notch-navbar / EventCard / useStudentDashboard).
- useEffect(() => {
- const handleOpenAuth = (e: Event) => {
- const customEvent = e as CustomEvent
- setAuthModal({
- isOpen: true,
- mode: customEvent.detail?.mode ||"login"
- })
- }
- window.addEventListener("open-auth-modal", handleOpenAuth)
- return () => window.removeEventListener("open-auth-modal", handleOpenAuth)
- }, [])
+    // Open auth prompt modal from anywhere via CustomEvent
+    useEffect(() => {
+        const handleOpenAuth = (e: Event) => {
+            const customEvent = e as CustomEvent
+            if (customEvent.detail?.directNavigate) {
+                const targetRedirect = customEvent.detail?.redirect ? `&redirect=${encodeURIComponent(customEvent.detail.redirect)}` : ''
+                if (customEvent.detail?.mode === "register") {
+                    navigate(isEmployerContext ? `/register?role=organizer${targetRedirect}` : `/register${targetRedirect}`)
+                } else if (customEvent.detail?.mode === "forgot") {
+                    navigate(isEmployerContext ? `/reset-password?role=organizer${targetRedirect}` : `/reset-password${targetRedirect}`)
+                } else {
+                    navigate(isEmployerContext ? `/login?role=organizer${targetRedirect}` : `/login${targetRedirect}`)
+                }
+            } else {
+                setAuthModalMessage(customEvent.detail?.message)
+                setAuthModalRedirect(customEvent.detail?.redirect)
+                setIsAuthModalOpen(true)
+            }
+        }
+        window.addEventListener("open-auth-modal", handleOpenAuth)
+        return () => window.removeEventListener("open-auth-modal", handleOpenAuth)
+    }, [isEmployerContext])
 
- // Fetch notifications + subscribe to realtime INSERTs for the current user.
- // Depends on user.id (from context) — re-subscribes when user changes.
- useEffect(() => {
- if (!user) {
- setNotifications([])
- return
- }
- let channel: any
+    // Fetch notifications + subscribe to realtime INSERTs for the current user.
+    useEffect(() => {
+        if (!user) {
+            setNotifications([])
+            return
+        }
+        const fetchNotifs = async () => {
+            const { data: notifs } = await supabase
+                .from("notifications")
+                .select("*")
+                .eq("user_id", user.id)
+                .order("created_at", { ascending: false })
+                .limit(10)
+            if (notifs) setNotifications(notifs)
+        }
+        fetchNotifs()
 
- const fetchNotifs = async () => {
- const { data: notifs } = await supabase
- .from("notifications")
- .select("*")
- .eq("user_id", user.id)
- .order("created_at", { ascending: false })
- .limit(10)
- if (notifs) setNotifications(notifs)
- }
- fetchNotifs()
+        const channel = supabase
+            .channel(`user-realtime-notifications-${user.id}-${Math.random().toString(36).substring(7)}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'notifications',
+                    filter: `user_id=eq.${user.id}`
+                },
+                (payload) => {
+                    const newNotif = payload.new
+                    setNotifications(prev => [newNotif, ...prev].slice(0, 10))
+                    showToast({
+                        title: newNotif.title || "Thông báo mới",
+                        message: newNotif.message || "",
+                        type: "info"
+                    })
+                }
+            )
+            .subscribe()
 
- channel = supabase
- .channel(`user-realtime-notifications-${user.id}-${Math.random().toString(36).substring(7)}`)
- .on(
- 'postgres_changes',
- {
- event: 'INSERT',
- schema: 'public',
- table: 'notifications',
- filter: `user_id=eq.${user.id}`
- },
- (payload) => {
- const newNotif = payload.new
- setNotifications(prev => [newNotif, ...prev].slice(0, 10))
- showToast({
- title: newNotif.title ||"Thông báo mới",
- message: newNotif.message ||"",
- type:"info"
- })
- }
- )
- .subscribe()
+        return () => {
+            if (channel) supabase.removeChannel(channel)
+        }
+    }, [user, showToast])
 
- return () => {
- if (channel) supabase.removeChannel(channel)
- }
- }, [user, showToast])
+    const handleLogout = async () => {
+        await supabase.auth.signOut()
+        const privatePaths = ["/account", "/my-events", "/dashboard", "/chat", "/profile", "/post-job", "/notifications", "/saved"]
+        const isPrivate = privatePaths.some(path => window.location.pathname.startsWith(path))
+        if (isPrivate) {
+            navigate(isEmployerContext ? "/for-employers" : "/")
+        } else {
+            window.location.reload()
+        }
+    }
 
- const handleLogout = async () => {
- await supabase.auth.signOut()
- // onAuthStateChange in AuthProvider clears user/profile state.
- // Navigate away from private pages; reload others to flush UI state.
- const privatePaths = ["/settings","/my-jobs","/dashboard","/chat","/cv","/saved"]
- const isPrivate = privatePaths.some(path => window.location.pathname.startsWith(path))
- if (isPrivate) {
- navigate("/")
- } else {
- window.location.reload()
- }
- }
+    const markAsRead = async () => {
+        if (unreadCount === 0 || !user) return
+        await supabase.from("notifications").update({ is_read: true }).eq("user_id", user.id).eq("is_read", false)
+        setNotifications(notifications.map(n => ({ ...n, is_read: true })))
+    }
 
- const markAsRead = async () => {
- if (unreadCount === 0 || !user) return
- await supabase.from("notifications").update({ is_read: true }).eq("user_id", user.id).eq("is_read", false)
- setNotifications(notifications.map(n => ({ ...n, is_read: true })))
- }
 
- const rightActions = loadingAuth ? null : user ? (
- <div className="flex items-center gap-2 sm:gap-4">
- <NotificationDropdown
- notifications={notifications}
- unreadCount={unreadCount}
- markAsRead={markAsRead}
- />
- <Link
- href="/chat"
- aria-label="Trò chuyện"
- className="p-2 rounded-lg hover:bg-slate-100 transition-colors text-slate-500 hover:text-slate-900 relative flex items-center justify-center shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
- title="Trò chuyện"
- >
- <MessageSquare className="w-5 h-5" />
- </Link>
- <UserProfileDropdown
- avatarUrl={avatarUrl}
- fullName={fullName}
- role={role || profile?.role}
- user={user}
- email={email}
- expandedSections={expandedSections}
- toggleSection={toggleSection}
- navigate={navigate}
- handleLogout={handleLogout}
- />
- </div>
- ) : (
- <div className="flex items-center gap-1 sm:gap-2">
- <Button
- variant="ghost"
- className="text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg px-3 py-2 whitespace-nowrap"
- onClick={() => setAuthModal({ isOpen: true, mode:"login" })}
- >
- Đăng nhập
- </Button>
- <Button
- className="bg-primary hover:bg-primary/90 text-white rounded-lg px-4 py-2 text-sm font-semibold whitespace-nowrap shrink-0"
- onClick={() => setAuthModal({ isOpen: true, mode:"register" })}
- >
- Đăng ký
- </Button>
- </div>
- )
 
- return (
- <div className="min-h-screen flex flex-col bg-background text-foreground">
- <NotchNavbar
- logo={<span className="text-xl font-extrabold tracking-tight text-slate-900 cursor-pointer" onClick={() => navigate('/')}>Event<span className="text-primary">Mate</span></span>}
- rightActions={rightActions}
- role={role || profile?.role ||"guest"}
- />
- <main className="flex-1 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
- {children}
- </main>
+    useEffect(() => {
+        const handleTriggerLogout = () => {
+            handleLogout()
+        }
+        window.addEventListener("trigger-logout", handleTriggerLogout)
+        return () => window.removeEventListener("trigger-logout", handleTriggerLogout)
+    }, [])
 
- <Footer />
+    const rightActions = loadingAuth ? null : effectiveUser ? (
+        isEmployerContext ? (
+            <div className="flex items-center gap-2 sm:gap-4">
+                <NotificationDropdown
+                    notifications={notifications}
+                    unreadCount={unreadCount}
+                    markAsRead={markAsRead}
+                />
+                <JobseekerProfileDropdown
+                    avatarUrl={avatarUrl}
+                    fullName={fullName}
+                    email={email}
+                    role={userRole}
+                    isEmployer={true}
+                    navigate={navigate}
+                    handleLogout={handleLogout}
+                />
+            </div>
+        ) : (
+            <div className="flex items-center gap-1 sm:gap-2">
+                <NotificationDropdown
+                    notifications={notifications}
+                    unreadCount={unreadCount}
+                    markAsRead={markAsRead}
+                />
+                <JobseekerProfileDropdown
+                    avatarUrl={avatarUrl}
+                    fullName={fullName}
+                    email={email}
+                    role={userRole}
+                    isEmployer={false}
+                    navigate={navigate}
+                    handleLogout={handleLogout}
+                />
+            </div>
+        )
+    ) : undefined
 
- <AuthModal
- isOpen={authModal.isOpen}
- initialMode={authModal.mode}
- onClose={() => setAuthModal(prev => ({ ...prev, isOpen: false }))}
- />
 
- <FloatingChat user={user} role={userRole} />
- </div>
- )
+    const isHomePage = pathname === "/" && !isEmployerContext
+    const isRenderProp = typeof children === "function"
+    const hideOuterNavbar = isHomePage || isRenderProp
+
+    const navbarElement = (
+        <div className={cn(!hideOuterNavbar && "pt-4 sm:pt-6 lg:pt-8 px-4 sm:px-6 lg:px-8 max-w-[1280px] mx-auto w-full relative z-40")}>
+            <NotchNavbar
+                variant="floating"
+                rightActions={rightActions}
+                role={effectiveUser ? (role || profile?.role || "student") : "guest"}
+                isEmployer={isEmployerContext}
+            />
+        </div>
+    )
+
+    return (
+        <div className={cn("min-h-screen flex flex-col bg-background text-foreground", className)}>
+            {!hideOuterNavbar && navbarElement}
+            <main className={hideOuterNavbar || fullWidth ? "flex-1 w-full" : "flex-1 mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 py-4 sm:py-6"}>
+                {isRenderProp
+                    ? (children as (props: { navbar: React.ReactNode }) => React.ReactNode)({ navbar: navbarElement })
+                    : isHomePage && isValidElement(children)
+                    ? cloneElement(children as React.ReactElement<any>, { navbar: navbarElement })
+                    : children}
+            </main>
+
+            <Footer />
+
+            <FloatingChat user={user} role={userRole} />
+            <AuthPromptModal
+                isOpen={isAuthModalOpen}
+                onClose={() => {
+                    setIsAuthModalOpen(false)
+                    setAuthModalRedirect(undefined)
+                }}
+                customMessage={authModalMessage}
+                redirectPath={authModalRedirect || pathname || undefined}
+                role={isEmployerContext ? "organizer" : "student"}
+            />
+        </div>
+    )
 }

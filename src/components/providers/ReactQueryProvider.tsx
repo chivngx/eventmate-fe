@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { useState } from"react"
-import { QueryClient, QueryClientProvider } from"@tanstack/react-query"
+import { useState } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 /**
  * React Query provider.
@@ -14,22 +14,22 @@ import { QueryClient, QueryClientProvider } from"@tanstack/react-query"
  * backend that returns 4xx for RLS denials, which shouldn't be retried).
  */
 export function ReactQueryProvider({
- children,
+  children,
 }: {
- children: React.ReactNode
+  children: React.ReactNode;
 }) {
- const [client] = useState(
- () =>
- new QueryClient({
- defaultOptions: {
- queries: {
- staleTime: 60_000,
- refetchOnWindowFocus: false,
- retry: 1,
- },
- },
- })
- )
+  const [client] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 60_000,
+            refetchOnWindowFocus: false,
+            retry: 1,
+          },
+        },
+      }),
+  );
 
- return <QueryClientProvider client={client}>{children}</QueryClientProvider>
+  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
 }

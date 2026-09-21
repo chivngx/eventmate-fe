@@ -1,0 +1,167 @@
+"use client"
+
+import React, { useState } from "react"
+import { useNavigate } from "@/lib/router"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Share2, Bookmark, ChevronRight, Check } from "lucide-react"
+import { useToast } from "@/components/providers/ToastProvider"
+
+export interface OrganizerProfile {
+  id: string
+  full_name: string
+  avatar_url: string | null
+  bio: string | null
+  slug: string | null
+  university: string | null
+  email: string | null
+  phone: string | null
+  scale: string | null
+  address: string | null
+  reliability_score: number | null
+  events?: Array<{ id: string; title?: string; status?: string }>
+}
+
+export interface CompanyCardProps {
+  organizer: OrganizerProfile
+  isBookmarked: boolean
+  onToggleBookmark: (id: string) => void
+}
+
+export default function CompanyCard({
+  organizer,
+  isBookmarked,
+  onToggleBookmark,
+}: CompanyCardProps) {
+  const navigate = useNavigate()
+  const { showToast } = useToast()
+  const [copied, setCopied] = useState(false)
+
+  const displayName = organizer.full_name || "Ban tổ chức sự kiện"
+  const eventCount = organizer.events?.length || 0
+  const isHiring = organizer.events?.some(
+    (e) => e.status === "upcoming" || e.status === "ongoing"
+  )
+  const orgLink = `/companies/${organizer.slug || organizer.id}`
+
+  const handleShare = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    const fullUrl = `${window.location.origin}${orgLink}`
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(fullUrl).then(() => {
+        setCopied(true)
+        showToast({
+          type: "success",
+          title: "Đã sao chép liên kết",
+          message: `Đã sao chép đường dẫn hồ sơ ${displayName} vào bộ nhớ tạm.`,
+        })
+        setTimeout(() => setCopied(false), 2000)
+      })
+    }
+  }
+
+  const handleBookmark = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    onToggleBookmark(organizer.id)
+  }
+
+  // Location display (exclude if it duplicates full_name)
+  const locationLabel =
+    organizer.address && organizer.address.toLowerCase() !== displayName.toLowerCase()
+      ? organizer.address
+      : organizer.university && organizer.university.toLowerCase() !== displayName.toLowerCase()
+      ? organizer.university
+      : null
+
+  return (
+    <article
+      onClick={() => navigate(orgLink)}
+      className="group relative bg-white border border-[#ededed] hover:border-[#005ddc]/50 hover:shadow-md transition-all duration-200 rounded-[8px] px-6 sm:px-8 py-5 sm:py-6 cursor-pointer flex items-center justify-between gap-4 sm:gap-6"
+    >
+      {/* Left side: Logo + Details (Figma node 5875:24889) */}
+      <div className="flex items-start sm:items-center gap-4 sm:gap-5 flex-1 min-w-0">
+        {/* 84x84px Logo */}
+        <div className="relative shrink-0 w-16 h-16 sm:w-[84px] sm:h-[84px] rounded-[4px] border border-slate-100 bg-slate-50 flex items-center justify-center overflow-hidden">
+          <Avatar className="w-full h-full rounded-[4px]">
+            <AvatarImage
+              src={organizer.avatar_url || ""}
+              alt={displayName}
+              className="object-cover"
+            />
+            <AvatarFallback className="rounded-[4px] bg-slate-100 text-slate-700 font-bold text-lg sm:text-xl">
+              {displayName.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        </div>
+
+        {/* Content details */}
+        <div className="flex-1 min-w-0 flex flex-col gap-1.5 sm:gap-2">
+          {/* Header row: Name + Micro Actions */}
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-base sm:text-[18px] font-semibold text-[#222222] truncate group-hover:text-[#005ddc] transition-colors">
+              {displayName}
+            </h3>
+
+            {/* Micro actions: Share & Bookmark */}
+            <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+              <button
+                type="button"
+                onClick={handleShare}
+                aria-label="Chia sẻ hồ sơ ban tổ chức"
+                title="Sao chép liên kết"
+                className="p-1.5 rounded-md text-[#515151] hover:text-[#005ddc] hover:bg-[#eff5ff] transition-colors cursor-pointer"
+              >
+                {copied ? (
+                  <Check className="w-4 h-4 text-green-600" />
+                ) : (
+                  <Share2 className="w-4 h-4" />
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={handleBookmark}
+                aria-label={isBookmarked ? "Bỏ lưu ban tổ chức" : "Lưu ban tổ chức"}
+                title={isBookmarked ? "Bỏ lưu" : "Lưu vào danh sách quan tâm"}
+                className={`p-1.5 rounded-md transition-colors cursor-pointer ${
+                  isBookmarked
+                    ? "text-[#005ddc] bg-[#eff5ff]"
+                    : "text-[#515151] hover:text-[#005ddc] hover:bg-[#eff5ff]"
+                }`}
+              >
+                <Bookmark className={`w-4 h-4 ${isBookmarked ? "fill-[#005ddc]" : ""}`} />
+              </button>
+            </div>
+          </div>
+
+          {/* Description (Inter Regular 16px leading 1.6 #515151) */}
+          <p className="text-sm sm:text-[15px] lg:text-[16px] text-[#515151] leading-[1.6] line-clamp-1 sm:line-clamp-2">
+            {organizer.bio || "Đơn vị tổ chức sự kiện chuyên nghiệp và đối tác uy tín kết nối nhân lực tại Đà Nẵng."}
+          </p>
+
+          {/* Badges row (Figma node 589:7446: bg #eff5ff, text #005ddc, rounded 4px) */}
+          <div className="flex items-center gap-2 flex-wrap pt-0.5">
+            {isHiring && (
+              <span className="inline-flex items-center h-5 px-2 py-0.5 rounded-[4px] text-[12px] font-normal bg-[#eff5ff] text-[#005ddc]">
+                Đang tuyển dụng
+              </span>
+            )}
+            {eventCount > 0 && (
+              <span className="inline-flex items-center h-5 px-2 py-0.5 rounded-[4px] text-[12px] font-normal bg-[#eff5ff] text-[#005ddc]">
+                {eventCount} Sự kiện
+              </span>
+            )}
+            {locationLabel && (
+              <span className="inline-flex items-center h-5 px-2 py-0.5 rounded-[4px] text-[12px] font-normal bg-slate-100 text-[#515151] max-w-[220px] truncate">
+                {locationLabel}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Right chevron indicator (Figma node 3846:28989) */}
+      <div className="hidden sm:flex items-center justify-center w-8 h-8 rounded-full text-[#515151] group-hover:text-[#005ddc] group-hover:translate-x-1 transition-all shrink-0">
+        <ChevronRight className="w-6 h-6" />
+      </div>
+    </article>
+  )
+}
