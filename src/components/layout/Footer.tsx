@@ -5,6 +5,7 @@ import Link from "next/link";
 import { FaFacebookF, FaInstagram } from "react-icons/fa6";
 import { Button } from "@/components/base-ui/button";
 import { cn } from "@/lib/utils";
+import { EventMateLogoIcon } from "@/components/common/EventMateLogo";
 
 export interface Footer3LinkGroup {
   title: string;
@@ -172,31 +173,7 @@ export function Footer3({
 
 // EventMate Brand Assets
 export function EventMateLogoMark({ className }: { className?: string }) {
-  return (
-    <div
-      className={cn(
-        "size-8 rounded-xl bg-gradient-to-tr from-[#005DDC] to-[#2563EB] flex items-center justify-center text-white shadow-xs shrink-0",
-        className
-      )}
-    >
-      <svg
-        width="18"
-        height="18"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M8 2v4" />
-        <path d="M16 2v4" />
-        <rect width="18" height="18" x="3" y="4" rx="3" />
-        <path d="M3 10h18" />
-        <path d="m9 16 2 2 4-4" />
-      </svg>
-    </div>
-  );
+  return <EventMateLogoIcon size={32} className={className} idPrefix="footer" />;
 }
 
 const defaultSocialLinks: Footer3SocialLink[] = [

@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { CreditCard, Clock } from "lucide-react"
+import { CreditCard, Clock, Sparkles } from "lucide-react"
 
 interface SubscriptionCardProps {
   planName?: string
@@ -12,19 +12,21 @@ interface SubscriptionCardProps {
   daysLeft?: number | null
   isAutoRenewal?: boolean
   isPremium?: boolean
+  singleEventCredits?: number
   onManage?: () => void
   onUpgrade?: () => void
 }
 
 export default function SubscriptionCard({
-  planName = "Gói Cơ bản",
+  planName = "Gói Khởi Đầu",
   interval = "Miễn phí",
   joinDate = "Thành viên EventMate",
-  postsLeft = 10,
-  totalPosts = 10,
+  postsLeft = 1,
+  totalPosts = 1,
   daysLeft = null,
   isAutoRenewal = false,
   isPremium = false,
+  singleEventCredits = 0,
   onManage,
   onUpgrade
 }: SubscriptionCardProps) {
@@ -36,8 +38,17 @@ export default function SubscriptionCard({
   const circumference = normalizedRadius * 2 * Math.PI
   const strokeDashoffset = circumference - (percent / 100) * circumference
 
-  const displayName = isPremium ? "Gói VIP Doanh nghiệp" : planName
-  const displayInterval = isPremium ? "Gói Nâng cao" : interval
+  const displayName = isPremium
+    ? "Gói Doanh Nghiệp VIP"
+    : singleEventCredits > 0
+    ? "Gói Sự Kiện Nhanh"
+    : planName
+
+  const displayInterval = isPremium
+    ? "499.000đ / tháng"
+    : singleEventCredits > 0
+    ? `Còn ${singleEventCredits} lượt Sự Kiện Nhanh`
+    : `${interval} (${totalPosts} tin/tháng)`
 
   return (
     <div className="bg-white dark:bg-zinc-900 border border-[#ededed] dark:border-zinc-800 rounded-[16px] p-4 flex flex-col gap-4 shadow-none">
@@ -65,10 +76,16 @@ export default function SubscriptionCard({
                 <span className="truncate">Tự động gia hạn</span>
               </div>
             )}
+            {singleEventCredits > 0 && !isPremium && (
+              <div className="flex items-center gap-1.5 text-[12px] text-amber-600 dark:text-amber-400 font-medium">
+                <Sparkles className="w-3.5 h-3.5 shrink-0" />
+                <span>{singleEventCredits} lượt Sự Kiện Nhanh</span>
+              </div>
+            )}
             {daysLeft !== null && daysLeft !== undefined && (
-              <div className="flex items-center gap-1.5 text-[12px] text-[#353535] dark:text-zinc-300">
-                <Clock className="w-3.5 h-3.5 text-[#515151] dark:text-zinc-400 shrink-0" />
-                <span>Còn {daysLeft} ngày</span>
+              <div className="flex items-center gap-1.5 text-[12px] text-emerald-600 dark:text-emerald-400 font-medium">
+                <Clock className="w-3.5 h-3.5 shrink-0" />
+                <span>Còn {daysLeft} ngày VIP</span>
               </div>
             )}
           </div>
@@ -123,4 +140,3 @@ export default function SubscriptionCard({
     </div>
   )
 }
-

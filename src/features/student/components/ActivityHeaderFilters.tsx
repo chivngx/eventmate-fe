@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react"
 import { ChevronDown, Check } from "lucide-react"
+import { cn } from "@/lib/utils"
 
 export type MainTab = "apply_status" | "offered_job" | "saved_job" | "followed_company"
 export type StatusFilter = "all" | "applied" | "checked" | "rejected" | "accepted" | "interviewed"
@@ -14,6 +15,12 @@ interface ActivityHeaderFiltersProps {
   onStatusFilterChange: (filter: StatusFilter) => void
   sortOrder: SortOrder
   onSortOrderChange: (order: SortOrder) => void
+  counts?: {
+    apply_status?: number
+    offered_job?: number
+    saved_job?: number
+    followed_company?: number
+  }
 }
 
 const TABS: { id: MainTab; label: string }[] = [
@@ -27,8 +34,8 @@ const STATUS_PILLS: { id: StatusFilter; label: string }[] = [
   { id: "all", label: "Tất cả" },
   { id: "applied", label: "Đã ứng tuyển" },
   { id: "checked", label: "Đã xem hồ sơ" },
-  { id: "rejected", label: "Bị từ chối" },
   { id: "accepted", label: "Trúng tuyển" },
+  { id: "rejected", label: "Bị từ chối" },
   { id: "interviewed", label: "Đã phỏng vấn" },
 ]
 
@@ -39,6 +46,7 @@ export default function ActivityHeaderFilters({
   onStatusFilterChange,
   sortOrder,
   onSortOrderChange,
+  counts = {},
 }: ActivityHeaderFiltersProps) {
   const [sortDropdownOpen, setSortDropdownOpen] = useState(false)
   const sortRef = useRef<HTMLDivElement>(null)
@@ -55,55 +63,60 @@ export default function ActivityHeaderFilters({
   }, [])
 
   return (
-    <div
-      className="flex flex-col gap-[32px] items-start relative w-full"
-      data-node-id="6447:50552"
-    >
-      {/* 1. Main Navigation Tabs (Figma: Frame 2147225696, node 6447:50553) */}
-      <div
-        className="border-b border-[#ededed] flex gap-[16px] items-center relative shrink-0 w-full overflow-x-auto no-scrollbar"
-        data-node-id="6447:50553"
-      >
+    <div className="w-full space-y-4">
+      {/* 1. Main Navigation Tabs */}
+      <div className="flex items-center gap-2 border-b border-zinc-200 dark:border-zinc-800 overflow-x-auto no-scrollbar">
         {TABS.map((tab) => {
           const isActive = activeTab === tab.id
+          const count = counts[tab.id] ?? 0
           return (
             <button
               key={tab.id}
+              type="button"
               onClick={() => onTabChange(tab.id)}
-              className={`flex gap-[8px] h-[40px] items-center justify-center px-[16px] py-[8px] relative shrink-0 cursor-pointer font-medium text-[16px] leading-normal transition-colors whitespace-nowrap ${
+              className={cn(
+                "flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 -mb-px transition-colors cursor-pointer whitespace-nowrap shrink-0",
                 isActive
-                  ? "border-b-2 border-[#005ddc] -mb-[1px] text-[#005ddc]"
-                  : "text-[#a5a5a5] hover:text-[#515151]"
-              }`}
+                  ? "border-zinc-900 dark:border-zinc-100 text-zinc-900 dark:text-zinc-100 font-semibold"
+                  : "border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-200"
+              )}
             >
               <span>{tab.label}</span>
+              {count > 0 && (
+                <span
+                  className={cn(
+                    "px-1.5 py-0.5 text-[11px] font-semibold rounded-full",
+                    isActive
+                      ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
+                      : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+                  )}
+                >
+                  {count}
+                </span>
+              )}
             </button>
           )
         })}
       </div>
 
-      {/* 2. Sub-Filter Pills & Sort Action Bar (Figma: Frame 2147225425, node 6447:50554) */}
+      {/* 2. Sub-Filter Pills & Sort Bar (Only when on apply_status tab) */}
       {activeTab === "apply_status" && (
-        <div
-          className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative shrink-0 w-full"
-          data-node-id="6447:50554"
-        >
-          {/* Status Filter Pills (Figma: Frame 2147225248, node 6447:50555) */}
-          <div
-            className="flex gap-[8px] items-center relative shrink-0 overflow-x-auto no-scrollbar pb-0.5"
-            data-node-id="6447:50555"
-          >
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-1">
+          {/* Status Filter Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
             {STATUS_PILLS.map((pill) => {
               const isSelected = statusFilter === pill.id
               return (
                 <button
                   key={pill.id}
+                  type="button"
                   onClick={() => onStatusFilterChange(pill.id)}
-                  className={`flex gap-[8px] h-[32px] items-center justify-center px-[16px] py-[8px] relative rounded-[8px] shrink-0 cursor-pointer font-medium text-[14px] leading-[1.6] transition-all whitespace-nowrap ${
+                  className={cn(
+                    "h-8 px-3 rounded-lg text-xs font-medium transition-colors whitespace-nowrap cursor-pointer shrink-0",
                     isSelected
-                      ? "bg-[#005ddc] text-white shadow-xs"
-                      : "border border-[#a5a5a5] text-[#515151] hover:border-[#757575] hover:bg-slate-50 bg-white"
-                  }`}
+                      ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs"
+                      : "bg-zinc-100 hover:bg-zinc-200/80 dark:bg-zinc-800 dark:hover:bg-zinc-700/80 text-zinc-600 dark:text-zinc-400"
+                  )}
                 >
                   {pill.label}
                 </button>
@@ -111,53 +124,58 @@ export default function ActivityHeaderFilters({
             })}
           </div>
 
-          {/* Sort Dropdown Button (Figma: Buttons, node 6447:50562) */}
-          <div className="relative self-end sm:self-auto" ref={sortRef}>
+          {/* Sort Dropdown Button */}
+          <div className="relative self-end sm:self-auto shrink-0" ref={sortRef}>
             <button
+              type="button"
               onClick={() => setSortDropdownOpen((prev) => !prev)}
               aria-haspopup="listbox"
               aria-expanded={sortDropdownOpen}
-              className="border border-[#515151] flex gap-[8px] h-[32px] items-center justify-center px-[16px] py-[8px] relative rounded-[8px] shrink-0 cursor-pointer text-[#515151] text-[14px] font-medium leading-[1.6] transition-colors hover:bg-slate-50 bg-white"
-              data-node-id="6447:50562"
+              className="h-8 px-3 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 text-xs font-medium text-zinc-700 dark:text-zinc-300 transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
             >
               <span>{sortOrder === "newest" ? "Mới nhất" : "Cũ nhất"}</span>
               <ChevronDown
-                className={`w-4 h-4 text-[#515151] transition-transform duration-200 ${
-                  sortDropdownOpen ? "rotate-180" : ""
-                }`}
+                className={cn(
+                  "w-3.5 h-3.5 text-zinc-500 transition-transform duration-200",
+                  sortDropdownOpen && "rotate-180"
+                )}
               />
             </button>
 
             {/* Dropdown Menu */}
             {sortDropdownOpen && (
-              <div className="absolute right-0 mt-1.5 w-36 bg-white rounded-[8px] border border-[#ededed] shadow-lg py-1 z-30 animate-in fade-in zoom-in-95 duration-100">
+              <div className="absolute right-0 mt-1.5 w-32 bg-white dark:bg-zinc-900 rounded-lg border border-zinc-200 dark:border-zinc-800 shadow-lg py-1 z-30 animate-in fade-in zoom-in-95 duration-100">
                 <button
+                  type="button"
                   onClick={() => {
                     onSortOrderChange("newest")
                     setSortDropdownOpen(false)
                   }}
-                  className={`w-full px-3 py-2 text-left text-xs font-medium flex items-center justify-between transition-colors cursor-pointer ${
+                  className={cn(
+                    "w-full px-3 py-1.5 text-left text-xs font-medium flex items-center justify-between transition-colors cursor-pointer",
                     sortOrder === "newest"
-                      ? "text-[#005ddc] bg-blue-50/60 font-semibold"
-                      : "text-[#515151] hover:bg-slate-50"
-                  }`}
+                      ? "text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800 font-semibold"
+                      : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                  )}
                 >
                   <span>Mới nhất</span>
-                  {sortOrder === "newest" && <Check className="w-3.5 h-3.5 text-[#005ddc]" />}
+                  {sortOrder === "newest" && <Check className="w-3.5 h-3.5 text-zinc-900 dark:text-zinc-100" />}
                 </button>
                 <button
+                  type="button"
                   onClick={() => {
                     onSortOrderChange("oldest")
                     setSortDropdownOpen(false)
                   }}
-                  className={`w-full px-3 py-2 text-left text-xs font-medium flex items-center justify-between transition-colors cursor-pointer ${
+                  className={cn(
+                    "w-full px-3 py-1.5 text-left text-xs font-medium flex items-center justify-between transition-colors cursor-pointer",
                     sortOrder === "oldest"
-                      ? "text-[#005ddc] bg-blue-50/60 font-semibold"
-                      : "text-[#515151] hover:bg-slate-50"
-                  }`}
+                      ? "text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800 font-semibold"
+                      : "text-zinc-600 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                  )}
                 >
                   <span>Cũ nhất</span>
-                  {sortOrder === "oldest" && <Check className="w-3.5 h-3.5 text-[#005ddc]" />}
+                  {sortOrder === "oldest" && <Check className="w-3.5 h-3.5 text-zinc-900 dark:text-zinc-100" />}
                 </button>
               </div>
             )}

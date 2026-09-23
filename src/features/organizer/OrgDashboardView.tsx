@@ -17,7 +17,7 @@ import { SkeletonGenericPage } from "@/components/ui/skeleton"
 export default function OrgDashboard() {
   const router = useRouter()
   const { showToast } = useToast()
-  const { user, isPremium, loading: authLoading } = useUser()
+  const { user, profile, isPremium, singleEventCredits, loading: authLoading } = useUser()
 
   const [events, setEvents] = useState<any[]>([])
   const [fetching, setFetching] = useState(true)
@@ -37,6 +37,7 @@ export default function OrgDashboard() {
       .from("events")
       .select("*, applications(id, status, applied_at)")
       .eq("organizer_id", user.id)
+      .is("deleted_at", null)
       .order("created_at", { ascending: false })
 
     if (!error && data) {
@@ -121,7 +122,10 @@ export default function OrgDashboard() {
     )
     if (!isConfirmed) return
 
-    const { error } = await supabase.from("events").delete().eq("id", id)
+    const { error } = await supabase
+      .from("events")
+      .update({ deleted_at: new Date().toISOString(), status: "closed" })
+      .eq("id", id)
     if (error) {
       showToast({
         title: "Lỗi",
@@ -154,6 +158,22 @@ export default function OrgDashboard() {
     (ev) => ev.status !== "closed" && (!ev.event_date || new Date(ev.event_date) >= new Date())
   ).length
 
+  // Quota & Subscription stats
+  const maxQuota = isPremium ? 5 : 1 + (singleEventCredits || 0)
+  const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).getTime()
+  const eventsThisMonthCount = events.filter((ev) => {
+    if (!ev.created_at) return false
+    // Chỉ các tin thuộc gói VIP (enterprise/standard) mới trừ vào hạn mức 5 tin
+    // Tin đăng thuộc gói Free hoặc các tin khác tuyệt đối không trừ vào hạn mức VIP
+    if (isPremium && ev.plan_tier !== "enterprise" && ev.plan_tier !== "standard") return false
+    if (!isPremium && ev.plan_tier !== "free") return false
+    return new Date(ev.created_at).getTime() >= startOfMonth
+  }).length
+  const postsLeft = Math.max(0, maxQuota - eventsThisMonthCount)
+  const daysLeft = profile?.premium_until
+    ? Math.max(0, Math.ceil((new Date(profile.premium_until).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
+    : null
+
   return (
     <div className="space-y-6">
       {/* Top Row: 2-Column Responsive Layout matching Figma */}
@@ -175,8 +195,9 @@ export default function OrgDashboard() {
           />
 
           <JobStatisticsChart
+            events={events}
             totalViews={events.reduce((acc, ev) => acc + (ev.views_count || 0), 0)}
-            totalApplied={feedStats.weeklyApps.reduce((a, b) => a + b, 0)}
+            totalApplied={events.reduce((acc, ev) => acc + (ev.applications?.length || 0), 0)}
             totalOpened={activeEventsCount}
           />
         </div>
@@ -192,14 +213,17 @@ export default function OrgDashboard() {
 
           <SubscriptionCard
             isPremium={isPremium}
+            singleEventCredits={singleEventCredits || 0}
             joinDate={
               user?.created_at
                 ? `Tham gia từ ${new Date(user.created_at).toLocaleDateString("vi-VN")}`
                 : "Thành viên EventMate"
             }
-            postsLeft={isPremium ? 50 : Math.max(0, 10 - activeEventsCount)}
-            totalPosts={isPremium ? 50 : 10}
+            postsLeft={postsLeft}
+            totalPosts={maxQuota}
+            daysLeft={daysLeft}
             onUpgrade={() => router.push("/pricing")}
+            onManage={() => router.push("/pricing")}
           />
         </div>
       </div>

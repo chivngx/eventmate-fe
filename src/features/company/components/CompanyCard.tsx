@@ -1,7 +1,7 @@
 "use client"
 
 import { useNavigate } from "@/lib/router"
-import { ChevronRight } from "lucide-react"
+import { ChevronRight, Sparkles } from "lucide-react"
 import VerifiedBadge from "@/components/ui/verified-badge"
 
 export interface OrganizerProfile {
@@ -17,6 +17,8 @@ export interface OrganizerProfile {
   address: string | null
   reliability_score: number | null
   is_verified?: boolean | null
+  is_premium?: boolean | null
+  premium_until?: string | null
   events?: Array<{
     id: string
     title?: string
@@ -40,6 +42,10 @@ export default function CompanyCard({
   const navigate = useNavigate()
 
   const displayName = organizer.full_name || "Ban tổ chức sự kiện"
+  const isVip = Boolean(
+    organizer.is_premium &&
+    (!organizer.premium_until || new Date(organizer.premium_until) > new Date())
+  )
   const eventCount = organizer.events?.length || 0
   const isHiring = organizer.events?.some(
     (e) => e.status === "upcoming" || e.status === "ongoing"
@@ -80,12 +86,18 @@ export default function CompanyCard({
         {/* Content details */}
         <div className="flex-1 min-w-0 flex flex-col gap-1.5 sm:gap-2">
           {/* Header row: Name */}
-          <div className="flex items-center gap-1.5 min-w-0">
+          <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
             <h3 className="text-base sm:text-[18px] font-semibold text-[#222222] truncate group-hover:text-[#005ddc] transition-colors">
               {displayName}
             </h3>
             {organizer.is_verified && (
               <VerifiedBadge text="Đã xác thực danh tính" />
+            )}
+            {isVip && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                <Sparkles className="size-3 text-amber-500 fill-amber-500" />
+                VIP
+              </span>
             )}
           </div>
 

@@ -16,11 +16,11 @@ import {
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/providers/ToastProvider"
 import { SkeletonEventDetail } from "@/components/ui/skeleton"
-import { Modal } from "@/components/ui/modal"
 import { formatSalary } from "@/lib/utils"
 import VerifiedBadge from "@/components/ui/verified-badge"
 import EventCard from "./components/EventCard"
 import { calculateProfileCompletion } from "@/lib/profile-completion"
+import Breadcrumb from "@/components/common/Breadcrumb"
 
 interface SimilarJob {
     id: string
@@ -108,8 +108,6 @@ export default function EventDetail() {
     const [loading, setLoading] = useState(true)
     const [applyStatus, setApplyStatus] = useState<string | null>(null)
     const [isApplying, setIsApplying] = useState(false)
-    const [showApplyModal, setShowApplyModal] = useState(false)
-    const [studentNote, setStudentNote] = useState("")
     const [isBookmarked, setIsBookmarked] = useState(false)
     const [similarJobs, setSimilarJobs] = useState<SimilarJob[]>([])
 
@@ -207,15 +205,6 @@ export default function EventDetail() {
         }
     }
 
-    const handleOpenApplyModal = () => {
-        if (!user) {
-            navigate("/login")
-            return
-        }
-        if (!event || isApplying) return
-        setShowApplyModal(true)
-    }
-
     const handleApply = async () => {
         if (!user) {
             navigate("/login")
@@ -229,7 +218,6 @@ export default function EventDetail() {
                 {
                     event_id: event.id,
                     student_id: user.id,
-                    student_note: studentNote.trim() || null
                 }
             ])
 
@@ -241,14 +229,12 @@ export default function EventDetail() {
                 })
             } else {
                 setApplyStatus("pending")
-                setShowApplyModal(false)
-                setStudentNote("")
                 showToast({
                     title: "Ứng tuyển thành công",
                     message: "Đơn ứng tuyển của bạn đã được gửi tới Ban tổ chức!",
                     type: "success",
-                    actionLink: "/dashboard",
-                    actionText: "Xem Dashboard"
+                    actionLink: "/my-events",
+                    actionText: "Xem hoạt động"
                 })
             }
         } catch (err: any) {
@@ -367,7 +353,7 @@ export default function EventDetail() {
 
         return (
             <button
-                onClick={handleOpenApplyModal}
+                onClick={handleApply}
                 disabled={disabledApply || isPastDeadline}
                 className="bg-[#005ddc] hover:bg-[#004bb3] text-white h-[40px] px-[16px] min-w-[147px] rounded-[8px] font-medium text-[16px] transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-none flex items-center justify-center cursor-pointer shrink-0"
             >
@@ -407,8 +393,18 @@ export default function EventDetail() {
 
     return (
         <MainLayout role={role || "guest"} fullWidth={true} className="bg-[#f3f5f7]">
-            <div className="bg-[#f3f5f7] min-h-screen pb-20 pt-6 sm:pt-10">
-                <div className="w-full max-w-[1232px] mx-auto px-4 sm:px-6 lg:px-0 flex flex-col gap-[48px]">
+            <div className="bg-[#f3f5f7] min-h-screen pb-20 pt-6">
+                <div className="w-full max-w-[1232px] mx-auto px-4 sm:px-6 lg:px-0 flex flex-col gap-6">
+                    {/* BREADCRUMB */}
+                    <Breadcrumb
+                        items={[
+                            { label: "Việc làm", href: "/events" },
+                            ...(event.category
+                                ? [{ label: event.category, href: `/events?category=${encodeURIComponent(event.category)}` }]
+                                : []),
+                            { label: event.title },
+                        ]}
+                    />
 
                     {/* ZALO COORDINATION BANNER (For Approved Students) */}
                     {applyStatus === "approved" && event.zalo_group_link && (
@@ -658,17 +654,6 @@ export default function EventDetail() {
                     {/* MAIN CONTENT STACK (Figma: Frame 2147225834 gap-88) */}
                     <div className="flex flex-col gap-[48px] w-full">
 
-                        {/* 1. OVERVIEW (Figma: Frame 2147225680) */}
-                        <div className="flex flex-col gap-[16px] items-start w-full">
-                            <h2 className="font-semibold text-[#222222] text-[18px] leading-[normal]">
-                                Overview
-                            </h2>
-                            <p className="font-normal text-[#282828] text-[16px] leading-[1.6] w-full">
-                                {event.description
-                                    ? event.description
-                                    : "Thông tin tổng quan sự kiện đang được cập nhật."}
-                            </p>
-                        </div>
 
                         {/* 2. JOB DESCRIPTION (Figma: Frame 2147225681) */}
                         <div className="flex flex-col gap-[16px] items-start w-full">
@@ -769,66 +754,6 @@ export default function EventDetail() {
                 </div>
             </div>
 
-            {/* Modal Xác nhận ứng tuyển kèm lời nhắn */}
-            <Modal
-                isOpen={showApplyModal}
-                onClose={() => !isApplying && setShowApplyModal(false)}
-                maxWidthClassName="max-w-lg"
-                panelClassName="p-6 sm:p-7 rounded-[16px]"
-            >
-                <div className="space-y-4">
-                    <div>
-                        <h3 className="text-[18px] font-semibold text-[#222222]">
-                            Xác nhận ứng tuyển
-                        </h3>
-                        <p className="text-[13px] text-[#757575] mt-1">
-                            Bạn đang nộp hồ sơ vào vị trí <strong>{event.position_type || "Nhân sự sự kiện"}</strong> của chiến dịch <strong>{event.title}</strong>.
-                        </p>
-                    </div>
-
-                    <div className="p-3.5 bg-blue-50/70 rounded-[10px] border border-blue-100/80 text-xs text-[#005ddc] space-y-1">
-                        <p className="font-semibold">💡 Lưu ý quan trọng:</p>
-                        <p className="text-slate-600">Ban tổ chức sẽ xem xét hồ sơ năng lực và kỹ năng từ trang cá nhân của bạn trên EventMate để xét duyệt.</p>
-                    </div>
-
-                    <div className="space-y-1.5">
-                        <label className="text-[13px] font-medium text-[#222222] block">
-                            Lời nhắn / Ghi chú gửi Ban tổ chức (không bắt buộc)
-                        </label>
-                        <textarea
-                            value={studentNote}
-                            onChange={(e) => setStudentNote(e.target.value)}
-                            placeholder="Ví dụ: Em có kinh nghiệm trực check-in các sự kiện lớn, có thể tham gia đầy đủ ca làm từ sáng đến tối..."
-                            rows={4}
-                            className="w-full px-3.5 py-2.5 text-sm border border-[#ededed] rounded-[8px] focus:outline-none focus:border-[#005ddc] focus:ring-1 focus:ring-[#005ddc] resize-none"
-                            maxLength={500}
-                        />
-                        <div className="flex justify-between text-[11px] text-[#a5a5a5]">
-                            <span>Ghi chú ca rảnh hoặc kinh nghiệm nổi bật</span>
-                            <span>{studentNote.length}/500</span>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#ededed]">
-                        <button
-                            type="button"
-                            onClick={() => setShowApplyModal(false)}
-                            disabled={isApplying}
-                            className="px-4 h-9 rounded-[8px] border border-[#ededed] text-xs font-medium text-[#515151] hover:bg-slate-50 transition-colors cursor-pointer"
-                        >
-                            Hủy bỏ
-                        </button>
-                        <button
-                            type="button"
-                            onClick={handleApply}
-                            disabled={isApplying}
-                            className="px-5 h-9 rounded-[8px] bg-[#005ddc] hover:bg-[#004eb7] text-white text-xs font-medium transition-colors cursor-pointer flex items-center gap-2 shadow-xs disabled:opacity-50"
-                        >
-                            {isApplying ? "Đang gửi..." : "Gửi đơn ứng tuyển"}
-                        </button>
-                    </div>
-                </div>
-            </Modal>
         </MainLayout>
     )
 }

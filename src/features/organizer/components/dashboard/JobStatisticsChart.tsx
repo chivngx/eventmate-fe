@@ -1,10 +1,11 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useMemo } from "react"
 import { FolderOpen, Eye, FileText } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 interface JobStatisticsChartProps {
+  events?: any[]
   totalViews?: number
   totalApplied?: number
   totalOpened?: number
@@ -19,41 +20,212 @@ const PERIOD_LABELS: Record<PeriodType, string> = {
 }
 
 export default function JobStatisticsChart({
+  events = [],
   totalViews = 0,
   totalApplied = 0,
   totalOpened = 0,
 }: JobStatisticsChartProps) {
   const [period, setPeriod] = useState<PeriodType>("Month")
 
-  // Data series matching Figma chart points scaled to viewBox 600x160
-  // Y values mapped from 5k (y=10) to 1k (y=150)
-  // X values: CN(30), T2(120), T3(210), T4(300), T5(390), T6(480), T7(570)
-  const chartData: Record<PeriodType, { views: string; applied: string; opened: string }> = {
-    Month: {
-      // Dark Blue (#004eb7): CN(1k) -> T2(1.8k) -> T3(2k) -> T4(2.5k) -> T5(4.2k) -> T6(4.4k) -> T7(5k)
-      views: "30,150 120,125 210,120 300,105 390,45 480,40 570,10",
-      // Light Blue (#6eabff): CN(1k) -> T2(2.8k) -> T3(3.2k) -> T4(2.9k) -> T5(3k) -> T6(4.7k) -> T7(5k)
-      applied: "30,150 120,95 210,80 300,90 390,88 480,25 570,10",
-      // Yellow (#f6b500): CN(1k) -> T2(1.5k) -> T3(2.4k) -> T4(2.3k) -> T5(4.8k) -> T6(4.6k) -> T7(5k)
-      opened: "30,150 120,135 210,108 300,112 390,20 480,30 570,10",
-    },
-    Week: {
-      views: "30,140 120,110 210,95 300,80 390,60 480,35 570,15",
-      applied: "30,150 120,120 210,100 300,85 390,70 480,45 570,20",
-      opened: "30,150 120,130 210,115 300,95 390,75 480,50 570,25",
-    },
-    Year: {
-      views: "30,130 120,100 210,75 300,60 390,40 480,25 570,10",
-      applied: "30,140 120,110 210,85 300,70 390,50 480,30 570,15",
-      opened: "30,150 120,125 210,95 300,80 390,55 480,35 570,20",
-    },
-  }
+  // 1. Dynamic Date Range Subtitle
+  const subtitle = useMemo(() => {
+    const now = new Date()
+    const month = now.getMonth() + 1
+    const monthStr = month < 10 ? `0${month}` : `${month}`
+    const lastDayOfMonth = new Date(now.getFullYear(), month, 0).getDate()
+
+    if (period === "Month") {
+      return `Hiển thị thống kê từ ngày 1 - ${lastDayOfMonth} Th${monthStr}`
+    }
+    if (period === "Week") {
+      return `Hiển thị thống kê trong 7 ngày gần nhất`
+    }
+    return `Hiển thị thống kê trong năm ${now.getFullYear()}`
+  }, [period])
+
+  // 2. Aggregate Real Data from Events & Applications
+  const { seriesData, maxVal, yLabels, trends } = useMemo(() => {
+    const now = Date.now()
+    const oneDayMs = 24 * 60 * 60 * 1000
+    const sevenDaysMs = 7 * oneDayMs
+
+    // Days array: CN (0), T2 (1), T3 (2), T4 (3), T5 (4), T6 (5), T7 (6)
+    const openedCounts = [0, 0, 0, 0, 0, 0, 0]
+    const appliedCounts = [0, 0, 0, 0, 0, 0, 0]
+    const viewsCounts = [0, 0, 0, 0, 0, 0, 0]
+
+    let thisWeekApps = 0
+    let lastWeekApps = 0
+    let thisWeekOpened = 0
+    let lastWeekOpened = 0
+    let thisWeekViews = 0
+    let lastWeekViews = 0
+
+    events.forEach((ev) => {
+      // Event opened day
+      if (ev.created_at) {
+        const createdDate = new Date(ev.created_at)
+        const dayOfWeek = createdDate.getDay() // 0 = CN, 1 = T2...
+        const diffMs = now - createdDate.getTime()
+
+        // Period filtering
+        let inPeriod = true
+        if (period === "Week") inPeriod = diffMs <= sevenDaysMs
+        else if (period === "Month") inPeriod = diffMs <= 30 * oneDayMs
+        else if (period === "Year") inPeriod = diffMs <= 365 * oneDayMs
+
+        if (inPeriod) {
+          openedCounts[dayOfWeek]++
+        }
+
+        // Trend calculation
+        if (diffMs <= sevenDaysMs) thisWeekOpened++
+        else if (diffMs <= 14 * oneDayMs) lastWeekOpened++
+      }
+
+      // Event views
+      const views = ev.views_count || 0
+      if (ev.created_at) {
+        const createdDate = new Date(ev.created_at)
+        const dayOfWeek = createdDate.getDay()
+        viewsCounts[dayOfWeek] += views
+        const diffMs = now - createdDate.getTime()
+        if (diffMs <= sevenDaysMs) thisWeekViews += views
+        else if (diffMs <= 14 * oneDayMs) lastWeekViews += views
+      }
+
+      // Applications
+      const apps = ev.applications || []
+      apps.forEach((app: any) => {
+        if (app.applied_at) {
+          const appliedDate = new Date(app.applied_at)
+          const dayOfWeek = appliedDate.getDay()
+          const diffMs = now - appliedDate.getTime()
+
+          let inPeriod = true
+          if (period === "Week") inPeriod = diffMs <= sevenDaysMs
+          else if (period === "Month") inPeriod = diffMs <= 30 * oneDayMs
+          else if (period === "Year") inPeriod = diffMs <= 365 * oneDayMs
+
+          if (inPeriod) {
+            appliedCounts[dayOfWeek]++
+          }
+
+          if (diffMs <= sevenDaysMs) thisWeekApps++
+          else if (diffMs <= 14 * oneDayMs) lastWeekApps++
+        }
+      })
+    })
+
+    // Calculate Growth Trends
+    const calcTrend = (curr: number, prev: number) => {
+      if (prev === 0) return curr > 0 ? 100 : 0
+      return Math.round(((curr - prev) / prev) * 100)
+    }
+
+    const trends = {
+      opened: calcTrend(thisWeekOpened, lastWeekOpened),
+      views: calcTrend(thisWeekViews, lastWeekViews),
+      applied: calcTrend(thisWeekApps, lastWeekApps),
+    }
+
+    // Dynamic Max & Y Scale
+    const allVals = [...viewsCounts, ...appliedCounts, ...openedCounts]
+    const rawMax = Math.max(...allVals, 0)
+
+    let max = 5
+    let labels = ["5", "4", "3", "2", "1"]
+
+    if (rawMax === 0) {
+      max = 5
+      labels = ["5", "4", "3", "2", "1"]
+    } else if (rawMax <= 5) {
+      max = 5
+      labels = ["5", "4", "3", "2", "1"]
+    } else if (rawMax <= 10) {
+      max = 10
+      labels = ["10", "8", "6", "4", "2"]
+    } else if (rawMax <= 25) {
+      max = 25
+      labels = ["25", "20", "15", "10", "5"]
+    } else if (rawMax <= 50) {
+      max = 50
+      labels = ["50", "40", "30", "20", "10"]
+    } else if (rawMax <= 100) {
+      max = 100
+      labels = ["100", "75", "50", "25", "10"]
+    } else if (rawMax <= 1000) {
+      max = Math.ceil(rawMax / 100) * 100
+      labels = [
+        `${max}`,
+        `${Math.round(max * 0.8)}`,
+        `${Math.round(max * 0.6)}`,
+        `${Math.round(max * 0.4)}`,
+        `${Math.round(max * 0.2)}`,
+      ]
+    } else {
+      max = Math.ceil(rawMax / 1000) * 1000
+      labels = [
+        `${Math.round(max / 1000)}k`,
+        `${Math.round((max * 0.8) / 1000)}k`,
+        `${Math.round((max * 0.6) / 1000)}k`,
+        `${Math.round((max * 0.4) / 1000)}k`,
+        `${Math.round((max * 0.2) / 1000)}k`,
+      ]
+    }
+
+    // Coordinates mapping:
+    // X coordinates: CN(30), T2(120), T3(210), T4(300), T5(390), T6(480), T7(570)
+    const xCoords = [30, 120, 210, 300, 390, 480, 570]
+    const getY = (val: number) => {
+      if (max === 0 || val === 0) return 150
+      const clamped = Math.min(val, max)
+      return Math.round(150 - (clamped / max) * 140)
+    }
+
+    const makePolyline = (counts: number[]) => {
+      return counts.map((c, i) => `${xCoords[i]},${getY(c)}`).join(" ")
+    }
+
+    return {
+      seriesData: {
+        views: makePolyline(viewsCounts),
+        applied: makePolyline(appliedCounts),
+        opened: makePolyline(openedCounts),
+        rawApplied: appliedCounts,
+        rawOpened: openedCounts,
+        rawViews: viewsCounts,
+      },
+      maxVal: max,
+      yLabels: labels,
+      trends,
+    }
+  }, [events, period])
 
   const days = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"]
-  const yLabels = ["5k", "4k", "3k", "2k", "1k"]
+
+  const renderTrendBadge = (pct: number) => {
+    if (pct > 0) {
+      return (
+        <span className="text-[#009e00] font-medium text-[10px] flex items-center">
+          ▲ {pct}%
+        </span>
+      )
+    }
+    if (pct < 0) {
+      return (
+        <span className="text-[#dc0000] font-medium text-[10px] flex items-center">
+          ▼ {Math.abs(pct)}%
+        </span>
+      )
+    }
+    return <span className="text-zinc-400 font-normal text-[10px]">— 0%</span>
+  }
+
+  const hasAnyData = totalOpened > 0 || totalApplied > 0 || totalViews > 0
 
   return (
-    <div className="bg-white dark:bg-zinc-900 rounded-[16px] p-6 w-full space-y-6">
+    <div className="bg-white dark:bg-zinc-900 rounded-[16px] p-6 w-full space-y-6 border border-zinc-100 dark:border-zinc-800 shadow-xs">
       {/* 1. TOP HEADER: Title & Period Toggle */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -61,7 +233,7 @@ export default function JobStatisticsChart({
             Thống kê tuyển dụng
           </h3>
           <p className="font-['Inter'] font-normal text-[12px] text-[#757575] dark:text-zinc-400 mt-1 leading-[normal]">
-            Hiển thị thống kê {period === "Month" ? "từ ngày 1 - 30 Th07" : period === "Week" ? "trong tuần này" : "trong năm nay"}
+            {subtitle}
           </p>
         </div>
 
@@ -115,8 +287,8 @@ export default function JobStatisticsChart({
 
           {/* SVG Chart Container */}
           <div className="flex items-stretch gap-2 pt-2 w-full">
-            {/* Y-Axis Labels (5k -> 1k) */}
-            <div className="flex flex-col justify-between text-[12px] font-['Inter'] text-[#515151] dark:text-zinc-400 pb-6 pr-1 shrink-0 select-none">
+            {/* Y-Axis Labels (Dynamic scale) */}
+            <div className="flex flex-col justify-between text-[12px] font-['Inter'] text-[#515151] dark:text-zinc-400 pb-6 pr-1 shrink-0 select-none text-right min-w-[28px]">
               {yLabels.map((y) => (
                 <span key={y} className="leading-none">{y}</span>
               ))}
@@ -127,7 +299,7 @@ export default function JobStatisticsChart({
               <div className="relative h-[160px] w-full">
                 {/* Horizontal Dashed Gridlines */}
                 <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
-                  {yLabels.map((y, index) => (
+                  {yLabels.map((_, index) => (
                     <div
                       key={`grid-${index}`}
                       className="border-b border-dashed border-[#ededed] dark:border-zinc-800 w-full"
@@ -135,7 +307,7 @@ export default function JobStatisticsChart({
                   ))}
                 </div>
 
-                {/* Polylines */}
+                {/* Polylines with real data */}
                 <svg
                   viewBox="0 0 600 160"
                   preserveAspectRatio="none"
@@ -145,32 +317,44 @@ export default function JobStatisticsChart({
                   <polyline
                     fill="none"
                     stroke="#004eb7"
-                    strokeWidth="1.75"
+                    strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    points={chartData[period].views}
+                    points={seriesData.views}
+                    className="transition-all duration-300"
                   />
 
                   {/* Line 2: Lượt ứng tuyển (Light Blue #6eabff) */}
                   <polyline
                     fill="none"
                     stroke="#6eabff"
-                    strokeWidth="1.75"
+                    strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    points={chartData[period].applied}
+                    points={seriesData.applied}
+                    className="transition-all duration-300"
                   />
 
                   {/* Line 3: Tin đang mở (Yellow #f6b500) */}
                   <polyline
                     fill="none"
                     stroke="#f6b500"
-                    strokeWidth="1.75"
+                    strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    points={chartData[period].opened}
+                    points={seriesData.opened}
+                    className="transition-all duration-300"
                   />
                 </svg>
+
+                {/* Empty State Overlay if no data at all */}
+                {!hasAnyData && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-white/40 dark:bg-zinc-900/40 backdrop-blur-[1px] rounded-lg">
+                    <span className="text-xs text-zinc-400 dark:text-zinc-500 font-medium">
+                      Chưa có dữ liệu tuyển dụng trong giai đoạn này
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* X-Axis Days Labels (CN -> T7) */}
@@ -186,7 +370,7 @@ export default function JobStatisticsChart({
         {/* Right: 3 Mini KPI Cards */}
         <div className="flex flex-row lg:flex-col gap-2 w-full lg:w-[131px] shrink-0">
           {/* Card 1: Tin đang mở */}
-          <div className="flex-1 lg:w-[131px] h-[88px] bg-white dark:bg-zinc-900 border border-[#f4f4f4] dark:border-zinc-800 rounded-[8px] p-3 flex flex-col justify-between">
+          <div className="flex-1 lg:w-[131px] h-[88px] bg-white dark:bg-zinc-900 border border-[#f4f4f4] dark:border-zinc-800 rounded-[8px] p-3 flex flex-col justify-between shadow-2xs">
             <div className="size-[24px] text-[#222222] dark:text-zinc-200">
               <FolderOpen className="w-5 h-5 stroke-[1.75]" />
             </div>
@@ -198,14 +382,12 @@ export default function JobStatisticsChart({
             </div>
             <div className="flex items-center justify-between text-[12px] font-['Inter']">
               <span className="text-[#a5a5a5] text-[10px]">Tuần này</span>
-              <span className="text-[#009e00] font-medium text-[10px] flex items-center">
-                ▲ 8.4
-              </span>
+              {renderTrendBadge(trends.opened)}
             </div>
           </div>
 
           {/* Card 2: Lượt xem tin */}
-          <div className="flex-1 lg:w-[131px] h-[88px] bg-white dark:bg-zinc-900 border border-[#f4f4f4] dark:border-zinc-800 rounded-[8px] p-3 flex flex-col justify-between">
+          <div className="flex-1 lg:w-[131px] h-[88px] bg-white dark:bg-zinc-900 border border-[#f4f4f4] dark:border-zinc-800 rounded-[8px] p-3 flex flex-col justify-between shadow-2xs">
             <div className="size-[24px] text-[#222222] dark:text-zinc-200">
               <Eye className="w-5 h-5 stroke-[1.75]" />
             </div>
@@ -217,14 +399,12 @@ export default function JobStatisticsChart({
             </div>
             <div className="flex items-center justify-between text-[12px] font-['Inter']">
               <span className="text-[#a5a5a5] text-[10px]">Tuần này</span>
-              <span className="text-[#009e00] font-medium text-[10px] flex items-center">
-                ▲ 8.4
-              </span>
+              {renderTrendBadge(trends.views)}
             </div>
           </div>
 
           {/* Card 3: Lượt ứng tuyển */}
-          <div className="flex-1 lg:w-[131px] h-[88px] bg-white dark:bg-zinc-900 border border-[#f4f4f4] dark:border-zinc-800 rounded-[8px] p-3 flex flex-col justify-between">
+          <div className="flex-1 lg:w-[131px] h-[88px] bg-white dark:bg-zinc-900 border border-[#f4f4f4] dark:border-zinc-800 rounded-[8px] p-3 flex flex-col justify-between shadow-2xs">
             <div className="size-[24px] text-[#222222] dark:text-zinc-200">
               <FileText className="w-5 h-5 stroke-[1.75]" />
             </div>
@@ -236,9 +416,7 @@ export default function JobStatisticsChart({
             </div>
             <div className="flex items-center justify-between text-[12px] font-['Inter']">
               <span className="text-[#a5a5a5] text-[10px]">Tuần này</span>
-              <span className="text-[#dc0000] font-medium text-[10px] flex items-center">
-                ▼ 8.4
-              </span>
+              {renderTrendBadge(trends.applied)}
             </div>
           </div>
         </div>

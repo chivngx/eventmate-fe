@@ -13,6 +13,7 @@ import { Briefcase } from "lucide-react"
 import { ResultCountHeader, EmptyState, ErrorState } from "@/components/common/States"
 import { useSearchParams } from "@/lib/router"
 import { useToast } from "@/components/providers/ToastProvider"
+import Breadcrumb from "@/components/common/Breadcrumb"
 
 const ITEMS_PER_PAGE = 8
 
@@ -188,6 +189,10 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
             organizer_id,
             slots_needed,
             benefits,
+            is_urgent,
+            is_featured,
+            bumped_at,
+            plan_tier,
             profiles (
               id,
               full_name,
@@ -199,13 +204,27 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
               name
             )
           `)
+          .is("deleted_at", null)
+          .order("is_featured", { ascending: false, nullsFirst: false })
+          .order("is_urgent", { ascending: false, nullsFirst: false })
+          .order("bumped_at", { ascending: false, nullsFirst: false })
           .order("created_at", { ascending: false })
 
         if (error) {
           console.error("Lỗi khi tải danh sách việc làm sự kiện:", error)
           if (isMounted) setErrorMsg("Không thể tải danh sách việc làm. Vui lòng thử lại sau.")
         } else if (data && isMounted) {
-          setJobs(data as JobItem[])
+          // Lọc các tin miễn phí đã quá hạn 7 ngày hiển thị
+          const now = Date.now()
+          const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000
+          const activeJobs = (data as any[]).filter((job) => {
+            if (job.plan_tier === "free" && job.created_at) {
+              const age = now - new Date(job.created_at).getTime()
+              if (age > SEVEN_DAYS_MS) return false
+            }
+            return true
+          })
+          setJobs(activeJobs as JobItem[])
         }
       } catch (err) {
         console.error("Lỗi kết nối Supabase:", err)
@@ -375,8 +394,24 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
     sidebarFilters.wards.length > 0
 
   return (
-    <MainLayout role={userRole}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 animate-in fade-in duration-300">
+    <MainLayout role={userRole} fullWidth className="bg-[#f3f5f7]">
+      <div className="w-full bg-[#f3f5f7] min-h-[calc(100vh-80px)] py-8 sm:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 animate-in fade-in duration-300">
+          {selectedPosition && (
+          <div className="mb-6">
+            <Breadcrumb
+              items={[
+                { label: "Việc làm", href: "/events" },
+                {
+                  label:
+                    POSITION_SLUG_MAP[selectedPosition.toLowerCase()] ||
+                    selectedPosition.replace(/-/g, " "),
+                },
+              ]}
+            />
+          </div>
+        )}
+
         {/* HERO SECTION — Figma Discover the Best Job (node 6295:27415) */}
         <section className="text-center mb-10 sm:mb-14 space-y-4">
           <h1 className="text-2xl sm:text-[32px] font-semibold text-[#222222] tracking-tight">
@@ -497,6 +532,7 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
               </div>
             )}
           </main>
+        </div>
         </div>
       </div>
     </MainLayout>

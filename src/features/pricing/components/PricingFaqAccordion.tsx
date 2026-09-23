@@ -14,7 +14,7 @@ const FAQ_ITEMS = [
     id: "faq-2",
     question: "Gói Doanh Nghiệp (499.000đ/tháng) có giới hạn bao nhiêu sự kiện?",
     answer:
-      "Gói Doanh Nghiệp cho phép bạn quản lý tối đa 5 sự kiện hoạt động cùng lúc trong tháng (chỉ 399.000đ/tháng khi đăng ký theo năm). Gói này bao gồm Trang Showroom Doanh nghiệp (Album ảnh sự kiện & Bản đồ Maps), xuất file Excel chấm công tính lương, và hệ thống lên lịch Phỏng vấn / Casting trực tuyến.",
+      "Gói Doanh Nghiệp cho phép bạn quản lý tối đa 5 sự kiện hoạt động cùng lúc trong tháng (chỉ 399.000đ/tháng khi đăng ký theo năm). Gói này bao gồm Huy hiệu Doanh nghiệp VIP & Ưu tiên tìm kiếm, ghim tin nổi bật, xuất file Excel chấm công tính lương, và hệ thống lên lịch Phỏng vấn / Casting trực tuyến.",
   },
   {
     id: "faq-3",

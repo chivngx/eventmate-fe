@@ -15,12 +15,15 @@ import {
   Search,
   ChevronRight,
   Calendar,
+  Sparkles,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import VerifiedBadge from "@/components/ui/verified-badge"
 import LocationMapCard from "@/components/common/LocationMapCard"
 import EventCard from "@/features/event/components/EventCard"
 import { SkeletonCompanyDetail } from "@/components/ui/skeleton"
+import Breadcrumb from "@/components/common/Breadcrumb"
+import { CustomSelect } from "@/components/ui/custom-select"
 
 interface CompanyReview {
   id: string
@@ -84,6 +87,7 @@ export default function CompanyDetailView() {
           .from("events")
           .select("*, danang_wards(name)")
           .eq("organizer_id", profileData.id)
+          .is("deleted_at", null)
           .order("created_at", { ascending: false })
 
         if (eventsData) {
@@ -247,6 +251,10 @@ export default function CompanyDetailView() {
   }
 
   const displayName = company.full_name || "Ban tổ chức sự kiện"
+  const isCompanyVip = Boolean(
+    company.is_premium &&
+    (!company.premium_until || new Date(company.premium_until) > new Date())
+  )
 
   const tabItemClass = (isActive: boolean) =>
     `h-[44px] text-[15px] transition-all cursor-pointer flex items-center gap-1.5 border-b-2 ${
@@ -261,25 +269,12 @@ export default function CompanyDetailView() {
         <div className="w-full max-w-[1232px] mx-auto px-4 sm:px-6 lg:px-0 flex flex-col gap-6">
 
           {/* 1. BREADCRUMB */}
-          <nav className="flex items-center gap-2 text-[13px] text-[#757575]">
-            <button
-              onClick={() => navigate("/")}
-              className="hover:text-[#222222] transition cursor-pointer"
-            >
-              Trang chủ
-            </button>
-            <span>/</span>
-            <button
-              onClick={() => navigate("/companies")}
-              className="hover:text-[#222222] transition cursor-pointer"
-            >
-              Đơn vị tổ chức
-            </button>
-            <span>/</span>
-            <span className="text-[#222222] font-medium truncate max-w-[300px]">
-              {displayName}
-            </span>
-          </nav>
+          <Breadcrumb
+            items={[
+              { label: "Ban tổ chức", href: "/companies" },
+              { label: displayName },
+            ]}
+          />
 
           {/* 2. HEADER PROFILE HERO CARD */}
           <section className="bg-white rounded-[16px] shadow-xs overflow-hidden">
@@ -303,6 +298,12 @@ export default function CompanyDetailView() {
                       </h1>
                       {company.is_verified && (
                         <VerifiedBadge variant="pill" text="Đã xác thực" />
+                      )}
+                      {isCompanyVip && (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                          <Sparkles className="size-3 text-amber-500 fill-amber-500" />
+                          Doanh Nghiệp VIP
+                        </span>
                       )}
                     </div>
 
@@ -572,18 +573,21 @@ export default function CompanyDetailView() {
 
                   {/* Ward Filter */}
                   {locationsList.length > 0 && (
-                    <select
-                      value={selectedLocation}
-                      onChange={(e) => setSelectedLocation(e.target.value)}
-                      className="h-[38px] px-3 bg-white border border-[#cbcbcb] rounded-[8px] text-[13px] text-[#222222] focus:outline-none focus:border-[#222222] cursor-pointer"
-                    >
-                      <option value="">Tất cả khu vực</option>
-                      {locationsList.map((loc) => (
-                        <option key={loc} value={loc}>
-                          P. {loc}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="w-full sm:w-[200px] shrink-0">
+                      <CustomSelect
+                        value={selectedLocation}
+                        onChange={(val) => setSelectedLocation(val)}
+                        options={[
+                          { value: "", label: "Tất cả khu vực" },
+                          ...locationsList.map((loc) => ({
+                            value: loc,
+                            label: `P. ${loc}`,
+                          })),
+                        ]}
+                        placeholder="Tất cả khu vực"
+                        buttonClassName="h-[38px] rounded-[8px] text-[13px] border-[#cbcbcb]"
+                      />
+                    </div>
                   )}
                 </div>
               </div>

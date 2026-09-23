@@ -1,7 +1,6 @@
 "use client"
 
 import { ToastProvider } from "@/components/providers/ToastProvider"
-import OnboardingOverlay from "@/components/ui/onboarding-overlay"
 import { AuthProvider } from "@/components/providers/AuthProvider"
 import { ReactQueryProvider } from "@/components/providers/ReactQueryProvider"
 
@@ -14,7 +13,6 @@ export function Providers({ children }: { children: React.ReactNode }) {
         <ReactQueryProvider>
             <AuthProvider>
                 <ToastProvider>
-                    <OnboardingOverlay />
                     {children}
                 </ToastProvider>
             </AuthProvider>

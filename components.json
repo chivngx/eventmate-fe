@@ -24,6 +24,7 @@
   "registries": {
     "@reui": "https://reui.io/r/{style}/{name}.json",
     "@forgeui": "https://forgeui.in/r/{name}.json",
-    "@react-bits": "https://reactbits.dev/r/{name}.json"
+    "@react-bits": "https://reactbits.dev/r/{name}.json",
+    "@coss": "https://coss.com/ui/r/{name}.json"
   }
 }

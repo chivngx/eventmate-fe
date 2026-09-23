@@ -134,11 +134,8 @@ export default function PaymentForm({
   const accountNumber = payLinkData?.accountNumber || "0888805042005"
   const accountName = payLinkData?.accountName || "NGUYEN CHI VUONG"
   const transferMemo = payLinkData?.description || ""
-  const amountNumber = payLinkData?.amount || 0
-  const formattedAmount =
-    amountNumber > 0
-      ? `${amountNumber.toLocaleString("vi-VN")} đ`
-      : amountFormatted
+  const amountNumber = payLinkData?.amount || 2000
+  const formattedAmount = amountFormatted
 
   // Ảnh VietQR chuẩn quốc gia do cổng VietQR tạo
   const vietQrImageUrl = `https://img.vietqr.io/image/${payLinkData?.bin || "970422"}-${accountNumber}-compact2.png?amount=${amountNumber}&addInfo=${encodeURIComponent(transferMemo)}&accountName=${encodeURIComponent(accountName)}`

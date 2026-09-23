@@ -3,7 +3,7 @@
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import MenuDashboard from "@/components/layout/MenuDashboard"
-import TitleDashboard from "@/components/layout/TitleDashboard"
+import { Menu } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
 
@@ -183,7 +183,7 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[#f9f9f9] dark:bg-zinc-950 flex text-[#282828] dark:text-zinc-100 font-sans antialiased">
+    <div className="min-h-screen bg-[#f3f5f7] dark:bg-zinc-950 flex text-[#282828] dark:text-zinc-100 font-sans antialiased">
       {/* Mobile sidebar backdrop */}
       {isSidebarOpen && (
         <div
@@ -224,49 +224,17 @@ export default function DashboardLayout({
       </div>
 
       {/* Main Container */}
-      <div className="flex-1 flex flex-col min-w-0 h-screen bg-[#f9f9f9] dark:bg-zinc-950 p-4 lg:p-6 lg:pl-0">
-        {/* Top Header */}
-        <div className="shrink-0 w-full pb-4">
-          <TitleDashboard
-            role={role}
-            title={title}
-            subtitle={subtitle}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            onSearchSubmit={
-              onSearchSubmit ||
-              ((q) => {
-                if (q.trim()) {
-                  router.push(
-                    isOrganizer
-                      ? `/dashboard?search=${encodeURIComponent(q.trim())}`
-                      : `/events?search=${encodeURIComponent(q.trim())}`
-                  )
-                }
-              })
-            }
-            onPostJobClick={
-              onPostJobClick ||
-              (() => {
-                if (setActiveTab) setActiveTab("post-job")
-              })
-            }
-            onNotificationClick={
-              onNotificationClick ||
-              (() => {
-                if (setActiveTab) {
-                  setActiveTab(isOrganizer ? "notifications" : "notification")
-                } else {
-                  router.push("/notifications")
-                }
-              })
-            }
-            unreadCount={unreadCount ?? notificationCount ?? 0}
-            avatarUrl={avatarUrl || userProfile?.avatarUrl}
-            userProfile={userProfile}
-            isSidebarOpen={isSidebarOpen}
-            setIsSidebarOpen={setIsSidebarOpen}
-          />
+      <div className="flex-1 flex flex-col min-w-0 h-screen bg-[#f3f5f7] dark:bg-zinc-950 p-4 lg:p-6 lg:pl-0">
+        {/* Mobile Hamburger Button */}
+        <div className="lg:hidden flex items-center justify-between pb-3 shrink-0">
+          <button
+            type="button"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            aria-label="Mở menu điều hướng"
+            className="p-2 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-200 shadow-xs cursor-pointer"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Scrollable Content Area */}

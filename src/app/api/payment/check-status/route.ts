@@ -1,5 +1,13 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase-server";
+import { payOS, isPayOSConfigured } from "@/lib/payos";
+import { createClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/database.types";
+
+const supabaseAdmin = createClient<Database>(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+);
 
 export async function GET(req: Request) {
   try {
@@ -20,6 +28,29 @@ export async function GET(req: Request) {
 
     if (error || !tx) {
       return NextResponse.json({ status: "not_found" });
+    }
+
+    // Nếu giao dịch chưa completed và payOS đã cấu hình, chủ động kiểm tra trạng thái trên payOS API
+    // Điều này đảm bảo khi test quét mã ở môi trường localhost (chưa có webhook ngrok), thanh toán vẫn nhận diện ngay lập tức
+    if (tx.status !== "completed" && isPayOSConfigured()) {
+      try {
+        const paymentLink = await payOS.paymentRequests.get(orderCode);
+        if (paymentLink && paymentLink.status === "PAID") {
+          const { error: rpcError } = await (supabaseAdmin.rpc as any)(
+            "confirm_payos_payment",
+            { p_order_code: orderCode }
+          );
+
+          if (!rpcError) {
+            tx.status = "completed";
+          } else {
+            console.error("Lỗi khi xác nhận giao dịch qua RPC:", rpcError);
+          }
+        }
+      } catch (payOsErr: any) {
+        // Ghi nhận cảnh báo nếu chưa thanh toán hoặc payOS API trả về trạng thái khác
+        console.warn("Kiểm tra payOS:", payOsErr?.message);
+      }
     }
 
     return NextResponse.json({

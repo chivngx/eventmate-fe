@@ -1,81 +1,55 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
-import { useNavigate, useSearchParams } from "@/lib/router"
+import React, { useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Link, useNavigate } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
 import { getUserFacingMessage } from "@/lib/error"
-import type { JobseekerRegisterValues } from "@/lib/schemas"
+import { jobseekerRegisterSchema, type JobseekerRegisterValues } from "@/lib/schemas"
 import { AuthSplitLayout } from "./components/AuthSplitLayout"
-import { AuthSuccessCard } from "./components/AuthComponents"
-import { SignUpProgressBar } from "./components/SignUpProgressBar"
-import { Step1StudentInfo } from "./components/steps/Step1StudentInfo"
-import { Step2StudentResume } from "./components/steps/Step2StudentResume"
-import { JOBSEEKER_TESTIMONIALS, AUTH_HERO_IMAGES } from "@/lib/auth-constants"
+import {
+    AuthSuccessCard,
+    AuthSubmitButton,
+    GoogleAuthButton,
+    AuthDivider,
+    FloatingBadgeInput,
+    RoleSwitcherTabs,
+} from "./components/AuthComponents"
 
 export default function StudentSignUpView() {
     const navigate = useNavigate()
-    const [searchParams, setSearchParams] = useSearchParams()
-
-    // 1: Personal Info, 2: Upload Resume
-    const stepParam = searchParams.get("step")
-    const initialStep = stepParam === "2" || stepParam === "resume" || stepParam === "final" ? 2 : 1
-    const [step, setStep] = useState<number>(initialStep)
-
-    // Intermediate form state
-    const [step1Data, setStep1Data] = useState<JobseekerRegisterValues | null>(null)
-    const [resumeFile, setResumeFile] = useState<File | null>(null)
 
     // UI Feedback & Loading states
     const [loading, setLoading] = useState(false)
     const [googleLoading, setGoogleLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
     const [successMessage, setSuccessMessage] = useState<string | null>(null)
-    const [activeTestimonialIdx, setActiveTestimonialIdx] = useState(step === 2 ? 1 : 0)
 
-    useEffect(() => {
-        if ((stepParam === "2" || stepParam === "resume" || stepParam === "final") && step !== 2) {
-            setStep(2)
-            setActiveTestimonialIdx(1)
-        } else if (!stepParam && step !== 1 && !step1Data) {
-            setStep(1)
-            setActiveTestimonialIdx(0)
-        }
-    }, [stepParam])
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<JobseekerRegisterValues>({
+        resolver: zodResolver(jobseekerRegisterSchema),
+        defaultValues: {
+            fullName: "",
+            email: "",
+            password: "",
+            confirmPassword: "",
+        },
+    })
 
-    // Step 1 Completed -> advance to Step 2 (Upload Resume)
-    const handleStep1Submit = (values: JobseekerRegisterValues) => {
-        setErrorMessage(null)
-        setStep1Data(values)
-        setStep(2)
-        setActiveTestimonialIdx(1)
-        setSearchParams({ step: "2" })
-    }
-
-    // Step Back: From Step 2 to Step 1
-    const handleStepBack = () => {
-        setStep(1)
-        setActiveTestimonialIdx(0)
-        setSearchParams({})
-    }
-
-    // Finalize Account Creation with Supabase
-    const handleFinalSubmit = async (includeResume: boolean) => {
+    // Handle Form Submit -> Create account via Supabase
+    const handleFormSubmit = async (values: JobseekerRegisterValues) => {
         setErrorMessage(null)
         setSuccessMessage(null)
         setLoading(true)
 
         try {
-            const fullName = step1Data?.fullName?.trim() || "Ứng viên"
-            const email = step1Data?.email?.trim() || ""
-            const password = step1Data?.password || ""
-
-            if (!email || !password) {
-                setErrorMessage("Vui lòng hoàn thành thông tin tài khoản ở Bước 1 trước.")
-                setStep(1)
-                setSearchParams({})
-                setLoading(false)
-                return
-            }
+            const fullName = values.fullName.trim()
+            const email = values.email.trim()
+            const password = values.password
 
             const { data, error: signUpError } = await supabase.auth.signUp({
                 email,
@@ -83,7 +57,6 @@ export default function StudentSignUpView() {
                 options: {
                     data: {
                         full_name: fullName,
-                        has_resume: includeResume && !!resumeFile,
                         role: "student",
                     },
                     emailRedirectTo: `${typeof window !== "undefined" ? window.location.origin : ""}/auth/callback`,
@@ -92,42 +65,10 @@ export default function StudentSignUpView() {
 
             if (signUpError) {
                 setErrorMessage(getUserFacingMessage(signUpError, "Đăng ký không thành công. Vui lòng thử lại sau."))
-                setLoading(false)
                 return
             }
 
             if (data.user) {
-                // Tải file CV lên storage bucket 'cvs' và liên kết profiles nếu có session
-                if (includeResume && resumeFile) {
-                    try {
-                        const fileExt = resumeFile.name.split(".").pop() || "pdf"
-                        const fileName = `${data.user.id}/${Date.now()}_cv.${fileExt}`
-                        const { error: uploadError } = await supabase.storage
-                            .from("cvs")
-                            .upload(fileName, resumeFile, {
-                                upsert: true,
-                                contentType: resumeFile.type || "application/pdf",
-                            })
-
-                        if (!uploadError) {
-                            const { data: publicUrlData } = supabase.storage
-                                .from("cvs")
-                                .getPublicUrl(fileName)
-
-                            if (publicUrlData?.publicUrl) {
-                                await supabase
-                                    .from("profiles")
-                                    .update({
-                                        cv_url: publicUrlData.publicUrl,
-                                    })
-                                    .eq("id", data.user.id)
-                            }
-                        }
-                    } catch (uploadErr) {
-                        console.warn("Không thể tải file CV ngay lúc đăng ký:", uploadErr)
-                    }
-                }
-
                 if (data.session) {
                     navigate("/")
                 } else {
@@ -154,38 +95,19 @@ export default function StudentSignUpView() {
             })
             if (oauthError) {
                 setErrorMessage(getUserFacingMessage(oauthError, "Không thể kết nối với Google. Vui lòng thử lại."))
-                setGoogleLoading(false)
             }
         } catch (err: any) {
             setErrorMessage(err?.message || "Lỗi đăng nhập Google.")
+        } finally {
             setGoogleLoading(false)
         }
     }
 
-    const stepTitles = [
-        {
-            title: "Thông tin cá nhân",
-            subtitle: "Vui lòng nhập thông tin cá nhân để thiết lập tài khoản và cá nhân hóa trải nghiệm của bạn.",
-        },
-        {
-            title: "Tải lên CV ứng tuyển",
-            subtitle: "Tải lên CV của bạn để tiếp cận các cơ hội việc làm sự kiện phù hợp nhất.",
-        },
-    ]
-    const currentHeader = stepTitles[step - 1] || stepTitles[0]
-
     return (
         <AuthSplitLayout
-            title={currentHeader.title}
-            subtitle={currentHeader.subtitle}
+            title="Đăng ký tài khoản Ứng viên"
+            subtitle="Tạo tài khoản để ứng tuyển các cơ hội việc làm sự kiện hàng đầu tại Đà Nẵng."
             errorMessage={errorMessage}
-            showBackButton={step > 1}
-            onBack={handleStepBack}
-            topElement={<SignUpProgressBar currentStep={step} totalSteps={2} />}
-            activeTestimonialIdx={activeTestimonialIdx}
-            onSelectTestimonialIdx={setActiveTestimonialIdx}
-            testimonials={JOBSEEKER_TESTIMONIALS}
-            heroImage={AUTH_HERO_IMAGES.jobseeker}
         >
             {successMessage ? (
                 <AuthSuccessCard
@@ -194,23 +116,71 @@ export default function StudentSignUpView() {
                     actionText="Đi đến trang Đăng nhập"
                     actionLink="/login"
                 />
-            ) : step === 1 ? (
-                <Step1StudentInfo
-                    defaultValues={step1Data || undefined}
-                    onSubmit={handleStep1Submit}
-                    onGoogleSignUp={handleGoogleSignUp}
-                    googleLoading={googleLoading}
-                />
             ) : (
-                <Step2StudentResume
-                    file={resumeFile}
-                    onFileSelect={setResumeFile}
-                    onError={setErrorMessage}
-                    onFinish={handleFinalSubmit}
-                    loading={loading}
-                />
+                <>
+                    {/* Role Switcher Tabs */}
+                    <RoleSwitcherTabs
+                        activeRole="student"
+                        mode="register"
+                    />
+
+                    <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-3.5 sm:gap-4" noValidate>
+                        <FloatingBadgeInput
+                            label="Họ và tên"
+                            placeholder="Ví dụ: Nguyễn Văn An"
+                            required
+                            autoComplete="name"
+                            error={errors.fullName?.message}
+                            {...register("fullName")}
+                        />
+                        <FloatingBadgeInput
+                            label="Email"
+                            type="email"
+                            placeholder="name@example.com"
+                            required
+                            autoComplete="email"
+                            error={errors.email?.message}
+                            {...register("email")}
+                        />
+                        <FloatingBadgeInput
+                            label="Mật khẩu"
+                            placeholder="Tối thiểu 6 ký tự"
+                            required
+                            isPassword
+                            autoComplete="new-password"
+                            error={errors.password?.message}
+                            {...register("password")}
+                        />
+                        <FloatingBadgeInput
+                            label="Xác nhận mật khẩu"
+                            placeholder="Nhập lại mật khẩu vừa tạo"
+                            required
+                            isPassword
+                            autoComplete="new-password"
+                            error={errors.confirmPassword?.message}
+                            {...register("confirmPassword")}
+                        />
+
+                        <div className="flex flex-col gap-3 sm:gap-3.5 mt-1">
+                            <AuthSubmitButton loading={loading} loadingText="Đang tạo tài khoản...">
+                                Đăng ký
+                            </AuthSubmitButton>
+                            <AuthDivider />
+                            <GoogleAuthButton
+                                onClick={handleGoogleSignUp}
+                                loading={googleLoading}
+                                label="Đăng ký với Google"
+                            />
+                            <div className="flex items-center justify-center gap-1.5 text-[13px] text-center pt-1.5">
+                                <span className="text-zinc-500 font-normal">Bạn đã có tài khoản?</span>
+                                <Link to="/login" className="text-zinc-900 font-semibold hover:underline transition-colors">
+                                    Đăng nhập
+                                </Link>
+                            </div>
+                        </div>
+                    </form>
+                </>
             )}
         </AuthSplitLayout>
     )
 }
-

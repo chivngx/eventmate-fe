@@ -38,23 +38,52 @@ export async function GET(request: NextRequest) {
         const { data: { user } } = await supabase.auth.getUser()
         if (user) {
             const userRole = roleParam === 'organizer' ? 'organizer' : (user.user_metadata?.role || 'student')
-            const fullName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Thành viên mới'
             const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null
+            const isOrg = userRole === 'organizer' || user.user_metadata?.role === 'organizer'
+            const finalFullName = (isOrg && user.user_metadata?.company_name)
+                ? user.user_metadata.company_name
+                : (user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Thành viên mới')
+            const bio = user.user_metadata?.description || user.user_metadata?.bio || null
+            const scale = user.user_metadata?.scale || user.user_metadata?.company_field || null
 
             const { data: existingProfile } = await supabase
                 .from('profiles')
-                .select('id, role')
+                .select('id, role, full_name, bio, scale')
                 .eq('id', user.id)
                 .maybeSingle()
+
+            const profilePayload: Record<string, any> = {
+                email: user.email || "",
+                role: userRole,
+                full_name: finalFullName,
+                avatar_url: avatarUrl,
+            }
+            if (bio) profilePayload.bio = bio
+            if (scale) profilePayload.scale = scale
 
             if (!existingProfile) {
                 await supabase.from('profiles').insert({
                     id: user.id,
-                    email: user.email || "",
-                    full_name: fullName,
-                    role: userRole,
-                    avatar_url: avatarUrl,
+                    ...profilePayload,
                 })
+            } else {
+                // Update profile if trigger created it with incomplete or default data
+                const updatePayload: Record<string, any> = {}
+                if (finalFullName && existingProfile.full_name !== finalFullName) {
+                    updatePayload.full_name = finalFullName
+                }
+                if (bio && !existingProfile.bio) {
+                    updatePayload.bio = bio
+                }
+                if (scale && !existingProfile.scale) {
+                    updatePayload.scale = scale
+                }
+                if (userRole && existingProfile.role !== userRole) {
+                    updatePayload.role = userRole
+                }
+                if (Object.keys(updatePayload).length > 0) {
+                    await supabase.from('profiles').update(updatePayload).eq('id', user.id)
+                }
             }
 
             const finalRole = existingProfile?.role || userRole

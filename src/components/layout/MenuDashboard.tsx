@@ -6,45 +6,21 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
 import { useUser } from "@/components/providers/AuthProvider"
+import { BellIcon, CategoryIcon, MessageIcon, SettingIcon, UserIcon } from "@/components/icons"
+import { EventMateLogoIcon } from "@/components/common/EventMateLogo"
 
-// ============================================================================
-// Joblin Figma Design SVG Icons (Figma Nodes 5875:25295 & 5875:28309)
-// ============================================================================
+export const IconGridSquare = CategoryIcon
+export const IconCategory = CategoryIcon
+export const IconUserAlt = UserIcon
+export const IconBell = BellIcon
+export const IconMessageText = MessageIcon
+export const IconSettings = SettingIcon
 
-export function JoblinMiniLogo({ className = "size-[48px]", color = "Blue" }: { className?: string; color?: "Blue" | "Black" }) {
-  const isBlack = color === "Black"
+export function JoblinMiniLogo({ className = "size-[40px]" }: { className?: string; color?: "Blue" | "Black" }) {
   return (
-    <div className={cn("relative shrink-0 flex items-center justify-center rounded-[8px] overflow-hidden shadow-xs", isBlack ? "bg-[#222222]" : "bg-gradient-to-tr from-[#005DDC] to-[#2563EB]", className)}>
-      <svg width="60%" height="60%" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M8 2v4" />
-        <path d="M16 2v4" />
-        <rect width="18" height="18" x="3" y="4" rx="3" />
-        <path d="M3 10h18" />
-        <path d="m9 16 2 2 4-4" />
-      </svg>
+    <div className={cn("relative shrink-0 flex items-center justify-center", className)}>
+      <EventMateLogoIcon size={36} idPrefix="menudash" variant="monochrome" />
     </div>
-  )
-}
-
-export function IconGridSquare({ className = "size-6" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={cn("shrink-0", className)}>
-      <path
-        d="M18.5 10.75H15.5C14.091 10.75 13.25 9.909 13.25 8.5V5.5C13.25 4.091 14.091 3.25 15.5 3.25H18.5C19.909 3.25 20.75 4.091 20.75 5.5V8.5C20.75 9.909 19.909 10.75 18.5 10.75ZM15.5 4.75C14.911 4.75 14.75 4.911 14.75 5.5V8.5C14.75 9.089 14.911 9.25 15.5 9.25H18.5C19.089 9.25 19.25 9.089 19.25 8.5V5.5C19.25 4.911 19.089 4.75 18.5 4.75H15.5ZM8.5 10.75H5.5C4.091 10.75 3.25 9.909 3.25 8.5V5.5C3.25 4.091 4.091 3.25 5.5 3.25H8.5C9.909 3.25 10.75 4.091 10.75 5.5V8.5C10.75 9.909 9.909 10.75 8.5 10.75ZM5.5 4.75C4.911 4.75 4.75 4.911 4.75 5.5V8.5C4.75 9.089 4.911 9.25 5.5 9.25H8.5C9.089 9.25 9.25 9.089 9.25 8.5V5.5C9.25 4.911 9.089 4.75 8.5 4.75H5.5ZM18.5 20.75H15.5C14.091 20.75 13.25 19.909 13.25 18.5V15.5C13.25 14.091 14.091 13.25 15.5 13.25H18.5C19.909 13.25 20.75 14.091 20.75 15.5V18.5C20.75 19.909 19.909 20.75 18.5 20.75ZM15.5 14.75C14.911 14.75 14.75 14.911 14.75 15.5V18.5C14.75 19.089 14.911 19.25 15.5 19.25H18.5C19.089 19.25 19.25 19.089 19.25 18.5V15.5C19.25 14.911 19.089 14.75 18.5 14.75H15.5ZM8.5 20.75H5.5C4.091 20.75 3.25 19.909 3.25 18.5V15.5C3.25 14.091 4.091 13.25 5.5 13.25H8.5C9.909 13.25 10.75 14.091 10.75 15.5V18.5C10.75 19.909 9.909 20.75 8.5 20.75ZM5.5 14.75C4.911 14.75 4.75 14.911 4.75 15.5V18.5C4.75 19.089 4.911 19.25 5.5 19.25H8.5C9.089 19.25 9.25 19.089 9.25 18.5V15.5C9.25 14.911 9.089 14.75 8.5 14.75H5.5Z"
-        fill="currentColor"
-      />
-    </svg>
-  )
-}
-
-export function IconUserAlt({ className = "size-6" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={cn("shrink-0", className)}>
-      <path
-        d="M12.009 10.75C9.66503 10.75 7.75903 8.843 7.75903 6.5C7.75903 4.157 9.66503 2.25 12.009 2.25C14.353 2.25 16.259 4.157 16.259 6.5C16.259 8.843 14.353 10.75 12.009 10.75ZM12.009 3.75C10.492 3.75 9.25903 4.983 9.25903 6.5C9.25903 8.017 10.492 9.25 12.009 9.25C13.526 9.25 14.759 8.017 14.759 6.5C14.759 4.983 13.525 3.75 12.009 3.75ZM19.75 21V18.019C19.75 15.358 18.244 12.25 14 12.25H10C5.756 12.25 4.25 15.357 4.25 18.019V21C4.25 21.414 4.586 21.75 5 21.75C5.414 21.75 5.75 21.414 5.75 21V18.019C5.75 17.018 6.057 13.75 10 13.75H14C17.943 13.75 18.25 17.017 18.25 18.019V21C18.25 21.414 18.586 21.75 19 21.75C19.414 21.75 19.75 21.414 19.75 21Z"
-        fill="currentColor"
-      />
-    </svg>
   )
 }
 
@@ -53,39 +29,6 @@ export function IconPlusSquare({ className = "size-6" }: { className?: string })
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={cn("shrink-0", className)}>
       <path
         d="M17.625 2.25H6.375C3.715 2.25 2.25 3.715 2.25 6.375V17.625C2.25 20.285 3.715 21.75 6.375 21.75H17.625C20.285 21.75 21.75 20.285 21.75 17.625V6.375C21.75 3.715 20.285 2.25 17.625 2.25ZM20.25 17.625C20.25 19.465 19.465 20.25 17.625 20.25H6.375C4.535 20.25 3.75 19.465 3.75 17.625V6.375C3.75 4.535 4.535 3.75 6.375 3.75H17.625C19.465 3.75 20.25 4.535 20.25 6.375V17.625ZM16.25 12C16.25 12.414 15.914 12.75 15.5 12.75H12.75V15.5C12.75 15.914 12.414 16.25 12 16.25C11.586 16.25 11.25 15.914 11.25 15.5V12.75H8.5C8.086 12.75 7.75 12.414 7.75 12C7.75 11.586 8.086 11.25 8.5 11.25H11.25V8.5C11.25 8.086 11.586 7.75 12 7.75C12.414 7.75 12.75 8.086 12.75 8.5V11.25H15.5C15.914 11.25 16.25 11.586 16.25 12Z"
-        fill="currentColor"
-      />
-    </svg>
-  )
-}
-
-export function IconBell({ className = "size-6" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={cn("shrink-0", className)}>
-      <path
-        d="M12 21.75C11.012 21.75 10.124 21.237 9.62199 20.378C9.41399 20.02 9.534 19.561 9.892 19.352C10.248 19.144 10.708 19.264 10.918 19.622C11.377 20.409 12.623 20.409 13.082 19.622C13.291 19.264 13.751 19.144 14.108 19.352C14.466 19.56 14.587 20.02 14.378 20.378C13.876 21.237 12.988 21.75 12 21.75ZM20.675 18.325C20.8 18.065 20.765 17.757 20.586 17.532C20.567 17.509 18.745 15.189 18.745 12.5V8.995C18.745 5.276 15.719 2.25 12 2.25C8.281 2.25 5.25499 5.276 5.25499 8.995V12.5C5.25499 15.189 3.433 17.509 3.414 17.532C3.235 17.757 3.19999 18.066 3.32499 18.325C3.44999 18.584 3.712 18.75 4 18.75H20C20.288 18.75 20.55 18.584 20.675 18.325ZM6.75499 12.5V8.995C6.75499 6.103 9.108 3.75 12 3.75C14.892 3.75 17.245 6.103 17.245 8.995V12.5C17.245 14.436 17.995 16.158 18.613 17.25H5.386C6.005 16.158 6.75499 14.436 6.75499 12.5Z"
-        fill="currentColor"
-      />
-    </svg>
-  )
-}
-
-export function IconMessageText({ className = "size-6" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={cn("shrink-0", className)}>
-      <path
-        d="M3 21.75C2.903 21.75 2.80589 21.731 2.71289 21.693C2.43289 21.577 2.25 21.303 2.25 21V6C2.25 3.582 3.582 2.25 6 2.25H18C20.418 2.25 21.75 3.582 21.75 6V15C21.75 17.418 20.418 18.75 18 18.75H6.31104L3.53101 21.53C3.38701 21.674 3.195 21.75 3 21.75ZM6 3.75C4.423 3.75 3.75 4.423 3.75 6V19.189L5.46997 17.469C5.61097 17.328 5.801 17.249 6 17.249H18C19.577 17.249 20.25 16.576 20.25 14.999V5.99902C20.25 4.42202 19.577 3.74902 18 3.74902H6V3.75ZM16.75 8.5C16.75 8.086 16.414 7.75 16 7.75H8C7.586 7.75 7.25 8.086 7.25 8.5C7.25 8.914 7.586 9.25 8 9.25H16C16.414 9.25 16.75 8.914 16.75 8.5ZM13.75 12.5C13.75 12.086 13.414 11.75 13 11.75H8C7.586 11.75 7.25 12.086 7.25 12.5C7.25 12.914 7.586 13.25 8 13.25H13C13.414 13.25 13.75 12.914 13.75 12.5Z"
-        fill="currentColor"
-      />
-    </svg>
-  )
-}
-
-export function IconSettings({ className = "size-6" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={cn("shrink-0", className)}>
-      <path
-        d="M12 8.25C9.93202 8.25 8.25001 9.932 8.25001 12C8.25001 14.068 9.93202 15.75 12 15.75C14.068 15.75 15.75 14.068 15.75 12C15.75 9.932 14.068 8.25 12 8.25ZM12 14.25C10.759 14.25 9.75001 13.241 9.75001 12C9.75001 10.759 10.759 9.75 12 9.75C13.241 9.75 14.25 10.759 14.25 12C14.25 13.241 13.241 14.25 12 14.25ZM21.208 13.953C20.514 13.551 20.082 12.803 20.081 12C20.08 11.199 20.509 10.452 21.212 10.045C21.727 9.74601 21.903 9.08299 21.605 8.56699L19.933 5.681C19.635 5.166 18.972 4.98901 18.456 5.28601C17.757 5.68901 16.888 5.68901 16.187 5.28201C15.496 4.88101 15.066 4.13601 15.066 3.33701C15.066 2.73801 14.578 2.25101 13.979 2.25101H10.024C9.424 2.25101 8.93703 2.73801 8.93703 3.33701C8.93703 4.13601 8.50701 4.881 7.81401 5.284C7.11501 5.689 6.24702 5.68999 5.54802 5.28699C5.03102 4.98899 4.36903 5.16701 4.07103 5.68201L2.39702 8.57101C2.09902 9.08601 2.276 9.74799 2.796 10.05C3.489 10.451 3.92102 11.198 3.92302 11.999C3.92502 12.801 3.49501 13.55 2.79301 13.957C2.54301 14.102 2.36302 14.335 2.28902 14.615C2.21502 14.894 2.25303 15.185 2.39803 15.436L4.06902 18.32C4.36702 18.836 5.03002 19.015 5.54802 18.716C6.24702 18.313 7.11402 18.314 7.80302 18.713L7.80501 18.714C7.80801 18.716 7.81102 18.718 7.81502 18.72C8.50602 19.121 8.93501 19.866 8.93401 20.666C8.93401 21.265 9.421 21.752 10.02 21.752H13.979C14.578 21.752 15.065 21.265 15.065 20.667C15.065 19.867 15.495 19.122 16.189 18.719C16.887 18.314 17.755 18.312 18.455 18.716C18.971 19.014 19.633 18.837 19.932 18.322L21.606 15.433C21.903 14.916 21.726 14.253 21.208 13.953ZM18.831 17.227C17.741 16.752 16.476 16.817 15.434 17.42C14.401 18.019 13.719 19.078 13.587 20.25H10.41C10.28 19.078 9.596 18.017 8.563 17.419C7.523 16.816 6.25602 16.752 5.16902 17.227L3.89302 15.024C4.84802 14.321 5.42501 13.193 5.42101 11.993C5.41801 10.801 4.84201 9.681 3.89201 8.978L5.16902 6.77399C6.25702 7.24799 7.52402 7.18399 8.56602 6.57999C9.59802 5.98199 10.28 4.92201 10.412 3.75101H13.587C13.718 4.92301 14.401 5.982 15.436 6.582C16.475 7.185 17.742 7.24899 18.831 6.77499L20.108 8.978C19.155 9.68 18.579 10.806 18.581 12.004C18.582 13.198 19.158 14.32 20.109 15.025L18.831 17.227Z"
         fill="currentColor"
       />
     </svg>
@@ -124,7 +67,6 @@ export function IconAngleRightSmall({ className = "size-6" }: { className?: stri
     </svg>
   )
 }
-
 
 export function IconLogOut({ className = "size-6" }: { className?: string }) {
   return (
@@ -194,7 +136,6 @@ export default function MenuDashboard({
   setActiveTab,
   notificationCount: propNotificationCount,
   messageCount: propMessageCount,
-  isPremium = false,
   onToggleCollapse,
   isCollapsed = false,
   onLogout: customLogout,
@@ -495,13 +436,13 @@ export default function MenuDashboard({
             )}
             title={isOrganizer ? "Bảng điều khiển Nhà tuyển dụng" : "Bảng điều khiển EventMate"}
           >
-            <JoblinMiniLogo className="size-[48px]" color={isOrganizer ? "Black" : "Blue"} />
+            <EventMateLogoIcon size={isCollapsed ? 34 : 36} idPrefix="menudash" variant="monochrome" />
             {!isCollapsed && (
               <div className="flex flex-col justify-center">
                 <span className="font-['Inter',sans-serif] font-bold text-[18px] leading-tight text-[#222222] tracking-tight">
                   EventMate
                 </span>
-                <span className="font-['Inter',sans-serif] font-light text-[12px] leading-tight text-[#757575]">
+                <span className="font-['Inter',sans-serif] font-normal text-[13px] leading-tight text-[#757575]">
                   {isOrganizer ? "Nhà tuyển dụng" : "Bảng điều khiển"}
                 </span>
               </div>
@@ -563,7 +504,7 @@ export default function MenuDashboard({
                   <Icon className="size-[24px]" />
                 </div>
                 {Boolean(item.badge) && (
-                  <span className="absolute top-1.5 right-1.5 min-w-[16px] h-[16px] px-1 bg-[#dc0000] text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-xs ring-2 ring-white">
+                  <span className="absolute top-1.5 right-1.5 min-w-[16px] h-[16px] px-1 bg-[#dc0000] text-white text-[11px] font-bold rounded-full flex items-center justify-center shadow-xs ring-2 ring-white">
                     {item.badge}
                   </span>
                 )}
@@ -591,7 +532,7 @@ export default function MenuDashboard({
                   </div>
                 )}
                 {item.badge !== null && item.badge !== undefined && (
-                  <div className="ml-auto shrink-0 bg-[#dc0000] text-white font-['Inter',sans-serif] font-semibold text-[11px] min-w-[20px] h-[20px] px-1 rounded-full flex items-center justify-center shadow-xs">
+                  <div className="ml-auto shrink-0 bg-[#dc0000] text-white font-['Inter',sans-serif] font-semibold text-xs min-w-[20px] h-[20px] px-1 rounded-full flex items-center justify-center shadow-xs">
                     {item.badge}
                   </div>
                 )}

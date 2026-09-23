@@ -1,16 +1,22 @@
 "use client"
 
 import React from "react"
-import { Check } from "lucide-react"
+import { Check, Sparkles } from "lucide-react"
 
 interface PricingCardsGridProps {
   billingCycle: "monthly" | "yearly"
   onSelectPlan: (planId: string) => void
+  isPremium?: boolean
+  premiumUntil?: string | null
+  singleEventCredits?: number
 }
 
 export default function PricingCardsGrid({
   billingCycle,
   onSelectPlan,
+  isPremium = false,
+  premiumUntil,
+  singleEventCredits = 0,
 }: PricingCardsGridProps) {
   return (
     <div className="flex flex-col lg:flex-row items-center lg:items-stretch justify-center gap-[16px] max-w-[1232px] mx-auto w-full">
@@ -81,9 +87,14 @@ export default function PricingCardsGrid({
           <button
             type="button"
             onClick={() => onSelectPlan("free")}
-            className="w-full h-[48px] rounded-[8px] border border-[#282828] text-[#282828] hover:bg-[#282828] hover:text-white font-medium text-[18px] transition-colors flex items-center justify-center cursor-pointer"
+            disabled={isPremium}
+            className={`w-full h-[48px] rounded-[8px] border font-medium text-[16px] sm:text-[18px] transition-colors flex items-center justify-center ${
+              isPremium
+                ? "border-slate-200 text-slate-400 bg-slate-50 cursor-not-allowed"
+                : "border-[#282828] text-[#282828] hover:bg-[#282828] hover:text-white cursor-pointer"
+            }`}
           >
-            Bắt đầu miễn phí
+            {isPremium ? "Đã nâng cấp VIP" : "Bắt đầu miễn phí"}
           </button>
         </div>
       </div>
@@ -101,6 +112,12 @@ export default function PricingCardsGrid({
             <h3 className="text-[32px] font-semibold text-[#282828] tracking-tight leading-normal">
               Sự Kiện Nhanh
             </h3>
+            {singleEventCredits > 0 && (
+              <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 rounded-full self-start">
+                <Sparkles className="w-3 h-3 text-emerald-600" />
+                Đang có {singleEventCredits} lượt chưa dùng
+              </span>
+            )}
             <p className="text-[12px] text-[#757575] font-normal leading-[1.6] min-h-[45px]">
               Giải pháp trọn gói tuyển gấp cho 1 sự kiện, tiệc cưới, activation hoặc hội nghị.
             </p>
@@ -173,13 +190,25 @@ export default function PricingCardsGrid({
             onClick={() => onSelectPlan("single_event")}
             className="w-full h-[48px] rounded-[8px] bg-[#282828] hover:bg-[#005DDC] text-white font-medium text-[18px] transition-colors flex items-center justify-center shadow-xs cursor-pointer"
           >
-            Chọn gói Sự Kiện (99k)
+            {singleEventCredits > 0 ? "Mua thêm Sự Kiện (99k)" : "Chọn gói Sự Kiện (99k)"}
           </button>
         </div>
       </div>
 
       {/* 3. DOANH NGHIỆP - ENTERPRISE */}
-      <div className="w-full lg:w-[296px] min-h-[622px] px-[16px] py-[32px] bg-white border border-[#CBCBCB] rounded-[16px] flex flex-col justify-between shrink-0">
+      <div
+        className={`w-full lg:w-[296px] min-h-[622px] px-[16px] py-[32px] bg-white border ${
+          isPremium
+            ? "border-emerald-500 ring-2 ring-emerald-500/20 shadow-md"
+            : "border-[#CBCBCB]"
+        } rounded-[16px] flex flex-col justify-between shrink-0 relative`}
+      >
+        {isPremium && (
+          <div className="absolute top-[-1px] right-[24px] bg-emerald-600 text-white px-[12px] py-[4px] rounded-b-[6px] text-[12px] font-semibold flex items-center gap-1 shadow-xs">
+            <Check className="w-3.5 h-3.5" /> Gói hiện tại
+          </div>
+        )}
+
         <div>
           {/* Header Info */}
           <div className="flex flex-col gap-[8px]">
@@ -221,7 +250,7 @@ export default function PricingCardsGrid({
             <li className="flex items-center gap-[8px]">
               <Check className="w-[20px] h-[20px] text-[#222222] shrink-0 stroke-[2]" />
               <span className="text-[14px] font-medium text-[#222222] leading-[1.6]">
-                Showroom ảnh sự kiện & Bản đồ Maps
+                Huy hiệu Doanh nghiệp VIP & Ưu tiên tìm kiếm
               </span>
             </li>
             <li className="flex items-center gap-[8px]">
@@ -247,13 +276,31 @@ export default function PricingCardsGrid({
 
         {/* CTA Button */}
         <div className="pt-[32px]">
-          <button
-            type="button"
-            onClick={() => onSelectPlan("enterprise")}
-            className="w-full h-[48px] rounded-[8px] border border-[#282828] text-[#282828] hover:bg-[#282828] hover:text-white font-medium text-[18px] transition-colors flex items-center justify-center cursor-pointer"
-          >
-            Chọn gói Doanh Nghiệp
-          </button>
+          {isPremium ? (
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                disabled
+                className="w-full h-[48px] rounded-[8px] bg-emerald-50 text-emerald-800 border border-emerald-300 font-semibold text-[16px] flex items-center justify-center gap-2 cursor-default"
+              >
+                <Check className="w-4 h-4 text-emerald-600" />
+                Đang sử dụng
+              </button>
+              {premiumUntil && (
+                <p className="text-[11.5px] text-center text-slate-500 font-normal">
+                  Hạn dùng: {new Date(premiumUntil).toLocaleDateString("vi-VN")}
+                </p>
+              )}
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onSelectPlan("enterprise")}
+              className="w-full h-[48px] rounded-[8px] border border-[#282828] text-[#282828] hover:bg-[#282828] hover:text-white font-medium text-[18px] transition-colors flex items-center justify-center cursor-pointer"
+            >
+              Chọn gói Doanh Nghiệp
+            </button>
+          )}
         </div>
       </div>
 

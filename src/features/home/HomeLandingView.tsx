@@ -28,6 +28,7 @@ export default function HomeLandingView({ navbar }: { navbar?: React.ReactNode }
       const { data } = await supabase
         .from("events")
         .select("*, profiles(id, full_name, avatar_url, slug), danang_wards(name)")
+        .is("deleted_at", null)
         .order("created_at", { ascending: false })
         .limit(6)
       if (data) setFeaturedEvents(data)
@@ -79,7 +80,7 @@ export default function HomeLandingView({ navbar }: { navbar?: React.ReactNode }
   return (
     <div className="w-full animate-in fade-in duration-300">
       {/* 1. TOP HERO CONTAINER (Figma node 7182:22144) - #EFF5FF background encloses Navbar & Hero (Full Viewport) */}
-      <div className="w-full min-h-screen flex flex-col justify-between bg-[#EFF5FF] relative overflow-hidden">
+      <div className="w-full min-h-screen flex flex-col justify-between bg-[#EFF5FF] relative z-20 overflow-x-clip">
         {/* Floating Navbar inside the Hero's top area or Spacer */}
         {navbar ? (
           <div className="pt-6 sm:pt-8 lg:pt-10 px-4 sm:px-6 lg:px-8 max-w-[1280px] mx-auto w-full relative z-30 shrink-0">

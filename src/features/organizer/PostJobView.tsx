@@ -13,7 +13,7 @@ import { SkeletonGenericPage } from "@/components/ui/skeleton"
 export default function PostJobView() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { user, loading: authLoading } = useUser()
+  const { user, isPremium, singleEventCredits, refreshProfile, loading: authLoading } = useUser()
   const { showToast } = useToast()
 
   const editId = searchParams?.get("edit") || null
@@ -35,9 +35,17 @@ export default function PostJobView() {
   const [paymentMethod, setPaymentMethod] = useState("cash_after_event")
   const [zaloGroupLink, setZaloGroupLink] = useState("")
   const [applicationDeadline, setApplicationDeadline] = useState("")
+  const [isUrgent, setIsUrgent] = useState(false)
+  const [isFeatured, setIsFeatured] = useState(false)
+  const [existingQrCode, setExistingQrCode] = useState<string | null>(null)
+  const [eventsThisMonth, setEventsThisMonth] = useState<number>(0)
 
   const [loading, setLoading] = useState(false)
   const [fetchingEdit, setFetchingEdit] = useState(!!editId)
+  const [errors, setErrors] = useState<Record<string, string>>({})
+
+  const hasSingleEventCredit = !isPremium && (singleEventCredits || 0) > 0
+  const monthlyLimit = isPremium ? 5 : 1 + (singleEventCredits || 0)
 
   const { data: wards = [] } = useWards()
   const { data: posData = [] } = useJobPositions()
@@ -45,6 +53,128 @@ export default function PostJobView() {
 
   const positionsList = posData.map((p) => p.name)
   const categoriesList = catData.map((c) => c.name)
+
+  // Validate form fields comprehensively
+  const validateForm = () => {
+    const errs: Record<string, string> = {}
+    const now = new Date()
+    const y = now.getFullYear()
+    const m = String(now.getMonth() + 1).padStart(2, "0")
+    const d = String(now.getDate()).padStart(2, "0")
+    const todayStr = `${y}-${m}-${d}`
+
+    // 1. Tên vị trí
+    if (!title.trim()) {
+      errs.title = "Vui lòng nhập tên vị trí tuyển dụng"
+    } else if (title.trim().length < 5) {
+      errs.title = "Tên vị trí phải có ít nhất 5 ký tự"
+    }
+
+    // 2. Danh mục sự kiện
+    if (!category.trim()) {
+      errs.category = "Vui lòng chọn danh mục sự kiện"
+    }
+
+    // 3. Vai trò phụ trách
+    if (!positionType.trim()) {
+      errs.positionType = "Vui lòng chọn vai trò phụ trách"
+    }
+
+    // 4. Số lượng tuyển dụng
+    const slots = parseInt(slotsNeeded, 10)
+    if (!slotsNeeded || isNaN(slots) || slots < 1) {
+      errs.slotsNeeded = "Số lượng cần tuyển phải từ 1 người trở lên"
+    }
+
+    // 5. Hạn chót nộp đơn
+    if (!applicationDeadline) {
+      errs.applicationDeadline = "Vui lòng chọn hạn chót nhận đơn"
+    } else if (applicationDeadline < todayStr) {
+      errs.applicationDeadline = "Hạn chót ứng tuyển không thể ở trong quá khứ"
+    }
+
+    // 6. Phường / Xã
+    if (!wardId) {
+      errs.wardId = "Vui lòng chọn Phường / Xã tại Đà Nẵng"
+    }
+
+    // 7. Địa chỉ cụ thể
+    if (!location.trim()) {
+      errs.location = "Vui lòng nhập địa chỉ / địa điểm chi tiết"
+    } else if (location.trim().length < 3) {
+      errs.location = "Địa chỉ phải có ít nhất 3 ký tự"
+    }
+
+    // 8. Ngày bắt đầu sự kiện
+    if (!eventDate) {
+      errs.eventDate = "Vui lòng chọn ngày bắt đầu sự kiện"
+    } else if (eventDate < todayStr) {
+      errs.eventDate = "Ngày sự kiện không thể ở trong quá khứ"
+    }
+
+    // Kiểm tra tương quan hạn chót vs ngày sự kiện
+    if (applicationDeadline && eventDate && applicationDeadline > eventDate) {
+      errs.applicationDeadline = "Hạn chót không được sau ngày diễn ra sự kiện"
+    }
+
+    // 9. Ngày kết thúc (nếu có)
+    if (endDate && eventDate && endDate < eventDate) {
+      errs.endDate = "Ngày kết thúc không thể trước ngày bắt đầu"
+    }
+
+    // 10. Giờ ca trực
+    if (startTime && endTime && (!endDate || endDate === eventDate)) {
+      if (startTime >= endTime) {
+        errs.endTime = "Giờ kết thúc ca trực phải sau giờ bắt đầu"
+      }
+    }
+
+    // 11. Mức thù lao
+    if (salaryType !== "volunteer") {
+      const sal = Number(salaryAmount)
+      if (!salaryAmount || isNaN(sal) || sal < 0) {
+        errs.salaryAmount = "Vui lòng nhập mức thù lao hợp lệ (>= 0 đ)"
+      }
+    }
+
+    // 12. Link nhóm Zalo
+    if (zaloGroupLink.trim()) {
+      const isUrl = /^https?:\/\/.+/i.test(zaloGroupLink.trim())
+      if (!isUrl) {
+        errs.zaloGroupLink = "Link nhóm phải là URL hợp lệ (VD: https://zalo.me/g/...)"
+      }
+    }
+
+    // 13. Mô tả chi tiết
+    if (!desc.trim()) {
+      errs.desc = "Vui lòng nhập mô tả nhiệm vụ và yêu cầu"
+    } else if (desc.trim().length < 20) {
+      errs.desc = "Mô tả cần ít nhất 20 ký tự để ứng viên nắm rõ công việc"
+    }
+
+    return errs
+  }
+
+  // Check quota for current month
+  useEffect(() => {
+    if (!user) return
+    const checkQuota = async () => {
+      const now = new Date()
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+      const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString()
+
+      const { count } = await supabase
+        .from("events")
+        .select("id", { count: "exact", head: true })
+        .eq("organizer_id", user.id)
+        .gte("created_at", startOfMonth)
+        .lte("created_at", endOfMonth)
+
+      setEventsThisMonth(count || 0)
+    }
+
+    checkQuota()
+  }, [user])
 
   // Fetch existing event if editing
   useEffect(() => {
@@ -59,15 +189,25 @@ export default function PostJobView() {
         .eq("organizer_id", user.id)
         .maybeSingle()
 
-      if (data && !error) {
+      if (error || !data) {
+        showToast({
+          title: "Lỗi",
+          message: "Không tìm thấy sự kiện hoặc bạn không có quyền chỉnh sửa.",
+          type: "error",
+        })
+        router.push("/manage-events")
+        return
+      }
+
+      if (data) {
         setTitle(data.title || "")
         setDesc(data.description || "")
         setLocation(data.location || "")
         setWardId(data.ward_id ? String(data.ward_id) : "")
-        setPositionType(data.position_type || "Tình nguyện viên")
-        setBenefits(data.benefits || "Cấp chứng nhận")
-        setCategory(data.category || "Lễ hội Âm nhạc")
-        setSlotsNeeded(String(data.slots_needed || 1))
+        setPositionType(data.position_type || "")
+        setCategory(data.category || "")
+        setBenefits(Array.isArray(data.benefits) ? data.benefits.join(", ") : data.benefits || "")
+        setSlotsNeeded(data.slots_needed ? String(data.slots_needed) : "1")
         setEventDate(data.event_date ? data.event_date.split("T")[0] : "")
         setEndDate(data.end_date ? data.end_date.split("T")[0] : "")
         setStartTime(data.start_time || "07:30")
@@ -77,20 +217,55 @@ export default function PostJobView() {
         setPaymentMethod(data.payment_method || "cash_after_event")
         setZaloGroupLink(data.zalo_group_link || "")
         setApplicationDeadline(data.application_deadline ? data.application_deadline.split("T")[0] : "")
+        const isSingleEvent = data.plan_tier === "single_event"
+        const canKeepUrgent = isPremium || isSingleEvent
+        const canKeepQr = isPremium || isSingleEvent
+        setIsUrgent(canKeepUrgent ? Boolean(data.is_urgent) : false)
+        setIsFeatured(isPremium ? Boolean(data.is_featured) : false)
+        setExistingQrCode(canKeepQr ? data.qr_checkin_code || null : null)
       }
       setFetchingEdit(false)
     }
 
     fetchEditEvent()
-  }, [editId, user])
+  }, [editId, user, isPremium])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!title || !desc || !wardId || !eventDate || !applicationDeadline) {
+    const validationErrors = validateForm()
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors)
+      const firstKey = Object.keys(validationErrors)[0]
+      const firstMsg = validationErrors[firstKey]
       showToast({
-        title: "Thiếu thông tin",
-        message: "Vui lòng điền đầy đủ tiêu đề, mô tả, chọn Phường/Xã và thời hạn ứng tuyển!",
+        title: "Thông tin chưa hợp lệ",
+        message: firstMsg || "Vui lòng kiểm tra lại các trường thông tin có viền đỏ!",
+        type: "error",
+      })
+
+      // Scroll to first invalid element
+      const el = document.getElementById(`event-${firstKey}`)
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" })
+      }
+      return
+    }
+    setErrors({})
+
+    if (!editId && eventsThisMonth >= 1 && !isPremium && (singleEventCredits || 0) <= 0) {
+      showToast({
+        title: "Đạt hạn mức đăng tin",
+        message: "Bạn đã sử dụng hết hạn mức 1 sự kiện miễn phí trong tháng này. Vui lòng mua gói Sự Kiện Nhanh (99k) hoặc Doanh Nghiệp VIP để đăng thêm!",
+        type: "error",
+      })
+      return
+    }
+
+    if (!editId && isPremium && eventsThisMonth >= monthlyLimit) {
+      showToast({
+        title: "Đạt hạn mức đăng tin",
+        message: `Bạn đã sử dụng hết hạn mức ${monthlyLimit} sự kiện trong tháng này.`,
         type: "error",
       })
       return
@@ -99,6 +274,22 @@ export default function PostJobView() {
     if (!user) return
 
     setLoading(true)
+
+    // Xác định sự kiện đăng mới thuộc gói nào
+    const willBeSingleEvent = !isPremium && (singleEventCredits || 0) > 0
+    const canUseUrgent = isPremium || willBeSingleEvent
+    const canUseQR = isPremium || willBeSingleEvent
+    const canUseFeatured = isPremium
+
+    const qrCode = canUseQR
+      ? existingQrCode || Math.random().toString(36).substring(2, 8).toUpperCase()
+      : null
+
+    const assignedTier = isPremium
+      ? "enterprise"
+      : willBeSingleEvent
+      ? "single_event"
+      : "free"
 
     const eventPayload = {
       title,
@@ -118,6 +309,10 @@ export default function PostJobView() {
       payment_method: paymentMethod,
       zalo_group_link: zaloGroupLink ? zaloGroupLink.trim() : null,
       application_deadline: applicationDeadline ? new Date(applicationDeadline).toISOString() : null,
+      is_urgent: canUseUrgent ? isUrgent : false,
+      is_featured: canUseFeatured ? isFeatured : false,
+      plan_tier: assignedTier,
+      qr_checkin_code: qrCode,
     }
 
     try {
@@ -142,9 +337,20 @@ export default function PostJobView() {
 
         if (error) throw error
 
+        // Nếu dùng credit Sự Kiện Nhanh, trừ đi 1 lượt
+        if (willBeSingleEvent) {
+          await supabase
+            .from("profiles")
+            .update({ single_event_credits: Math.max(0, (singleEventCredits || 1) - 1) })
+            .eq("id", user.id)
+          if (refreshProfile) await refreshProfile()
+        }
+
         showToast({
           title: "Thành công",
-          message: "Tạo bài tuyển dụng sự kiện mới thành công!",
+          message: willBeSingleEvent
+            ? "Đăng bài Sự Kiện Nhanh thành công! Đã tự động kích hoạt Ghim Tuyển Gấp và Điểm danh QR."
+            : "Tạo bài tuyển dụng sự kiện mới thành công!",
           type: "success",
         })
       }
@@ -208,11 +414,21 @@ export default function PostJobView() {
         setSlotsNeeded={setSlotsNeeded}
         desc={desc}
         setDesc={setDesc}
+        isUrgent={isUrgent}
+        setIsUrgent={setIsUrgent}
+        isFeatured={isFeatured}
+        setIsFeatured={setIsFeatured}
+        isPremium={isPremium}
+        singleEventCredits={singleEventCredits || 0}
+        eventsThisMonthCount={eventsThisMonth}
+        monthlyLimit={monthlyLimit}
         loading={loading}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
         positionsList={positionsList}
         categoriesList={categoriesList}
+        errors={errors}
+        setErrors={setErrors}
       />
     </div>
   )

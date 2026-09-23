@@ -1,11 +1,5 @@
-import type { Metadata } from "next"
-import SavedEventsView from "@/features/event/SavedEventsView"
-
-export const metadata: Metadata = {
-  title: "Sự kiện đã lưu",
-  description: "Danh sách các sự kiện bạn đã đánh dấu để theo dõi và ứng tuyển sau.",
-}
+import { redirect } from "next/navigation"
 
 export default function SavedEventsPage() {
-  return <SavedEventsView />
+  redirect("/my-events?tab=saved_job")
 }

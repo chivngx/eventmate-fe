@@ -61,8 +61,8 @@ export const BLOG_POSTS = [
 
 export default function BlogListPage() {
   return (
-    <MainLayout>
-      <div className="bg-white min-h-screen py-10 sm:py-16">
+    <MainLayout fullWidth className="bg-[#f3f5f7]">
+      <div className="bg-[#f3f5f7] min-h-[calc(100vh-80px)] py-10 sm:py-16">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           
           <div className="text-center space-y-3 max-w-2xl mx-auto">

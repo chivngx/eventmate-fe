@@ -24,6 +24,7 @@ import {
 } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
+import type { Database } from "@/lib/database.types";
 
 /** Subset of the `profiles` row needed across the app. */
 export interface Profile {
@@ -48,6 +49,7 @@ export interface Profile {
   reliability_score: number | null;
   is_verified: boolean | null;
   cv_url: string | null;
+  single_event_credits: number | null;
 }
 
 interface AuthContextValue {
@@ -61,6 +63,8 @@ interface AuthContextValue {
   refreshProfile: () => Promise<void>;
   /** True only when is_premium is set AND premium_until is in the future. */
   isPremium: boolean;
+  /** Number of purchased Single Event (99k) credits remaining. */
+  singleEventCredits: number;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -69,7 +73,7 @@ async function fetchProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "id, role, email, full_name, avatar_url, phone, university, bio, skills, slug, cv_completion_percent, is_premium, premium_until, mst, website, scale, address, map_embed_url, is_verified, cv_url, reliability_score",
+      "id, role, email, full_name, avatar_url, phone, university, bio, skills, slug, cv_completion_percent, is_premium, premium_until, mst, website, scale, address, map_embed_url, is_verified, cv_url, reliability_score, single_event_credits",
     )
     .eq("id", userId)
     .maybeSingle();
@@ -82,29 +86,100 @@ async function fetchProfile(userId: string): Promise<Profile | null> {
 
 async function ensureProfile(user: User): Promise<Profile | null> {
   let p = await fetchProfile(user.id);
+  const meta = user.user_metadata || {};
+  const isOrg = meta.role === "organizer" || p?.role === "organizer";
+  const desiredName =
+    (isOrg && meta.company_name)
+      ? meta.company_name
+      : meta.full_name ||
+        meta.name ||
+        user.email?.split("@")[0] ||
+        "Thành viên mới";
+  const desiredBio = meta.description || meta.bio || null;
+  const desiredScale = meta.scale || meta.company_field || null;
+
   if (!p) {
-    const fallbackName =
-      user.user_metadata?.full_name ||
-      user.user_metadata?.name ||
-      user.email?.split("@")[0] ||
-      "Thành viên mới";
-    const fallbackRole = user.user_metadata?.role || "student";
+    const fallbackRole = meta.role || "student";
     const fallbackAvatar =
-      user.user_metadata?.avatar_url || user.user_metadata?.picture || null;
+      meta.avatar_url || meta.picture || null;
 
-    await supabase.from("profiles").upsert(
-      {
-        id: user.id,
-        email: user.email || "",
-        full_name: fallbackName,
-        role: fallbackRole,
-        avatar_url: fallbackAvatar,
-      },
-      { onConflict: "id" },
-    );
+    const newProfile: Database["public"]["Tables"]["profiles"]["Insert"] = {
+      id: user.id,
+      email: user.email || "",
+      full_name: desiredName,
+      role: fallbackRole,
+      avatar_url: fallbackAvatar,
+      bio: desiredBio,
+      scale: desiredScale,
+    };
 
+    await supabase.from("profiles").upsert(newProfile, { onConflict: "id" });
     p = await fetchProfile(user.id);
+  } else if (isOrg) {
+    // If existing organizer profile has incomplete info or personal name instead of company name
+    const patch: Database["public"]["Tables"]["profiles"]["Update"] = {};
+    if (meta.company_name && p.full_name !== meta.company_name) {
+      patch.full_name = meta.company_name;
+    }
+    if (desiredBio && !p.bio) {
+      patch.bio = desiredBio;
+    }
+    if (desiredScale && !p.scale) {
+      patch.scale = desiredScale;
+    }
+
+    if (Object.keys(patch).length > 0) {
+      await supabase.from("profiles").update(patch).eq("id", user.id);
+      p = await fetchProfile(user.id);
+    }
   }
+
+function dataURItoBlob(dataURI: string): Blob {
+  const parts = dataURI.split(",");
+  const byteString = atob(parts[1] || "");
+  const mimeString = parts[0]?.split(":")[1]?.split(";")[0] || "image/jpeg";
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  return new Blob([ab], { type: mimeString });
+}
+
+  // Check and upload pending logo from organizer registration
+  if (typeof window !== "undefined") {
+    const pendingLogo = localStorage.getItem("pending_org_logo");
+    if (pendingLogo && user.id) {
+      try {
+        const blob = dataURItoBlob(pendingLogo);
+        const fileExt = blob.type.split("/")[1] || "jpeg";
+        const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("avatars")
+          .upload(fileName, blob, { contentType: blob.type, upsert: true });
+
+        if (!uploadError) {
+          const {
+            data: { publicUrl },
+          } = supabase.storage.from("avatars").getPublicUrl(fileName);
+
+          await supabase
+            .from("profiles")
+            .update({ avatar_url: publicUrl })
+            .eq("id", user.id);
+
+          localStorage.removeItem("pending_org_logo");
+          p = await fetchProfile(user.id);
+        } else {
+          console.warn("Upload pending logo error:", uploadError);
+        }
+      } catch (err) {
+        console.warn("Failed to upload pending logo from localStorage", err);
+      }
+    }
+  }
+
   return p;
 }
 
@@ -178,6 +253,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     refreshProfile,
     isPremium,
+    singleEventCredits: profile?.single_event_credits ?? 0,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

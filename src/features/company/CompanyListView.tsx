@@ -69,6 +69,8 @@ export default function CompanyList() {
             address,
             reliability_score,
             is_verified,
+            is_premium,
+            premium_until,
             events (
               id,
               title,
@@ -300,9 +302,10 @@ export default function CompanyList() {
     sidebarFilters.sortBy !== "popular"
 
   return (
-    <MainLayout role={userRole}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 animate-in fade-in duration-300">
-        {/* HERO SECTION — Figma Discover the Best Workplaces (node 5875:24876) */}
+    <MainLayout role={userRole} fullWidth className="bg-[#f3f5f7]">
+      <div className="w-full bg-[#f3f5f7] min-h-[calc(100vh-80px)] py-8 sm:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 animate-in fade-in duration-300">
+          {/* HERO SECTION — Figma Discover the Best Workplaces (node 5875:24876) */}
         <section className="text-center mb-10 sm:mb-14 space-y-4">
           <h1 className="text-2xl sm:text-[32px] font-semibold text-[#222222] tracking-tight">
             Khám phá Ban Tổ Chức & Doanh Nghiệp
@@ -401,6 +404,7 @@ export default function CompanyList() {
               </div>
             )}
           </main>
+        </div>
         </div>
       </div>
     </MainLayout>

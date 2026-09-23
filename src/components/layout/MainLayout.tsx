@@ -1,8 +1,7 @@
 "use client"
 
-import { useEffect, useState, isValidElement, cloneElement } from "react"
+import { useEffect, useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import Link from "next/link"
 import { supabase } from "@/lib/supabase"
 import { useUser } from "@/components/providers/AuthProvider"
 import { NotchNavbar } from "@/components/layout/NotchNavbar"
@@ -43,7 +42,8 @@ export default function MainLayout({
         isOrganizerRole(role) ||
         isOrganizerRole(profile?.role) ||
         pathname?.startsWith("/for-employers") ||
-        pathname?.startsWith("/organizer")
+        pathname?.startsWith("/organizer") ||
+        (pathname?.startsWith("/pricing") && profile?.role !== "student")
 
     const [isGuestMode, setIsGuestMode] = useState(false)
     useEffect(() => {
@@ -150,6 +150,23 @@ export default function MainLayout({
 
 
     useEffect(() => {
+        const handleNotificationsRead = (e: Event) => {
+            const detail = (e as CustomEvent).detail
+            if (detail?.all) {
+                setNotifications(prev => prev.map(n => ({ ...n, is_read: true })))
+            } else if (detail?.id) {
+                if (detail.deleted) {
+                    setNotifications(prev => prev.filter(n => n.id !== detail.id))
+                } else {
+                    setNotifications(prev => prev.map(n => n.id === detail.id ? ({ ...n, is_read: true }) : n))
+                }
+            }
+        }
+        window.addEventListener("notifications-read", handleNotificationsRead)
+        return () => window.removeEventListener("notifications-read", handleNotificationsRead)
+    }, [])
+
+    useEffect(() => {
         const handleTriggerLogout = () => {
             handleLogout()
         }
@@ -176,7 +193,7 @@ export default function MainLayout({
                 />
             </div>
         ) : (
-            <div className="flex items-center gap-1 sm:gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
                 <NotificationDropdown
                     notifications={notifications}
                     unreadCount={unreadCount}
@@ -216,7 +233,7 @@ export default function MainLayout({
             <main
                 className={cn(
                     "flex-1 w-full",
-                    hasHeroHeader ? "-mt-[92px] sm:-mt-[96px]" : "",
+                    hasHeroHeader ? "-mt-[76px] sm:-mt-[80px]" : "",
                     !hasHeroHeader && !fullWidth ? "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 sm:py-6" : ""
                 )}
             >

@@ -8,7 +8,7 @@ import { useToast } from "@/components/providers/ToastProvider"
 import { getStudentProfileCompletion } from "@/lib/profile-completion"
 
 export function useAccountSettings() {
-  const { user, profile, loading: authLoading, refreshProfile } = useUser()
+  const { user, profile, loading: authLoading, refreshProfile, isPremium } = useUser()
   const { showToast } = useToast()
 
   // System & Meta State
@@ -78,7 +78,8 @@ export function useAccountSettings() {
     const p = dbProfile || profile
 
     if (p) {
-      setRole(p.role || "student")
+      const urlRole = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("role") : null
+      setRole(urlRole || p.role || "student")
       setFullName(p.full_name || "")
       setPhone(p.phone || "")
       setUniversity(p.university || "")
@@ -143,6 +144,31 @@ export function useAccountSettings() {
 
     setUpdating(true)
     setMessage(null)
+
+    if (!fullName.trim()) {
+      showToast({ title: "Thiếu thông tin", message: "Vui lòng nhập tên Đơn vị / Câu lạc bộ.", type: "error" })
+      setUpdating(false)
+      return
+    }
+
+    if (phone.trim()) {
+      const phoneClean = phone.trim().replace(/[\s.-]/g, "")
+      const phoneRegex = /^(0|\+84)[3|5|7|8|9][0-9]{8}$/
+      if (!phoneRegex.test(phoneClean)) {
+        showToast({ title: "Số điện thoại không hợp lệ", message: "Vui lòng nhập số điện thoại đúng định dạng (VD: 0905123456).", type: "error" })
+        setUpdating(false)
+        return
+      }
+    }
+
+    if (website.trim()) {
+      const isUrl = /^https?:\/\/.+/i.test(website.trim())
+      if (!isUrl) {
+        showToast({ title: "Website không hợp lệ", message: "Đường dẫn Website/Fanpage phải bắt đầu bằng http:// hoặc https://", type: "error" })
+        setUpdating(false)
+        return
+      }
+    }
 
     const isOrg = role === "organizer" || role === "employer"
     const updatePayload: any = {
@@ -373,6 +399,7 @@ export function useAccountSettings() {
     setMapEmbedUrl,
     reliabilityScore,
     isVerified,
+    isPremium,
     cvPercent,
     isSeekingJob,
     setIsSeekingJob,

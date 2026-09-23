@@ -1,22 +1,20 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import Link from "next/link"
-import { CheckCircle2 } from "lucide-react"
 import MainLayout from "@/components/layout/MainLayout"
 import PaymentForm from "./components/PaymentForm"
 import PaymentOrderSummary from "./components/PaymentOrderSummary"
 import ReceiptPrinterAnimation from "@/components/common/ReceiptPrinterAnimation"
 import { useToast } from "@/components/providers/ToastProvider"
 import { useUser } from "@/components/providers/AuthProvider"
-import { supabase } from "@/lib/supabase"
+import Breadcrumb from "@/components/common/Breadcrumb"
 
 export default function CheckoutView() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { showToast } = useToast()
-  const { user, refreshProfile } = useUser()
+  const { refreshProfile, isPremium, profile } = useUser()
 
   const planId = searchParams.get("plan") || "standard"
   const billingCycle = (searchParams.get("billing") as "monthly" | "yearly") || "monthly"
@@ -44,12 +42,29 @@ export default function CheckoutView() {
       } catch {}
     }
     setIsSuccess(true)
+    const isSingle = planId === "single_event"
     showToast({
       type: "success",
       title: "Thanh toán thành công!",
-      message: `Đã kích hoạt thành công gói ${planId.toUpperCase()} (${billingCycle === "yearly" ? "Theo năm" : "Theo tháng"}).`,
+      message: isSingle
+        ? "Đã kích hoạt thành công 1 lượt đăng Sự Kiện Nhanh (99.000đ)!"
+        : `Đã kích hoạt thành công gói Doanh Nghiệp VIP (${billingCycle === "yearly" ? "Theo năm" : "Theo tháng"}).`,
     })
   }
+
+  // Chặn mua trùng lặp nếu tài khoản đã kích hoạt gói Doanh Nghiệp VIP
+  useEffect(() => {
+    const status = searchParams.get("status")
+    const isDemo = searchParams.get("demo") === "receipt"
+    if (isEnterprise && isPremium && status !== "success" && !isDemo && !isSuccess) {
+      showToast({
+        type: "info",
+        title: "Gói VIP đang kích hoạt",
+        message: `Bạn hiện đang sử dụng gói Doanh Nghiệp VIP${profile?.premium_until ? ` (Hạn dùng: ${new Date(profile.premium_until).toLocaleDateString("vi-VN")})` : ""}. Không cần mua lại!`,
+      })
+      router.push("/dashboard")
+    }
+  }, [isEnterprise, isPremium, searchParams, isSuccess, router, showToast, profile?.premium_until])
 
   // Tự động kiểm tra nếu URL chứa status=success từ payOS redirect hoặc demo=receipt
   useEffect(() => {
@@ -73,39 +88,20 @@ export default function CheckoutView() {
     }
   }, [searchParams])
 
-function ArrowLeftIcon({ className = "w-[24px] h-[24px]" }: { className?: string }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M21.7501 12C21.7501 12.414 21.4141 12.75 21.0001 12.75H4.81115L10.5311 18.47C10.8241 18.763 10.8241 19.238 10.5311 19.531C10.3851 19.677 10.1931 19.751 10.0011 19.751C9.80909 19.751 9.61706 19.678 9.47106 19.531L2.47106 12.531C2.40206 12.462 2.3472 12.3791 2.3092 12.2871C2.2332 12.1041 2.2332 11.8971 2.3092 11.7141C2.3472 11.6221 2.40206 11.539 2.47106 11.47L9.47106 4.46999C9.76406 4.17699 10.2391 4.17699 10.5321 4.46999C10.8251 4.76299 10.8251 5.23803 10.5321 5.53103L4.81213 11.251H21.0001C21.4141 11.25 21.7501 11.586 21.7501 12Z"
-        fill="currentColor"
-      />
-    </svg>
-  )
-}
-
   return (
     <MainLayout fullWidth={true} className="bg-white">
       <div className="w-full bg-white pt-4 sm:pt-6 pb-16 sm:pb-24 animate-in fade-in duration-300">
         <div className="max-w-[1024px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col">
           
-          {/* Top: Back Button (Figma node 6240:25185) */}
+          {/* Top: Breadcrumb */}
           {!isSuccess && (
-            <div className="w-full flex items-center justify-start">
-              <Link
-                href="/pricing"
-                className="inline-flex items-center gap-[8px] px-[16px] py-[8px] rounded-[8px] text-[#005DDC] hover:bg-blue-50 transition-colors cursor-pointer group"
-              >
-                <ArrowLeftIcon className="w-[24px] h-[24px] text-[#005DDC] transition-transform group-hover:-translate-x-0.5" />
-                <span className="font-['Inter'] font-medium text-[18px] leading-normal text-[#005DDC]">
-                  Quay lại
-                </span>
-              </Link>
+            <div className="w-full mb-4">
+              <Breadcrumb
+                items={[
+                  { label: "Bảng giá", href: "/pricing" },
+                  { label: "Thanh toán gói dịch vụ" },
+                ]}
+              />
             </div>
           )}
 

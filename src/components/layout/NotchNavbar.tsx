@@ -6,7 +6,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Menu, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
-import { JoblinLogo, NavSearchIcon, NavBellIcon, NavLogInIcon } from "./JoblinIcons"
+import { EventMateLogo } from "@/components/common/EventMateLogo"
+import { NavSearchIcon, NavLogInIcon } from "./JoblinIcons"
 
 const protectedClick = (e: React.MouseEvent, role?: string, redirectPath?: string) => {
   if (role === "guest" || !role) {
@@ -118,42 +119,37 @@ export function NotchNavbar({
     setIsSearchOpen(false)
   }
 
-  const handleBellClick = () => {
-    window.dispatchEvent(
-      new CustomEvent("open-auth-modal", {
-        detail: { mode: "login", message: "Vui lòng đăng nhập để xem thông báo." },
-      })
-    )
-  }
-
   // Active state checkers
-  const isHomeActive = pathname === "/"
   const isFindJobActive = pathname?.startsWith("/events") || pathname?.startsWith("/jobs")
   const isCompanyActive = pathname?.startsWith("/companies")
-  const isCvActive = pathname?.startsWith("/profile") || pathname?.startsWith("/cv")
-
   const isEmployerHomeActive = pathname === "/for-employers"
-  const isPostJobActive =
-    pathname?.startsWith("/post-job") ||
-    (pathname === "/dashboard" && searchParams?.get("tab") === "post-job") ||
-    pathname?.startsWith("/events/create")
   const isDashboardActive =
-    pathname?.startsWith("/dashboard") ||
-    pathname?.startsWith("/manage-events")
+    pathname === "/dashboard" || pathname?.startsWith("/dashboard?")
+  const isManageEventsActive = pathname?.startsWith("/manage-events")
   const isPricingActive = pathname?.startsWith("/pricing")
+  const isBlogActive = pathname?.startsWith("/blog")
 
   const isFloating = variant === "floating"
+
+  const navLinkClass = (isActive: boolean) =>
+    cn(
+      "h-[36px] px-3.5 rounded-full flex items-center justify-center font-['Inter',sans-serif] text-[14.5px] font-medium transition-all whitespace-nowrap cursor-pointer select-none",
+      isActive
+        ? "bg-slate-100 text-[#222222] font-semibold shadow-2xs"
+        : "text-[#555555] hover:text-[#222222] hover:bg-slate-50"
+    )
 
   return (
     <>
       <header
         className={cn(
-          "sticky top-0 z-50 w-full transition-all duration-300 ease-in-out",
+          isFloating && !isScrolled ? "sticky top-2 z-50" : "sticky top-0 z-50",
+          "w-full transition-all duration-300 ease-in-out",
           isFloating
             ? isScrolled
-              ? "bg-white/95 backdrop-blur-md border-b border-[#cbcbcb] shadow-xs pt-0 px-0"
-              : "bg-transparent border-b border-transparent shadow-none pt-3 sm:pt-4 px-4 sm:px-6 lg:px-8"
-            : "bg-white border-b border-[#cbcbcb]",
+              ? "bg-white/90 backdrop-blur-xl border-b border-slate-200/80 shadow-xs pt-0 px-0"
+              : "bg-transparent border-b border-transparent shadow-none pt-2.5 sm:pt-3 px-4 sm:px-6 lg:px-8"
+            : "bg-white border-b border-slate-200/80",
           className
         )}
       >
@@ -163,13 +159,12 @@ export function NotchNavbar({
             isFloating
               ? isScrolled
                 ? "mx-auto max-w-7xl w-full bg-transparent rounded-none px-4 sm:px-6 lg:px-8 border-transparent shadow-none"
-                : "mx-auto max-w-[1232px] w-full bg-white rounded-[12px] px-4 sm:px-6 border border-[#ededed] shadow-sm"
+                : "mx-auto w-fit bg-white/90 backdrop-blur-xl rounded-full px-4 sm:px-6 border border-slate-200/80 shadow-[0_4px_24px_rgba(0,0,0,0.04)]"
               : "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
           )}
-          data-node-id={isEmployer ? "5875:27178" : "7182:22172"}
           data-name={isEmployer ? "Header-employer" : "Header-jobseeker"}
         >
-          <div className="flex h-[80px] items-center justify-between gap-2 sm:gap-4">
+          <div className="flex h-[60px] sm:h-[64px] items-center justify-between gap-2 sm:gap-4">
             {/* Left: Brand Logo */}
             <div className="flex items-center shrink-0">
               {logo ? (
@@ -177,91 +172,63 @@ export function NotchNavbar({
               ) : (
                 <Link
                   href={isEmployer ? "/for-employers" : "/"}
-                  className="flex items-center h-[40px] px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#005DDC] rounded-lg transition-transform hover:opacity-90 active:scale-95"
+                  className="flex items-center h-[38px] px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20 rounded-lg transition-transform hover:opacity-90 active:scale-95"
                   aria-label="EventMate Home"
                 >
-                  <JoblinLogo className="w-[110px] h-[29px]" />
+                  <EventMateLogo iconSize={32} />
                 </Link>
               )}
             </div>
 
             {/* Center: Menu Navigation */}
-            <nav className="hidden lg:flex items-center justify-between gap-1 shrink-0">
+            <nav className="hidden lg:flex items-center justify-center gap-1 shrink-0">
               {isEmployer ? (
+                /* Role: Organizer */
                 <>
-                  <Link
-                    href="/for-employers"
-                    className={cn(
-                      "h-[40px] px-[14px] sm:px-[16px] py-[8px] rounded-[8px] flex items-center justify-center font-['Inter'] font-medium text-[14px] leading-[1.6] transition-colors whitespace-nowrap",
-                      isEmployerHomeActive ? "text-[#005DDC]" : "text-[#222222] hover:text-[#005DDC]"
-                    )}
-                  >
-                    Trang chủ
-                  </Link>
-                  <Link
-                    href="/post-job"
-                    onClick={(e) => protectedClick(e, role, "/post-job")}
-                    className={cn(
-                      "h-[40px] px-[14px] sm:px-[16px] py-[8px] rounded-[8px] flex items-center justify-center font-['Inter'] font-medium text-[14px] leading-[1.6] transition-colors whitespace-nowrap",
-                      isPostJobActive ? "text-[#005DDC]" : "text-[#222222] hover:text-[#005DDC]"
-                    )}
-                  >
-                    Đăng sự kiện
-                  </Link>
-                  <Link
-                    href="/dashboard"
-                    className={cn(
-                      "h-[40px] px-[14px] sm:px-[16px] py-[8px] rounded-[8px] flex items-center justify-center font-['Inter'] font-medium text-[14px] leading-[1.6] transition-colors whitespace-nowrap",
-                      isDashboardActive ? "text-[#005DDC]" : "text-[#222222] hover:text-[#005DDC]"
-                    )}
-                  >
+                  <Link href="/dashboard" className={navLinkClass(isDashboardActive)}>
                     Bảng điều khiển
                   </Link>
-                  <Link
-                    href="/pricing"
-                    className={cn(
-                      "h-[40px] px-[14px] sm:px-[16px] py-[8px] rounded-[8px] flex items-center justify-center font-['Inter'] font-medium text-[14px] leading-[1.6] transition-colors whitespace-nowrap",
-                      isPricingActive ? "text-[#005DDC]" : "text-[#222222] hover:text-[#005DDC]"
-                    )}
-                  >
+                  <Link href="/manage-events" className={navLinkClass(isManageEventsActive)}>
+                    Quản lý sự kiện
+                  </Link>
+                  <Link href="/for-employers" className={navLinkClass(isEmployerHomeActive)}>
+                    Tìm ứng viên
+                  </Link>
+                  <Link href="/pricing" className={navLinkClass(isPricingActive)}>
                     Bảng giá
                   </Link>
                 </>
-              ) : (
+              ) : !isGuest ? (
+                /* Role: Student (Logged in) */
                 <>
-                  <Link
-                    href="/"
-                    className={cn(
-                      "h-[40px] px-[14px] py-[8px] rounded-[8px] flex items-center justify-center font-['Inter'] font-medium text-[14px] leading-[1.6] transition-colors whitespace-nowrap",
-                      isHomeActive ? "text-[#005DDC]" : "text-[#222222] hover:text-[#005DDC]"
-                    )}
-                  >
-                    Trang chủ
+                  <Link href="/events" className={navLinkClass(isFindJobActive)}>
+                    Việc làm
                   </Link>
-                  <Link
-                    href="/events"
-                    className={cn(
-                      "h-[40px] px-[14px] py-[8px] rounded-[8px] flex items-center justify-center font-['Inter'] font-medium text-[14px] leading-[1.6] transition-colors whitespace-nowrap",
-                      isFindJobActive ? "text-[#005DDC]" : "text-[#222222] hover:text-[#005DDC]"
-                    )}
-                  >
-                    Tìm việc làm
-                  </Link>
-                  <Link
-                    href="/companies"
-                    className={cn(
-                      "h-[40px] px-[14px] py-[8px] rounded-[8px] flex items-center justify-center font-['Inter'] font-medium text-[14px] leading-[1.6] transition-colors whitespace-nowrap",
-                      isCompanyActive ? "text-[#005DDC]" : "text-[#222222] hover:text-[#005DDC]"
-                    )}
-                  >
+                  <Link href="/companies" className={navLinkClass(isCompanyActive)}>
                     Ban tổ chức
+                  </Link>
+                  <Link href="/blog" className={navLinkClass(isBlogActive)}>
+                    Cẩm nang
+                  </Link>
+                </>
+              ) : (
+                /* Role: Guest (Not logged in) */
+                <>
+                  <Link href="/events" className={navLinkClass(isFindJobActive)}>
+                    Việc làm
+                  </Link>
+                  <Link href="/companies" className={navLinkClass(isCompanyActive)}>
+                    Ban tổ chức
+                  </Link>
+                  <Link href="/blog" className={navLinkClass(isBlogActive)}>
+                    Cẩm nang
                   </Link>
                 </>
               )}
             </nav>
 
             {/* Right Controls */}
-            <div className="flex items-center gap-1 sm:gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               {/* Expandable Search Container */}
               <div ref={searchContainerRef} className="relative flex items-center">
                 <AnimatePresence>
@@ -272,15 +239,15 @@ export function NotchNavbar({
                       exit={{ width: 0, opacity: 0 }}
                       transition={{ duration: 0.2 }}
                       onSubmit={handleSearchSubmit}
-                      className="overflow-hidden mr-2"
+                      className="overflow-hidden mr-1.5"
                     >
                       <input
                         ref={searchInputRef}
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder={isEmployer ? "Tìm hồ sơ, ứng viên..." : "Tìm sự kiện..."}
-                        className="w-full h-[38px] px-3 text-sm border border-slate-300 rounded-lg focus:outline-none focus:border-[#005DDC]"
+                        placeholder={isEmployer ? "Tìm ứng viên..." : "Tìm sự kiện..."}
+                        className="w-full h-[36px] px-3.5 text-[13px] border border-slate-200 rounded-full focus:outline-none focus:border-black/40 focus:ring-2 focus:ring-black/5"
                       />
                     </motion.form>
                   )}
@@ -294,11 +261,11 @@ export function NotchNavbar({
                       setIsSearchOpen(!isSearchOpen)
                     }
                   }}
-                  className="size-[40px] flex items-center justify-center rounded-full hover:bg-slate-100 text-[#222222] transition-colors cursor-pointer"
+                  className="size-[38px] flex items-center justify-center rounded-full hover:bg-slate-100 text-[#222222] transition-colors cursor-pointer"
                   title={isEmployer ? "Tìm kiếm ứng viên" : "Tìm kiếm sự kiện"}
                   aria-label="Tìm kiếm"
                 >
-                  <NavSearchIcon className="size-[24px]" />
+                  <NavSearchIcon className="size-[20px]" />
                 </button>
               </div>
 
@@ -306,52 +273,43 @@ export function NotchNavbar({
               {rightActions ? (
                 rightActions
               ) : (
-                <div className="hidden sm:flex items-center">
-                  {/* Bell icon button */}
-                  <button
-                    onClick={handleBellClick}
-                    className="size-[44px] sm:size-[48px] flex items-center justify-center rounded-full hover:bg-slate-100 text-[#282828] transition-colors cursor-pointer"
-                    title="Thông báo"
-                    aria-label="Thông báo"
-                  >
-                    <NavBellIcon className="size-[24px]" />
-                  </button>
-
-                  {/* Employer / Jobseeker Switcher link */}
+                <div className="hidden sm:flex items-center gap-1.5">
+                  {/* Switcher */}
                   <Link
                     href={isEmployer ? "/?view=jobseeker" : "/for-employers"}
-                    className="h-[40px] px-[14px] sm:px-[16px] py-[8px] rounded-[8px] flex items-center justify-center text-[#222222] hover:text-[#005DDC] font-['Inter'] font-medium text-[14px] leading-[1.6] transition-colors whitespace-nowrap cursor-pointer"
+                    className="h-[36px] px-3 rounded-full flex items-center justify-center text-[#555555] hover:text-[#222222] hover:bg-slate-100/70 font-medium text-[14px] transition-colors whitespace-nowrap cursor-pointer"
                   >
-                    {isEmployer ? "Người tìm việc" : "Nhà tuyển dụng"}
+                    {isEmployer ? "Dành cho ứng viên" : "Dành cho nhà tuyển dụng"}
                   </Link>
 
-                  {/* Vertical Divider */}
-                  <div className="h-[35px] w-px bg-[#cbcbcb] mx-2 shrink-0" />
+                  <div className="h-4 w-px bg-slate-200 mx-1 shrink-0" />
 
-                  {/* Sign Up CTA button */}
+                  {/* Log In */}
+                  <Link
+                    href={isEmployer ? "/login?role=organizer" : "/login"}
+                    className="h-[36px] px-3.5 rounded-full flex items-center justify-center text-[#222222] hover:bg-slate-100 font-medium text-[14.5px] transition-colors whitespace-nowrap cursor-pointer"
+                  >
+                    Đăng nhập
+                  </Link>
+
+                  {/* Sign Up */}
                   <Link
                     href={isEmployer ? "/register?role=organizer" : "/register"}
-                    className={cn(
-                      "flex items-center gap-[8px] h-[40px] px-[16px] py-[8px] rounded-[8px] font-['Inter'] font-medium text-[15px] transition-colors cursor-pointer shadow-xs active:scale-[0.98] whitespace-nowrap ml-1",
-                      isEmployer
-                        ? "bg-[#222222] hover:bg-black text-white"
-                        : "bg-[#005DDC] hover:bg-[#004EB7] text-white"
-                    )}
+                    className="h-[36px] px-4 rounded-full flex items-center justify-center bg-[#222222] hover:bg-black text-white font-medium text-[14.5px] transition-all shadow-xs active:scale-[0.97] whitespace-nowrap cursor-pointer"
                   >
-                    <NavLogInIcon className="size-[22px] text-white shrink-0" />
-                    <span>Đăng ký</span>
+                    Đăng ký
                   </Link>
                 </div>
               )}
 
               {/* Mobile Menu Toggle Button */}
               <button
-                className="lg:hidden p-2 text-[#222222] hover:bg-slate-100 rounded-lg transition-colors ml-1"
+                className="lg:hidden p-2 text-[#222222] hover:bg-slate-100 rounded-full transition-colors ml-0.5 cursor-pointer"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 aria-label={isMobileMenuOpen ? "Đóng menu" : "Mở menu"}
                 aria-expanded={isMobileMenuOpen}
               >
-                {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                {isMobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
               </button>
             </div>
           </div>
@@ -366,145 +324,156 @@ export function NotchNavbar({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             className={cn(
-              "lg:hidden z-50 bg-white shadow-lg overflow-y-auto transition-all duration-300",
+              "lg:hidden z-50 bg-white/95 backdrop-blur-xl shadow-xl overflow-y-auto transition-all duration-300",
               isFloating && !isScrolled
-                ? "mt-2 mx-auto max-w-[1232px] w-full rounded-[12px] border border-[#ededed] shadow-[0px_0px_14px_0px_#00000008] max-h-[calc(100vh-120px)]"
-                : "fixed inset-x-0 top-[80px] border-b border-[#cbcbcb] max-h-[calc(100vh-80px)]"
+                ? "mt-2 mx-auto max-w-[1240px] w-full rounded-[20px] border border-slate-200/80 shadow-[0_12px_36px_rgba(0,0,0,0.08)] max-h-[calc(100vh-100px)]"
+                : "fixed inset-x-0 top-[64px] border-b border-slate-200/80 max-h-[calc(100vh-64px)]"
             )}
           >
-            <nav className="p-4 flex flex-col gap-1">
+            <nav className="p-4 flex flex-col gap-1.5">
               {isEmployer ? (
                 <>
                   <Link
-                    href="/for-employers"
-                    className={cn(
-                      "p-3 rounded-lg font-medium text-sm transition-colors",
-                      isEmployerHomeActive ? "text-[#005DDC] bg-blue-50/50" : "text-[#222222] hover:bg-slate-50"
-                    )}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Trang chủ
-                  </Link>
-                  <Link
-                    href="/post-job"
-                    className={cn(
-                      "p-3 rounded-lg font-medium text-sm transition-colors",
-                      isPostJobActive ? "text-[#005DDC] bg-blue-50/50" : "text-[#222222] hover:bg-slate-50"
-                    )}
-                    onClick={(e) => {
-                      setIsMobileMenuOpen(false)
-                      protectedClick(e, role, "/post-job")
-                    }}
-                  >
-                    Đăng sự kiện
-                  </Link>
-                  <Link
                     href="/dashboard"
                     className={cn(
-                      "p-3 rounded-lg font-medium text-sm transition-colors",
-                      isDashboardActive ? "text-[#005DDC] bg-blue-50/50" : "text-[#222222] hover:bg-slate-50"
+                      "p-3 rounded-xl font-medium text-sm transition-colors",
+                      isDashboardActive ? "bg-slate-100 text-[#222222] font-semibold" : "text-[#555555] hover:bg-slate-50 hover:text-[#222222]"
                     )}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Bảng điều khiển
                   </Link>
                   <Link
-                    href="/for-employers#solutions"
-                    className="p-3 rounded-lg font-medium text-sm text-[#222222] hover:bg-slate-50 transition-colors"
+                    href="/manage-events"
+                    className={cn(
+                      "p-3 rounded-xl font-medium text-sm transition-colors",
+                      isManageEventsActive ? "bg-slate-100 text-[#222222] font-semibold" : "text-[#555555] hover:bg-slate-50 hover:text-[#222222]"
+                    )}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    Giải pháp
+                    Quản lý sự kiện
+                  </Link>
+                  <Link
+                    href="/for-employers"
+                    className={cn(
+                      "p-3 rounded-xl font-medium text-sm transition-colors",
+                      isEmployerHomeActive ? "bg-slate-100 text-[#222222] font-semibold" : "text-[#555555] hover:bg-slate-50 hover:text-[#222222]"
+                    )}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Tìm ứng viên
                   </Link>
                   <Link
                     href="/pricing"
                     className={cn(
-                      "p-3 rounded-lg font-medium text-sm transition-colors",
-                      isPricingActive ? "text-[#005DDC] bg-blue-50/50" : "text-[#222222] hover:bg-slate-50"
+                      "p-3 rounded-xl font-medium text-sm transition-colors",
+                      isPricingActive ? "bg-slate-100 text-[#222222] font-semibold" : "text-[#555555] hover:bg-slate-50 hover:text-[#222222]"
                     )}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Bảng giá
                   </Link>
                 </>
-              ) : (
+              ) : !isGuest ? (
                 <>
-                  <Link
-                    href="/"
-                    className={cn(
-                      "p-3 rounded-lg font-medium text-sm transition-colors",
-                      isHomeActive ? "text-[#005DDC] bg-blue-50/50" : "text-[#222222] hover:bg-slate-50"
-                    )}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Trang chủ
-                  </Link>
                   <Link
                     href="/events"
                     className={cn(
-                      "p-3 rounded-lg font-medium text-sm transition-colors",
-                      isFindJobActive ? "text-[#005DDC] bg-blue-50/50" : "text-[#222222] hover:bg-slate-50"
+                      "p-3 rounded-xl font-medium text-sm transition-colors",
+                      isFindJobActive ? "bg-slate-100 text-[#222222] font-semibold" : "text-[#555555] hover:bg-slate-50 hover:text-[#222222]"
                     )}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    Tìm việc làm
+                    Việc làm
                   </Link>
                   <Link
                     href="/companies"
                     className={cn(
-                      "p-3 rounded-lg font-medium text-sm transition-colors",
-                      isCompanyActive ? "text-[#005DDC] bg-blue-50/50" : "text-[#222222] hover:bg-slate-50"
+                      "p-3 rounded-xl font-medium text-sm transition-colors",
+                      isCompanyActive ? "bg-slate-100 text-[#222222] font-semibold" : "text-[#555555] hover:bg-slate-50 hover:text-[#222222]"
                     )}
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Ban tổ chức
                   </Link>
                   <Link
-                    href="/profile"
+                    href="/blog"
                     className={cn(
-                      "p-3 rounded-lg font-medium text-sm transition-colors",
-                      isCvActive ? "text-[#005DDC] bg-blue-50/50" : "text-[#222222] hover:bg-slate-50"
+                      "p-3 rounded-xl font-medium text-sm transition-colors",
+                      isBlogActive ? "bg-slate-100 text-[#222222] font-semibold" : "text-[#555555] hover:bg-slate-50 hover:text-[#222222]"
                     )}
-                    onClick={(e) => {
-                      setIsMobileMenuOpen(false)
-                      protectedClick(e, role)
-                    }}
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    Hồ sơ của tôi
+                    Cẩm nang
+                  </Link>
+                  <Link
+                    href="/dashboard"
+                    className={cn(
+                      "p-3 rounded-xl font-medium text-sm transition-colors",
+                      isDashboardActive ? "bg-slate-100 text-[#222222] font-semibold" : "text-[#555555] hover:bg-slate-50 hover:text-[#222222]"
+                    )}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Bảng điều khiển
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/events"
+                    className={cn(
+                      "p-3 rounded-xl font-medium text-sm transition-colors",
+                      isFindJobActive ? "bg-slate-100 text-[#222222] font-semibold" : "text-[#555555] hover:bg-slate-50 hover:text-[#222222]"
+                    )}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Việc làm
+                  </Link>
+                  <Link
+                    href="/companies"
+                    className={cn(
+                      "p-3 rounded-xl font-medium text-sm transition-colors",
+                      isCompanyActive ? "bg-slate-100 text-[#222222] font-semibold" : "text-[#555555] hover:bg-slate-50 hover:text-[#222222]"
+                    )}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Ban tổ chức
+                  </Link>
+                  <Link
+                    href="/blog"
+                    className={cn(
+                      "p-3 rounded-xl font-medium text-sm transition-colors",
+                      isBlogActive ? "bg-slate-100 text-[#222222] font-semibold" : "text-[#555555] hover:bg-slate-50 hover:text-[#222222]"
+                    )}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Cẩm nang
                   </Link>
                 </>
               )}
 
-              {(isGuest || isEmployer) && (
-                <>
-                  <div className="my-2 h-px bg-[#cbcbcb]" />
-                  <Link
-                    href={isEmployer ? "/?view=jobseeker" : "/for-employers"}
-                    className="p-3 rounded-lg font-medium text-sm text-[#515151] hover:text-[#005DDC] hover:bg-slate-50 transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    {isEmployer ? "Dành cho Người tìm việc" : "Dành cho Nhà tuyển dụng"}
-                  </Link>
-                </>
-              )}
+              <div className="my-2 h-px bg-slate-100" />
+              <Link
+                href={isEmployer ? "/?view=jobseeker" : "/for-employers"}
+                className="p-3 rounded-xl font-medium text-sm text-[#757575] hover:text-[#222222] hover:bg-slate-50 transition-colors"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                {isEmployer ? "Dành cho Người tìm việc" : "Dành cho Nhà tuyển dụng"}
+              </Link>
 
               {isGuest ? (
                 <div className="pt-2 flex flex-col gap-2">
                   <Link
                     href={isEmployer ? "/register?role=organizer" : "/register"}
-                    className={cn(
-                      "text-white flex items-center justify-center gap-2 h-[44px] rounded-lg font-medium text-base transition-colors",
-                      isEmployer
-                        ? "bg-[#222222] hover:bg-black"
-                        : "bg-[#005DDC] hover:bg-[#004EB7]"
-                    )}
+                    className="text-white flex items-center justify-center gap-2 h-[42px] rounded-full bg-[#222222] hover:bg-black font-medium text-sm transition-all shadow-xs active:scale-[0.97]"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <NavLogInIcon className="size-5 text-white" />
+                    <NavLogInIcon className="size-4.5 text-white" />
                     <span>Đăng ký</span>
                   </Link>
                   <Link
                     href={isEmployer ? "/login?role=organizer" : "/login"}
-                    className="h-[44px] flex items-center justify-center rounded-lg border border-slate-200 text-[#222222] font-medium text-sm hover:bg-slate-50 transition-colors"
+                    className="h-[42px] flex items-center justify-center rounded-full border border-slate-200 text-[#222222] font-medium text-sm hover:bg-slate-50 transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Đăng nhập
@@ -513,36 +482,22 @@ export function NotchNavbar({
               ) : (
                 <div className="pt-2 flex flex-col gap-1">
                   <Link
-                    href="/my-events"
-                    className="p-3 rounded-lg font-medium text-sm text-[#222222] hover:bg-slate-50 transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Bảng điều khiển
-                  </Link>
-                  <Link
                     href="/profile"
-                    className="p-3 rounded-lg font-medium text-sm text-[#222222] hover:bg-slate-50 transition-colors"
+                    className="p-3 rounded-xl font-medium text-sm text-[#555555] hover:text-[#222222] hover:bg-slate-50 transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Hồ sơ cá nhân
                   </Link>
                   <Link
-                    href="/cv"
-                    className="p-3 rounded-lg font-medium text-sm text-[#222222] hover:bg-slate-50 transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Hồ sơ CV của tôi
-                  </Link>
-                  <Link
                     href="/chat"
-                    className="p-3 rounded-lg font-medium text-sm text-[#222222] hover:bg-slate-50 transition-colors"
+                    className="p-3 rounded-xl font-medium text-sm text-[#555555] hover:text-[#222222] hover:bg-slate-50 transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Tin nhắn
                   </Link>
                   <button
                     type="button"
-                    className="p-3 rounded-lg font-medium text-sm text-left text-red-600 hover:bg-red-50 transition-colors"
+                    className="p-3 rounded-xl font-medium text-sm text-left text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                     onClick={() => {
                       setIsMobileMenuOpen(false)
                       window.dispatchEvent(new CustomEvent("trigger-logout"))
@@ -559,4 +514,3 @@ export function NotchNavbar({
     </>
   )
 }
-

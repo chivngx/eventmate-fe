@@ -246,6 +246,12 @@ export type Database = {
           title: string
           ward_id: number | null
           zalo_group_link: string | null
+          is_urgent: boolean | null
+          is_featured: boolean | null
+          bumped_at: string | null
+          qr_checkin_code: string | null
+          plan_tier: string | null
+          deleted_at: string | null
         }
         Insert: {
           application_deadline?: string | null
@@ -270,6 +276,12 @@ export type Database = {
           title: string
           ward_id?: number | null
           zalo_group_link?: string | null
+          is_urgent?: boolean | null
+          is_featured?: boolean | null
+          bumped_at?: string | null
+          qr_checkin_code?: string | null
+          plan_tier?: string | null
+          deleted_at?: string | null
         }
         Update: {
           application_deadline?: string | null
@@ -294,6 +306,12 @@ export type Database = {
           title?: string
           ward_id?: number | null
           zalo_group_link?: string | null
+          is_urgent?: boolean | null
+          is_featured?: boolean | null
+          bumped_at?: string | null
+          qr_checkin_code?: string | null
+          plan_tier?: string | null
+          deleted_at?: string | null
         }
         Relationships: [
           {
@@ -568,6 +586,7 @@ export type Database = {
           social_link: string | null
           university: string | null
           website: string | null
+          single_event_credits: number
         }
         Insert: {
           address?: string | null
@@ -596,6 +615,7 @@ export type Database = {
           social_link?: string | null
           university?: string | null
           website?: string | null
+          single_event_credits?: number
         }
         Update: {
           address?: string | null
@@ -624,6 +644,7 @@ export type Database = {
           social_link?: string | null
           university?: string | null
           website?: string | null
+          single_event_credits?: number
         }
         Relationships: []
       }

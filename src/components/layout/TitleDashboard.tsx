@@ -1,9 +1,10 @@
 "use client"
 
 import React from "react"
-import { Menu, Plus, Bell, Search } from "lucide-react"
+import { Menu, Plus, Search } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useRouter } from "next/navigation"
+import { BellIcon } from "@/components/icons"
 
 export interface TitleDashboardProps {
   role?: "organizer" | "student"
@@ -64,7 +65,7 @@ export default function TitleDashboard({
   return (
     <header
       className={cn(
-        "bg-[#f9f9f9] dark:bg-zinc-950 flex items-center justify-between gap-4 transition-all w-full",
+        "bg-[#f3f5f7] dark:bg-zinc-950 flex items-center justify-between gap-4 transition-all w-full",
         className
       )}
     >
@@ -81,11 +82,11 @@ export default function TitleDashboard({
           </button>
         )}
 
-        <div className="flex flex-col gap-[2px] items-start min-w-0">
+        <div className="flex flex-col gap-0.5 items-start min-w-0">
           <h1 className="font-['Inter'] font-semibold text-[24px] sm:text-[28px] text-[#282828] dark:text-white leading-[normal] tracking-normal truncate">
             {title}
           </h1>
-          <p className="font-['Inter'] font-normal text-[12px] text-[#515151] dark:text-zinc-400 leading-[normal] truncate">
+          <p className="font-['Inter'] font-normal text-[13.5px] sm:text-[14px] text-[#515151] dark:text-zinc-400 leading-normal truncate">
             {subtitle}
           </p>
         </div>
@@ -101,7 +102,7 @@ export default function TitleDashboard({
             value={searchQuery}
             onChange={(e) => setSearchQuery && setSearchQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="w-full bg-transparent font-['Inter'] font-medium text-[15px] sm:text-[16px] text-[#282828] dark:text-zinc-100 placeholder-[#a5a5a5] focus:outline-none pr-2 leading-[normal]"
+            className="w-full bg-transparent font-['Inter'] font-medium text-[15px] text-[#282828] dark:text-zinc-100 placeholder-[#a5a5a5] focus:outline-none pr-2 leading-[normal]"
           />
           <button
             type="button"
@@ -137,16 +138,15 @@ export default function TitleDashboard({
           </button>
         )}
 
-        {/* 3. Notification Bell with Badge */}
         <button
           type="button"
           onClick={onNotificationClick || (() => router.push("/notifications"))}
           aria-label="Thông báo"
           className="relative size-[48px] rounded-[53px] bg-transparent flex items-center justify-center text-[#282828] dark:text-zinc-200 hover:bg-slate-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer shrink-0 outline-none focus-visible:ring-2 focus-visible:ring-[#282828]"
         >
-          <Bell className="w-5 h-5 text-[#282828] dark:text-white shrink-0" />
+          <BellIcon className="size-[24px] text-[#282828] dark:text-white shrink-0" />
           {unreadCount > 0 && (
-            <div className="absolute top-[4px] right-[4px] min-w-[16px] h-[16px] px-[4px] bg-[#dc0000] text-white font-['Inter'] font-semibold text-[12px] rounded-[10px] flex items-center justify-center leading-[normal] shadow-xs pointer-events-none aspect-square">
+            <div className="absolute top-[4px] right-[4px] min-w-[18px] h-[18px] px-[4px] bg-[#dc0000] text-white font-['Inter'] font-semibold text-[11px] rounded-full flex items-center justify-center leading-none shadow-xs pointer-events-none">
               <span>{unreadCount > 99 ? "99+" : unreadCount}</span>
             </div>
           )}

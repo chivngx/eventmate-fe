@@ -49,7 +49,7 @@ const PLAN_DETAILS: Record<
     features: [
       "Tối đa 5 sự kiện hoạt động cùng lúc trong tháng",
       "Ghim tin nổi bật cho các sự kiện",
-      "Showroom ảnh sự kiện & Bản đồ Maps",
+      "Huy hiệu Doanh nghiệp VIP & Ưu tiên tìm kiếm",
       "Xuất file Excel danh sách nhân sự & chấm công",
       "Hệ thống lên lịch Phỏng vấn / Casting",
       "Đẩy tin tự động & Hỗ trợ ưu tiên riêng 24/7",
@@ -66,7 +66,7 @@ const PLAN_DETAILS: Record<
     features: [
       "Tối đa 5 sự kiện hoạt động cùng lúc trong tháng",
       "Ghim tin nổi bật cho các sự kiện",
-      "Showroom ảnh sự kiện & Bản đồ Maps",
+      "Huy hiệu Doanh nghiệp VIP & Ưu tiên tìm kiếm",
       "Xuất file Excel danh sách nhân sự & chấm công",
       "Hệ thống lên lịch Phỏng vấn / Casting",
       "Đẩy tin tự động & Hỗ trợ ưu tiên riêng 24/7",

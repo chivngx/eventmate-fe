@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect } from "react"
 import { ShieldCheck, ExternalLink } from "lucide-react"
+import { EditIcon } from "@/components/icons"
+import { CustomSelect } from "@/components/ui/custom-select"
+import { cn } from "@/lib/utils"
 
 export interface PersonalInfoData {
   fullName: string
@@ -32,6 +35,7 @@ export default function PersonalInformationCard({
 }: PersonalInformationCardProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [formData, setFormData] = useState<PersonalInfoData>(data)
+  const [errors, setErrors] = useState<Record<string, string>>({})
 
   useEffect(() => {
     setFormData(data)
@@ -39,10 +43,48 @@ export default function PersonalInformationCard({
 
   const handleCancel = () => {
     setFormData(data)
+    setErrors({})
     setIsEditing(false)
   }
 
   const handleSave = () => {
+    const errs: Record<string, string> = {}
+
+    if (!formData.fullName?.trim()) {
+      errs.fullName = "Vui lòng nhập họ và tên"
+    } else if (formData.fullName.trim().length < 2) {
+      errs.fullName = "Họ và tên tối thiểu 2 ký tự"
+    }
+
+    if (formData.phone?.trim()) {
+      const phoneClean = formData.phone.trim().replace(/[\s.-]/g, "")
+      const phoneRegex = /^(0|\+84)[3|5|7|8|9][0-9]{8}$/
+      if (!phoneRegex.test(phoneClean)) {
+        errs.phone = "Số điện thoại không đúng định dạng (VD: 0905123456)"
+      }
+    }
+
+    if (formData.birthYear?.trim()) {
+      const year = parseInt(formData.birthYear.trim(), 10)
+      const currentYear = new Date().getFullYear()
+      if (isNaN(year) || year < 1950 || year > currentYear - 15) {
+        errs.birthYear = `Năm sinh hợp lệ từ 1950 đến ${currentYear - 15}`
+      }
+    }
+
+    if (formData.socialLink?.trim()) {
+      const isUrl = /^https?:\/\/.+/i.test(formData.socialLink.trim())
+      if (!isUrl) {
+        errs.socialLink = "Đường link phải bắt đầu bằng http:// hoặc https://"
+      }
+    }
+
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs)
+      return
+    }
+
+    setErrors({})
     if (onSave) {
       onSave(formData)
     }
@@ -99,21 +141,9 @@ export default function PersonalInformationCard({
               type="button"
               onClick={() => setIsEditing(true)}
               aria-label="Chỉnh sửa thông tin cá nhân"
-              className="size-[24px] shrink-0 p-0 text-[#005DDC] hover:opacity-80 transition-opacity cursor-pointer flex items-center justify-center"
+              className="size-[30px] rounded-[8px] text-slate-400 hover:text-slate-800 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer shrink-0"
             >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="size-full"
-              >
-                <path
-                  d="M19.75 15V18C19.75 20.418 18.418 21.75 16 21.75H6C3.582 21.75 2.25 20.418 2.25 18V8C2.25 5.582 3.582 4.25 6 4.25H9C9.414 4.25 9.75 4.586 9.75 5C9.75 5.414 9.414 5.75 9 5.75H6C4.423 5.75 3.75 6.423 3.75 8V18C3.75 19.577 4.423 20.25 6 20.25H16C17.577 20.25 18.25 19.577 18.25 18V15C18.25 14.586 18.586 14.25 19 14.25C19.414 14.25 19.75 14.586 19.75 15ZM21.75 6.056C21.749 6.643 21.52 7.194 21.104 7.608L12.141 16.531C12 16.671 11.81 16.75 11.612 16.75H8C7.586 16.75 7.25 16.414 7.25 16V12.389C7.25 12.191 7.32799 12 7.46899 11.86L16.392 2.896C16.805 2.48 17.357 2.251 17.944 2.25C17.945 2.25 17.946 2.25 17.947 2.25C18.533 2.25 19.084 2.47801 19.499 2.89301L21.108 4.50201C21.522 4.91701 21.751 5.469 21.75 6.056ZM17.617 8.96301L15.037 6.383L8.75 12.699V15.251H11.302L17.617 8.96301ZM20.25 6.05399C20.25 5.86799 20.178 5.69301 20.047 5.56201L18.438 3.953C18.307 3.822 18.132 3.75 17.947 3.75H17.946C17.76 3.75 17.586 3.82301 17.455 3.95401L16.096 5.319L18.681 7.90399L20.046 6.54501C20.177 6.41501 20.249 6.23999 20.25 6.05399Z"
-                  fill="#005DDC"
-                />
-              </svg>
+              <EditIcon className="size-[17px]" />
             </button>
           )}
         </div>
@@ -284,15 +314,24 @@ export default function PersonalInformationCard({
               {/* Họ và tên */}
               <div className="flex flex-col gap-1.5 items-start w-full">
                 <label className="font-['Inter'] font-normal text-[#A5A5A5] text-[14px]">
-                  Họ và tên
+                  Họ và tên <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={formData.fullName}
-                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, fullName: e.target.value })
+                    if (errors.fullName) setErrors((prev) => ({ ...prev, fullName: "" }))
+                  }}
                   placeholder="Ví dụ: Nguyễn Văn An"
-                  className="w-full h-10 px-3.5 rounded-[8px] bg-[#f9f9f9] border border-[#E5E5E5] focus:border-[#005ddc] focus:bg-white text-[15px] font-medium text-[#282828] transition-all outline-none"
+                  className={cn(
+                    "w-full h-10 px-3.5 rounded-[8px] bg-[#f9f9f9] border text-[15px] font-medium text-[#282828] transition-all outline-none",
+                    errors.fullName ? "border-rose-500 ring-1 ring-rose-500/20" : "border-[#E5E5E5] focus:border-[#005ddc] focus:bg-white"
+                  )}
                 />
+                {errors.fullName && (
+                  <span className="text-[12px] text-rose-500 font-medium">{errors.fullName}</span>
+                )}
               </div>
 
               {/* Email */}
@@ -348,10 +387,19 @@ export default function PersonalInformationCard({
                 <input
                   type="tel"
                   value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, phone: e.target.value })
+                    if (errors.phone) setErrors((prev) => ({ ...prev, phone: "" }))
+                  }}
                   placeholder="Ví dụ: 0905123456"
-                  className="w-full h-10 px-3.5 rounded-[8px] bg-[#f9f9f9] border border-[#E5E5E5] focus:border-[#005ddc] focus:bg-white text-[15px] font-medium text-[#282828] transition-all outline-none"
+                  className={cn(
+                    "w-full h-10 px-3.5 rounded-[8px] bg-[#f9f9f9] border text-[15px] font-medium text-[#282828] transition-all outline-none",
+                    errors.phone ? "border-rose-500 ring-1 ring-rose-500/20" : "border-[#E5E5E5] focus:border-[#005ddc] focus:bg-white"
+                  )}
                 />
+                {errors.phone && (
+                  <span className="text-[12px] text-rose-500 font-medium">{errors.phone}</span>
+                )}
               </div>
 
               {/* Giới tính & Năm sinh */}
@@ -360,15 +408,19 @@ export default function PersonalInformationCard({
                   <label className="font-['Inter'] font-normal text-[#A5A5A5] text-[14px]">
                     Giới tính
                   </label>
-                  <select
-                    value={formData.gender}
-                    onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                    className="w-full h-10 px-3.5 rounded-[8px] bg-[#f9f9f9] border border-[#E5E5E5] focus:border-[#005ddc] focus:bg-white text-[15px] font-medium text-[#282828] transition-all outline-none cursor-pointer"
-                  >
-                    <option value="Nam">Nam</option>
-                    <option value="Nữ">Nữ</option>
-                    <option value="Khác">Khác</option>
-                  </select>
+                  <CustomSelect
+                    value={formData.gender || "Nam"}
+                    onChange={(val) => {
+                      setFormData({ ...formData, gender: val })
+                    }}
+                    options={[
+                      { value: "Nam", label: "Nam" },
+                      { value: "Nữ", label: "Nữ" },
+                      { value: "Khác", label: "Khác" },
+                    ]}
+                    placeholder="Chọn giới tính"
+                    buttonClassName="h-10 rounded-[8px] bg-[#f9f9f9] border-[#E5E5E5] text-[15px]"
+                  />
                 </div>
                 <div className="flex flex-col gap-1.5 items-start">
                   <label className="font-['Inter'] font-normal text-[#A5A5A5] text-[14px]">
@@ -377,10 +429,19 @@ export default function PersonalInformationCard({
                   <input
                     type="text"
                     value={formData.birthYear}
-                    onChange={(e) => setFormData({ ...formData, birthYear: e.target.value })}
+                    onChange={(e) => {
+                      setFormData({ ...formData, birthYear: e.target.value })
+                      if (errors.birthYear) setErrors((prev) => ({ ...prev, birthYear: "" }))
+                    }}
                     placeholder="Ví dụ: 2005"
-                    className="w-full h-10 px-3.5 rounded-[8px] bg-[#f9f9f9] border border-[#E5E5E5] focus:border-[#005ddc] focus:bg-white text-[15px] font-medium text-[#282828] transition-all outline-none"
+                    className={cn(
+                      "w-full h-10 px-3.5 rounded-[8px] bg-[#f9f9f9] border text-[15px] font-medium text-[#282828] transition-all outline-none",
+                      errors.birthYear ? "border-rose-500 ring-1 ring-rose-500/20" : "border-[#E5E5E5] focus:border-[#005ddc] focus:bg-white"
+                    )}
                   />
+                  {errors.birthYear && (
+                    <span className="text-[12px] text-rose-500 font-medium">{errors.birthYear}</span>
+                  )}
                 </div>
               </div>
 
@@ -392,10 +453,19 @@ export default function PersonalInformationCard({
                 <input
                   type="url"
                   value={formData.socialLink || ""}
-                  onChange={(e) => setFormData({ ...formData, socialLink: e.target.value })}
+                  onChange={(e) => {
+                    setFormData({ ...formData, socialLink: e.target.value })
+                    if (errors.socialLink) setErrors((prev) => ({ ...prev, socialLink: "" }))
+                  }}
                   placeholder="https://facebook.com/username hoặc https://tiktok.com/@username"
-                  className="w-full h-10 px-3.5 rounded-[8px] bg-[#f9f9f9] border border-[#E5E5E5] focus:border-[#005ddc] focus:bg-white text-[15px] font-medium text-[#282828] transition-all outline-none"
+                  className={cn(
+                    "w-full h-10 px-3.5 rounded-[8px] bg-[#f9f9f9] border text-[15px] font-medium text-[#282828] transition-all outline-none",
+                    errors.socialLink ? "border-rose-500 ring-1 ring-rose-500/20" : "border-[#E5E5E5] focus:border-[#005ddc] focus:bg-white"
+                  )}
                 />
+                {errors.socialLink && (
+                  <span className="text-[12px] text-rose-500 font-medium">{errors.socialLink}</span>
+                )}
               </div>
             </div>
           </div>

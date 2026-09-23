@@ -29,15 +29,8 @@ export async function POST(req: Request) {
       );
     }
 
-    // Giá theo gói mới:
-    // - single_event (Sự Kiện Nhanh): 99.000đ
-    // - enterprise (Doanh Nghiệp): 499.000đ/tháng, 399.000đ*12 = 4.788.000đ/năm
-    let amount = 99000;
-    if (planId === "enterprise" || planId === "standard" || planId === "agency") {
-      amount = billingCycle === "yearly" ? 399000 * 12 : 499000;
-    } else {
-      amount = 99000;
-    }
+    // Giá thanh toán: Hạ xuống 2.000đ để test quét mã chuyển khoản thực tế qua VietQR
+    const amount = 2000;
 
     // orderCode là số nguyên dương duy nhất
     const orderCode = Number(`${Date.now()}`.slice(-9));

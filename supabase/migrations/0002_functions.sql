@@ -36,12 +36,15 @@ BEGIN
     email, 
     full_name, 
     role, 
-    avatar_url
+    avatar_url,
+    bio,
+    scale
   )
   VALUES (
     NEW.id,
     NEW.email,
     COALESCE(
+      NEW.raw_user_meta_data->>'company_name',
       NEW.raw_user_meta_data->>'full_name',
       NEW.raw_user_meta_data->>'name',
       SPLIT_PART(NEW.email, '@', 1),
@@ -54,12 +57,22 @@ BEGIN
     COALESCE(
       NEW.raw_user_meta_data->>'avatar_url',
       NEW.raw_user_meta_data->>'picture'
+    ),
+    COALESCE(
+      NEW.raw_user_meta_data->>'bio',
+      NEW.raw_user_meta_data->>'description'
+    ),
+    COALESCE(
+      NEW.raw_user_meta_data->>'scale',
+      NEW.raw_user_meta_data->>'company_field'
     )
   )
   ON CONFLICT (id) DO UPDATE SET
     email = EXCLUDED.email,
     full_name = COALESCE(public.profiles.full_name, EXCLUDED.full_name),
-    avatar_url = COALESCE(public.profiles.avatar_url, EXCLUDED.avatar_url);
+    avatar_url = COALESCE(public.profiles.avatar_url, EXCLUDED.avatar_url),
+    bio = COALESCE(public.profiles.bio, EXCLUDED.bio),
+    scale = COALESCE(public.profiles.scale, EXCLUDED.scale);
 
   RETURN NEW;
 END;
@@ -363,6 +376,7 @@ DECLARE
     v_duration INTERVAL;
     v_until TIMESTAMPTZ;
     v_plan_title TEXT;
+    v_is_single_event BOOLEAN;
 BEGIN
     SELECT * INTO v_tx 
     FROM public.transactions 
@@ -383,20 +397,47 @@ BEGIN
         );
     END IF;
 
-    IF v_tx.billing_cycle = 'yearly' THEN
-        v_duration := INTERVAL '365 days';
-    ELSE
-        v_duration := INTERVAL '30 days';
-    END IF;
-
-    v_until := NOW() + v_duration;
+    v_is_single_event := (v_tx.plan_id = 'single_event');
 
     PERFORM set_config('eventmate.checkout_in_progress', 'true', true);
 
-    UPDATE public.profiles
-    SET is_premium = TRUE,
-        premium_until = v_until
-    WHERE id = v_tx.user_id;
+    IF v_is_single_event THEN
+        -- Gói Sự Kiện Nhanh (99k / 1 tin): Cộng 1 lượt đăng Sự Kiện Nhanh, không kích hoạt gói Doanh Nghiệp VIP tháng
+        UPDATE public.profiles
+        SET single_event_credits = COALESCE(single_event_credits, 0) + 1
+        WHERE id = v_tx.user_id;
+
+        INSERT INTO public.notifications (user_id, title, message, is_read)
+        VALUES (
+            v_tx.user_id,
+            'Kích hoạt Sự Kiện Nhanh thành công!',
+            'Bạn đã kích hoạt thành công 1 lượt đăng Sự Kiện Nhanh (99.000đ). Khi đăng tin, sự kiện sẽ được ghim Tuyển Gấp và cấp mã QR Điểm danh tự động.',
+            FALSE
+        );
+    ELSE
+        -- Gói Doanh Nghiệp VIP (499k/tháng hoặc năm)
+        IF v_tx.billing_cycle = 'yearly' THEN
+            v_duration := INTERVAL '365 days';
+        ELSE
+            v_duration := INTERVAL '30 days';
+        END IF;
+
+        v_until := NOW() + v_duration;
+
+        UPDATE public.profiles
+        SET is_premium = TRUE,
+            premium_until = v_until
+        WHERE id = v_tx.user_id;
+
+        v_plan_title := UPPER(v_tx.plan_id);
+        INSERT INTO public.notifications (user_id, title, message, is_read)
+        VALUES (
+            v_tx.user_id,
+            'Nâng cấp VIP thành công!',
+            'Gói dịch vụ ' || v_plan_title || ' (' || (CASE WHEN v_tx.billing_cycle = 'yearly' THEN 'Theo năm' ELSE 'Theo tháng' END) || ') đã được kích hoạt thành công qua payOS. Hạn dùng đến: ' || TO_CHAR(v_until, 'DD/MM/YYYY') || '.',
+            FALSE
+        );
+    END IF;
 
     PERFORM set_config('eventmate.checkout_in_progress', 'false', true);
 
@@ -404,20 +445,12 @@ BEGIN
     SET status = 'completed'
     WHERE id = v_tx.id;
 
-    v_plan_title := UPPER(v_tx.plan_id);
-    INSERT INTO public.notifications (user_id, title, message, is_read)
-    VALUES (
-        v_tx.user_id,
-        'Nâng cấp VIP thành công!',
-        'Gói dịch vụ ' || v_plan_title || ' (' || (CASE WHEN v_tx.billing_cycle = 'yearly' THEN 'Theo năm' ELSE 'Theo tháng' END) || ') đã được kích hoạt thành công qua payOS. Hạn dùng đến: ' || TO_CHAR(v_until, 'DD/MM/YYYY') || '.',
-        FALSE
-    );
-
     RETURN jsonb_build_object(
         'success', true,
         'transaction_id', v_tx.id,
         'user_id', v_tx.user_id,
         'plan_id', v_tx.plan_id,
+        'is_single_event', v_is_single_event,
         'premium_until', v_until
     );
 END;

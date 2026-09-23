@@ -1,23 +1,8 @@
 import React from "react"
-import { cn } from "@/lib/utils"
+import { EventMateLogo } from "@/components/common/EventMateLogo"
 
 export function JoblinLogo({ className }: { className?: string }) {
-  return (
-    <div className={cn("inline-flex items-center gap-2 select-none", className)}>
-      <div className="size-7 rounded-[8px] bg-gradient-to-tr from-[#005DDC] to-[#2563EB] flex items-center justify-center text-white shadow-xs shrink-0">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M8 2v4" />
-          <path d="M16 2v4" />
-          <rect width="18" height="18" x="3" y="4" rx="3" />
-          <path d="M3 10h18" />
-          <path d="m9 16 2 2 4-4" />
-        </svg>
-      </div>
-      <span className="text-[19px] font-bold font-['Inter'] text-[#222222] tracking-tight leading-none whitespace-nowrap">
-        Event<span className="text-[#005DDC]">Mate</span>
-      </span>
-    </div>
-  )
+  return <EventMateLogo className={className} />
 }
 
 export function NavSearchIcon({ className }: { className?: string }) {
@@ -38,23 +23,9 @@ export function NavSearchIcon({ className }: { className?: string }) {
   )
 }
 
-export function NavBellIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-    >
-      <path
-        d="M12 21.75C11.012 21.75 10.124 21.237 9.62199 20.378C9.41399 20.02 9.534 19.561 9.892 19.352C10.248 19.144 10.708 19.264 10.918 19.622C11.377 20.409 12.623 20.409 13.082 19.622C13.291 19.264 13.751 19.144 14.108 19.352C14.466 19.56 14.587 20.02 14.378 20.378C13.876 21.237 12.988 21.75 12 21.75ZM20.675 18.325C20.8 18.065 20.765 17.757 20.586 17.532C20.567 17.509 18.745 15.189 18.745 12.5V8.995C18.745 5.276 15.719 2.25 12 2.25C8.281 2.25 5.25499 5.276 5.25499 8.995V12.5C5.25499 15.189 3.433 17.509 3.414 17.532C3.235 17.757 3.19999 18.066 3.32499 18.325C3.44999 18.584 3.712 18.75 4 18.75H20C20.288 18.75 20.55 18.584 20.675 18.325ZM6.75499 12.5V8.995C6.75499 6.103 9.108 3.75 12 3.75C14.892 3.75 17.245 6.103 17.245 8.995V12.5C17.245 14.436 17.995 16.158 18.613 17.25H5.386C6.005 16.158 6.75499 14.436 6.75499 12.5Z"
-        fill="currentColor"
-      />
-    </svg>
-  )
-}
+import { BellIcon } from "@/components/icons"
+
+export const NavBellIcon = BellIcon
 
 export function NavLogInIcon({ className }: { className?: string }) {
   return (

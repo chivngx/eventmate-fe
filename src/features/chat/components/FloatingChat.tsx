@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useRef, useMemo } from "react"
 import { supabase } from "@/lib/supabase"
-import { Send, MessageSquare, User, ArrowLeft, X, MessageCircle } from "lucide-react"
+import { Send, User, ArrowLeft, X } from "lucide-react"
+import { MessageIcon } from "@/components/icons"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { motion, AnimatePresence } from "framer-motion"
@@ -325,10 +326,10 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 16, scale: 0.95 }}
                         transition={{ duration: 0.2, ease: "easeOut" }}
-                        className="w-[min(92vw,390px)] h-[540px] bg-white border border-slate-200/90 rounded-[20px] shadow-[0_16px_48px_rgba(1,70,177,0.16)] flex flex-col mb-3.5 overflow-hidden"
+                        className="w-[min(92vw,390px)] h-[540px] bg-white border border-slate-200/90 rounded-[20px] shadow-[0_16px_48px_rgba(0,0,0,0.18)] flex flex-col mb-3.5 overflow-hidden"
                     >
                         {/* Header */}
-                        <div className={cn(isOrg ? "bg-[#222222]" : "bg-[#005DDC]", "text-white px-4 py-3.5 flex items-center justify-between shadow-xs shrink-0")}>
+                        <div className="bg-[#222222] text-white px-4 py-3.5 flex items-center justify-between shadow-xs shrink-0">
                             <div className="flex items-center gap-2.5 min-w-0">
                                 {activeChat && (
                                     <button
@@ -351,7 +352,7 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
                                             <h4 className="font-semibold text-sm leading-tight truncate">
                                                 {getPartnerProfile(activeChat).full_name}
                                             </h4>
-                                            <p className="text-[11px] text-blue-100/90 font-normal">
+                                            <p className="text-[11px] text-white/75 font-normal">
                                                 Trực tuyến
                                             </p>
                                         </div>
@@ -359,7 +360,7 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
                                 ) : (
                                     <div className="flex items-center gap-2">
                                         <div className="size-8 rounded-full bg-white/15 flex items-center justify-center">
-                                            <MessageCircle className="size-4 text-white" />
+                                            <MessageIcon className="size-4 text-white" />
                                         </div>
                                         <h3 className="font-semibold text-[15px] leading-none">Tin nhắn EventMate</h3>
                                     </div>
@@ -409,19 +410,13 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
                                             placeholder="Nhập tin nhắn..."
                                             value={newMessage}
                                             onChange={(e) => setNewMessage(e.target.value)}
-                                            className={cn(
-                                                "flex-1 h-9 bg-slate-50 hover:bg-slate-100/60 focus:bg-white rounded-[16px] px-3.5 text-[13px] font-normal text-[#222222] placeholder:text-[#A5A5A5] outline-none border border-slate-200 transition-all",
-                                                isOrg ? "focus:border-[#222222] focus:ring-2 focus:ring-[#222222]/15" : "focus:border-[#0084FF] focus:ring-2 focus:ring-[#0084FF]/15"
-                                            )}
+                                            className="flex-1 h-9 bg-slate-50 hover:bg-slate-100/60 focus:bg-white rounded-[16px] px-3.5 text-[13px] font-normal text-[#222222] placeholder:text-[#A5A5A5] outline-none border border-slate-200 transition-all focus:border-[#222222] focus:ring-2 focus:ring-[#222222]/15"
                                         />
                                         <Button
                                             type="submit"
                                             disabled={sending || !newMessage.trim()}
                                             aria-label="Gửi tin nhắn"
-                                            className={cn(
-                                                "rounded-full disabled:opacity-40 text-white size-9 shrink-0 p-0 flex items-center justify-center shadow-xs cursor-pointer focus-visible:outline-none transition-all",
-                                                isOrg ? "bg-[#222222] hover:bg-black active:bg-black" : "bg-[#0084FF] hover:bg-[#0073e6] active:bg-[#0062c4]"
-                                            )}
+                                            className="rounded-full disabled:opacity-40 text-white size-9 shrink-0 p-0 flex items-center justify-center shadow-xs cursor-pointer focus-visible:outline-none transition-all bg-[#222222] hover:bg-black active:bg-black"
                                         >
                                             <Send className="size-3.5" />
                                         </Button>
@@ -432,8 +427,8 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
                                 <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
                                     {chats.length === 0 ? (
                                         <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
-                                            <div className={cn("size-12 rounded-full flex items-center justify-center mb-3", isOrg ? "bg-slate-100 text-[#222222]" : "bg-[#EDF4FF] text-[#005DDC]")}>
-                                                <MessageSquare className="size-6" />
+                                            <div className="size-12 rounded-full flex items-center justify-center mb-3 bg-slate-100 text-[#222222]">
+                                                <MessageIcon className="size-6" />
                                             </div>
                                             <h4 className="text-[13px] font-semibold text-[#222222] mb-1">Chưa có cuộc trò chuyện nào</h4>
                                             <p className="text-[11px] text-[#757575] max-w-[220px]">
@@ -453,12 +448,12 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
                                                             prev.map((c) => (c.id === chat.id ? { ...c, unreadCount: 0 } : c))
                                                         )
                                                     }}
-                                                    className="w-full flex items-center gap-3 p-3 rounded-[14px] bg-white hover:bg-[#F0F6FF] hover:border-[#D0E2FF] transition-all text-left border border-slate-100 shadow-2xs group cursor-pointer"
+                                                    className="w-full flex items-center gap-3 p-3 rounded-[14px] bg-white hover:bg-slate-50 hover:border-slate-200 transition-all text-left border border-slate-100 shadow-2xs group cursor-pointer"
                                                 >
                                                     <div className="relative shrink-0">
                                                         <Avatar className="size-10 border border-slate-200/80 shadow-xs">
                                                             <AvatarImage src={partner.avatar_url || undefined} />
-                                                            <AvatarFallback className="bg-[#EBF2FF] text-[#005DDC] font-bold text-xs">
+                                                            <AvatarFallback className="bg-slate-100 text-[#222222] font-bold text-xs">
                                                                 {partner.full_name?.charAt(0).toUpperCase() || <User className="size-4" />}
                                                             </AvatarFallback>
                                                         </Avatar>
@@ -466,10 +461,10 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
                                                     </div>
                                                     <div className="min-w-0 flex-1">
                                                         <div className="flex items-center justify-between gap-1 mb-0.5">
-                                                            <h4 className={cn("text-[13px] truncate group-hover:text-[#005DDC] transition-colors", hasUnread ? "font-bold text-black" : "font-semibold text-[#222222]")}>
+                                                            <h4 className={cn("text-[13px] truncate group-hover:text-black transition-colors", hasUnread ? "font-bold text-black" : "font-semibold text-[#222222]")}>
                                                                 {partner.full_name}
                                                             </h4>
-                                                            <span className={cn("text-[10px] shrink-0", hasUnread ? "font-semibold text-[#005DDC]" : "text-[#757575] font-normal")}>
+                                                            <span className={cn("text-[10px] shrink-0", hasUnread ? "font-semibold text-[#222222]" : "text-[#757575] font-normal")}>
                                                                 {formatTimeAgo(chat.lastMessageTime || chat.created_at)}
                                                             </span>
                                                         </div>
@@ -478,7 +473,7 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
                                                                 {chat.lastMessage || "Bắt đầu cuộc trò chuyện..."}
                                                             </p>
                                                             {hasUnread && (
-                                                                <span className="size-2 rounded-full bg-[#005DDC] shrink-0" />
+                                                                <span className="size-2 rounded-full bg-[#222222] shrink-0" />
                                                             )}
                                                         </div>
                                                     </div>
@@ -500,12 +495,7 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
                 onClick={() => setIsOpen(!isOpen)}
                 aria-label="Trò chuyện"
                 aria-pressed={isOpen}
-                className={cn(
-                    "relative size-[56px] text-white rounded-full flex items-center justify-center transition-all cursor-pointer shrink-0 focus-visible:outline-none",
-                    isOrg
-                        ? "bg-[#222222] hover:bg-black shadow-[0_8px_24px_rgba(0,0,0,0.35)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.45)] focus-visible:ring-2 focus-visible:ring-[#222222]/40"
-                        : "bg-[#005DDC] hover:bg-[#004EB7] shadow-[0_8px_24px_rgba(0,93,220,0.35)] hover:shadow-[0_12px_28px_rgba(0,93,220,0.45)] focus-visible:ring-2 focus-visible:ring-[#005DDC]/40"
-                )}
+                className="relative size-[56px] text-white rounded-full flex items-center justify-center transition-all cursor-pointer shrink-0 focus-visible:outline-none bg-[#222222] hover:bg-black shadow-[0_8px_24px_rgba(0,0,0,0.35)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.45)] focus-visible:ring-2 focus-visible:ring-[#222222]/40"
                 title="Trò chuyện"
             >
                 {/* Unread count badge on floating icon when closed */}
@@ -535,7 +525,7 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
                             transition={{ duration: 0.15 }}
                             className="relative"
                         >
-                            <MessageCircle className="size-6" />
+                            <MessageIcon className="size-6" />
                         </motion.div>
                     )}
                 </AnimatePresence>

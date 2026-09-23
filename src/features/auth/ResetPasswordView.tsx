@@ -12,16 +12,10 @@ import {
     type ForgotPasswordValues,
     type PasswordChangeValues,
 } from "@/lib/schemas"
-import { FloatingBadgeInput } from "./components/FloatingBadgeInput"
 import { AuthSplitLayout } from "./components/AuthSplitLayout"
-import { AuthSuccessCard } from "./components/AuthComponents"
+import { FloatingBadgeInput, AuthSuccessCard, AuthSubmitButton } from "./components/AuthComponents"
 import { Loader2 } from "lucide-react"
-import {
-    EMPLOYER_TESTIMONIALS,
-    JOBSEEKER_TESTIMONIALS,
-    AUTH_HERO_IMAGES,
-    isOrganizerRole,
-} from "@/lib/auth-constants"
+import { isOrganizerRole } from "@/lib/auth-constants"
 
 export default function ResetPasswordView() {
     const [searchParams] = useSearchParams()
@@ -36,7 +30,6 @@ export default function ResetPasswordView() {
     const [loading, setLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
     const [successMessage, setSuccessMessage] = useState<string | null>(null)
-    const [activeTestimonialIdx, setActiveTestimonialIdx] = useState(0)
 
     // Form 1: Forgot Password (Request reset email)
     const forgotForm = useForm<ForgotPasswordValues>({
@@ -166,9 +159,6 @@ export default function ResetPasswordView() {
     const emailLabel = isEmployer ? "Email doanh nghiệp / tổ chức" : "Email tài khoản"
     const emailPlaceholder = isEmployer ? "name@company.com" : "name@example.com"
 
-    const submitBtnClass = isEmployer
-        ? "bg-[#282828] hover:bg-black"
-        : "bg-[#005ddc] hover:bg-[#004bb3]"
 
     return (
         <AuthSplitLayout
@@ -177,10 +167,6 @@ export default function ResetPasswordView() {
             errorMessage={errorMessage}
             showBackButton
             backLink={loginLink}
-            activeTestimonialIdx={activeTestimonialIdx}
-            onSelectTestimonialIdx={setActiveTestimonialIdx}
-            testimonials={isEmployer ? EMPLOYER_TESTIMONIALS : JOBSEEKER_TESTIMONIALS}
-            heroImage={isEmployer ? AUTH_HERO_IMAGES.employer : AUTH_HERO_IMAGES.jobseeker}
         >
             {successMessage ? (
                 <AuthSuccessCard
@@ -216,16 +202,17 @@ export default function ResetPasswordView() {
 
                     {/* Actions */}
                     <div className="flex flex-col gap-3 sm:gap-3.5 mt-1">
-                        <button
+                        <AuthSubmitButton
                             type="submit"
                             disabled={loading}
-                            className={`w-full h-[52px] text-white font-medium text-base rounded-lg flex items-center justify-center transition-all duration-200 shadow-sm active:scale-98 cursor-pointer disabled:opacity-50 ${submitBtnClass}`}
+                            loading={loading}
+                            loadingText="Đang lưu mật khẩu..."
                         >
-                            {loading ? "Đang lưu mật khẩu..." : "Lưu mật khẩu mới"}
-                        </button>
+                            Lưu mật khẩu mới
+                        </AuthSubmitButton>
 
-                        <div className="flex items-center justify-center gap-1.5 text-[13px] sm:text-[13.5px] text-center pt-1">
-                            <Link to={loginLink} className="text-[#005ddc] font-semibold underline hover:text-[#004bb3] transition-colors">
+                        <div className="flex items-center justify-center gap-1.5 text-[13px] text-center pt-1">
+                            <Link to={loginLink} className="text-zinc-500 hover:text-zinc-900 hover:underline transition-colors font-medium">
                                 Hủy và quay lại Đăng nhập
                             </Link>
                         </div>
@@ -247,17 +234,18 @@ export default function ResetPasswordView() {
 
                     {/* Actions */}
                     <div className="flex flex-col gap-3 sm:gap-3.5 mt-1">
-                        <button
+                        <AuthSubmitButton
                             type="submit"
                             disabled={loading}
-                            className={`w-full h-[52px] text-white font-medium text-base rounded-lg flex items-center justify-center transition-all duration-200 shadow-sm active:scale-98 cursor-pointer disabled:opacity-50 ${submitBtnClass}`}
+                            loading={loading}
+                            loadingText="Đang gửi email..."
                         >
-                            {loading ? "Đang gửi email..." : "Gửi liên kết khôi phục"}
-                        </button>
+                            Gửi liên kết khôi phục
+                        </AuthSubmitButton>
 
-                        <div className="flex items-center justify-center gap-1.5 text-[13px] sm:text-[13.5px] text-center pt-1">
-                            <span className="text-slate-500 font-normal">Đã nhớ mật khẩu?</span>
-                            <Link to={loginLink} className="text-[#005ddc] font-semibold underline hover:text-[#004bb3] transition-colors">
+                        <div className="flex items-center justify-center gap-1.5 text-[13px] text-center pt-1">
+                            <span className="text-zinc-500 font-normal">Đã nhớ mật khẩu?</span>
+                            <Link to={loginLink} className="text-zinc-900 font-semibold hover:underline transition-colors">
                                 Đăng nhập
                             </Link>
                         </div>

@@ -4,6 +4,7 @@ import Link from "next/link"
 import MainLayout from "@/components/layout/MainLayout"
 import { BLOG_POSTS } from "../page"
 import { Calendar, User, ArrowLeft, Share2, Tag } from "lucide-react"
+import Breadcrumb from "@/components/common/Breadcrumb"
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -30,18 +31,17 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
   }
 
   return (
-    <MainLayout>
-      <article className="bg-white min-h-screen py-8 sm:py-14">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-          {/* Back button */}
+    <MainLayout fullWidth className="bg-[#f3f5f7]">
+      <div className="bg-[#f3f5f7] min-h-[calc(100vh-80px)] py-8 sm:py-14">
+        <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+          {/* Breadcrumb */}
           <div>
-            <Link
-              href="/blog"
-              className="inline-flex items-center gap-2 text-sm font-medium text-[#757575] hover:text-[#005DDC] transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Quay lại danh sách bài viết</span>
-            </Link>
+            <Breadcrumb
+              items={[
+                { label: "Blog", href: "/blog" },
+                { label: post.title },
+              ]}
+            />
           </div>
 
           {/* Header */}
@@ -112,8 +112,8 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
               Ứng tuyển sự kiện ngay
             </Link>
           </div>
-        </div>
-      </article>
+        </article>
+      </div>
     </MainLayout>
   )
 }

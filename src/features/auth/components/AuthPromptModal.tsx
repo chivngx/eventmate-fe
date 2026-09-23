@@ -3,6 +3,7 @@
 import React, { useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { X } from "lucide-react"
+import { EventMateLogo } from "@/components/common/EventMateLogo"
 
 interface AuthPromptModalProps {
   isOpen: boolean
@@ -89,16 +90,9 @@ export default function AuthPromptModal({
 
         {/* Center Content: Logo + Prompt text (Figma node 5982:50639) */}
         <div className="flex flex-col gap-6 items-center justify-center w-full">
-          {/* Brand Logo (64px height) */}
-          <div className="flex items-center justify-center h-16 select-none">
-            <div className="flex items-center gap-2.5">
-              <span className="w-10 h-10 rounded-xl bg-[#005ddc] text-white flex items-center justify-center text-base font-black shadow-xs">
-                EM
-              </span>
-              <span className="text-2xl font-black tracking-tight text-[#222222]">
-                Event<span className="text-[#005ddc]">Mate</span>
-              </span>
-            </div>
+          {/* Brand Logo */}
+          <div className="flex items-center justify-center py-2 select-none">
+            <EventMateLogo iconSize={48} idPrefix="modal" />
           </div>
 
           {/* Message Prompt (Figma node 5982:50642) */}
@@ -107,22 +101,22 @@ export default function AuthPromptModal({
           </p>
         </div>
 
-        {/* Bottom Actions Row (Figma node 6359:26525: 48px height, 24px gap) */}
-        <div className="flex items-center gap-6 w-full">
-          {/* Login Button (Figma node 5982:50643) */}
+        {/* Bottom Actions Row */}
+        <div className="flex items-center gap-3 w-full">
+          {/* Login Button */}
           <button
             type="button"
             onClick={handleLogin}
-            className="flex-1 h-12 border border-[#005ddc] text-[#005ddc] hover:bg-[#eff5ff] active:scale-[0.98] rounded-[8px] font-medium text-[18px] flex items-center justify-center transition-all cursor-pointer whitespace-nowrap"
+            className="flex-1 h-11 border border-zinc-200 hover:border-zinc-300 text-zinc-900 hover:bg-zinc-50 active:scale-[0.98] rounded-xl font-medium text-[15px] flex items-center justify-center transition-all cursor-pointer whitespace-nowrap"
           >
             Đăng nhập
           </button>
 
-          {/* Sign Up Button (Figma node 6359:26505) */}
+          {/* Sign Up Button */}
           <button
             type="button"
             onClick={handleSignUp}
-            className="flex-1 h-12 bg-[#005ddc] hover:bg-[#004eb7] text-white active:scale-[0.98] rounded-[8px] font-medium text-[18px] flex items-center justify-center transition-all cursor-pointer shadow-xs whitespace-nowrap"
+            className="flex-1 h-11 bg-zinc-900 hover:bg-zinc-800 text-white active:scale-[0.98] rounded-xl font-medium text-[15px] flex items-center justify-center transition-all cursor-pointer shadow-xs whitespace-nowrap"
           >
             Đăng ký
           </button>

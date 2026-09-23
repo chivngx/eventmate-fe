@@ -32,7 +32,7 @@ export default function PricingHeroTabs({
       </div>
 
       {/* Plan Tabs */}
-      <div className="w-[400px] max-w-full h-[58px] bg-[#F9F9F9] border border-[#A5A5A5] rounded-[12px] p-[4px] flex items-center shadow-xs">
+      <div className="w-[400px] max-w-full h-[58px] bg-white border border-[#CBCBCB] rounded-[12px] p-[4px] flex items-center shadow-xs">
         {/* Monthly Button */}
         <button
           type="button"

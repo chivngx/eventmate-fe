@@ -7,15 +7,15 @@ import { Link, useNavigate, useSearchParams } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
 import { getUserFacingMessage } from "@/lib/error"
 import { loginSchema, type LoginValues } from "@/lib/schemas"
-import { FloatingBadgeInput } from "./components/FloatingBadgeInput"
 import { AuthSplitLayout } from "./components/AuthSplitLayout"
-import { GoogleAuthButton, AuthDivider } from "./components/AuthComponents"
 import {
-    EMPLOYER_TESTIMONIALS,
-    JOBSEEKER_TESTIMONIALS,
-    AUTH_HERO_IMAGES,
-    isOrganizerRole,
-} from "@/lib/auth-constants"
+    FloatingBadgeInput,
+    AuthSubmitButton,
+    GoogleAuthButton,
+    AuthDivider,
+    RoleSwitcherTabs,
+} from "./components/AuthComponents"
+import { isOrganizerRole } from "@/lib/auth-constants"
 
 export default function LoginView() {
     const navigate = useNavigate()
@@ -29,7 +29,6 @@ export default function LoginView() {
     const [loading, setLoading] = useState(false)
     const [googleLoading, setGoogleLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState<string | null>(null)
-    const [activeTestimonialIdx, setActiveTestimonialIdx] = useState(0)
 
     const {
         register,
@@ -116,36 +115,28 @@ export default function LoginView() {
         }
     }
 
-    // Role-based dynamic text and configurations
     const title = isEmployer ? "Đăng nhập Ban tổ chức" : "Đăng nhập"
     const subtitle = isEmployer
-        ? "Chào mừng trở lại! Vui lòng đăng nhập để tiếp tục quản lý sự kiện và tuyển dụng nhân sự."
-        : "Chào mừng trở lại! Vui lòng đăng nhập để tiếp tục quản lý và ứng tuyển công việc sự kiện."
+        ? "Chào mừng trở lại! Vui lòng đăng nhập để tiếp tục quản lý sự kiện và tuyển dụng."
+        : "Chào mừng trở lại! Vui lòng đăng nhập để tìm kiếm và ứng tuyển việc làm sự kiện."
 
-    const emailLabel = isEmployer ? "Email doanh nghiệp / tổ chức" : "Email"
-    const emailPlaceholder = isEmployer ? "name@company.com" : "name@example.com"
+    const emailLabel = isEmployer ? "Email tổ chức / doanh nghiệp" : "Email"
+    const emailPlaceholder = isEmployer ? "contact@company.com" : "name@example.com"
     const registerLink = isEmployer ? "/register?role=organizer" : "/register"
     const forgotPasswordLink = isEmployer ? "/reset-password?role=organizer" : "/reset-password"
-
-    const switchPrompt = isEmployer ? "Bạn là người tìm việc?" : "Bạn là nhà tuyển dụng?"
-    const switchLink = isEmployer ? "/login" : "/login?role=organizer"
-    const switchLinkText = "Đăng nhập tại đây"
-    const registerPrompt = isEmployer ? "Chưa có tài khoản Ban tổ chức?" : "Chưa có tài khoản?"
-
-    const submitBtnClass = isEmployer
-        ? "bg-[#282828] hover:bg-black"
-        : "bg-[#005ddc] hover:bg-[#004bb3]"
 
     return (
         <AuthSplitLayout
             title={title}
             subtitle={subtitle}
             errorMessage={errorMessage}
-            activeTestimonialIdx={activeTestimonialIdx}
-            onSelectTestimonialIdx={setActiveTestimonialIdx}
-            testimonials={isEmployer ? EMPLOYER_TESTIMONIALS : JOBSEEKER_TESTIMONIALS}
-            heroImage={isEmployer ? AUTH_HERO_IMAGES.employer : AUTH_HERO_IMAGES.jobseeker}
         >
+            {/* Role Switcher Tabs */}
+            <RoleSwitcherTabs
+                activeRole={isEmployer ? "organizer" : "student"}
+                mode="login"
+            />
+
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3.5 sm:gap-4" noValidate>
                 {/* 1. Email */}
                 <FloatingBadgeInput
@@ -158,52 +149,30 @@ export default function LoginView() {
                     {...register("email")}
                 />
 
-                {/* 2. Password */}
-                <div className="flex flex-col gap-1.5 w-full">
-                    <FloatingBadgeInput
-                        label="Mật khẩu"
-                        placeholder="Nhập mật khẩu của bạn"
-                        required
-                        isPassword
-                        autoComplete="current-password"
-                        error={errors.password?.message}
-                        {...register("password")}
-                    />
-
-                    {/* Remember me & Forgot password */}
-                    <div className="flex items-center justify-between text-[12.5px] sm:text-[13px] px-1 pt-0.5">
-                        <label className="flex items-center gap-1.5 text-slate-500 hover:text-slate-900 cursor-pointer select-none">
-                            <input
-                                type="checkbox"
-                                className="w-3.5 h-3.5 rounded text-[#005ddc] border-slate-300 focus:ring-[#005ddc] cursor-pointer"
-                            />
-                            <span>Ghi nhớ đăng nhập</span>
-                        </label>
+                {/* 2. Password with inline Forgot Password action */}
+                <FloatingBadgeInput
+                    label="Mật khẩu"
+                    placeholder="Nhập mật khẩu của bạn"
+                    required
+                    isPassword
+                    autoComplete="current-password"
+                    error={errors.password?.message}
+                    rightAction={
                         <Link
                             to={forgotPasswordLink}
-                            className="text-[#005ddc] font-medium hover:text-[#004bb3] hover:underline transition-colors"
+                            className="text-[12px] font-medium text-zinc-500 hover:text-zinc-900 transition-colors"
                         >
                             Quên mật khẩu?
                         </Link>
-                    </div>
-                </div>
+                    }
+                    {...register("password")}
+                />
 
                 {/* Actions */}
                 <div className="flex flex-col gap-3 sm:gap-3.5 mt-1">
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className={`w-full h-[52px] text-white font-medium text-base rounded-lg flex items-center justify-center transition-all duration-200 shadow-sm active:scale-98 cursor-pointer disabled:opacity-50 ${submitBtnClass}`}
-                    >
-                        {loading ? (
-                            <div className="flex items-center gap-2 text-sm">
-                                <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                <span>Đang đăng nhập...</span>
-                            </div>
-                        ) : (
-                            "Đăng nhập"
-                        )}
-                    </button>
+                    <AuthSubmitButton loading={loading} loadingText="Đang đăng nhập...">
+                        Đăng nhập
+                    </AuthSubmitButton>
 
                     <AuthDivider />
 
@@ -213,22 +182,16 @@ export default function LoginView() {
                         label="Đăng nhập với Google"
                     />
 
-                    <div className="flex flex-col items-center gap-2 text-[13px] sm:text-[13.5px] text-center pt-1">
-                        <div className="flex items-center justify-center gap-1.5">
-                            <span className="text-slate-500 font-normal">{registerPrompt}</span>
-                            <Link
-                                to={registerLink}
-                                className="text-[#005ddc] font-semibold underline hover:text-[#004bb3] transition-colors"
-                            >
-                                Đăng ký ngay
-                            </Link>
-                        </div>
-                        <div className="text-slate-500 text-[12.5px]">
-                            {switchPrompt}{" "}
-                            <Link to={switchLink} className="text-[#005ddc] font-medium hover:underline">
-                                {switchLinkText}
-                            </Link>
-                        </div>
+                    <div className="flex items-center justify-center gap-1.5 text-[13px] text-center pt-1.5">
+                        <span className="text-zinc-500 font-normal">
+                            {isEmployer ? "Chưa có tài khoản Ban tổ chức?" : "Chưa có tài khoản?"}
+                        </span>
+                        <Link
+                            to={registerLink}
+                            className="text-zinc-900 font-semibold hover:underline transition-colors"
+                        >
+                            Đăng ký ngay
+                        </Link>
                     </div>
                 </div>
             </form>

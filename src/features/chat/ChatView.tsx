@@ -15,8 +15,10 @@ import {
   Check,
   X,
   Star,
-  Trash2
+  Trash2,
+  Lock,
 } from "lucide-react"
+import { cn } from "@/lib/utils"
 import InterviewModal from "./components/InterviewModal"
 import DashboardLayout from "@/components/layout/DashboardLayout"
 import { SkeletonGenericPage } from "@/components/ui/skeleton"
@@ -39,7 +41,7 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
   const targetChatId = initialChatId || routeChatId
   const navigate = useNavigate()
   const { showToast } = useToast()
-  const { user, profile, role, loading: authLoading } = useUser()
+  const { user, profile, role, isPremium, loading: authLoading } = useUser()
   const currentUser = user
 
   const [loading, setLoading] = useState(true)
@@ -795,6 +797,15 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
 
   const handleCreateInterview = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!isPremium) {
+      showToast({
+        title: "Tính năng VIP",
+        message: "Hệ thống lên lịch Phỏng vấn / Casting dành riêng cho gói Doanh Nghiệp VIP. Vui lòng nâng cấp!",
+        type: "error",
+      })
+      navigate("/pricing")
+      return
+    }
     if (!activeChat || !currentUser || !interviewTitle || !interviewDate || creatingInterview) return
 
     setCreatingInterview(true)
@@ -1078,10 +1089,27 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
                       {/* Organizer Interview Booking Button */}
                       {(isOrganizerRole(role) || isOrganizerRole(profile?.role)) && (
                         <button
-                          onClick={() => setIsInterviewModalOpen(true)}
-                          className="hidden sm:inline-flex items-center gap-1.5 rounded-[8px] bg-[#005DDC] px-3.5 py-2 text-[13px] font-medium text-white hover:bg-[#004eb7] transition-colors shadow-2xs"
+                          onClick={() => {
+                            if (!isPremium) {
+                              showToast({
+                                title: "Tính năng VIP",
+                                message: "Hệ thống lên lịch Phỏng vấn / Casting dành riêng cho gói Doanh Nghiệp VIP. Vui lòng nâng cấp!",
+                                type: "error",
+                              })
+                              navigate("/pricing")
+                              return
+                            }
+                            setIsInterviewModalOpen(true)
+                          }}
+                          className={cn(
+                            "hidden sm:inline-flex items-center gap-1.5 rounded-[8px] px-3.5 py-2 text-[13px] font-medium transition-colors shadow-2xs cursor-pointer",
+                            isPremium
+                              ? "bg-[#005DDC] text-white hover:bg-[#004eb7]"
+                              : "bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200"
+                          )}
+                          title={isPremium ? "Hẹn phỏng vấn" : "Nâng cấp VIP để mở khóa lịch phỏng vấn"}
                         >
-                          <Calendar className="size-4" />
+                          {isPremium ? <Calendar className="size-4" /> : <Lock className="size-3.5 text-slate-500" />}
                           <span>Hẹn phỏng vấn</span>
                         </button>
                       )}
@@ -1111,12 +1139,21 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
                               <button
                                 onClick={() => {
                                   setShowMoreMenu(false)
+                                  if (!isPremium) {
+                                    showToast({
+                                      title: "Tính năng VIP",
+                                      message: "Hệ thống lên lịch Phỏng vấn / Casting dành riêng cho gói Doanh Nghiệp VIP. Vui lòng nâng cấp!",
+                                      type: "error",
+                                    })
+                                    navigate("/pricing")
+                                    return
+                                  }
                                   setIsInterviewModalOpen(true)
                                 }}
                                 className="sm:hidden flex w-full items-center gap-2 rounded-[8px] px-3 py-2 text-left text-[#353535] hover:bg-slate-50"
                               >
-                                <Calendar className="size-4 text-[#005DDC]" />
-                                <span>Hẹn phỏng vấn</span>
+                                {isPremium ? <Calendar className="size-4 text-[#005DDC]" /> : <Lock className="size-4 text-slate-400" />}
+                                <span>Hẹn phỏng vấn {!isPremium && "(VIP)"}</span>
                               </button>
                             )}
                             <button
