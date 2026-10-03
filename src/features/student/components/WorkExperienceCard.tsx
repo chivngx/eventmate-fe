@@ -1,7 +1,7 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
-import { Plus, X, Trash2, Briefcase } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Trash2 } from "lucide-react"
 import { EditIcon } from "@/components/icons"
 
 export interface ExperienceItem {
@@ -168,7 +168,7 @@ export default function WorkExperienceCard({
           </h3>
         </div>
 
-        {/* Edit Button in Filled State (Figma node 5875:27837 > edit icon #005DDC) */}
+        {/* Edit Button in Filled State */}
         {hasContent && !isEditing && (
           <button
             type="button"
@@ -207,7 +207,7 @@ export default function WorkExperienceCard({
                       <button
                         type="button"
                         onClick={() => handleStartEditItem(item)}
-                        className="p-1.5 text-slate-500 hover:text-[#005DDC] hover:bg-blue-50 rounded-[6px] transition-colors cursor-pointer"
+                        className="p-1.5 text-slate-500 hover:text-zinc-900 hover:bg-zinc-100 rounded-[6px] transition-colors cursor-pointer"
                         title="Chỉnh sửa mục này"
                       >
                         <EditIcon className="size-4" />
@@ -257,7 +257,7 @@ export default function WorkExperienceCard({
                   placeholder="VD: Leader Check-in Sự kiện"
                   value={itemForm.title}
                   onChange={(e) => setItemForm({ ...itemForm, title: e.target.value })}
-                  className="h-9 px-3 rounded-[6px] border border-[#EDEDED] bg-white text-sm focus:outline-none focus:border-[#005DDC] focus:ring-1 focus:ring-[#005DDC]"
+                  className="h-9 px-3 rounded-[6px] border border-[#EDEDED] bg-white text-sm focus:outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
                 />
               </div>
 
@@ -270,7 +270,7 @@ export default function WorkExperienceCard({
                   placeholder="VD: TechFest Vietnam 2024"
                   value={itemForm.company}
                   onChange={(e) => setItemForm({ ...itemForm, company: e.target.value })}
-                  className="h-9 px-3 rounded-[6px] border border-[#EDEDED] bg-white text-sm focus:outline-none focus:border-[#005DDC] focus:ring-1 focus:ring-[#005DDC]"
+                  className="h-9 px-3 rounded-[6px] border border-[#EDEDED] bg-white text-sm focus:outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
                 />
               </div>
             </div>
@@ -282,7 +282,7 @@ export default function WorkExperienceCard({
                 placeholder="VD: 2023 - 2024 hoặc 06/2024 - 08/2024"
                 value={itemForm.year}
                 onChange={(e) => setItemForm({ ...itemForm, year: e.target.value })}
-                className="h-9 px-3 rounded-[6px] border border-[#EDEDED] bg-white text-sm focus:outline-none focus:border-[#005DDC] focus:ring-1 focus:ring-[#005DDC]"
+                className="h-9 px-3 rounded-[6px] border border-[#EDEDED] bg-white text-sm focus:outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
               />
             </div>
 
@@ -295,7 +295,7 @@ export default function WorkExperienceCard({
                     key={idx}
                     type="button"
                     onClick={() => handleApplyPreset(role)}
-                    className="text-xs px-2.5 py-1 rounded-full bg-white border border-[#EDEDED] text-[#515151] hover:border-[#005DDC] hover:text-[#005DDC] hover:bg-blue-50/50 transition-colors cursor-pointer"
+                    className="text-xs px-2.5 py-1 rounded-full bg-white border border-[#EDEDED] text-[#515151] hover:border-zinc-900 hover:text-zinc-900 hover:bg-zinc-100 transition-colors cursor-pointer"
                   >
                     + {role.title}
                   </button>
@@ -327,7 +327,7 @@ export default function WorkExperienceCard({
             <button
               type="button"
               onClick={handleSaveAll}
-              className="px-5 py-2 text-sm font-medium text-white bg-[#005DDC] hover:bg-[#004eb7] rounded-[8px] shadow-sm transition-colors cursor-pointer"
+              className="px-5 py-2 text-sm font-semibold text-white bg-zinc-900 hover:bg-black rounded-[8px] shadow-sm transition-colors cursor-pointer"
             >
               Lưu thay đổi
             </button>
@@ -373,11 +373,11 @@ export default function WorkExperienceCard({
           <button
             type="button"
             onClick={handleStartAdd}
-            className="flex gap-[8px] h-[40px] items-center justify-center px-[16px] py-[8px] rounded-[8px] hover:bg-blue-50/60 transition-colors cursor-pointer"
+            className="flex gap-[8px] h-[40px] items-center justify-center px-[16px] py-[8px] rounded-[8px] hover:bg-zinc-100 transition-colors cursor-pointer"
             data-node-id="I6818:50101;5928:48720"
             data-name="Buttons"
           >
-            {/* Plus Icon (Figma: 24x24 SVG #005DDC) */}
+            {/* Plus Icon */}
             <div className="size-[24px] shrink-0 flex items-center justify-center" data-name="plus">
               <svg
                 width="24"
@@ -389,7 +389,7 @@ export default function WorkExperienceCard({
               >
                 <path
                   d="M12 4.75V19.25M4.75 12H19.25"
-                  stroke="#005DDC"
+                  stroke="#18181B"
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -397,7 +397,7 @@ export default function WorkExperienceCard({
               </svg>
             </div>
             <span
-              className="font-['Inter'] font-medium leading-normal text-[#005DDC] text-[16px] whitespace-nowrap"
+              className="font-['Inter'] font-semibold leading-normal text-zinc-900 text-[16px] whitespace-nowrap"
               data-node-id="I6818:50101;5928:48720;2626:8339"
             >
               Thêm kinh nghiệm

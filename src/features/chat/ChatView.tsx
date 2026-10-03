@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase"
 import { getUserFacingMessage } from "@/lib/error"
 import { useUser } from "@/components/providers/AuthProvider"
 import { useToast } from "@/components/providers/ToastProvider"
-import { isOrganizerRole } from "@/lib/auth-constants"
+import { isOrganizerRole } from "@/lib/utils"
 import {
   Calendar,
   Send,
@@ -19,7 +19,6 @@ import {
   Lock,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import InterviewModal from "./components/InterviewModal"
 import DashboardLayout from "@/components/layout/DashboardLayout"
 import { SkeletonGenericPage } from "@/components/ui/skeleton"
 import type { EventContextItem, ChatItem, Message, ChatProps, ChatPartnerProfile } from "./types"
@@ -56,7 +55,6 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
 
   // Interactive UI states
   const [replyingMessage, setReplyingMessage] = useState<Message | null>(null)
-  const [playingVoiceId, setPlayingVoiceId] = useState<string | null>(null)
   const [isFavoriteChat, setIsFavoriteChat] = useState(false)
   const [starredPartnerIds, setStarredPartnerIds] = useState<string[]>([])
   const [showMoreMenu, setShowMoreMenu] = useState(false)
@@ -84,14 +82,6 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
   // Pagination
   const [messagesLimit, setMessagesLimit] = useState(20)
   const [hasMoreMessages, setHasMoreMessages] = useState(true)
-
-  // Interview state
-  const [isInterviewModalOpen, setIsInterviewModalOpen] = useState(false)
-  const [interviewTitle, setInterviewTitle] = useState("")
-  const [interviewDate, setInterviewDate] = useState("")
-  const [interviewLink, setInterviewLink] = useState("")
-  const [interviews, setInterviews] = useState<Record<string, any>>({})
-  const [creatingInterview, setCreatingInterview] = useState(false)
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
@@ -228,11 +218,10 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
         let displayLastMsg = ""
         if (group.newestMessage) {
           let c = group.newestMessage.content
-          if (c.startsWith("__INTERVIEW_REQUEST__:")) c = "📅 Lời mời phỏng vấn"
-          else if (c.startsWith("__REPLY__:")) {
+          if (c.startsWith("__REPLY__:")) {
             const parts = c.split(":::")
             c = parts[2] || "Tin nhắn trả lời"
-          } else if (c.startsWith("__VOICE__:")) c = "🎤 Tin nhắn thoại"
+          }
           displayLastMsg = c
         }
 
@@ -470,22 +459,6 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
     }
   }, [initialChatId, chats])
 
-  const fetchInterviews = async (chat: ChatItem) => {
-    const { data, error } = await supabase
-      .from("interviews")
-      .select("*")
-      .eq("student_id", chat.student_id)
-      .eq("organizer_id", chat.organizer_id)
-
-    if (!error && data) {
-      const map: Record<string, any> = {}
-      data.forEach((item) => {
-        map[item.id] = item
-      })
-      setInterviews(map)
-    }
-  }
-
   const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
     const doScroll = () => {
       if (messagesContainerRef.current) {
@@ -555,7 +528,6 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
     if (activeChat) {
       setMessagesLimit(20)
       fetchMessages(activeChat.allChatIds, 20, true)
-      fetchInterviews(activeChat)
 
       if (!selectedChatId || !activeChat.allChatIds.includes(selectedChatId)) {
         setSelectedChatId(activeChat.allEvents[0]?.chatId || activeChat.id)
@@ -580,11 +552,10 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
           if (!newMsg || !newMsg.chat_id) return
 
           let preview = newMsg.content
-          if (preview.startsWith("__INTERVIEW_REQUEST__:")) preview = "📅 Lời mời phỏng vấn"
-          else if (preview.startsWith("__REPLY__:")) {
+          if (preview.startsWith("__REPLY__:")) {
             const parts = preview.split(":::")
             preview = parts[2] || "Tin nhắn trả lời"
-          } else if (preview.startsWith("__VOICE__:")) preview = "🎤 Tin nhắn thoại"
+          }
 
           const currentActive = activeChatRef.current
           const isActiveMessage = Boolean(currentActive && currentActive.allChatIds.includes(newMsg.chat_id))
@@ -595,10 +566,6 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
               if (prev.some((m) => m.id === newMsg.id)) return prev
               return [...prev, newMsg]
             })
-
-            if (newMsg.content.startsWith("__INTERVIEW_REQUEST__:")) {
-              if (currentActive) fetchInterviews(currentActive)
-            }
 
             scrollToBottom("smooth")
 
@@ -786,118 +753,12 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
         type: "success",
       })
     } catch (err: any) {
-      console.error("Lỗi xóa tin nhắn:", err)
+      console.error("Lỗi xóa hội thoại:", err)
       showToast({
         title: "Lỗi",
-        message: getUserFacingMessage(err, "Không thể xóa lịch sử tin nhắn."),
+        message: getUserFacingMessage(err, "Không thể xóa cuộc hội thoại."),
         type: "error",
       })
-    }
-  }
-
-  const handleCreateInterview = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!isPremium) {
-      showToast({
-        title: "Tính năng VIP",
-        message: "Hệ thống lên lịch Phỏng vấn / Casting dành riêng cho gói Doanh Nghiệp VIP. Vui lòng nâng cấp!",
-        type: "error",
-      })
-      navigate("/pricing")
-      return
-    }
-    if (!activeChat || !currentUser || !interviewTitle || !interviewDate || creatingInterview) return
-
-    setCreatingInterview(true)
-    try {
-      const targetEventItem = activeChat.allEvents.find((e) => e.chatId === selectedChatId) || activeChat.allEvents[0]
-      const targetEventId = targetEventItem?.eventId || activeChat.event_id
-      const targetChatId = targetEventItem?.chatId || selectedChatId || activeChat.id
-
-      const { data: interview, error: intError } = await supabase
-        .from("interviews")
-        .insert([
-          {
-            event_id: targetEventId,
-            organizer_id: currentUser?.id,
-            student_id: activeChat.student_id,
-            title: interviewTitle,
-            scheduled_at: new Date(interviewDate).toISOString(),
-            meeting_link: interviewLink || null,
-            status: "pending"
-          }
-        ])
-        .select()
-        .single()
-
-      if (intError) throw intError
-
-      const { data: messageData, error: msgError } = await supabase
-        .from("messages")
-        .insert([
-          {
-            chat_id: targetChatId,
-            sender_id: currentUser?.id,
-            content: `__INTERVIEW_REQUEST__:${interview.id}`
-          }
-        ])
-        .select()
-        .single()
-
-      if (msgError) throw msgError
-
-      setInterviews(prev => ({ ...prev, [interview.id]: interview }))
-      if (messageData) {
-        setMessages(prev => [...prev, messageData as Message])
-      }
-
-      setInterviewTitle("")
-      setInterviewDate("")
-      setInterviewLink("")
-      setIsInterviewModalOpen(false)
-      scrollToBottom()
-      showToast({ title: "Thành công", message: "Đã gửi lời mời phỏng vấn!", type: "success" })
-    } catch (err: any) {
-      console.error("Lỗi tạo lịch hẹn:", err)
-      showToast({ title: "Lỗi", message: getUserFacingMessage(err, "Không thể tạo lịch hẹn."), type: "error" })
-    } finally {
-      setCreatingInterview(false)
-    }
-  }
-
-  const handleUpdateInterviewStatus = async (interviewId: string, newStatus: "accepted" | "rejected") => {
-    try {
-      const interview = interviews[interviewId]
-      if (!interview) return
-
-      const { error } = await supabase
-        .from("interviews")
-        .update({ status: newStatus })
-        .eq("id", interviewId)
-
-      if (error) throw error
-
-      setInterviews(prev => ({
-        ...prev,
-        [interviewId]: { ...prev[interviewId], status: newStatus }
-      }))
-
-      await supabase.from("notifications").insert([
-        {
-          user_id: interview.organizer_id,
-          title: newStatus === "accepted" ? "Lịch phỏng vấn được chấp nhận" : "Lịch phỏng vấn bị từ chối",
-          message: `Người tham gia đã ${newStatus === "accepted" ? "chấp nhận" : "từ chối"} lịch hẹn phỏng vấn: ${interview.title}`,
-          is_read: false
-        }
-      ])
-      showToast({
-        title: "Cập nhật",
-        message: newStatus === "accepted" ? "Đã chấp nhận lời mời phỏng vấn!" : "Đã từ chối lời mời phỏng vấn.",
-        type: newStatus === "accepted" ? "success" : "info"
-      })
-    } catch (err: any) {
-      console.error("Lỗi cập nhật lịch hẹn:", err)
-      showToast({ title: "Lỗi", message: getUserFacingMessage(err, "Không thể cập nhật trạng thái."), type: "error" })
     }
   }
 
@@ -941,7 +802,7 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
     if (embedded) {
       return (
         <div className="flex h-[400px] w-full items-center justify-center">
-          <div className="size-6 border-2 border-[#005DDC] border-t-transparent rounded-full animate-spin mr-3" />
+          <div className="size-6 border-2 border-zinc-900 border-t-transparent rounded-full animate-spin mr-3" />
           <span className="text-sm text-slate-500">Đang tải tin nhắn...</span>
         </div>
       )
@@ -1002,10 +863,10 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
                       >
                         <div className="size-10 rounded-[32px] overflow-hidden shrink-0 bg-slate-100 border border-[#ededed] relative">
                           <img
-                            src={partner.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(partner.full_name || "User")}&background=005DDC&color=fff`}
+                            src={partner.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(partner.full_name || "User")}&background=18181B&color=fff`}
                             alt={partner.full_name}
                             onError={(e) => {
-                              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(partner.full_name || "User")}&background=005DDC&color=fff`
+                              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(partner.full_name || "User")}&background=18181B&color=fff`
                             }}
                             className="size-full object-cover"
                           />
@@ -1020,7 +881,7 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
                                 <Star className="size-3.5 fill-amber-400 text-amber-500 shrink-0" />
                               )}
                             </div>
-                            <span className={`text-[10px] shrink-0 ${hasUnread ? "font-semibold text-[#005DDC]" : "text-[#757575] font-normal"}`}>
+                            <span className={`text-[10px] shrink-0 ${hasUnread ? "font-semibold text-zinc-950" : "text-[#757575] font-normal"}`}>
                               {formatTimeAgo(chat.lastMessageTime || chat.created_at)}
                             </span>
                           </div>
@@ -1029,7 +890,7 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
                               {chat.lastMessage || "Bắt đầu cuộc trò chuyện..."}
                             </p>
                             {hasUnread && (
-                              <span className="size-2 rounded-full bg-[#005DDC] shrink-0" />
+                              <span className="size-2 rounded-full bg-zinc-950 shrink-0" />
                             )}
                           </div>
                         </div>
@@ -1066,10 +927,10 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
 
                       <div className="size-[48px] sm:size-[56px] rounded-[32px] overflow-hidden shrink-0 border border-[#ededed] bg-slate-100">
                         <img
-                          src={getPartnerProfile(activeChat).avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(getPartnerProfile(activeChat).full_name || "User")}&background=005DDC&color=fff`}
+                          src={getPartnerProfile(activeChat).avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(getPartnerProfile(activeChat).full_name || "User")}&background=18181B&color=fff`}
                           alt={getPartnerProfile(activeChat).full_name}
                           onError={(e) => {
-                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(getPartnerProfile(activeChat).full_name || "User")}&background=005DDC&color=fff`
+                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(getPartnerProfile(activeChat).full_name || "User")}&background=18181B&color=fff`
                           }}
                           className="size-full object-cover"
                         />
@@ -1086,34 +947,6 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
                     </div>
 
                     <div className="flex items-center gap-2">
-                      {/* Organizer Interview Booking Button */}
-                      {(isOrganizerRole(role) || isOrganizerRole(profile?.role)) && (
-                        <button
-                          onClick={() => {
-                            if (!isPremium) {
-                              showToast({
-                                title: "Tính năng VIP",
-                                message: "Hệ thống lên lịch Phỏng vấn / Casting dành riêng cho gói Doanh Nghiệp VIP. Vui lòng nâng cấp!",
-                                type: "error",
-                              })
-                              navigate("/pricing")
-                              return
-                            }
-                            setIsInterviewModalOpen(true)
-                          }}
-                          className={cn(
-                            "hidden sm:inline-flex items-center gap-1.5 rounded-[8px] px-3.5 py-2 text-[13px] font-medium transition-colors shadow-2xs cursor-pointer",
-                            isPremium
-                              ? "bg-[#005DDC] text-white hover:bg-[#004eb7]"
-                              : "bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200"
-                          )}
-                          title={isPremium ? "Hẹn phỏng vấn" : "Nâng cấp VIP để mở khóa lịch phỏng vấn"}
-                        >
-                          {isPremium ? <Calendar className="size-4" /> : <Lock className="size-3.5 text-slate-500" />}
-                          <span>Hẹn phỏng vấn</span>
-                        </button>
-                      )}
-
                       {/* Favorite button */}
                       <button
                         onClick={handleToggleFavorite}
@@ -1135,27 +968,6 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
 
                         {showMoreMenu && (
                           <div className="absolute right-0 mt-2 w-48 rounded-[12px] bg-white p-1.5 shadow-lg border border-[#ededed] z-30 text-xs">
-                            {(isOrganizerRole(role) || isOrganizerRole(profile?.role)) && (
-                              <button
-                                onClick={() => {
-                                  setShowMoreMenu(false)
-                                  if (!isPremium) {
-                                    showToast({
-                                      title: "Tính năng VIP",
-                                      message: "Hệ thống lên lịch Phỏng vấn / Casting dành riêng cho gói Doanh Nghiệp VIP. Vui lòng nâng cấp!",
-                                      type: "error",
-                                    })
-                                    navigate("/pricing")
-                                    return
-                                  }
-                                  setIsInterviewModalOpen(true)
-                                }}
-                                className="sm:hidden flex w-full items-center gap-2 rounded-[8px] px-3 py-2 text-left text-[#353535] hover:bg-slate-50"
-                              >
-                                {isPremium ? <Calendar className="size-4 text-[#005DDC]" /> : <Lock className="size-4 text-slate-400" />}
-                                <span>Hẹn phỏng vấn {!isPremium && "(VIP)"}</span>
-                              </button>
-                            )}
                             <button
                               onClick={() => {
                                 setShowMoreMenu(false)
@@ -1201,13 +1013,9 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
                       partnerProfile={getPartnerProfile(activeChat)}
                       currentUserProfile={profile || currentUser?.user_metadata}
                       onReply={(msg) => setReplyingMessage(msg)}
-                      playingVoiceId={playingVoiceId}
-                      onToggleVoice={(id) => setPlayingVoiceId((prev) => (prev === id ? null : id))}
                       messagesEndRef={messagesEndRef}
                       compact={false}
                       showHeader={!hasMoreMessages}
-                      interviews={interviews}
-                      onUpdateInterviewStatus={handleUpdateInterviewStatus}
                       role={role}
                     />
                   </div>
@@ -1255,7 +1063,7 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
                       <button
                         type="submit"
                         disabled={sending || !newMessage.trim()}
-                        className="size-10 rounded-[12px] bg-[#005DDC] text-white flex items-center justify-center hover:bg-[#004eb7] disabled:opacity-40 shrink-0 transition-colors shadow-2xs"
+                        className="size-10 rounded-[12px] bg-zinc-900 text-white flex items-center justify-center hover:bg-black disabled:opacity-40 shrink-0 transition-colors shadow-2xs"
                         title="Gửi"
                       >
                         <Send className="size-4" />
@@ -1266,7 +1074,7 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
               ) : (
                 /* Empty Chat state */
                 <div className="p-8 text-center max-w-sm mx-auto space-y-3">
-                  <div className="size-16 rounded-2xl bg-[#eff5ff] text-[#005DDC] flex items-center justify-center mx-auto">
+                  <div className="size-16 rounded-2xl bg-zinc-100 text-zinc-900 flex items-center justify-center mx-auto">
                     <MessageSquare className="size-8" />
                   </div>
                   <h3 className="text-[16px] font-semibold text-[#222]">Chọn cuộc hội thoại</h3>
@@ -1283,21 +1091,6 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
     return (
       <div className="w-full">
         {chatCard}
-        {/* INTERVIEW MODAL */}
-        {isInterviewModalOpen && (
-          <InterviewModal
-            isOpen={isInterviewModalOpen}
-            onClose={() => setIsInterviewModalOpen(false)}
-            interviewTitle={interviewTitle}
-            setInterviewTitle={setInterviewTitle}
-            interviewDate={interviewDate}
-            setInterviewDate={setInterviewDate}
-            interviewLink={interviewLink}
-            setInterviewLink={setInterviewLink}
-            creatingInterview={creatingInterview}
-            onSubmit={handleCreateInterview}
-          />
-        )}
       </div>
     )
   }
@@ -1328,22 +1121,6 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
       <div className="w-full">
         {chatCard}
       </div>
-
-      {/* INTERVIEW MODAL */}
-      {isInterviewModalOpen && (
-        <InterviewModal
-          isOpen={isInterviewModalOpen}
-          onClose={() => setIsInterviewModalOpen(false)}
-          interviewTitle={interviewTitle}
-          setInterviewTitle={setInterviewTitle}
-          interviewDate={interviewDate}
-          setInterviewDate={setInterviewDate}
-          interviewLink={interviewLink}
-          setInterviewLink={setInterviewLink}
-          creatingInterview={creatingInterview}
-          onSubmit={handleCreateInterview}
-        />
-      )}
     </DashboardLayout>
   )
 }

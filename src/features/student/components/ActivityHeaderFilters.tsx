@@ -4,8 +4,8 @@ import { useState, useRef, useEffect } from "react"
 import { ChevronDown, Check } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-export type MainTab = "apply_status" | "offered_job" | "saved_job" | "followed_company"
-export type StatusFilter = "all" | "applied" | "checked" | "rejected" | "accepted" | "interviewed"
+export type MainTab = "apply_status" | "saved_job"
+export type StatusFilter = "all" | "applied" | "checked" | "rejected" | "accepted"
 export type SortOrder = "newest" | "oldest"
 
 interface ActivityHeaderFiltersProps {
@@ -17,17 +17,13 @@ interface ActivityHeaderFiltersProps {
   onSortOrderChange: (order: SortOrder) => void
   counts?: {
     apply_status?: number
-    offered_job?: number
     saved_job?: number
-    followed_company?: number
   }
 }
 
 const TABS: { id: MainTab; label: string }[] = [
   { id: "apply_status", label: "Trạng thái ứng tuyển" },
-  { id: "offered_job", label: "Lời mời nhận việc" },
   { id: "saved_job", label: "Việc đã lưu" },
-  { id: "followed_company", label: "Đơn vị theo dõi" },
 ]
 
 const STATUS_PILLS: { id: StatusFilter; label: string }[] = [
@@ -36,7 +32,6 @@ const STATUS_PILLS: { id: StatusFilter; label: string }[] = [
   { id: "checked", label: "Đã xem hồ sơ" },
   { id: "accepted", label: "Trúng tuyển" },
   { id: "rejected", label: "Bị từ chối" },
-  { id: "interviewed", label: "Đã phỏng vấn" },
 ]
 
 export default function ActivityHeaderFilters({

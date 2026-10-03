@@ -69,7 +69,7 @@ export function FilterSidebarShell({
               className={cn(
                 "text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1 transition-colors",
                 chip.isBlue
-                  ? "bg-blue-50 text-blue-700 hover:bg-blue-100"
+                  ? "bg-zinc-100 text-zinc-900 hover:bg-zinc-200/90 border border-zinc-200"
                   : "bg-slate-100 text-slate-700 hover:bg-slate-200/80"
               )}
             >
@@ -102,7 +102,7 @@ export function FilterSidebarShell({
           className="w-full py-2.5 px-4 bg-white border border-slate-200/90 rounded-xl flex items-center justify-between font-medium text-slate-800 shadow-xs cursor-pointer active:scale-[0.99] transition-all"
         >
           <div className="flex items-center gap-2">
-            <SlidersHorizontal className="w-4 h-4 text-blue-600" />
+            <SlidersHorizontal className="w-4 h-4 text-zinc-900" />
             <span className="text-sm font-semibold">{mobileTitle}</span>
           </div>
           {activeCount > 0 && (
@@ -136,7 +136,7 @@ export function FilterSidebarShell({
               <button
                 type="button"
                 onClick={() => setIsMobileDrawerOpen(false)}
-                className="w-full bg-[#005DDC] hover:bg-[#004EB7] text-white py-2.5 rounded-xl font-semibold text-sm transition-all shadow-xs cursor-pointer active:scale-[0.98]"
+                className="w-full bg-zinc-900 hover:bg-black text-white py-2.5 rounded-xl font-semibold text-sm transition-all shadow-xs cursor-pointer active:scale-[0.98]"
               >
                 {applyButtonText || `Áp dụng bộ lọc ${activeCount > 0 ? `(${activeCount})` : ""}`}
               </button>
@@ -203,11 +203,11 @@ export function FilterSection({
             {title}
           </span>
           {count > 0 && (
-            <span className="size-4.5 rounded-full bg-blue-50 text-blue-600 text-[10px] font-bold flex items-center justify-center">
+            <span className="size-4.5 rounded-full bg-zinc-100 text-zinc-900 border border-zinc-200 text-[10px] font-bold flex items-center justify-center">
               {count}
             </span>
           )}
-          {hasActiveDot && <span className="size-2 rounded-full bg-blue-600" />}
+          {hasActiveDot && <span className="size-2 rounded-full bg-zinc-950" />}
         </div>
         <ChevronDown
           className={cn(

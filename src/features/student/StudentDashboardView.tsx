@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase"
 import { useUser } from "@/components/providers/AuthProvider"
 import { SkeletonGenericPage } from "@/components/ui/skeleton"
 import ProfileCompletionHero from "./components/dashboard/ProfileCompletionHero"
-import StudentJobStatisticsChart from "./components/dashboard/StudentJobStatisticsChart"
+import StudentUpcomingShifts from "./components/dashboard/StudentUpcomingShifts"
 import SavedJobsWidget from "./components/dashboard/SavedJobsWidget"
 import { ApplicationStatusDonut } from "./components/dashboard/ApplicationStatusDonut"
 import { RecentMessagesWidget } from "./components/dashboard/RecentMessagesWidget"
@@ -17,7 +17,6 @@ export default function JobSeekerDashboard() {
   const { user, profile, role, loading: authLoading } = useUser()
 
   const [loading, setLoading] = useState(true)
-  const [timePeriod, setTimePeriod] = useState<"week" | "month" | "year">("week")
 
   // Database Data States
   const [savedJobs, setSavedJobs] = useState<any[]>([])
@@ -27,11 +26,10 @@ export default function JobSeekerDashboard() {
     accepted: 0,
     rejected: 0,
   })
+  const [upcomingShifts, setUpcomingShifts] = useState<any[]>([])
   const [recentChats, setRecentChats] = useState<any[]>([])
   const [profileViewsCount, setProfileViewsCount] = useState(0)
   const [profileLikesCount, setProfileLikesCount] = useState(0)
-  const [rawApplications, setRawApplications] = useState<any[]>([])
-  const [recentViews, setRecentViews] = useState<any[]>([])
 
   // Calculate real profile completion (Thống nhất 100% với Profile Page)
   const cvPercent = useMemo(() => {
@@ -54,14 +52,29 @@ export default function JobSeekerDashboard() {
     const fetchDashboardData = async () => {
       setLoading(true)
 
-      // 1. Fetch Applications count & statuses
+      // 1. Fetch Applications count, statuses, and event details
       const { data: appsData } = await supabase
         .from("applications")
-        .select("id, status, applied_at")
+        .select(`
+          id,
+          status,
+          applied_at,
+          events (
+            id,
+            title,
+            location,
+            event_date,
+            salary_amount,
+            salary_type,
+            position_type,
+            danang_wards (name),
+            organizer:organizer_id (id, full_name, avatar_url)
+          )
+        `)
         .eq("student_id", user.id)
+        .order("applied_at", { ascending: false })
 
       if (appsData) {
-        setRawApplications(appsData)
         const total = appsData.length
         const underReview = appsData.filter(a => a.status === "pending" || !a.status).length
         const accepted = appsData.filter(a => a.status === "approved").length
@@ -73,6 +86,10 @@ export default function JobSeekerDashboard() {
           accepted,
           rejected,
         })
+
+        // Approved event shifts
+        const approvedShifts = appsData.filter(a => a.status === "approved" && a.events)
+        setUpcomingShifts(approvedShifts)
       }
 
       // 2. Fetch Saved Jobs (Bookmarked events with event & organizer details)
@@ -126,7 +143,7 @@ export default function JobSeekerDashboard() {
       const [viewsRes, likesRes] = await Promise.all([
         supabase
           .from("profile_views")
-          .select("id, viewed_at")
+          .select("id", { count: "exact", head: true })
           .eq("student_id", user.id),
         supabase
           .from("profile_likes")
@@ -134,9 +151,8 @@ export default function JobSeekerDashboard() {
           .eq("student_id", user.id),
       ])
 
-      if (viewsRes.data) {
-        setRecentViews(viewsRes.data)
-        setProfileViewsCount(viewsRes.data.length)
+      if (viewsRes.count !== null && viewsRes.count !== undefined) {
+        setProfileViewsCount(viewsRes.count)
       }
       if (likesRes.count !== null && likesRes.count !== undefined) {
         setProfileLikesCount(likesRes.count)
@@ -149,167 +165,13 @@ export default function JobSeekerDashboard() {
   }, [user, authLoading, router, role, profile?.role])
 
   const fullName = profile?.full_name || "Nhân sự Sự kiện"
-  const avatarUrl = profile?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=005DDC&color=fff`
+  const avatarUrl = profile?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=18181B&color=fff`
 
   // Calculation for Donut Chart Percentages
   const totalApps = applicationStats.total || 0
   const reviewPct = totalApps > 0 ? (applicationStats.underReview / totalApps) * 100 : 0
   const acceptPct = totalApps > 0 ? (applicationStats.accepted / totalApps) * 100 : 0
   const rejectPct = totalApps > 0 ? (applicationStats.rejected / totalApps) * 100 : 0
-
-  // Dynamic Activity Chart Metrics based on timePeriod ("week" | "month" | "year")
-  const { chartData, periodViewsCount, periodAppsCount, periodLabel, viewsGrowthPct, appsGrowthPct } = useMemo(() => {
-    const now = new Date()
-    const currentYear = now.getFullYear()
-    const currentMonth = now.getMonth() // 0-indexed
-
-    if (timePeriod === "week") {
-      // 7 rolling days
-      const result: { label: string; dateStr: string; views: number; apps: number }[] = []
-      const dayLabels = ["CN", "T2", "T3", "T4", "T5", "T6", "T7"]
-
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date()
-        d.setDate(now.getDate() - i)
-        const dateStr = d.toISOString().split("T")[0]
-        const dayName = dayLabels[d.getDay()]
-
-        const dayViews = recentViews.filter(v => v.viewed_at?.startsWith(dateStr)).length
-        const dayApps = rawApplications.filter(a => a.applied_at?.startsWith(dateStr)).length
-
-        result.push({
-          label: dayName,
-          dateStr,
-          views: dayViews,
-          apps: dayApps,
-        })
-      }
-
-      const totalViews = result.reduce((sum, r) => sum + r.views, 0)
-      const totalApps = result.reduce((sum, r) => sum + r.apps, 0)
-
-      let prevViews = 0
-      let prevApps = 0
-      for (let i = 13; i >= 7; i--) {
-        const d = new Date()
-        d.setDate(now.getDate() - i)
-        const dateStr = d.toISOString().split("T")[0]
-        prevViews += recentViews.filter(v => v.viewed_at?.startsWith(dateStr)).length
-        prevApps += rawApplications.filter(a => a.applied_at?.startsWith(dateStr)).length
-      }
-
-      const vGrowth = prevViews === 0 ? (totalViews > 0 ? 100 : 0) : Math.round(((totalViews - prevViews) / prevViews) * 100)
-      const aGrowth = prevApps === 0 ? (totalApps > 0 ? 100 : 0) : Math.round(((totalApps - prevApps) / prevApps) * 100)
-
-      return {
-        chartData: result,
-        periodViewsCount: totalViews,
-        periodAppsCount: totalApps,
-        periodLabel: "Tuần này",
-        viewsGrowthPct: vGrowth,
-        appsGrowthPct: aGrowth,
-      }
-    }
-
-    if (timePeriod === "month") {
-      // Current Month split into 4-5 weeks
-      const monthPrefix = `${currentYear}-${String(currentMonth + 1).padStart(2, "0")}`
-      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
-
-      const weeks = [
-        { label: "Tuần 1", start: 1, end: 7 },
-        { label: "Tuần 2", start: 8, end: 14 },
-        { label: "Tuần 3", start: 15, end: 21 },
-        { label: "Tuần 4", start: 22, end: 28 },
-        { label: "Tuần 5", start: 29, end: daysInMonth },
-      ].filter(w => w.start <= daysInMonth)
-
-      const result = weeks.map(w => {
-        let wViews = 0
-        let wApps = 0
-        for (let d = w.start; d <= Math.min(w.end, daysInMonth); d++) {
-          const dateStr = `${monthPrefix}-${String(d).padStart(2, "0")}`
-          wViews += recentViews.filter(v => v.viewed_at?.startsWith(dateStr)).length
-          wApps += rawApplications.filter(a => a.applied_at?.startsWith(dateStr)).length
-        }
-        return {
-          label: w.label,
-          dateStr: `${monthPrefix}-${String(w.start).padStart(2, "0")}`,
-          views: wViews,
-          apps: wApps,
-        }
-      })
-
-      const totalViews = recentViews.filter(v => v.viewed_at?.startsWith(monthPrefix)).length
-      const totalApps = rawApplications.filter(a => a.applied_at?.startsWith(monthPrefix)).length
-
-      const prevM = currentMonth === 0 ? 12 : currentMonth
-      const prevY = currentMonth === 0 ? currentYear - 1 : currentYear
-      const prevPrefix = `${prevY}-${String(prevM).padStart(2, "0")}`
-      const prevViews = recentViews.filter(v => v.viewed_at?.startsWith(prevPrefix)).length
-      const prevApps = rawApplications.filter(a => a.applied_at?.startsWith(prevPrefix)).length
-
-      const vGrowth = prevViews === 0 ? (totalViews > 0 ? 100 : 0) : Math.round(((totalViews - prevViews) / prevViews) * 100)
-      const aGrowth = prevApps === 0 ? (totalApps > 0 ? 100 : 0) : Math.round(((totalApps - prevApps) / prevApps) * 100)
-
-      return {
-        chartData: result,
-        periodViewsCount: totalViews,
-        periodAppsCount: totalApps,
-        periodLabel: "Tháng này",
-        viewsGrowthPct: vGrowth,
-        appsGrowthPct: aGrowth,
-      }
-    }
-
-    // timePeriod === "year" (12 months)
-    const yearPrefix = `${currentYear}`
-    const result: { label: string; dateStr: string; views: number; apps: number }[] = []
-    for (let m = 1; m <= 12; m++) {
-      const mPrefix = `${yearPrefix}-${String(m).padStart(2, "0")}`
-      const mViews = recentViews.filter(v => v.viewed_at?.startsWith(mPrefix)).length
-      const mApps = rawApplications.filter(a => a.applied_at?.startsWith(mPrefix)).length
-      result.push({
-        label: `T${m}`,
-        dateStr: mPrefix,
-        views: mViews,
-        apps: mApps,
-      })
-    }
-
-    const totalViews = recentViews.filter(v => v.viewed_at?.startsWith(yearPrefix)).length
-    const totalApps = rawApplications.filter(a => a.applied_at?.startsWith(yearPrefix)).length
-
-    const prevYearPrefix = `${currentYear - 1}`
-    const prevViews = recentViews.filter(v => v.viewed_at?.startsWith(prevYearPrefix)).length
-    const prevApps = rawApplications.filter(a => a.applied_at?.startsWith(prevYearPrefix)).length
-
-    const vGrowth = prevViews === 0 ? (totalViews > 0 ? 100 : 0) : Math.round(((totalViews - prevViews) / prevViews) * 100)
-    const aGrowth = prevApps === 0 ? (totalApps > 0 ? 100 : 0) : Math.round(((totalApps - prevApps) / prevApps) * 100)
-
-    return {
-      chartData: result,
-      periodViewsCount: totalViews,
-      periodAppsCount: totalApps,
-      periodLabel: "Năm nay",
-      viewsGrowthPct: vGrowth,
-      appsGrowthPct: aGrowth,
-    }
-  }, [timePeriod, recentViews, rawApplications])
-
-  const dateRangeLabel = useMemo(() => {
-    const now = new Date()
-    if (timePeriod === "week") {
-      const start = new Date()
-      start.setDate(now.getDate() - 6)
-      const format = (d: Date) => `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`
-      return `Hiển thị thống kê từ ${format(start)} - ${format(now)}/${now.getFullYear()}`
-    }
-    if (timePeriod === "month") {
-      return `Hiển thị thống kê trong Tháng ${now.getMonth() + 1}/${now.getFullYear()}`
-    }
-    return `Hiển thị thống kê trong Năm ${now.getFullYear()}`
-  }, [timePeriod])
 
   if (loading) return <SkeletonGenericPage />
 
@@ -327,17 +189,7 @@ export default function JobSeekerDashboard() {
             profileLikesCount={profileLikesCount}
           />
 
-          <StudentJobStatisticsChart
-            timePeriod={timePeriod}
-            setTimePeriod={setTimePeriod}
-            chartData={chartData}
-            dateRangeLabel={dateRangeLabel}
-            periodViewsCount={periodViewsCount}
-            periodAppsCount={periodAppsCount}
-            periodLabel={periodLabel}
-            viewsGrowthPct={viewsGrowthPct}
-            appsGrowthPct={appsGrowthPct}
-          />
+          <StudentUpcomingShifts shifts={upcomingShifts} />
 
           <SavedJobsWidget savedJobs={savedJobs} />
         </main>

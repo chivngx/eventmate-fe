@@ -15,7 +15,7 @@ import {
 import { AuthSplitLayout } from "./components/AuthSplitLayout"
 import { FloatingBadgeInput, AuthSuccessCard, AuthSubmitButton } from "./components/AuthComponents"
 import { Loader2 } from "lucide-react"
-import { isOrganizerRole } from "@/lib/auth-constants"
+import { isOrganizerRole } from "@/lib/utils"
 
 export default function ResetPasswordView() {
     const [searchParams] = useSearchParams()
@@ -133,7 +133,7 @@ export default function ResetPasswordView() {
         return (
             <div className="min-h-screen flex items-center justify-center bg-white text-[#222222]">
                 <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
-                    <Loader2 className="w-5 h-5 animate-spin text-[#005ddc]" />
+                    <Loader2 className="w-5 h-5 animate-spin text-zinc-900" />
                     <span>Đang tải...</span>
                 </div>
             </div>

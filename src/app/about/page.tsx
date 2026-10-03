@@ -16,7 +16,7 @@ export default function AboutPage() {
           
           {/* Header */}
           <div className="text-center space-y-4 max-w-3xl mx-auto">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-50 text-[#005DDC] border border-blue-200">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-zinc-100 text-zinc-900 border border-zinc-200">
               <Sparkles className="w-3.5 h-3.5" />
               Sứ Mệnh Của EventMate
             </span>
@@ -31,7 +31,7 @@ export default function AboutPage() {
           {/* 3 Core Values */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-6 rounded-2xl border border-slate-200 bg-slate-50/50 space-y-3">
-              <div className="size-12 rounded-xl bg-blue-100 text-[#005DDC] flex items-center justify-center font-bold">
+              <div className="size-12 rounded-xl bg-zinc-100 text-zinc-900 flex items-center justify-center font-bold">
                 <Users className="w-6 h-6" />
               </div>
               <h3 className="text-lg font-semibold text-[#222222]">Cộng Đồng Trẻ & Nhiệt Huyết</h3>
@@ -62,16 +62,16 @@ export default function AboutPage() {
           </div>
 
           {/* CTA Section */}
-          <div className="p-8 sm:p-12 rounded-2xl bg-gradient-to-r from-[#005DDC] to-[#004EB7] text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md">
+          <div className="p-8 sm:p-12 rounded-2xl bg-zinc-950 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-md border border-zinc-800">
             <div className="space-y-2 text-center sm:text-left">
               <h2 className="text-2xl sm:text-3xl font-bold">Bạn Đang Tổ Chức Sự Kiện?</h2>
-              <p className="text-blue-100 text-sm sm:text-base max-w-xl">
+              <p className="text-zinc-400 text-sm sm:text-base max-w-xl">
                 Đăng bài tuyển dụng ngay hôm nay để tiếp cận ứng viên tài năng trong vòng vài phút.
               </p>
             </div>
             <Link
               href="/post-job"
-              className="px-6 py-3 rounded-xl bg-white text-[#005DDC] hover:bg-blue-50 font-semibold text-sm sm:text-base transition-all shrink-0 flex items-center gap-2 shadow-sm"
+              className="px-6 py-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-100 font-semibold text-sm sm:text-base transition-all shrink-0 flex items-center gap-2 shadow-sm"
             >
               <span>Đăng Tuyển Ngay</span>
               <ArrowRight className="w-4 h-4" />

@@ -5,14 +5,17 @@ export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
 
+const SALARY_SUFFIX: Record<string, string> = {
+    per_hour: " / h",
+    per_shift: " / ca",
+    per_event: " / sự kiện",
+    per_month: " / tháng",
+}
+
 export function formatSalary(amount?: number | null, type?: string | null, fallback = "Thỏa thuận"): string {
-    if (!amount || amount === 0 || type === "volunteer") return "Tình nguyện viên"
+    if (!amount || type === "volunteer") return "Tình nguyện viên"
     const formatted = new Intl.NumberFormat("vi-VN").format(amount) + "đ"
-    if (type === "per_hour") return `${formatted} / h`
-    if (type === "per_shift") return `${formatted} / ca`
-    if (type === "per_event") return `${formatted} / sự kiện`
-    if (type === "per_month") return `${formatted} / tháng`
-    return formatted || fallback
+    return (type && SALARY_SUFFIX[type] ? formatted + SALARY_SUFFIX[type] : formatted) || fallback
 }
 
 export function formatTimeAgo(dateString?: string | null): string {
@@ -36,4 +39,8 @@ export function formatShiftTime(start?: string | null, end?: string | null): str
     const e = end ? end.slice(0, 5) : ""
     if (s && e) return `${s} - ${e}`
     return s || e
+}
+
+export function isOrganizerRole(role: string | null | undefined): boolean {
+    return role === "organizer" || role === "employer"
 }

@@ -10,7 +10,7 @@ export default function OrganizerHero({ navbar }: { navbar?: React.ReactNode }) 
   return (
     <section
       id="employer-hero"
-      className="w-full min-h-screen lg:h-screen lg:max-h-[920px] xl:max-h-[960px] flex flex-col justify-between bg-[#f4f4f4] relative overflow-hidden"
+      className="w-full min-h-screen lg:h-screen lg:max-h-[920px] xl:max-h-[960px] flex flex-col justify-between bg-[#FAFAFA] relative overflow-hidden"
       data-node-id="5875:27309"
     >
       {/* Floating Navbar inside Hero's top area or Spacer */}
@@ -32,11 +32,11 @@ export default function OrganizerHero({ navbar }: { navbar?: React.ReactNode }) 
         >
           <div className="flex flex-col gap-[24px] w-full" data-node-id="5875:27312">
             <h1
-              className="font-['Inter'] font-bold text-4xl sm:text-5xl lg:text-[56px] text-[#222222] tracking-tight leading-[1.12]"
+              className="font-['Inter'] font-bold text-4xl sm:text-5xl lg:text-[56px] text-zinc-950 tracking-tight leading-[1.12]"
               data-node-id="5875:27313"
             >
               Tuyển Dụng Thông Minh, Bứt Phá Cùng{" "}
-              <span className="text-[#005DDC]">EventMate!</span>
+              <span className="text-zinc-900 underline decoration-zinc-300 underline-offset-8">EventMate!</span>
             </h1>
             <p
               className="font-['Inter'] font-medium text-base sm:text-[18px] text-[#757575] leading-[1.6]"
@@ -54,7 +54,7 @@ export default function OrganizerHero({ navbar }: { navbar?: React.ReactNode }) 
                 router.push("/register?role=organizer")
               }
             }}
-            className="bg-[#282828] hover:bg-black text-white font-['Inter'] font-medium text-[18px] sm:text-[20px] h-[56px] w-full sm:w-[296px] rounded-[8px] flex items-center justify-center transition-all duration-200 shadow-md active:scale-98 cursor-pointer"
+            className="bg-zinc-900 hover:bg-black text-white font-['Inter'] font-semibold text-[18px] sm:text-[20px] h-[56px] w-full sm:w-[296px] rounded-[10px] flex items-center justify-center transition-all duration-200 shadow-sm hover:shadow active:scale-98 cursor-pointer"
             data-node-id="5875:27315"
           >
             Đăng tin tuyển dụng
@@ -65,7 +65,7 @@ export default function OrganizerHero({ navbar }: { navbar?: React.ReactNode }) 
         <div className="relative flex items-center justify-center w-full lg:w-[504px] pt-8 pb-12">
           {/* Background Pill Arch (Figma Frame 2147224908) */}
           <div
-            className="bg-[#f9f9f9] rounded-[278px] w-[340px] sm:w-[440px] lg:w-[504px] h-[460px] sm:h-[515px] relative shrink-0"
+            className="bg-zinc-100/80 border border-zinc-200/60 rounded-[278px] w-[340px] sm:w-[440px] lg:w-[504px] h-[460px] sm:h-[515px] relative shrink-0"
             data-node-id="5875:27316"
           >
             {/* Cutout Hero Image (Figma image 304) */}
@@ -84,10 +84,10 @@ export default function OrganizerHero({ navbar }: { navbar?: React.ReactNode }) 
 
             {/* Floating Badge 1: +30K Job Seekers (Figma Frame 2147224912) */}
             <div
-              className="absolute top-[18px] -left-2 sm:left-[10px] bg-white rounded-[16px] px-[16px] py-[8px] shadow-[2px_4px_16px_rgba(1,70,177,0.1)] flex items-center gap-[8px] z-20"
+              className="absolute top-[18px] -left-2 sm:left-[10px] bg-white border border-zinc-100 rounded-[16px] px-[16px] py-[8px] shadow-[0_8px_30px_rgba(0,0,0,0.06)] flex items-center gap-[8px] z-20"
               data-node-id="5875:27342"
             >
-              <div className="bg-[#005ddc] rounded-[16px] size-[48px] flex items-center justify-center shrink-0">
+              <div className="bg-zinc-900 rounded-[16px] size-[48px] flex items-center justify-center shrink-0">
                 <img
                   src="/images/organizer-hero/users-group.svg"
                   alt=""
@@ -104,9 +104,9 @@ export default function OrganizerHero({ navbar }: { navbar?: React.ReactNode }) 
               </div>
             </div>
 
-            {/* Floating Badge 2: Blue Bell Button with Red Dot */}
+            {/* Floating Badge 2: Bell Button with Red Dot */}
             <div
-              className="absolute top-[127px] -left-3 sm:left-0 bg-[#005ddc] rounded-[16px] size-[48px] flex items-center justify-center shadow-[2px_4px_16px_rgba(1,70,177,0.12)] z-20"
+              className="absolute top-[127px] -left-3 sm:left-0 bg-zinc-900 rounded-[16px] size-[48px] flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.12)] z-20"
               data-node-id="5875:27318"
             >
               <img
@@ -125,7 +125,7 @@ export default function OrganizerHero({ navbar }: { navbar?: React.ReactNode }) 
 
             {/* Floating Badge 3: Donut Chart / Job Breakdown (Figma Frame 2147224789) */}
             <div
-              className="absolute top-[53px] -right-4 sm:-right-6 lg:left-[360px] xl:left-[388px] bg-white rounded-[16px] p-[8px] shadow-[2px_4px_16px_rgba(1,70,177,0.1)] flex items-center w-[184px] sm:w-[192px] z-20"
+              className="absolute top-[53px] -right-4 sm:-right-6 lg:left-[360px] xl:left-[388px] bg-white border border-zinc-100 rounded-[16px] p-[8px] shadow-[0_8px_30px_rgba(0,0,0,0.06)] flex items-center w-[184px] sm:w-[192px] z-20"
               data-node-id="5875:27351"
             >
               <div className="relative size-[76px] sm:size-[80px] shrink-0 flex items-center justify-center">
@@ -146,21 +146,21 @@ export default function OrganizerHero({ navbar }: { navbar?: React.ReactNode }) 
               <div className="flex flex-col gap-[4px] flex-1 pl-1 text-[8px] font-medium text-[#515151]">
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1">
-                    <span className="size-[8px] rounded-full bg-[#004eb7]" />
+                    <span className="size-[8px] rounded-full bg-zinc-900" />
                     Đang duyệt
                   </span>
                   <span className="font-bold text-[#222222]">8</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1">
-                    <span className="size-[8px] rounded-full bg-[#6eabff]" />
+                    <span className="size-[8px] rounded-full bg-emerald-500" />
                     Đã nhận
                   </span>
                   <span className="font-bold text-[#222222]">4</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="flex items-center gap-1">
-                    <span className="size-[8px] rounded-full bg-[#cfe3ff]" />
+                    <span className="size-[8px] rounded-full bg-zinc-400" />
                     Từ chối
                   </span>
                   <span className="font-bold text-[#222222]">3</span>
@@ -170,12 +170,12 @@ export default function OrganizerHero({ navbar }: { navbar?: React.ReactNode }) 
 
             {/* Floating Badge 4: 3-Bar Chart Widget (Figma Frame 2147224922) */}
             <div
-              className="absolute top-[238px] -right-2 sm:-right-4 lg:left-[456px] bg-white rounded-[8px] p-[8px] h-[60px] flex items-end gap-[3px] shadow-[2px_4px_16px_rgba(1,70,177,0.1)] z-20"
+              className="absolute top-[238px] -right-2 sm:-right-4 lg:left-[456px] bg-white border border-zinc-100 rounded-[8px] p-[8px] h-[60px] flex items-end gap-[3px] shadow-[0_8px_30px_rgba(0,0,0,0.06)] z-20"
               data-node-id="5875:27347"
             >
-              <div className="bg-[#005ddc] h-[29px] w-[15px] rounded-[5px]" />
-              <div className="bg-[#9ec7ff] h-[24px] w-[15px] rounded-[5px]" />
-              <div className="bg-[#003e93] h-[40px] w-[15px] rounded-[5px]" />
+              <div className="bg-zinc-900 h-[29px] w-[15px] rounded-[5px]" />
+              <div className="bg-emerald-500 h-[24px] w-[15px] rounded-[5px]" />
+              <div className="bg-zinc-400 h-[40px] w-[15px] rounded-[5px]" />
             </div>
 
             {/* Floating Badge 5: Bottom 3 Metric Cards (Figma Frame 2147224914) */}
@@ -185,7 +185,7 @@ export default function OrganizerHero({ navbar }: { navbar?: React.ReactNode }) 
             >
               {/* Review */}
               <div
-                className="bg-white rounded-[8px] px-[12px] sm:px-[14px] py-[10px] sm:py-[12px] h-[65px] shadow-[2px_4px_16px_rgba(1,70,177,0.1)] flex items-center justify-between gap-[6px] w-[142px] sm:w-[150px] shrink-0"
+                className="bg-white border border-zinc-100 rounded-[8px] px-[12px] sm:px-[14px] py-[10px] sm:py-[12px] h-[65px] shadow-[0_8px_30px_rgba(0,0,0,0.06)] flex items-center justify-between gap-[6px] w-[142px] sm:w-[150px] shrink-0"
                 data-node-id="5875:27320"
               >
                 <div className="flex flex-col text-left">
@@ -207,7 +207,7 @@ export default function OrganizerHero({ navbar }: { navbar?: React.ReactNode }) 
 
               {/* Companies */}
               <div
-                className="bg-white rounded-[8px] px-[12px] sm:px-[14px] py-[10px] sm:py-[12px] h-[65px] shadow-[2px_4px_16px_rgba(1,70,177,0.1)] flex items-center justify-between gap-[6px] w-[142px] sm:w-[150px] shrink-0"
+                className="bg-white border border-zinc-100 rounded-[8px] px-[12px] sm:px-[14px] py-[10px] sm:py-[12px] h-[65px] shadow-[0_8px_30px_rgba(0,0,0,0.06)] flex items-center justify-between gap-[6px] w-[142px] sm:w-[150px] shrink-0"
                 data-node-id="5875:27327"
               >
                 <div className="flex flex-col text-left">
@@ -229,7 +229,7 @@ export default function OrganizerHero({ navbar }: { navbar?: React.ReactNode }) 
 
               {/* Rating */}
               <div
-                className="bg-white rounded-[8px] px-[12px] sm:px-[14px] py-[10px] sm:py-[12px] h-[65px] shadow-[2px_4px_16px_rgba(1,70,177,0.1)] flex items-center justify-between gap-[6px] w-[142px] sm:w-[150px] shrink-0"
+                className="bg-white border border-zinc-100 rounded-[8px] px-[12px] sm:px-[14px] py-[10px] sm:py-[12px] h-[65px] shadow-[0_8px_30px_rgba(0,0,0,0.06)] flex items-center justify-between gap-[6px] w-[142px] sm:w-[150px] shrink-0"
                 data-node-id="5875:27334"
               >
                 <div className="flex flex-col text-left">

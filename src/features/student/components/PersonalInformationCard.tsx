@@ -167,7 +167,7 @@ export default function PersonalInformationCard({
                   <button
                     type="button"
                     onClick={() => setIsEditing(true)}
-                    className="text-[#005DDC] underline cursor-pointer hover:opacity-80"
+                    className="text-zinc-900 underline cursor-pointer hover:text-black font-medium"
                   >
                     Thêm họ tên
                   </button>
@@ -185,7 +185,7 @@ export default function PersonalInformationCard({
                   <button
                     type="button"
                     onClick={() => setIsEditing(true)}
-                    className="text-[#005DDC] underline cursor-pointer hover:opacity-80"
+                    className="text-zinc-900 underline cursor-pointer hover:text-black font-medium"
                   >
                     Thêm email
                   </button>
@@ -203,7 +203,7 @@ export default function PersonalInformationCard({
                   <button
                     type="button"
                     onClick={() => setIsEditing(true)}
-                    className="text-[#005DDC] underline cursor-pointer hover:opacity-80"
+                    className="text-zinc-900 underline cursor-pointer hover:text-black font-medium"
                   >
                     Thêm khu vực
                   </button>
@@ -221,7 +221,7 @@ export default function PersonalInformationCard({
                   <button
                     type="button"
                     onClick={() => setIsEditing(true)}
-                    className="text-[#005DDC] underline cursor-pointer hover:opacity-80"
+                    className="text-zinc-900 underline cursor-pointer hover:text-black font-medium"
                   >
                     Thêm trường học
                   </button>
@@ -242,7 +242,7 @@ export default function PersonalInformationCard({
                   <button
                     type="button"
                     onClick={() => setIsEditing(true)}
-                    className="text-[#005DDC] underline cursor-pointer hover:opacity-80"
+                    className="text-zinc-900 underline cursor-pointer hover:text-black font-medium"
                   >
                     Thêm SĐT
                   </button>
@@ -281,7 +281,7 @@ export default function PersonalInformationCard({
                     href={data.socialLink.startsWith("http") ? data.socialLink : `https://${data.socialLink}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[#005DDC] hover:underline flex items-center gap-1.5 truncate max-w-full"
+                    className="text-zinc-900 hover:text-black hover:underline flex items-center gap-1.5 truncate max-w-full font-medium"
                   >
                     <span className="truncate">{data.socialLink.replace(/^https?:\/\//, "")}</span>
                     <ExternalLink className="size-3.5 shrink-0" />
@@ -290,7 +290,7 @@ export default function PersonalInformationCard({
                   <button
                     type="button"
                     onClick={() => setIsEditing(true)}
-                    className="text-[#005DDC] underline cursor-pointer hover:opacity-80"
+                    className="text-zinc-900 underline cursor-pointer hover:text-black font-medium"
                   >
                     Thêm liên kết mạng xã hội
                   </button>
@@ -326,7 +326,7 @@ export default function PersonalInformationCard({
                   placeholder="Ví dụ: Nguyễn Văn An"
                   className={cn(
                     "w-full h-10 px-3.5 rounded-[8px] bg-[#f9f9f9] border text-[15px] font-medium text-[#282828] transition-all outline-none",
-                    errors.fullName ? "border-rose-500 ring-1 ring-rose-500/20" : "border-[#E5E5E5] focus:border-[#005ddc] focus:bg-white"
+                    errors.fullName ? "border-rose-500 ring-1 ring-rose-500/20" : "border-[#E5E5E5] focus:border-zinc-900 focus:bg-white"
                   )}
                 />
                 {errors.fullName && (
@@ -344,7 +344,7 @@ export default function PersonalInformationCard({
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="email@example.com"
-                  className="w-full h-10 px-3.5 rounded-[8px] bg-[#f9f9f9] border border-[#E5E5E5] focus:border-[#005ddc] focus:bg-white text-[15px] font-medium text-[#282828] transition-all outline-none"
+                  className="w-full h-10 px-3.5 rounded-[8px] bg-[#f9f9f9] border border-[#E5E5E5] focus:border-zinc-900 focus:bg-white text-[15px] font-medium text-[#282828] transition-all outline-none"
                 />
               </div>
 
@@ -358,7 +358,7 @@ export default function PersonalInformationCard({
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                   placeholder="Ví dụ: Đà Nẵng, TP.HCM, Hà Nội..."
-                  className="w-full h-10 px-3.5 rounded-[8px] bg-[#f9f9f9] border border-[#E5E5E5] focus:border-[#005ddc] focus:bg-white text-[15px] font-medium text-[#282828] transition-all outline-none"
+                  className="w-full h-10 px-3.5 rounded-[8px] bg-[#f9f9f9] border border-[#E5E5E5] focus:border-zinc-900 focus:bg-white text-[15px] font-medium text-[#282828] transition-all outline-none"
                 />
               </div>
 
@@ -372,7 +372,7 @@ export default function PersonalInformationCard({
                   value={formData.university || ""}
                   onChange={(e) => setFormData({ ...formData, university: e.target.value })}
                   placeholder="Ví dụ: ĐH Bách Khoa, ĐH Kinh Tế..."
-                  className="w-full h-10 px-3.5 rounded-[8px] bg-[#f9f9f9] border border-[#E5E5E5] focus:border-[#005ddc] focus:bg-white text-[15px] font-medium text-[#282828] transition-all outline-none"
+                  className="w-full h-10 px-3.5 rounded-[8px] bg-[#f9f9f9] border border-[#E5E5E5] focus:border-zinc-900 focus:bg-white text-[15px] font-medium text-[#282828] transition-all outline-none"
                 />
               </div>
             </div>
@@ -394,7 +394,7 @@ export default function PersonalInformationCard({
                   placeholder="Ví dụ: 0905123456"
                   className={cn(
                     "w-full h-10 px-3.5 rounded-[8px] bg-[#f9f9f9] border text-[15px] font-medium text-[#282828] transition-all outline-none",
-                    errors.phone ? "border-rose-500 ring-1 ring-rose-500/20" : "border-[#E5E5E5] focus:border-[#005ddc] focus:bg-white"
+                    errors.phone ? "border-rose-500 ring-1 ring-rose-500/20" : "border-[#E5E5E5] focus:border-zinc-900 focus:bg-white"
                   )}
                 />
                 {errors.phone && (
@@ -436,7 +436,7 @@ export default function PersonalInformationCard({
                     placeholder="Ví dụ: 2005"
                     className={cn(
                       "w-full h-10 px-3.5 rounded-[8px] bg-[#f9f9f9] border text-[15px] font-medium text-[#282828] transition-all outline-none",
-                      errors.birthYear ? "border-rose-500 ring-1 ring-rose-500/20" : "border-[#E5E5E5] focus:border-[#005ddc] focus:bg-white"
+                      errors.birthYear ? "border-rose-500 ring-1 ring-rose-500/20" : "border-[#E5E5E5] focus:border-zinc-900 focus:bg-white"
                     )}
                   />
                   {errors.birthYear && (
@@ -460,7 +460,7 @@ export default function PersonalInformationCard({
                   placeholder="https://facebook.com/username hoặc https://tiktok.com/@username"
                   className={cn(
                     "w-full h-10 px-3.5 rounded-[8px] bg-[#f9f9f9] border text-[15px] font-medium text-[#282828] transition-all outline-none",
-                    errors.socialLink ? "border-rose-500 ring-1 ring-rose-500/20" : "border-[#E5E5E5] focus:border-[#005ddc] focus:bg-white"
+                    errors.socialLink ? "border-rose-500 ring-1 ring-rose-500/20" : "border-[#E5E5E5] focus:border-zinc-900 focus:bg-white"
                   )}
                 />
                 {errors.socialLink && (
@@ -481,7 +481,7 @@ export default function PersonalInformationCard({
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-[8px] bg-[#005DDC] hover:bg-[#004EB7] font-['Inter'] text-[14px] font-medium text-white transition-colors cursor-pointer shadow-xs"
+              className="px-5 py-2 rounded-[8px] bg-zinc-900 hover:bg-black font-['Inter'] text-[14px] font-semibold text-white transition-colors cursor-pointer shadow-xs"
             >
               Lưu thay đổi
             </button>

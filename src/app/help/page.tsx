@@ -20,7 +20,7 @@ const FAQS = [
   },
   {
     q: "Tôi có thể liên hệ với ứng viên trước khi duyệt đơn không?",
-    a: "Có! Tính năng Chat trên EventMate cho phép Ban tổ chức và ứng viên trò chuyện trực tiếp, trao đổi yêu cầu công việc hoặc lên lịch phỏng vấn trước khi đưa ra quyết định duyệt đơn."
+    a: "Có! Tính năng Chat trên EventMate cho phép Ban tổ chức và ứng viên trò chuyện trực tiếp, trao đổi yêu cầu công việc cụ thể trước khi đưa ra quyết định duyệt đơn."
   },
 ]
 
@@ -56,7 +56,7 @@ export default function HelpCenterPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Tìm kiếm câu hỏi (vd: thanh toán, ứng tuyển...)"
-                className="w-full h-12 pl-11 pr-4 rounded-xl border border-slate-300 text-sm focus:border-[#005DDC] focus:ring-1 focus:ring-[#005DDC] outline-none shadow-xs"
+                className="w-full h-12 pl-11 pr-4 rounded-xl border border-slate-300 text-sm focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 outline-none shadow-xs"
               />
             </div>
           </div>
@@ -64,7 +64,7 @@ export default function HelpCenterPage() {
           {/* Quick Categories */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 flex items-center gap-3">
-              <BookOpen className="w-5 h-5 text-[#005DDC]" />
+              <BookOpen className="w-5 h-5 text-zinc-900" />
               <span className="text-sm font-semibold text-[#222222]">Cẩm nang ứng viên</span>
             </div>
             <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/60 flex items-center gap-3">
@@ -96,7 +96,7 @@ export default function HelpCenterPage() {
                       className="w-full p-4 sm:p-5 text-left flex items-center justify-between gap-4 font-semibold text-sm sm:text-base text-[#222222] hover:bg-slate-50 cursor-pointer"
                     >
                       <span className="flex items-center gap-2.5">
-                        <HelpCircle className="w-4 h-4 text-[#005DDC] shrink-0" />
+                        <HelpCircle className="w-4 h-4 text-zinc-900 shrink-0" />
                         {faq.q}
                       </span>
                       <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? "rotate-180" : ""}`} />
@@ -120,7 +120,7 @@ export default function HelpCenterPage() {
             </p>
             <Link
               href="/contact"
-              className="inline-block px-5 py-2 rounded-lg bg-[#005DDC] hover:bg-[#004EB7] text-white text-xs font-semibold"
+              className="inline-block px-5 py-2 rounded-lg bg-zinc-900 hover:bg-black text-white text-xs font-semibold"
             >
               Liên hệ chúng tôi
             </Link>

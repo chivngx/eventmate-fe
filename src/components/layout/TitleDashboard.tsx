@@ -57,8 +57,8 @@ export default function TitleDashboard({
   }
 
   const fallbackAvatar = userProfile?.fullName
-    ? `https://ui-avatars.com/api/?name=${encodeURIComponent(userProfile.fullName)}&background=005DDC&color=fff&size=120`
-    : `https://ui-avatars.com/api/?name=${encodeURIComponent(isOrganizer ? "BTC" : "User")}&background=005DDC&color=fff&size=120`
+    ? `https://ui-avatars.com/api/?name=${encodeURIComponent(userProfile.fullName)}&background=18181B&color=fff&size=120`
+    : `https://ui-avatars.com/api/?name=${encodeURIComponent(isOrganizer ? "BTC" : "User")}&background=18181B&color=fff&size=120`
 
   const finalAvatar = avatarUrl || userProfile?.avatarUrl || fallbackAvatar
 

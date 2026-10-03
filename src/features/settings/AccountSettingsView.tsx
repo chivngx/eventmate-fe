@@ -329,7 +329,7 @@ export default function AccountSettingsView({ embedded = false }: { embedded?: b
                       />
                     </div>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                      Cập nhật kỹ năng, kinh nghiệm và tải CV PDF để nâng cao cơ hội được duyệt
+                      Cập nhật ảnh đại diện, kinh nghiệm và kỹ năng sự kiện để nâng cao cơ hội được duyệt
                     </p>
                   </div>
 

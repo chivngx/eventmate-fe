@@ -23,7 +23,7 @@ function HomeViewContent() {
     if (loading || (user && role === "organizer" && !isJobseekerMode)) {
         return (
             <div className="flex h-screen w-screen items-center justify-center bg-slate-50">
-                <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#005DDC] border-t-transparent"></div>
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-900 border-t-transparent"></div>
             </div>
         )
     }
@@ -40,7 +40,7 @@ export default function HomeView() {
         <Suspense
             fallback={
                 <div className="flex h-screen w-screen items-center justify-center bg-slate-50">
-                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#005DDC] border-t-transparent"></div>
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-900 border-t-transparent"></div>
                 </div>
             }
         >

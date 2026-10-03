@@ -17,12 +17,12 @@ export default function SavedJobsWidget({ savedJobs = [] }: SavedJobsWidgetProps
         </h3>
         <Link
           href="/my-events?tab=saved_job"
-          className="content-stretch flex gap-[8px] h-[32px] items-center justify-center px-[12px] py-[6px] relative rounded-[8px] shrink-0 text-[#005ddc] hover:bg-blue-50/60 transition-colors group cursor-pointer"
+          className="content-stretch flex gap-[8px] h-[32px] items-center justify-center px-[12px] py-[6px] relative rounded-[8px] shrink-0 text-zinc-900 hover:text-black hover:bg-zinc-100 font-semibold transition-colors group cursor-pointer"
         >
-          <span className="[word-break:break-word] font-['Inter'] font-medium leading-[1.6] not-italic relative shrink-0 text-[#005ddc] text-[14px] whitespace-nowrap">
+          <span className="[word-break:break-word] font-['Inter'] leading-[1.6] not-italic relative shrink-0 text-zinc-900 group-hover:text-black text-[14px] whitespace-nowrap">
             Xem tất cả
           </span>
-          <ChevronRight className="w-4 h-4 text-[#005ddc] shrink-0 transition-transform group-hover:translate-x-0.5" />
+          <ChevronRight className="w-4 h-4 text-zinc-900 group-hover:text-black shrink-0 transition-transform group-hover:translate-x-0.5" />
         </Link>
       </div>
 
@@ -32,7 +32,7 @@ export default function SavedJobsWidget({ savedJobs = [] }: SavedJobsWidgetProps
           savedJobs.map((job) => {
             const org = job.organizer || job.profiles
             const orgName = org?.full_name || org?.university || "Doanh nghiệp / Ban tổ chức"
-            const orgAvatar = org?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(orgName)}&background=005DDC&color=fff`
+            const orgAvatar = org?.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(orgName)}&background=18181B&color=fff`
             const jobLocation = job.danang_wards?.name || job.location || "Đà Nẵng"
             const jobType = job.position_type || "Toàn thời gian"
 
@@ -66,12 +66,12 @@ export default function SavedJobsWidget({ savedJobs = [] }: SavedJobsWidgetProps
                         className="absolute inset-0 max-w-none object-cover pointer-events-none rounded-[32px] size-full"
                         src={orgAvatar}
                         onError={(e) => {
-                          e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(orgName)}&background=005DDC&color=fff`
+                          e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(orgName)}&background=18181B&color=fff`
                         }}
                       />
                     </div>
                     <div className="[word-break:break-word] content-stretch flex flex-col gap-[2px] items-start not-italic relative shrink-0 min-w-0 flex-1">
-                      <p className="font-['Inter'] font-medium leading-[1.6] relative shrink-0 text-[#222222] text-[14px] w-full truncate group-hover:text-[#005ddc] transition-colors">
+                      <p className="font-['Inter'] font-medium leading-[1.6] relative shrink-0 text-[#222222] text-[14px] w-full truncate group-hover:text-zinc-950 transition-colors">
                         {job.title}
                       </p>
                       <div className="content-stretch flex font-['Inter'] font-normal gap-[4px] items-center leading-normal relative shrink-0 text-[#757575] w-full whitespace-nowrap text-[12px] truncate">
@@ -111,7 +111,7 @@ export default function SavedJobsWidget({ savedJobs = [] }: SavedJobsWidgetProps
             </p>
             <Link
               href="/events"
-              className="inline-flex items-center gap-1 font-['Inter'] text-[13px] font-medium text-[#005ddc] hover:underline"
+              className="inline-flex items-center gap-1 font-['Inter'] text-[13px] font-semibold text-zinc-900 hover:text-black hover:underline"
             >
               <Search className="w-3.5 h-3.5" />
               <span>Khám phá việc làm & sự kiện ngay</span>

@@ -32,8 +32,6 @@ export interface OrganizerProfile {
 
 export interface CompanyCardProps {
   organizer: OrganizerProfile
-  isBookmarked?: boolean
-  onToggleBookmark?: (id: string) => void
 }
 
 export default function CompanyCard({
@@ -55,7 +53,7 @@ export default function CompanyCard({
   return (
     <article
       onClick={() => navigate(orgLink)}
-      className="group relative bg-white border border-[#ededed] hover:border-[#005ddc]/50 hover:shadow-md transition-all duration-200 rounded-[8px] px-6 sm:px-8 py-5 sm:py-6 cursor-pointer flex items-center justify-between gap-4 sm:gap-6"
+      className="group relative bg-white border border-[#ededed] hover:border-zinc-950/40 hover:shadow-md transition-all duration-200 rounded-[8px] px-6 sm:px-8 py-5 sm:py-6 cursor-pointer flex items-center justify-between gap-4 sm:gap-6"
     >
       {/* Left side: Logo + Details (Figma node 5875:24889) */}
       <div className="flex items-start sm:items-center gap-4 sm:gap-5 flex-1 min-w-0">
@@ -87,7 +85,7 @@ export default function CompanyCard({
         <div className="flex-1 min-w-0 flex flex-col gap-1.5 sm:gap-2">
           {/* Header row: Name */}
           <div className="flex items-center gap-1.5 min-w-0 flex-wrap">
-            <h3 className="text-base sm:text-[18px] font-semibold text-[#222222] truncate group-hover:text-[#005ddc] transition-colors">
+            <h3 className="text-base sm:text-[18px] font-semibold text-[#222222] truncate group-hover:text-zinc-950 transition-colors">
               {displayName}
             </h3>
             {organizer.is_verified && (
@@ -106,15 +104,15 @@ export default function CompanyCard({
             {organizer.bio || "Đơn vị tổ chức sự kiện chuyên nghiệp và đối tác uy tín kết nối nhân lực tại Đà Nẵng."}
           </p>
 
-          {/* Badges row (Figma node 589:7446: bg #eff5ff, text #005ddc, rounded 4px) */}
+          {/* Badges row */}
           <div className="flex items-center gap-2 flex-wrap pt-0.5">
             {isHiring && (
-              <span className="inline-flex items-center h-5 px-2 py-0.5 rounded-[4px] text-[12px] font-normal bg-[#eff5ff] text-[#005ddc]">
+              <span className="inline-flex items-center h-5 px-2 py-0.5 rounded-[4px] text-[12px] font-normal bg-zinc-100 text-zinc-800">
                 Đang tuyển dụng
               </span>
             )}
             {eventCount > 0 && (
-              <span className="inline-flex items-center h-5 px-2 py-0.5 rounded-[4px] text-[12px] font-normal bg-[#eff5ff] text-[#005ddc]">
+              <span className="inline-flex items-center h-5 px-2 py-0.5 rounded-[4px] text-[12px] font-normal bg-zinc-100 text-zinc-800">
                 {eventCount} Sự kiện
               </span>
             )}
@@ -123,7 +121,7 @@ export default function CompanyCard({
       </div>
 
       {/* Right chevron indicator (Figma node 3846:28989) */}
-      <div className="hidden sm:flex items-center justify-center w-8 h-8 rounded-full text-[#515151] group-hover:text-[#005ddc] group-hover:translate-x-1 transition-all shrink-0">
+      <div className="hidden sm:flex items-center justify-center w-8 h-8 rounded-full text-[#515151] group-hover:text-zinc-950 group-hover:translate-x-1 transition-all shrink-0">
         <ChevronRight className="w-6 h-6" />
       </div>
     </article>

@@ -69,7 +69,7 @@ export default function Pagination({
         disabled={currentPage === 1}
         onClick={() => handlePageClick(currentPage - 1)}
         aria-label="Trang trước"
-        className="w-8 h-8 sm:w-10 sm:h-10 rounded-[8px] flex items-center justify-center text-[#282828] hover:text-[#005ddc] hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[#282828] disabled:cursor-not-allowed transition-colors cursor-pointer"
+        className="w-8 h-8 sm:w-10 sm:h-10 rounded-[8px] flex items-center justify-center text-[#282828] hover:text-zinc-950 hover:bg-zinc-100 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[#282828] disabled:cursor-not-allowed transition-colors cursor-pointer"
       >
         <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
       </button>
@@ -99,8 +99,8 @@ export default function Pagination({
               aria-current={isActive ? "page" : undefined}
               className={`w-9 h-9 sm:w-10 sm:h-10 rounded-[8px] flex items-center justify-center text-[15px] sm:text-[16px] font-medium transition-all cursor-pointer ${
                 isActive
-                  ? "border border-[#222222] text-[#222222] font-semibold bg-white shadow-xs"
-                  : "text-[#282828] hover:bg-slate-100"
+                  ? "border border-zinc-900 text-zinc-950 font-bold bg-white shadow-xs"
+                  : "text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950"
               }`}
             >
               {pageNum}
@@ -115,7 +115,7 @@ export default function Pagination({
         disabled={currentPage === totalPages}
         onClick={() => handlePageClick(currentPage + 1)}
         aria-label="Trang sau"
-        className="w-8 h-8 sm:w-10 sm:h-10 rounded-[8px] flex items-center justify-center text-[#282828] hover:text-[#005ddc] hover:bg-slate-100 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[#282828] disabled:cursor-not-allowed transition-colors cursor-pointer"
+        className="w-8 h-8 sm:w-10 sm:h-10 rounded-[8px] flex items-center justify-center text-[#282828] hover:text-zinc-950 hover:bg-zinc-100 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-[#282828] disabled:cursor-not-allowed transition-colors cursor-pointer"
       >
         <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
       </button>

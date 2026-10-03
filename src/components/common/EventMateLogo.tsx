@@ -2,7 +2,7 @@ import React from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
-export type LogoColorVariant = "monochrome" | "blue-teal" | "ocean" | "solid"
+export type LogoColorVariant = "monochrome" | "blue-teal" | "ocean" | "solid" | "white"
 
 export interface EventMateLogoIconProps extends React.SVGProps<SVGSVGElement> {
   size?: number | string
@@ -50,6 +50,22 @@ export function EventMateLogoIcon({
               <stop offset="0%" stopColor="#3F3F46" />
               <stop offset="50%" stopColor="#71717A" />
               <stop offset="100%" stopColor="#9CA3AF" />
+            </linearGradient>
+          </>
+        )}
+
+        {variant === "white" && (
+          <>
+            {/* Pure Crisp White with Subtle Soft Silver Body */}
+            <linearGradient id={gradBodyId} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#FFFFFF" />
+              <stop offset="100%" stopColor="#F1F5F9" />
+            </linearGradient>
+
+            {/* Glowing White Accent Facet */}
+            <linearGradient id={gradAccentId} x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
+              <stop offset="100%" stopColor="#E2E8F0" stopOpacity="0.8" />
             </linearGradient>
           </>
         )}

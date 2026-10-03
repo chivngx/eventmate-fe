@@ -40,12 +40,10 @@ export function getNotificationDestination(
   const text = fullText.toLowerCase()
   const type = (notif.type || "").toLowerCase()
 
-  // Interview / Chat
+  // Chat / Messages
   if (
     type.includes("chat") ||
     type.includes("message") ||
-    type.includes("interview") ||
-    text.includes("phỏng vấn") ||
     text.includes("tin nhắn") ||
     text.includes("chat") ||
     text.includes("trao đổi")

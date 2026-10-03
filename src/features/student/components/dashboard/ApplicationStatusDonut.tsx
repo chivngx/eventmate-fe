@@ -41,7 +41,7 @@ export function ApplicationStatusDonut({
                 cx="75"
                 cy="75"
                 r="54"
-                stroke="#004EB7"
+                stroke="#18181B"
                 strokeWidth="18"
                 fill="transparent"
                 strokeDasharray={`${(reviewPct / 100) * 339.292} 339.292`}
@@ -54,7 +54,7 @@ export function ApplicationStatusDonut({
                 cx="75"
                 cy="75"
                 r="54"
-                stroke="#6EABFF"
+                stroke="#10B981"
                 strokeWidth="18"
                 fill="transparent"
                 strokeDasharray={`${(acceptPct / 100) * 339.292} 339.292`}
@@ -67,7 +67,7 @@ export function ApplicationStatusDonut({
                 cx="75"
                 cy="75"
                 r="54"
-                stroke="#CFE3FF"
+                stroke="#A1A1AA"
                 strokeWidth="18"
                 fill="transparent"
                 strokeDasharray={`${(rejectPct / 100) * 339.292} 339.292`}
@@ -92,7 +92,7 @@ export function ApplicationStatusDonut({
           {/* Line 1: Under Review (Figma Node 6465:30197) */}
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-[12px] min-w-0">
-              <div className="bg-[#004EB7] rounded-full size-[16px] shrink-0" />
+              <div className="bg-zinc-900 rounded-full size-[16px] shrink-0" />
               <p className="font-['Inter'] font-medium text-[#515151] text-[14px] truncate">
                 Chờ duyệt
               </p>
@@ -105,7 +105,7 @@ export function ApplicationStatusDonut({
           {/* Line 2: Accepted (Figma Node 6465:30202) */}
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-[12px] min-w-0">
-              <div className="bg-[#6EABFF] rounded-full size-[16px] shrink-0" />
+              <div className="bg-emerald-500 rounded-full size-[16px] shrink-0" />
               <p className="font-['Inter'] font-medium text-[#515151] text-[14px] truncate">
                 Trúng tuyển
               </p>
@@ -118,7 +118,7 @@ export function ApplicationStatusDonut({
           {/* Line 3: Rejected (Figma Node 6465:30208) */}
           <div className="flex items-center justify-between w-full">
             <div className="flex items-center gap-[12px] min-w-0">
-              <div className="bg-[#CFE3FF] rounded-full size-[16px] shrink-0" />
+              <div className="bg-zinc-400 rounded-full size-[16px] shrink-0" />
               <p className="font-['Inter'] font-medium text-[#515151] text-[14px] truncate">
                 Từ chối
               </p>

@@ -4,7 +4,6 @@ import Link from "next/link"
 import {
   ChevronDown,
   CheckCircle2,
-  AlertCircle,
   Send,
   Award,
   Star,
@@ -13,7 +12,6 @@ import {
   Banknote,
   Clock,
   XCircle,
-  Eye,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -111,7 +109,7 @@ export default function ApplicationCard({
 
             <Link
               href={`/events/${event.id}`}
-              className="font-semibold text-base text-zinc-900 dark:text-zinc-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors line-clamp-1 block"
+              className="font-semibold text-base text-zinc-900 dark:text-zinc-100 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors line-clamp-1 block"
             >
               {event.title || "Vị trí Sự kiện"}
             </Link>

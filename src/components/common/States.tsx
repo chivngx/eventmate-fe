@@ -28,7 +28,7 @@ export function ResultCountHeader({
         <button
           type="button"
           onClick={onResetFilters}
-          className="text-xs text-[#005ddc] hover:underline font-medium cursor-pointer"
+          className="text-xs text-zinc-900 hover:text-black hover:underline font-semibold cursor-pointer"
         >
           Xóa tất cả bộ lọc
         </button>
@@ -100,7 +100,7 @@ export function ErrorState({
         <button
           type="button"
           onClick={onRetry}
-          className="px-4 py-2 bg-[#005ddc] text-white rounded-[8px] text-sm font-medium hover:bg-[#004eb7] transition-all cursor-pointer"
+          className="px-4 py-2 bg-zinc-900 text-white rounded-[8px] text-sm font-semibold hover:bg-black transition-all cursor-pointer"
         >
           {retryText}
         </button>

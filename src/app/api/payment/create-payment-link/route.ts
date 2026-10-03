@@ -37,7 +37,7 @@ export async function POST(req: Request) {
 
     // description tối đa 25 ký tự không dấu theo chuẩn VietQR Napas
     const planTag = planId === "enterprise" || planId === "standard" ? "ENT" : "EVT";
-    const cycleTag = billingCycle === "yearly" ? "1Y" : "1M";
+    const cycleTag = "1M";
     const description = `EM ${planTag} ${cycleTag} ${orderCode}`.slice(0, 25);
 
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     const { error: dbError } = await (supabase.from("transactions") as any).insert({
       user_id: user.id,
       plan_id: planId,
-      billing_cycle: billingCycle,
+      billing_cycle: "monthly",
       amount,
       payment_method: "payos",
       status: "pending",
@@ -62,8 +62,8 @@ export async function POST(req: Request) {
       orderCode,
       amount,
       description,
-      cancelUrl: `${appUrl}/pricing/checkout?plan=${encodeURIComponent(planId)}&billing=${encodeURIComponent(billingCycle)}&status=cancelled`,
-      returnUrl: `${appUrl}/pricing/checkout?plan=${encodeURIComponent(planId)}&billing=${encodeURIComponent(billingCycle)}&status=success&orderCode=${orderCode}`,
+      cancelUrl: `${appUrl}/pricing/checkout?plan=${encodeURIComponent(planId)}&status=cancelled`,
+      returnUrl: `${appUrl}/pricing/checkout?plan=${encodeURIComponent(planId)}&status=success&orderCode=${orderCode}`,
     });
 
     // 3. Cập nhật paymentLinkId nếu có

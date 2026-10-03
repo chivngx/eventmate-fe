@@ -9,7 +9,7 @@ import { getUserFacingMessage } from "@/lib/error"
 import OrgEventsTab from "./components/manage-events/OrgEventsTab"
 import OrgEventApplicationsDetail from "./components/manage-events/OrgEventApplicationsDetail"
 import ReviewModal from "@/features/event/components/ReviewModal"
-import CVViewModal from "@/features/student/components/CVViewModal"
+import CVModal from "@/components/common/CVModal"
 import { SkeletonGenericPage } from "@/components/ui/skeleton"
 
 export default function ManageEventsView() {
@@ -462,7 +462,7 @@ export default function ManageEventsView() {
         />
       )}
 
-      <CVViewModal viewingCV={viewingCV} onClose={() => setViewingCV(null)} />
+      <CVModal viewingCV={viewingCV} onClose={() => setViewingCV(null)} />
     </div>
   )
 }

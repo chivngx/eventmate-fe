@@ -2,15 +2,19 @@
 
 import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
 import * as React from "react";
-import {
-  type SegmentedControlSize,
-  segmentedControlItemLayoutClassName,
-  segmentedControlItemSizeClassNames,
-} from "@/lib/segmented-control";
 import { cn } from "@/lib/utils";
 
+type TabsSize = "default" | "lg" | "sm";
 type TabsVariant = "default" | "underline";
-type TabsSize = SegmentedControlSize;
+
+const tabSizeClasses: Record<TabsSize, string> = {
+  default: "h-8.5 px-[calc(--spacing(2.5)-1px)] sm:h-7.5",
+  lg: "h-9.5 px-[calc(--spacing(3)-1px)] sm:h-8.5",
+  sm: "h-7.5 px-[calc(--spacing(2)-1px)] sm:h-6.5",
+};
+
+const tabLayoutClasses =
+  "gap-1.5 [&_svg:not([class*='opacity-'])]:opacity-80 [&_svg:not([class*='size-'])]:size-4.5 sm:[&_svg:not([class*='size-'])]:size-4 [&_svg]:pointer-events-none [&_svg]:-mx-0.5 [&_svg]:shrink-0";
 
 const TabsListContext: React.Context<TabsSize> =
   React.createContext<TabsSize>("default");
@@ -85,8 +89,8 @@ export function TabsTab({
     <TabsPrimitive.Tab
       className={cn(
         "relative flex shrink-0 grow cursor-pointer items-center justify-center whitespace-nowrap rounded-md border border-transparent font-medium text-base outline-none transition-[color,background-color,box-shadow] hover:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring data-disabled:pointer-events-none data-[orientation=vertical]:w-full data-[orientation=vertical]:justify-start data-active:text-foreground data-disabled:opacity-64 sm:text-sm",
-        segmentedControlItemLayoutClassName,
-        segmentedControlItemSizeClassNames[resolvedSize],
+        tabLayoutClasses,
+        tabSizeClasses[resolvedSize],
         className,
       )}
       data-size={resolvedSize}

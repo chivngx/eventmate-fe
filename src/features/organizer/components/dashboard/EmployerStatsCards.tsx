@@ -5,14 +5,14 @@ import { Users, MessageSquareMore, UserRoundCheck, SquareArrowOutUpRight } from 
 interface EmployerStatsCardsProps {
   candidatesCount?: number
   messagesCount?: number
-  interviewsCount?: number
+  hiredCount?: number
   onNavigateTab?: (tab: string) => void
 }
 
 export default function EmployerStatsCards({
   candidatesCount = 0,
   messagesCount = 0,
-  interviewsCount = 0,
+  hiredCount = 0,
   onNavigateTab,
 }: EmployerStatsCardsProps) {
   const cards = [
@@ -31,9 +31,9 @@ export default function EmployerStatsCards({
       tab: "chat",
     },
     {
-      id: "interviews",
-      number: interviewsCount,
-      label: "Lịch phỏng vấn",
+      id: "hired",
+      number: hiredCount,
+      label: "Ứng viên đã tuyển",
       icon: UserRoundCheck,
       tab: "events",
     },

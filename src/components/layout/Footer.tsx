@@ -225,7 +225,7 @@ export function Footer3Demo(props?: Partial<Footer3Props>) {
         brandName={
           props?.brandName ?? (
             <span className="text-xl font-bold tracking-tight text-foreground">
-              Event<span className="text-[#005DDC]">Mate</span>
+              Event<span className="text-zinc-950 font-black">Mate</span>
             </span>
           )
         }

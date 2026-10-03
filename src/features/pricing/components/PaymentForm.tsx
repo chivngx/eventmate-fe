@@ -43,7 +43,7 @@ function CopyBtn({ text, label }: { text: string; label: string }) {
     <button
       type="button"
       onClick={handleCopy}
-      className="inline-flex items-center gap-1 text-[12px] font-medium text-[#005DDC] hover:text-[#0047AB] bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded transition-colors cursor-pointer"
+      className="inline-flex items-center gap-1 text-[12px] font-medium text-zinc-900 hover:text-black bg-zinc-100 hover:bg-zinc-200 px-2 py-0.5 rounded transition-colors cursor-pointer"
       title={`Sao chép ${label}`}
     >
       {copied ? (
@@ -144,7 +144,7 @@ export default function PaymentForm({
     <div className="flex-1 w-full max-w-[480px]">
       {loading && (
         <div className="bg-white rounded-[16px] border border-slate-200 p-16 flex flex-col items-center justify-center gap-3">
-          <Loader2 className="w-8 h-8 text-[#005DDC] animate-spin" />
+          <Loader2 className="w-8 h-8 text-zinc-900 animate-spin" />
           <p className="text-[14px] text-slate-500 font-medium">Đang tạo mã VietQR...</p>
         </div>
       )}
@@ -182,7 +182,7 @@ export default function PaymentForm({
             />
 
             <div className="flex items-center gap-2 mt-3 text-[13px] text-slate-500">
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-[#005DDC]" />
+              <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-900" />
               <span>Chờ nhận tiền...</span>
             </div>
           </div>
@@ -210,7 +210,7 @@ export default function PaymentForm({
             <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
               <span className="text-[#757575]">Số tiền</span>
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-[#005DDC]">{formattedAmount}</span>
+                <span className="font-bold text-zinc-950">{formattedAmount}</span>
                 <CopyBtn text={String(amountNumber)} label="Số tiền" />
               </div>
             </div>

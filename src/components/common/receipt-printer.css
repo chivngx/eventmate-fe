@@ -475,7 +475,7 @@
   font-size: 0.85rem;
   font-weight: 800;
   letter-spacing: 0.05em;
-  color: #005DDC;
+  color: #18181B;
   font-family: var(--font-mono);
 }
 
@@ -747,20 +747,20 @@
   gap: 0.5rem;
   padding: 0.78rem 1.4rem;
   border-radius: 12px;
-  border: 1px solid #005DDC;
-  background: #005DDC;
+  border: 1px solid #18181B;
+  background: #18181B;
   font-family: var(--font-ui);
   font-size: 0.92rem;
   font-weight: 600;
   color: #ffffff;
   cursor: pointer;
   transition: all 0.22s ease;
-  box-shadow: 0 4px 12px rgba(0, 93, 220, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .receipt-printer-root .dashboard-action-btn:hover {
-  background: #0047AB;
-  border-color: #0047AB;
+  background: #000000;
+  border-color: #000000;
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 93, 220, 0.3);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }

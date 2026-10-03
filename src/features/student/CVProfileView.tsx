@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase"
 import { getUserFacingMessage } from "@/lib/error"
 import { useUser } from "@/components/providers/AuthProvider"
 import { useToast } from "@/components/providers/ToastProvider"
-import CVPreviewModal from "./components/CVPreviewModal"
+import CVModal from "@/components/common/CVModal"
 import ProfileUploading from "./components/ProfileUploading"
 import ResumeQualityCard from "./components/ResumeQualityCard"
 import AboutMeCard from "./components/AboutMeCard"
@@ -181,7 +181,7 @@ export default function CVProfile({ embedded = false }: { embedded?: boolean } =
     if (embedded) {
       return (
         <div className="flex h-[400px] w-full items-center justify-center">
-          <div className="size-6 border-2 border-[#005DDC] border-t-transparent rounded-full animate-spin mr-3" />
+          <div className="size-6 border-2 border-zinc-900 border-t-transparent rounded-full animate-spin mr-3" />
           <span className="text-sm text-slate-500">Đang tải hồ sơ...</span>
         </div>
       )
@@ -332,7 +332,7 @@ export default function CVProfile({ embedded = false }: { embedded?: boolean } =
         </div>
 
         {/* CV Preview Modal */}
-        <CVPreviewModal
+        <CVModal
           isOpen={cvPreviewOpen}
           onClose={() => setCvPreviewOpen(false)}
           profile={{

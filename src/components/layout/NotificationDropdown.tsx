@@ -14,6 +14,7 @@ interface NotificationDropdownProps {
     notifications: any[]
     unreadCount: number
     markAsRead: () => Promise<void>
+    triggerClassName?: string
 }
 
 function formatNotificationTime(dateStr: string) {
@@ -39,7 +40,8 @@ function formatNotificationTime(dateStr: string) {
 export default function NotificationDropdown({
     notifications,
     unreadCount,
-    markAsRead
+    markAsRead,
+    triggerClassName,
 }: NotificationDropdownProps) {
     const router = useRouter()
     const { role, profile } = useUser()
@@ -62,13 +64,16 @@ export default function NotificationDropdown({
     return (
         <DropdownMenu open={open} onOpenChange={setOpen}>
             <DropdownMenuTrigger
-                className="size-[40px] flex items-center justify-center rounded-full hover:bg-slate-100 text-[#222222] transition-colors cursor-pointer outline-none relative"
+                className={cn(
+                    "size-[40px] flex items-center justify-center rounded-full transition-colors cursor-pointer outline-none relative",
+                    triggerClassName || "hover:bg-slate-100 text-[#222222]"
+                )}
                 aria-label="Thông báo"
                 title="Thông báo"
             >
                 <NavBellIcon className="size-[20px]" />
                 {unreadCount > 0 && (
-                    <span className="absolute top-2 right-2 size-2 bg-blue-600 rounded-full ring-2 ring-white" />
+                    <span className="absolute top-2 right-2 size-2 bg-red-500 rounded-full ring-2 ring-white" />
                 )}
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -141,11 +146,11 @@ export default function NotificationDropdown({
                                     )}
                                 >
                                     <div className="flex items-start justify-between gap-2">
-                                        <h5 className="text-[14px] font-semibold text-slate-900 leading-snug group-hover/item:text-blue-600 transition-colors">
+                                        <h5 className="text-[14px] font-semibold text-slate-900 leading-snug group-hover/item:text-zinc-950 transition-colors">
                                             {n.title}
                                         </h5>
                                         {isUnread && (
-                                            <span className="size-2 rounded-full bg-blue-600 shrink-0 mt-1.5" />
+                                            <span className="size-2 rounded-full bg-zinc-950 shrink-0 mt-1.5" />
                                         )}
                                     </div>
                                     {n.message && (
@@ -157,7 +162,7 @@ export default function NotificationDropdown({
                                         <span className="text-xs text-slate-400 font-normal">
                                             {formatNotificationTime(n.created_at)}
                                         </span>
-                                        <span className="text-xs font-medium text-slate-500 group-hover/item:text-blue-600 flex items-center gap-1 transition-colors">
+                                        <span className="text-xs font-medium text-slate-500 group-hover/item:text-zinc-950 flex items-center gap-1 transition-colors">
                                             <span>{destLabel}</span>
                                             <ChevronRight className="size-3.5 group-hover/item:translate-x-0.5 transition-transform" />
                                         </span>

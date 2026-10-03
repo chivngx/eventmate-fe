@@ -46,7 +46,7 @@ export const BLOG_POSTS = [
     title: "Những kỹ năng hàng đầu nhà tuyển dụng sự kiện tìm kiếm",
     author: "Thảo Nhi (DIFF Organizer)",
     date: "12 Th01, 2026",
-    tags: ["Sự nghiệp", "Phỏng vấn"],
+    tags: ["Sự nghiệp", "Kinh nghiệm"],
     excerpt:
       "Ban tổ chức luôn đánh giá cao sự kết hợp giữa kỹ năng chuyên môn, tinh thần trách nhiệm, phản xạ giải quyết vấn đề linh hoạt và kỹ năng giao tiếp truyền tải thông tin.",
     content: `Các nhà tổ chức lễ hội lớn tại Đà Nẵng như Lễ hội pháo hoa quốc tế DIFF, Marathon Quốc tế hay TechFest luôn tìm kiếm những gương mặt trẻ có tinh thần lăn xả và nhiệt huyết.
@@ -78,7 +78,7 @@ export default function BlogListPage() {
             {BLOG_POSTS.map((post) => (
               <article
                 key={post.id}
-                className="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-[#005DDC]/50 hover:shadow-lg transition-all duration-200 flex flex-col justify-between group"
+                className="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-zinc-900/40 hover:shadow-lg transition-all duration-200 flex flex-col justify-between group"
               >
                 <div>
                   <div className="h-48 w-full bg-slate-100 overflow-hidden relative">
@@ -91,7 +91,7 @@ export default function BlogListPage() {
                       {post.tags.map((tag, i) => (
                         <span
                           key={i}
-                          className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white/90 backdrop-blur-xs text-[#005DDC]"
+                          className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white/90 backdrop-blur-xs text-zinc-950 shadow-xs"
                         >
                           {tag}
                         </span>
@@ -111,7 +111,7 @@ export default function BlogListPage() {
                       </span>
                     </div>
 
-                    <h2 className="text-lg font-bold text-[#222222] group-hover:text-[#005DDC] transition-colors line-clamp-2">
+                    <h2 className="text-lg font-bold text-[#222222] group-hover:text-zinc-950 transition-colors line-clamp-2">
                       <Link href={`/blog/${post.id}`}>{post.title}</Link>
                     </h2>
 
@@ -124,7 +124,7 @@ export default function BlogListPage() {
                 <div className="p-5 sm:p-6 pt-0">
                   <Link
                     href={`/blog/${post.id}`}
-                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#005DDC] group-hover:gap-2.5 transition-all"
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-zinc-950 group-hover:gap-2.5 transition-all"
                   >
                     <span>Đọc tiếp</span>
                     <ArrowRight className="w-4 h-4" />

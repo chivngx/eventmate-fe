@@ -1,6 +1,5 @@
 "use client"
 
-import React from "react"
 import { Check } from "lucide-react"
 
 export interface MissingQualityItem {
@@ -61,12 +60,12 @@ export default function ResumeQualityCard({
             strokeWidth="14"
             fill="transparent"
           />
-          {/* Vòng tiến độ màu xanh chính */}
+          {/* Vòng tiến độ màu chính */}
           <circle
             cx="75"
             cy="75"
             r={radius}
-            stroke="#005DDC"
+            stroke="#18181B"
             strokeWidth="14"
             fill="transparent"
             strokeDasharray={circumference}
@@ -82,7 +81,7 @@ export default function ResumeQualityCard({
           data-node-id="6850:74752"
         >
           <span
-            className="font-semibold text-[#282828] text-[16px] text-center font-['Inter'] leading-normal"
+            className="font-bold text-zinc-950 text-[18px] text-center font-['Inter'] leading-normal"
             data-node-id="6850:74753"
           >
             {safePercent}%
@@ -115,10 +114,10 @@ export default function ResumeQualityCard({
               >
                 {/* Badge điểm cộng (Figma: Badge) */}
                 <div
-                  className="border border-[#005DDC] border-solid flex h-[20px] items-center justify-center px-[8px] py-[4px] rounded-[4px] shrink-0"
+                  className="border border-zinc-200 bg-zinc-50 flex h-[20px] items-center justify-center px-[8px] py-[4px] rounded-[4px] shrink-0"
                   data-name="Badge"
                 >
-                  <span className="font-normal text-[#005DDC] text-[12px] font-['Inter'] leading-normal whitespace-nowrap">
+                  <span className="font-semibold text-zinc-900 text-[12px] font-['Inter'] leading-normal whitespace-nowrap">
                     +{item.score}%
                   </span>
                 </div>

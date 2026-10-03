@@ -9,7 +9,7 @@ import { getUserFacingMessage } from "@/lib/error"
 
 import EmployerStatsCards from "./components/dashboard/EmployerStatsCards"
 import JobStatisticsChart from "./components/dashboard/JobStatisticsChart"
-import ScheduleWidget, { InterviewItem } from "./components/dashboard/ScheduleWidget"
+import ScheduleWidget, { ScheduleEventItem } from "./components/dashboard/ScheduleWidget"
 import SubscriptionCard from "./components/dashboard/SubscriptionCard"
 import RecentlyPostedJobsTable from "./components/dashboard/RecentlyPostedJobsTable"
 import { SkeletonGenericPage } from "@/components/ui/skeleton"
@@ -22,7 +22,6 @@ export default function OrgDashboard() {
   const [events, setEvents] = useState<any[]>([])
   const [fetching, setFetching] = useState(true)
   const [activeChats, setActiveChats] = useState<any[]>([])
-  const [interviews, setInterviews] = useState<InterviewItem[]>([])
   const [feedStats, setFeedStats] = useState<{ approvalRate: number; weeklyApps: number[] }>({
     approvalRate: 0,
     weeklyApps: [0, 0, 0, 0],
@@ -85,35 +84,7 @@ export default function OrgDashboard() {
       if (data) setActiveChats(data)
     }
 
-    const fetchInterviews = async () => {
-      const { data, error } = await supabase
-        .from("interviews")
-        .select(`
-          id,
-          title,
-          scheduled_at,
-          meeting_link,
-          status,
-          student:profiles!interviews_student_id_fkey(id, full_name, avatar_url),
-          event:events!interviews_event_id_fkey(id, title)
-        `)
-        .eq("organizer_id", user.id)
-        .order("scheduled_at", { ascending: true })
-
-      if (!error && data) {
-        const mapped: InterviewItem[] = data.map((inv: any) => ({
-          id: inv.id,
-          name: inv.student?.full_name || "Ứng viên",
-          role: inv.event?.title || inv.title || "Phỏng vấn sự kiện",
-          time: new Date(inv.scheduled_at).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" }),
-          meetLink: inv.meeting_link || undefined
-        }))
-        setInterviews(mapped)
-      }
-    }
-
     fetchChats()
-    fetchInterviews()
   }, [user, authLoading])
 
   const handleDeleteEvent = async (id: string) => {
@@ -174,6 +145,25 @@ export default function OrgDashboard() {
     ? Math.max(0, Math.ceil((new Date(profile.premium_until).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
     : null
 
+  const hiredCount = events.reduce(
+    (acc, ev) =>
+      acc + (ev.applications?.filter((a: any) => a.status === "approved").length || 0),
+    0
+  )
+
+  const upcomingScheduleEvents: ScheduleEventItem[] = events
+    .filter((ev) => !ev.event_date || new Date(ev.event_date) >= new Date())
+    .slice(0, 5)
+    .map((ev) => ({
+      id: ev.id,
+      title: ev.title,
+      location: ev.location,
+      date: ev.event_date
+        ? new Date(ev.event_date).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" })
+        : "Sắp diễn ra",
+      applicantsCount: ev.applications?.length || 0,
+    }))
+
   return (
     <div className="space-y-6">
       {/* Top Row: 2-Column Responsive Layout matching Figma */}
@@ -186,11 +176,7 @@ export default function OrgDashboard() {
               0
             )}
             messagesCount={activeChats.length}
-            interviewsCount={interviews.length > 0 ? interviews.length : events.reduce(
-              (acc, ev) =>
-                acc + (ev.applications?.filter((a: any) => a.status === "approved").length || 0),
-              0
-            )}
+            hiredCount={hiredCount}
             onNavigateTab={handleNavigate}
           />
 
@@ -205,10 +191,8 @@ export default function OrgDashboard() {
         {/* Right Column (4 cols in 12-col grid) */}
         <div className="lg:col-span-4 space-y-6">
           <ScheduleWidget
-            interviews={interviews}
-            onOpenMeet={(item) =>
-              window.open(item.meetLink || "https://meet.google.com/new", "_blank")
-            }
+            events={upcomingScheduleEvents}
+            onSelectEvent={(id) => router.push(`/manage-events?eventId=${id}`)}
           />
 
           <SubscriptionCard

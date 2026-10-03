@@ -2,12 +2,15 @@
 
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import FigmaHero from "./components/FigmaHero"
-import NewestEvents from "./components/NewestEvents"
-import HowItWorksSteps from "./components/HowItWorksSteps"
-import TopOrganizers from "./components/TopOrganizers"
-import EventBlogSection from "./components/EventBlogSection"
-import OrganizerCtaBanner from "./components/OrganizerCtaBanner"
+import HeroSearchBanner from "./components/HeroSearchBanner"
+import PopularCategories from "./components/PopularCategories"
+import UrgentJobsSection from "./components/UrgentJobsSection"
+import FeaturedCampaignBanner from "./components/FeaturedCampaignBanner"
+import TopEmployers from "./components/TopEmployers"
+import LatestJobsFeed from "./components/LatestJobsFeed"
+import EmployerActionCards from "./components/EmployerActionCards"
+import CareerAdviceSection from "./components/CareerAdviceSection"
+import AboutSection from "./components/AboutSection"
 import { useActiveWards } from "@/hooks/useLookups"
 import { supabase } from "@/lib/supabase"
 import { useUser } from "@/components/providers/AuthProvider"
@@ -25,113 +28,131 @@ export default function HomeLandingView({ navbar }: { navbar?: React.ReactNode }
   useEffect(() => {
     const fetchLatestEvents = async () => {
       setLoadingEvents(true)
-      const { data } = await supabase
-        .from("events")
-        .select("*, profiles(id, full_name, avatar_url, slug), danang_wards(name)")
-        .is("deleted_at", null)
-        .order("created_at", { ascending: false })
-        .limit(6)
-      if (data) setFeaturedEvents(data)
+      try {
+        const { data } = await supabase
+          .from("events")
+          .select("*, profiles(id, full_name, avatar_url, slug), danang_wards(name)")
+          .is("deleted_at", null)
+          .order("created_at", { ascending: false })
+          .limit(12)
 
-      if (user) {
-        const { data: bData } = await supabase
-          .from("event_bookmarks")
-          .select("event_id")
-          .eq("student_id", user.id)
-        if (bData) {
-          const bMap: Record<string, boolean> = {}
-          bData.forEach((b) => {
-            bMap[b.event_id] = true
-          })
-          setBookmarkedEvents(bMap)
+        if (data) setFeaturedEvents(data)
+
+        if (user) {
+          const { data: bData } = await supabase
+            .from("event_bookmarks")
+            .select("event_id")
+            .eq("student_id", user.id)
+
+          if (bData) {
+            const bMap: Record<string, boolean> = {}
+            bData.forEach((b) => {
+              bMap[b.event_id] = true
+            })
+            setBookmarkedEvents(bMap)
+          }
         }
+      } catch (err) {
+        console.error("Error fetching home events:", err)
+      } finally {
+        setLoadingEvents(false)
       }
-      setLoadingEvents(false)
     }
+
     fetchLatestEvents()
   }, [user])
 
-  const handleSearch = (term?: string, ward?: string) => {
+  const handleSearch = (term?: string, ward?: string, category?: string) => {
     const activeSearch = (typeof term === "string" ? term : searchTerm).trim()
     const activeWard = typeof ward === "string" ? ward : wardIdTerm
     const params = new URLSearchParams()
     if (activeSearch) params.set("search", activeSearch)
     if (activeWard) params.set("ward", activeWard)
+    if (category) params.set("category", category)
+
     const queryString = params.toString()
     router.push(queryString ? `/events?${queryString}` : "/events")
   }
 
-
   const toggleBookmark = async (id: string) => {
     if (!user) {
-      window.dispatchEvent(new CustomEvent("open-auth-modal", { detail: { mode: "login" } }))
+      window.dispatchEvent(
+        new CustomEvent("open-auth-modal", { detail: { mode: "login" } })
+      )
       return
     }
+
     const isBookmarked = !!bookmarkedEvents[id]
     if (isBookmarked) {
-      await supabase.from("event_bookmarks").delete().eq("student_id", user.id).eq("event_id", id)
-      setBookmarkedEvents(prev => ({ ...prev, [id]: false }))
+      await supabase
+        .from("event_bookmarks")
+        .delete()
+        .eq("student_id", user.id)
+        .eq("event_id", id)
+      setBookmarkedEvents((prev) => ({ ...prev, [id]: false }))
     } else {
-      await supabase.from("event_bookmarks").insert([{ student_id: user.id, event_id: id }])
-      setBookmarkedEvents(prev => ({ ...prev, [id]: true }))
+      await supabase
+        .from("event_bookmarks")
+        .insert([{ student_id: user.id, event_id: id }])
+      setBookmarkedEvents((prev) => ({ ...prev, [id]: true }))
     }
   }
 
   return (
-    <div className="w-full animate-in fade-in duration-300">
-      {/* 1. TOP HERO CONTAINER (Figma node 7182:22144) - #EFF5FF background encloses Navbar & Hero (Full Viewport) */}
-      <div className="w-full min-h-screen flex flex-col justify-between bg-[#EFF5FF] relative z-20 overflow-x-clip">
-        {/* Floating Navbar inside the Hero's top area or Spacer */}
-        {navbar ? (
-          <div className="pt-6 sm:pt-8 lg:pt-10 px-4 sm:px-6 lg:px-8 max-w-[1280px] mx-auto w-full relative z-30 shrink-0">
-            {navbar}
-          </div>
-        ) : (
-          <div className="h-[92px] sm:h-[96px] shrink-0" />
-        )}
-
-        {/* Hero Section Content (Vertically centered) */}
-        <div className="flex-1 flex items-center w-full">
-          <FigmaHero
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            wardIdTerm={wardIdTerm}
-            setWardIdTerm={setWardIdTerm}
-            activeWards={wards}
-            onSearch={handleSearch}
-          />
+    <div className="w-full bg-[#F2F6FC] text-gray-900 pb-4">
+      {/* 1. Sticky / Top Navbar Container */}
+      {navbar && (
+        <div className="w-full bg-white border-b border-gray-200 sticky top-0 z-50">
+          <div className="max-w-[1200px] mx-auto px-4 xl:px-0">{navbar}</div>
         </div>
-      </div>
+      )}
 
-      {/* MAIN CONTENT SECTIONS BELOW HERO (Figma 88px rhythm) */}
-      <div className="w-full flex flex-col gap-12 sm:gap-16 lg:gap-[88px] pt-8 sm:pt-10 lg:pt-[48px] px-4 sm:px-6 lg:px-8">
+      {/* 2. Vieclamtot-style Blue Search Banner with Single Capsule */}
+      <HeroSearchBanner
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        wardIdTerm={wardIdTerm}
+        setWardIdTerm={setWardIdTerm}
+        activeWards={wards}
+        onSearch={handleSearch}
+      />
 
-        {/* 3. NEWEST JOBS FOR YOU */}
-        <NewestEvents
+      {/* 3. Main Content Container - Dense, scannable, white cards on soft gray */}
+      <div className="w-full max-w-[1200px] mx-auto px-0 py-6 flex flex-col gap-6">
+        {/* Popular Categories (8 Photo Tiles) */}
+        <PopularCategories />
+
+        {/* Urgent Hiring Jobs (Phản hồi 24h & Bold Red Salaries) */}
+        <UrgentJobsSection
+          bookmarkedEvents={bookmarkedEvents}
+          onToggleBookmark={toggleBookmark}
+          onNavigateToJob={(id) => router.push(`/events/${id}`)}
+        />
+
+        {/* High-visibility Campaign Banner (DIFF 2026 / Big Event) */}
+        <FeaturedCampaignBanner />
+
+        {/* Top Employers / Event Venues in Da Nang */}
+        <TopEmployers />
+
+        {/* Latest Jobs Feed (Chợ Tốt Style Cards) */}
+        <LatestJobsFeed
           events={featuredEvents}
           loading={loadingEvents}
           bookmarkedEvents={bookmarkedEvents}
           onToggleBookmark={toggleBookmark}
-          onNavigateToJob={(jobId) => router.push(`/events/${jobId}`)}
+          onNavigateToJob={(id) => router.push(`/events/${id}`)}
         />
 
-        {/* 4. STEPS TO YOUR DREAM JOB */}
-        <HowItWorksSteps />
+        {/* For Employers & Organizers */}
+        <EmployerActionCards />
 
-        {/* 5. TOP COMPANIES / ORGANIZERS */}
-        <TopOrganizers />
+        {/* Career Advice / Tư vấn việc làm */}
+        <CareerAdviceSection />
 
-        {/* 6. OUR BLOG: CAREER SUCCESS */}
-        <EventBlogSection />
+        {/* About / Introduction */}
+        <AboutSection />
       </div>
-
-      {/* 8. ARE YOU EMPLOYER? CTA BANNER (Figma node 5875:29524: Full-width #EFF5FF section) */}
-      {!user && (
-        <div className="mt-12 sm:mt-16 lg:mt-[88px]">
-          <OrganizerCtaBanner />
-        </div>
-      )}
     </div>
   )
 }
-

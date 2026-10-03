@@ -54,7 +54,7 @@ export default function ContactPage() {
 
                 <div className="space-y-4 text-sm text-[#515151]">
                   <div className="flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-[#005DDC] shrink-0 mt-0.5" />
+                    <MapPin className="w-5 h-5 text-zinc-900 shrink-0 mt-0.5" />
                     <div>
                       <p className="font-semibold text-[#222222]">Địa chỉ văn phòng:</p>
                       <p>Số 120 đường 2 Tháng 9, Quận Hải Châu, TP. Đà Nẵng</p>
@@ -62,7 +62,7 @@ export default function ContactPage() {
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <Phone className="w-5 h-5 text-[#005DDC] shrink-0 mt-0.5" />
+                    <Phone className="w-5 h-5 text-zinc-900 shrink-0 mt-0.5" />
                     <div>
                       <p className="font-semibold text-[#222222]">Hotline hỗ trợ:</p>
                       <p>(+84) 0987 654 321</p>
@@ -70,7 +70,7 @@ export default function ContactPage() {
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <Mail className="w-5 h-5 text-[#005DDC] shrink-0 mt-0.5" />
+                    <Mail className="w-5 h-5 text-zinc-900 shrink-0 mt-0.5" />
                     <div>
                       <p className="font-semibold text-[#222222]">Email hợp tác:</p>
                       <p>contact@eventmate.vn</p>
@@ -119,7 +119,7 @@ export default function ContactPage() {
                         value={formData.fullName}
                         onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                         placeholder="Nguyễn Văn A"
-                        className="w-full h-11 px-3.5 rounded-lg border border-slate-300 text-sm focus:border-[#005DDC] focus:ring-1 focus:ring-[#005DDC] outline-none"
+                        className="w-full h-11 px-3.5 rounded-lg border border-slate-300 text-sm focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 outline-none"
                       />
                     </div>
                     <div className="space-y-1.5">
@@ -130,7 +130,7 @@ export default function ContactPage() {
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         placeholder="0912 345 678"
-                        className="w-full h-11 px-3.5 rounded-lg border border-slate-300 text-sm focus:border-[#005DDC] focus:ring-1 focus:ring-[#005DDC] outline-none"
+                        className="w-full h-11 px-3.5 rounded-lg border border-slate-300 text-sm focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 outline-none"
                       />
                     </div>
                   </div>
@@ -143,7 +143,7 @@ export default function ContactPage() {
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       placeholder="ban@example.com"
-                      className="w-full h-11 px-3.5 rounded-lg border border-slate-300 text-sm focus:border-[#005DDC] focus:ring-1 focus:ring-[#005DDC] outline-none"
+                      className="w-full h-11 px-3.5 rounded-lg border border-slate-300 text-sm focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 outline-none"
                     />
                   </div>
 
@@ -154,7 +154,7 @@ export default function ContactPage() {
                       value={formData.subject}
                       onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                       placeholder="Hợp tác sự kiện, đăng ký gói doanh nghiệp..."
-                      className="w-full h-11 px-3.5 rounded-lg border border-slate-300 text-sm focus:border-[#005DDC] focus:ring-1 focus:ring-[#005DDC] outline-none"
+                      className="w-full h-11 px-3.5 rounded-lg border border-slate-300 text-sm focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 outline-none"
                     />
                   </div>
 
@@ -166,14 +166,14 @@ export default function ContactPage() {
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                       placeholder="Nhập chi tiết yêu cầu của bạn tại đây..."
-                      className="w-full p-3.5 rounded-lg border border-slate-300 text-sm focus:border-[#005DDC] focus:ring-1 focus:ring-[#005DDC] outline-none resize-none"
+                      className="w-full p-3.5 rounded-lg border border-slate-300 text-sm focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 outline-none resize-none"
                     />
                   </div>
 
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full h-11 rounded-lg bg-[#005DDC] hover:bg-[#004EB7] text-white font-medium text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs"
+                    className="w-full h-11 rounded-lg bg-zinc-900 hover:bg-black text-white font-medium text-sm flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs"
                   >
                     <Send className="w-4 h-4" />
                     <span>{loading ? "Đang gửi..." : "Gửi Lời Nhắn"}</span>

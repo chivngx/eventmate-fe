@@ -11,8 +11,13 @@ import {
   PlusCircle,
   Briefcase,
   LogOut,
+  ShieldCheck,
+  CheckCircle2,
+  Users,
+  Sparkles,
+  ChevronDown,
 } from "lucide-react"
-import { isOrganizerRole } from "@/lib/auth-constants"
+import { isOrganizerRole, cn } from "@/lib/utils"
 
 export interface JobseekerProfileDropdownProps {
   avatarUrl?: string
@@ -22,6 +27,8 @@ export interface JobseekerProfileDropdownProps {
   isEmployer?: boolean
   navigate: (path: string) => void
   handleLogout: () => Promise<void>
+  triggerClassName?: string
+  isHeroUnscrolled?: boolean
 }
 
 export default function JobseekerProfileDropdown({
@@ -32,12 +39,16 @@ export default function JobseekerProfileDropdown({
   isEmployer,
   navigate,
   handleLogout,
+  triggerClassName,
+  isHeroUnscrolled = false,
 }: JobseekerProfileDropdownProps) {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
-  const isOrg = Boolean(isEmployer || isOrganizerRole(role))
-  const displayName = fullName || email?.split("@")[0] || (isOrg ? "Nhà tuyển dụng" : "Ứng viên")
+  const isAdmin = role === "admin"
+  const isOrg = !isAdmin && Boolean(isEmployer || isOrganizerRole(role))
+  const roleName = isAdmin ? "Quản trị viên" : isOrg ? "Nhà tuyển dụng" : "Ứng viên"
+  const displayName = fullName || email?.split("@")[0] || roleName
   const initial = displayName ? displayName.charAt(0).toUpperCase() : "U"
 
   // Close when clicking outside
@@ -70,35 +81,49 @@ export default function JobseekerProfileDropdown({
 
   return (
     <div ref={dropdownRef} className="relative inline-block text-left">
-      {/* Trigger Button */}
+      {/* Trigger Button - Figma Component 19 style */}
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="relative size-[40px] rounded-full border border-[#cbcbcb] shrink-0 bg-slate-100 flex items-center justify-center overflow-visible hover:ring-2 hover:ring-black/10 transition-all cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-[#005DDC]"
+        className={cn(
+          "h-[40px] pl-1 pr-2.5 rounded-full flex items-center gap-1.5 transition-all cursor-pointer outline-none shrink-0",
+          isHeroUnscrolled
+            ? "bg-white text-gray-700 shadow-xs hover:bg-gray-100 border-none"
+            : "border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-xs",
+          triggerClassName
+        )}
         aria-expanded={isOpen}
         aria-haspopup="true"
         title={displayName}
       >
-        {/* Avatar with online dot */}
-        {avatarUrl ? (
-          <img
-            src={avatarUrl}
-            alt={displayName}
-            referrerPolicy="no-referrer"
-            className="size-full rounded-full object-cover"
-            onError={(e) => {
-              e.currentTarget.style.display = "none"
-            }}
+        <div className="relative size-[32px] rounded-full overflow-hidden shrink-0 bg-slate-100 flex items-center justify-center">
+          {avatarUrl ? (
+            <img
+              src={avatarUrl}
+              alt={displayName}
+              referrerPolicy="no-referrer"
+              className="size-full rounded-full object-cover"
+              onError={(e) => {
+                e.currentTarget.style.display = "none"
+              }}
+            />
+          ) : (
+            <span className="text-xs font-bold text-slate-700 select-none">
+              {initial}
+            </span>
+          )}
+          {/* Green Online Dot */}
+          <span
+            className="absolute bottom-0 right-0 size-[8px] rounded-full bg-[#10b981] ring-1.5 ring-white"
+            aria-hidden="true"
           />
-        ) : (
-          <span className="text-sm font-semibold text-slate-700 select-none">
-            {initial}
-          </span>
-        )}
-        {/* Green Online Dot */}
-        <span
-          className="absolute bottom-0 right-0 size-[8px] rounded-full bg-[#009E00] ring-2 ring-white"
-          aria-hidden="true"
+        </div>
+        <ChevronDown
+          className={cn(
+            "size-3.5 transition-transform duration-200",
+            isOpen && "rotate-180",
+            isHeroUnscrolled ? "text-white/80" : "text-gray-500"
+          )}
         />
       </button>
 
@@ -110,11 +135,11 @@ export default function JobseekerProfileDropdown({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.98 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute right-0 top-[calc(100%+10px)] z-50 w-[240px] bg-white/95 backdrop-blur-xl border border-slate-200/80 rounded-2xl shadow-[0_12px_36px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04)] overflow-hidden flex flex-col p-1.5"
+            className="absolute right-0 top-[calc(100%+10px)] z-50 w-[260px] bg-white/95 backdrop-blur-xl border border-slate-200/80 rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.1),0_2px_8px_rgba(0,0,0,0.04)] overflow-hidden flex flex-col p-1.5"
           >
             {/* User Identity Header */}
-            <div className="px-3.5 py-2.5 mb-1 border-b border-slate-100">
-              <p className="font-semibold text-[14px] sm:text-[15px] text-slate-900 truncate">
+            <div className="px-3.5 py-3 mb-1 border-b border-slate-100/90 bg-slate-50/50 rounded-xl">
+              <p className="font-semibold text-[14.5px] text-slate-900 truncate">
                 {displayName}
               </p>
               {email && (
@@ -122,52 +147,74 @@ export default function JobseekerProfileDropdown({
                   {email}
                 </p>
               )}
-              <div className="mt-1.5">
-                <span className="inline-flex items-center px-2 py-0.5 text-xs font-medium rounded-full bg-slate-100 text-slate-600 border border-slate-200/60">
-                  {isOrg ? "Nhà tuyển dụng" : "Ứng viên"}
-                </span>
+              <div className="mt-2">
+                {isAdmin ? (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full bg-purple-50 text-purple-700 border border-purple-200/70">
+                    <ShieldCheck className="size-3.5" />
+                    Quản trị viên
+                  </span>
+                ) : isOrg ? (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full bg-zinc-100 text-zinc-800 border border-zinc-200">
+                    <Briefcase className="size-3.5" />
+                    Nhà tuyển dụng / BTC
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/70">
+                    <User className="size-3.5" />
+                    Ứng viên
+                  </span>
+                )}
               </div>
             </div>
 
-            {/* Menu Items */}
-            <div className="flex flex-col gap-0.5">
-              {isOrg ? (
+            {/* Menu Items by Role */}
+            <div className="flex flex-col gap-0.5 py-1">
+              {isAdmin ? (
+                /* Admin Menu */
                 <>
+                  <div className="px-3 py-1 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
+                    Quản trị hệ thống
+                  </div>
                   <button
                     type="button"
                     onClick={() => {
                       setIsOpen(false)
-                      navigate("/dashboard")
+                      navigate("/admin")
                     }}
                     className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100/80 transition-colors cursor-pointer text-left w-full"
                   >
-                    <LayoutDashboard className="size-4 text-slate-500 shrink-0" />
-                    <span>Bảng điều khiển</span>
+                    <LayoutDashboard className="size-4 text-purple-600 shrink-0" />
+                    <span>Trang quản trị (Admin)</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => {
                       setIsOpen(false)
-                      navigate("/post-job")
+                      navigate("/admin")
                     }}
                     className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100/80 transition-colors cursor-pointer text-left w-full"
                   >
-                    <PlusCircle className="size-4 text-slate-500 shrink-0" />
-                    <span>Đăng tin tuyển dụng</span>
+                    <CheckCircle2 className="size-4 text-slate-500 shrink-0" />
+                    <span>Kiểm duyệt sự kiện</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => {
                       setIsOpen(false)
-                      navigate("/manage-events")
+                      navigate("/admin")
                     }}
                     className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100/80 transition-colors cursor-pointer text-left w-full"
                   >
-                    <Briefcase className="size-4 text-slate-500 shrink-0" />
-                    <span>Quản lý sự kiện</span>
+                    <Users className="size-4 text-slate-500 shrink-0" />
+                    <span>Quản lý người dùng</span>
                   </button>
+
+                  <div className="my-1 h-px bg-slate-100" />
+                  <div className="px-3 py-1 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
+                    Tiện ích
+                  </div>
 
                   <button
                     type="button"
@@ -193,8 +240,12 @@ export default function JobseekerProfileDropdown({
                     <span>Cài đặt tài khoản</span>
                   </button>
                 </>
-              ) : (
+              ) : isOrg ? (
+                /* Organizer Menu */
                 <>
+                  <div className="px-3 py-1 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
+                    Quản lý tuyển dụng
+                  </div>
                   <button
                     type="button"
                     onClick={() => {
@@ -203,7 +254,90 @@ export default function JobseekerProfileDropdown({
                     }}
                     className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100/80 transition-colors cursor-pointer text-left w-full"
                   >
-                    <LayoutDashboard className="size-4 text-slate-500 shrink-0" />
+                    <LayoutDashboard className="size-4 text-zinc-900 shrink-0" />
+                    <span>Bảng điều khiển</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsOpen(false)
+                      navigate("/post-job")
+                    }}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100/80 transition-colors cursor-pointer text-left w-full"
+                  >
+                    <PlusCircle className="size-4 text-emerald-600 shrink-0" />
+                    <span>Đăng tin tuyển dụng</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsOpen(false)
+                      navigate("/manage-events")
+                    }}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100/80 transition-colors cursor-pointer text-left w-full"
+                  >
+                    <Briefcase className="size-4 text-slate-500 shrink-0" />
+                    <span>Quản lý sự kiện</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsOpen(false)
+                      navigate("/pricing")
+                    }}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100/80 transition-colors cursor-pointer text-left w-full"
+                  >
+                    <Sparkles className="size-4 text-amber-500 shrink-0" />
+                    <span>Bảng giá & Dịch vụ VIP</span>
+                  </button>
+
+                  <div className="my-1 h-px bg-slate-100" />
+                  <div className="px-3 py-1 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
+                    Tương tác & Cá nhân
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsOpen(false)
+                      navigate("/chat")
+                    }}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100/80 transition-colors cursor-pointer text-left w-full"
+                  >
+                    <MessageSquare className="size-4 text-slate-500 shrink-0" />
+                    <span>Tin nhắn ứng viên</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsOpen(false)
+                      navigate("/account")
+                    }}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100/80 transition-colors cursor-pointer text-left w-full"
+                  >
+                    <Settings className="size-4 text-slate-500 shrink-0" />
+                    <span>Cài đặt tài khoản</span>
+                  </button>
+                </>
+              ) : (
+                /* Student Menu */
+                <>
+                  <div className="px-3 py-1 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
+                    Không gian cá nhân
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsOpen(false)
+                      navigate("/dashboard")
+                    }}
+                    className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100/80 transition-colors cursor-pointer text-left w-full"
+                  >
+                    <LayoutDashboard className="size-4 text-zinc-900 shrink-0" />
                     <span>Bảng điều khiển</span>
                   </button>
 
@@ -216,7 +350,7 @@ export default function JobseekerProfileDropdown({
                     className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100/80 transition-colors cursor-pointer text-left w-full"
                   >
                     <User className="size-4 text-slate-500 shrink-0" />
-                    <span>Hồ sơ của tôi</span>
+                    <span>Hồ sơ năng lực (CV)</span>
                   </button>
 
                   <button
@@ -230,6 +364,11 @@ export default function JobseekerProfileDropdown({
                     <CalendarDays className="size-4 text-slate-500 shrink-0" />
                     <span>Sự kiện đã tham gia</span>
                   </button>
+
+                  <div className="my-1 h-px bg-slate-100" />
+                  <div className="px-3 py-1 text-[11px] font-semibold tracking-wider text-slate-400 uppercase">
+                    Kết nối & Tài khoản
+                  </div>
 
                   <button
                     type="button"
@@ -279,3 +418,4 @@ export default function JobseekerProfileDropdown({
     </div>
   )
 }
+

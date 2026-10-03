@@ -4,7 +4,6 @@ import React from "react"
 import { Check, Sparkles } from "lucide-react"
 
 interface PricingCardsGridProps {
-  billingCycle: "monthly" | "yearly"
   onSelectPlan: (planId: string) => void
   isPremium?: boolean
   premiumUntil?: string | null
@@ -12,7 +11,6 @@ interface PricingCardsGridProps {
 }
 
 export default function PricingCardsGrid({
-  billingCycle,
   onSelectPlan,
   isPremium = false,
   premiumUntil,
@@ -139,43 +137,43 @@ export default function PricingCardsGrid({
           {/* Feature list */}
           <ul className="flex flex-col gap-[16px]">
             <li className="flex items-center gap-[8px]">
-              <Check className="w-[20px] h-[20px] text-[#005DDC] shrink-0 stroke-[2]" />
+              <Check className="w-[20px] h-[20px] text-emerald-600 shrink-0 stroke-[2]" />
               <span className="text-[14px] font-semibold text-[#222222] leading-[1.6]">
                 Hạn mức: 1 sự kiện trọn gói
               </span>
             </li>
             <li className="flex items-center gap-[8px]">
-              <Check className="w-[20px] h-[20px] text-[#005DDC] shrink-0 stroke-[2]" />
+              <Check className="w-[20px] h-[20px] text-emerald-600 shrink-0 stroke-[2]" />
               <span className="text-[14px] font-medium text-[#222222] leading-[1.6]">
                 Ghim tin HOT & Tuyển Gấp 7 ngày
               </span>
             </li>
             <li className="flex items-center gap-[8px]">
-              <Check className="w-[20px] h-[20px] text-[#005DDC] shrink-0 stroke-[2]" />
+              <Check className="w-[20px] h-[20px] text-emerald-600 shrink-0 stroke-[2]" />
               <span className="text-[14px] font-medium text-[#222222] leading-[1.6]">
                 Công cụ Điểm danh & Chấm công QR
               </span>
             </li>
             <li className="flex items-center gap-[8px]">
-              <Check className="w-[20px] h-[20px] text-[#005DDC] shrink-0 stroke-[2]" />
+              <Check className="w-[20px] h-[20px] text-emerald-600 shrink-0 stroke-[2]" />
               <span className="text-[14px] font-medium text-[#222222] leading-[1.6]">
                 Tự động cấp link nhóm Zalo khi duyệt
               </span>
             </li>
             <li className="flex items-center gap-[8px]">
-              <Check className="w-[20px] h-[20px] text-[#005DDC] shrink-0 stroke-[2]" />
+              <Check className="w-[20px] h-[20px] text-emerald-600 shrink-0 stroke-[2]" />
               <span className="text-[14px] font-medium text-[#222222] leading-[1.6]">
                 Bộ lọc ứng viên có Điểm uy tín cao
               </span>
             </li>
             <li className="flex items-center gap-[8px]">
-              <Check className="w-[20px] h-[20px] text-[#005DDC] shrink-0 stroke-[2]" />
+              <Check className="w-[20px] h-[20px] text-emerald-600 shrink-0 stroke-[2]" />
               <span className="text-[14px] font-medium text-[#222222] leading-[1.6]">
                 Báo cáo & hạ điểm ứng viên bùng ca
               </span>
             </li>
             <li className="flex items-center gap-[8px]">
-              <Check className="w-[20px] h-[20px] text-[#005DDC] shrink-0 stroke-[2]" />
+              <Check className="w-[20px] h-[20px] text-emerald-600 shrink-0 stroke-[2]" />
               <span className="text-[14px] font-medium text-[#222222] leading-[1.6]">
                 Cấp Giấy chứng nhận E-Certificate
               </span>
@@ -188,7 +186,7 @@ export default function PricingCardsGrid({
           <button
             type="button"
             onClick={() => onSelectPlan("single_event")}
-            className="w-full h-[48px] rounded-[8px] bg-[#282828] hover:bg-[#005DDC] text-white font-medium text-[18px] transition-colors flex items-center justify-center shadow-xs cursor-pointer"
+            className="w-full h-[48px] rounded-[8px] bg-zinc-900 hover:bg-black text-white font-semibold text-[18px] transition-colors flex items-center justify-center shadow-xs cursor-pointer"
           >
             {singleEventCredits > 0 ? "Mua thêm Sự Kiện (99k)" : "Chọn gói Sự Kiện (99k)"}
           </button>
@@ -223,7 +221,7 @@ export default function PricingCardsGrid({
           {/* Pricing */}
           <div className="flex items-baseline gap-[4px] mt-[32px] mb-[24px]">
             <span className="text-[36px] font-semibold text-[#222222] leading-none">
-              {billingCycle === "yearly" ? "399.000đ" : "499.000đ"}
+              499.000đ
             </span>
             <span className="text-[16px] font-normal text-[#757575]">
               / tháng
@@ -262,7 +260,7 @@ export default function PricingCardsGrid({
             <li className="flex items-center gap-[8px]">
               <Check className="w-[20px] h-[20px] text-[#222222] shrink-0 stroke-[2]" />
               <span className="text-[14px] font-medium text-[#222222] leading-[1.6]">
-                Hệ thống lên lịch Phỏng vấn / Casting
+                Tin nhắn trực tiếp trao đổi với ứng viên
               </span>
             </li>
             <li className="flex items-center gap-[8px]">
@@ -296,7 +294,7 @@ export default function PricingCardsGrid({
             <button
               type="button"
               onClick={() => onSelectPlan("enterprise")}
-              className="w-full h-[48px] rounded-[8px] border border-[#282828] text-[#282828] hover:bg-[#282828] hover:text-white font-medium text-[18px] transition-colors flex items-center justify-center cursor-pointer"
+              className="w-full h-[48px] rounded-[8px] border border-zinc-900 text-zinc-900 hover:bg-zinc-900 hover:text-white font-semibold text-[18px] transition-colors flex items-center justify-center cursor-pointer"
             >
               Chọn gói Doanh Nghiệp
             </button>

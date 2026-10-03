@@ -36,8 +36,8 @@ export function Checkbox({
       <div
         className={`w-5 h-5 rounded-[3.3px] border-[1.67px] flex items-center justify-center transition-all shrink-0 ${
           checked
-            ? "border-[#005ddc] bg-[#005ddc] text-white"
-            : "border-[#cbcbcb] bg-white group-hover:border-[#005ddc]"
+            ? "border-zinc-900 bg-zinc-900 text-white"
+            : "border-zinc-300 bg-white group-hover:border-zinc-900"
         }`}
       >
         {checked && <Check className="w-3.5 h-3.5 stroke-[2.5]" />}

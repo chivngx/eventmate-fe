@@ -53,7 +53,7 @@ function getNotificationCategory(notif: any): "application" | "event" | "message
     if (t.includes("chat") || t.includes("message")) return "message"
   }
   const text = `${notif.title || ""} ${notif.message || ""}`.toLowerCase()
-  if (text.includes("ứng tuyển") || text.includes("hồ sơ") || text.includes("ứng viên") || text.includes("tuyển dụng") || text.includes("phỏng vấn")) {
+  if (text.includes("ứng tuyển") || text.includes("hồ sơ") || text.includes("ứng viên") || text.includes("tuyển dụng")) {
     return "application"
   }
   if (text.includes("sự kiện") || text.includes("ca làm") || text.includes("lịch trình") || text.includes("check-in")) {
@@ -432,11 +432,11 @@ export default function NotificationsView({ embedded = false }: { embedded?: boo
 
                   <div className="space-y-1.5 flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h4 className="text-[15px] font-semibold text-slate-900 group-hover:text-blue-600 transition-colors leading-snug truncate">
+                      <h4 className="text-[15px] font-semibold text-slate-900 group-hover:text-zinc-950 transition-colors leading-snug truncate">
                         {notif.title || "Thông báo từ EventMate"}
                       </h4>
                       {isUnread && (
-                        <span className="size-2 rounded-full bg-blue-600 shrink-0" />
+                        <span className="size-2 rounded-full bg-zinc-950 shrink-0" />
                       )}
                     </div>
 
@@ -451,7 +451,7 @@ export default function NotificationsView({ embedded = false }: { embedded?: boo
 
                       {/* Target Destination Hint */}
                       {hasNavDestination && (
-                        <span className="inline-flex items-center gap-1 text-xs sm:text-sm font-medium text-slate-500 group-hover:text-blue-600 transition-colors">
+                        <span className="inline-flex items-center gap-1 text-xs sm:text-sm font-medium text-slate-500 group-hover:text-zinc-950 transition-colors">
                           <span>{destLabel}</span>
                           <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
                         </span>

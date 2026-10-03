@@ -16,10 +16,10 @@ export function RecentMessagesWidget({ recentChats }: RecentMessagesWidgetProps)
           </h3>
           <Link
             href="/chat"
-            className="flex items-center gap-[4px] text-[12px] font-semibold text-[#005ddc] hover:underline cursor-pointer group"
+            className="flex items-center gap-[4px] text-[12px] font-semibold text-zinc-900 hover:text-black hover:underline cursor-pointer group"
           >
             <span>Xem tất cả</span>
-            <ChevronRight className="w-3.5 h-3.5 text-[#005ddc] transition-transform group-hover:translate-x-0.5" />
+            <ChevronRight className="w-3.5 h-3.5 text-zinc-900 group-hover:text-black transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
       </div>
@@ -31,7 +31,7 @@ export function RecentMessagesWidget({ recentChats }: RecentMessagesWidgetProps)
             const orgName = chat.organizer?.full_name || "Ban tổ chức"
             const orgAvatar =
               chat.organizer?.avatar_url ||
-              `https://ui-avatars.com/api/?name=${encodeURIComponent(orgName)}&background=005DDC&color=fff`
+              `https://ui-avatars.com/api/?name=${encodeURIComponent(orgName)}&background=18181B&color=fff`
             const sortedMsgs = chat.messages
               ? [...chat.messages].sort(
                   (a, b) =>
@@ -64,13 +64,13 @@ export function RecentMessagesWidget({ recentChats }: RecentMessagesWidgetProps)
                     alt={orgName}
                     className="w-full h-full object-cover"
                     onError={(e) => {
-                      e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(orgName)}&background=005DDC&color=fff`
+                      e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(orgName)}&background=18181B&color=fff`
                     }}
                   />
                 </div>
                 <div className="flex-1 min-w-0 flex flex-col justify-center gap-[4px]">
                   <div className="flex items-center justify-between w-full">
-                    <p className="font-['Inter'] font-medium text-[14px] text-[#222222] truncate group-hover:text-[#005ddc] transition-colors">
+                    <p className="font-['Inter'] font-medium text-[14px] text-[#222222] truncate group-hover:text-zinc-950 transition-colors">
                       {orgName}
                     </p>
                     <span className="font-['Inter'] font-normal text-[10px] text-[#757575] shrink-0 ml-2">

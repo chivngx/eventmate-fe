@@ -27,7 +27,7 @@ export default function ProfileCompletionHero({
             src={avatarUrl}
             alt={fullName}
             onError={(e) => {
-              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=005DDC&color=fff`
+              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=18181B&color=fff`
             }}
             className="size-full object-cover rounded-[64px] pointer-events-none"
           />
@@ -35,7 +35,7 @@ export default function ProfileCompletionHero({
         <div className="flex flex-col gap-[10px] items-start justify-center flex-1 min-w-0">
           <div className="flex flex-col gap-[4px] items-start w-full">
             <p className="font-['Inter'] font-semibold leading-normal text-[#222222] text-[18px] w-full">
-              <span className="text-[#005ddc]">{cvPercent}%</span>
+              <span className="text-emerald-600 font-bold">{cvPercent}%</span>
               <span> Hồ sơ đã hoàn thiện</span>
             </p>
             <p className="font-['Inter'] font-normal leading-normal text-[#757575] text-[12px] w-full">
@@ -46,9 +46,9 @@ export default function ProfileCompletionHero({
           </div>
 
           {/* Progress / Linear (Figma: w: 286px, h: 6px) */}
-          <div className="h-[6px] w-full max-w-[320px] bg-[#cbcbcb] rounded-[100px] overflow-hidden relative">
+          <div className="h-[6px] w-full max-w-[320px] bg-zinc-200 rounded-[100px] overflow-hidden relative">
             <div
-              className="h-full bg-[#005ddc] rounded-[100px] transition-all duration-500"
+              className="h-full bg-emerald-500 rounded-[100px] transition-all duration-500"
               style={{ width: `${cvPercent}%` }}
             />
           </div>
@@ -56,7 +56,7 @@ export default function ProfileCompletionHero({
           {/* Complete your resume button */}
           <Link
             href="/profile"
-            className="flex items-center gap-[8px] h-[32px] text-[#003e93] font-['Inter'] font-medium text-[14px] leading-[1.6] hover:underline cursor-pointer"
+            className="flex items-center gap-[8px] h-[32px] text-zinc-900 font-['Inter'] font-semibold text-[14px] leading-[1.6] hover:text-black hover:underline cursor-pointer"
           >
             <span>Hoàn thiện hồ sơ</span>
           </Link>

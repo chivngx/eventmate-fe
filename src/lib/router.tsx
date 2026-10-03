@@ -1,25 +1,5 @@
 "use client"
 
-/**
- * Compat layer: mimics the subset of `react-router-dom` API used by this app,
- * backed by Next.js App Router (`next/navigation` + `next/link`).
- *
- * This lets the migrated components keep their original call sites, e.g.:
- * const navigate = useNavigate()
- * const [searchParams, setSearchParams] = useSearchParams()
- * const { id } = useParams()
- * <Link to="/x">...</Link>
- * <Navigate to="/login" />
- *
- * Semantics closely follow react-router v7:
- * - useNavigate() returns a function: navigate(to) | navigate(to, {replace}) | navigate(-1)
- * - useSearchParams() returns [URLSearchParams (mutable copy), setSearchParams].
- * setSearchParams REPLACEs the whole query string with the provided value
- * (object / string / URLSearchParams), or accepts an updater fn(prev) => next.
- * - useLocation() returns { pathname, search }.
- * - useParams() returns the dynamic route params.
- */
-
 import { useCallback, useEffect, useMemo } from "react"
 import {
     useRouter,

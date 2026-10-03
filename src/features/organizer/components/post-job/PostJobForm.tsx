@@ -1100,7 +1100,7 @@ export default function PostJobForm({
                     </span>
                     <Link
                       href="/pricing"
-                      className="font-semibold text-[#005DDC] hover:underline shrink-0"
+                      className="font-semibold text-zinc-900 dark:text-zinc-100 hover:underline shrink-0"
                     >
                       Nâng cấp ngay &rarr;
                     </Link>

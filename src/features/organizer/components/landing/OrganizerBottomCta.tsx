@@ -46,7 +46,7 @@ export default function OrganizerBottomCta() {
 
           <button
             onClick={() => router.push("/register?role=organizer")}
-            className="bg-[#005ddc] hover:bg-[#004eb7] text-white font-['Inter'] font-medium text-[18px] sm:text-[20px] h-[56px] w-full sm:w-[288px] rounded-[8px] flex items-center justify-center transition-all duration-200 shadow-lg shadow-blue-600/30 active:scale-98 cursor-pointer"
+            className="bg-white hover:bg-zinc-100 text-zinc-950 font-['Inter'] font-semibold text-[18px] sm:text-[20px] h-[56px] w-full sm:w-[288px] rounded-[10px] flex items-center justify-center transition-all duration-200 shadow-md active:scale-98 cursor-pointer"
           >
             Bắt đầu ngay
           </button>
@@ -101,7 +101,7 @@ export default function OrganizerBottomCta() {
 
             {/* Footer Tag */}
             <div className="flex items-center gap-[6px] text-left pt-2 border-t border-slate-100">
-              <span className="size-[6px] rounded-full bg-[#005ddc]" />
+              <span className="size-[6px] rounded-full bg-emerald-500" />
               <span className="font-['Inter'] font-normal text-[#a5a5a5] text-[12px]">
                 Hoạt động tuần này
               </span>
@@ -195,7 +195,7 @@ export default function OrganizerBottomCta() {
                         type="checkbox"
                         checked={selectedExp === exp.id}
                         onChange={() => setSelectedExp(exp.id)}
-                        className="w-4 h-4 rounded border-slate-300 text-[#005ddc] focus:ring-[#005ddc] cursor-pointer"
+                        className="w-4 h-4 rounded border-slate-300 text-zinc-900 focus:ring-zinc-900 accent-zinc-900 cursor-pointer"
                       />
                       <span className="font-['Inter'] font-normal text-[#353535] text-[13px] whitespace-nowrap">
                         {exp.label}
@@ -209,7 +209,7 @@ export default function OrganizerBottomCta() {
             {/* Bottom Button */}
             <button
               onClick={() => router.push("/register?role=organizer")}
-              className="border border-[#005ddc] text-[#005ddc] hover:bg-blue-50 font-['Inter'] font-medium text-[14px] h-[36px] w-full rounded-[8px] flex items-center justify-center transition-colors cursor-pointer mt-4"
+              className="border border-zinc-900 text-zinc-900 hover:bg-zinc-900 hover:text-white font-['Inter'] font-medium text-[14px] h-[36px] w-full rounded-[8px] flex items-center justify-center transition-colors cursor-pointer mt-4"
             >
               Post Job
             </button>

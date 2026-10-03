@@ -1,101 +1,85 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { Menu, X } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { usePathname, useRouter } from "next/navigation"
+import {
+  Menu,
+  Heart,
+  Briefcase,
+  CalendarDays,
+  Sparkles,
+  LayoutDashboard,
+  Plus,
+  ArrowRight,
+  BookOpen,
+  Building2,
+  LogIn,
+  UserPlus,
+  LogOut,
+  User,
+  MessageCircle,
+  ChevronDown,
+} from "lucide-react"
+import { cn, isOrganizerRole } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
-import { EventMateLogo } from "@/components/common/EventMateLogo"
-import { NavSearchIcon, NavLogInIcon } from "./JoblinIcons"
+import { EventMateLogoIcon } from "@/components/common/EventMateLogo"
+import { NavBellIcon } from "./JoblinIcons"
+import NotificationDropdown from "./NotificationDropdown"
+import JobseekerProfileDropdown from "./JobseekerProfileDropdown"
 
-const protectedClick = (e: React.MouseEvent, role?: string, redirectPath?: string) => {
-  if (role === "guest" || !role) {
-    e.preventDefault()
-    window.dispatchEvent(
-      new CustomEvent("open-auth-modal", {
-        detail: {
-          mode: "login",
-          message: "Vui lòng đăng nhập để tiếp tục.",
-          redirect: redirectPath,
-        },
-      })
-    )
-  }
-}
-
-export function NotchNavbar({
-  className,
-  variant = "standard",
-  logo,
-  rightActions,
-  role,
-  isEmployer = false,
-}: {
+export interface NotchNavbarProps {
   className?: string
   variant?: "standard" | "floating"
   logo?: React.ReactNode
   rightActions?: React.ReactNode
   role?: string
   isEmployer?: boolean
-}) {
+  isHeroNavbar?: boolean
+  notifications?: any[]
+  unreadCount?: number
+  markAsRead?: () => Promise<void>
+  avatarUrl?: string
+  fullName?: string
+  email?: string
+  handleLogout?: () => Promise<void>
+  user?: any
+}
+
+export function NotchNavbar({
+  className,
+  logo,
+  rightActions,
+  role,
+  isEmployer = false,
+  isHeroNavbar = false,
+  notifications = [],
+  unreadCount = 0,
+  markAsRead = async () => { },
+  avatarUrl,
+  fullName,
+  email,
+  handleLogout = async () => { },
+  user,
+}: NotchNavbarProps) {
   const pathname = usePathname()
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isSearchOpen, setIsSearchOpen] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
   const [isScrolled, setIsScrolled] = useState(false)
-  const searchInputRef = useRef<HTMLInputElement>(null)
-  const searchContainerRef = useRef<HTMLDivElement>(null)
 
-  const isGuest = role === "guest" || (!role && !rightActions)
+  const isGuest = role === "guest" || (!role && !user && !rightActions)
+  const isAdmin = !isGuest && role === "admin"
+  const isOrg = !isGuest && !isAdmin && Boolean(isEmployer || isOrganizerRole(role))
+  const isStudent = !isGuest && !isAdmin && !isOrg
 
-  // Track window scroll to detect when navbar touches top edge
+  // Track window scroll
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 15)
+      setIsScrolled(window.scrollY > 20)
     }
     handleScroll()
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
-
-  // Focus search input when opened
-  useEffect(() => {
-    if (isSearchOpen && searchInputRef.current) {
-      searchInputRef.current.focus()
-    }
-  }, [isSearchOpen])
-
-  // Close search when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchContainerRef.current &&
-        !searchContainerRef.current.contains(event.target as Node)
-      ) {
-        setIsSearchOpen(false)
-      }
-    }
-    if (isSearchOpen) {
-      document.addEventListener("mousedown", handleClickOutside)
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [isSearchOpen])
-
-  // Close search and mobile menu on Escape key
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setIsSearchOpen(false)
-        setIsMobileMenuOpen(false)
-      }
-    }
-    window.addEventListener("keydown", handleKeyDown)
-    return () => window.removeEventListener("keydown", handleKeyDown)
   }, [])
 
   // Auto-close mobile menu when resizing back to desktop
@@ -109,209 +93,295 @@ export function NotchNavbar({
     return () => window.removeEventListener("resize", handleResize)
   }, [])
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      router.push(`/events?search=${encodeURIComponent(searchQuery.trim())}`)
-    } else {
-      router.push("/events")
-    }
-    setIsSearchOpen(false)
-  }
+  // When on Hero page and not yet scrolled, match hero's blue color (#1877F2)
+  const isHeroUnscrolled = Boolean(isHeroNavbar && !isScrolled)
 
   // Active state checkers
-  const isFindJobActive = pathname?.startsWith("/events") || pathname?.startsWith("/jobs")
+  const isAdminActive = pathname?.startsWith("/admin")
+  const isFindJobActive = pathname === "/" || pathname?.startsWith("/events") || pathname?.startsWith("/jobs")
   const isCompanyActive = pathname?.startsWith("/companies")
-  const isEmployerHomeActive = pathname === "/for-employers"
-  const isDashboardActive =
-    pathname === "/dashboard" || pathname?.startsWith("/dashboard?")
+  const isMyEventsActive = pathname?.startsWith("/my-events")
+  const isBlogActive = pathname?.startsWith("/blog")
+  const isDashboardActive = pathname === "/dashboard" || pathname?.startsWith("/dashboard?")
   const isManageEventsActive = pathname?.startsWith("/manage-events")
   const isPricingActive = pathname?.startsWith("/pricing")
-  const isBlogActive = pathname?.startsWith("/blog")
+  const isEmployerHomeActive = pathname === "/for-employers"
 
-  const isFloating = variant === "floating"
-
-  const navLinkClass = (isActive: boolean) =>
+  const getNavLinkClass = (isActive: boolean) =>
     cn(
-      "h-[36px] px-3.5 rounded-full flex items-center justify-center font-['Inter',sans-serif] text-[14.5px] font-medium transition-all whitespace-nowrap cursor-pointer select-none",
-      isActive
-        ? "bg-slate-100 text-[#222222] font-semibold shadow-2xs"
-        : "text-[#555555] hover:text-[#222222] hover:bg-slate-50"
+      "font-bold text-sm transition-colors whitespace-nowrap",
+      isHeroUnscrolled
+        ? isActive
+          ? "text-white font-extrabold"
+          : "text-white/75 hover:text-white"
+        : isActive
+          ? "text-[#1877F2] font-extrabold"
+          : "text-gray-600 hover:text-gray-900"
     )
+
+  const handleSavedClick = () => {
+    if (isGuest) {
+      window.dispatchEvent(
+        new CustomEvent("open-auth-modal", {
+          detail: { message: "Vui lòng đăng nhập để xem danh sách việc làm đã lưu" },
+        })
+      )
+    } else {
+      router.push("/my-events?tab=saved")
+    }
+  }
+
+  const handleContactClick = () => {
+    window.dispatchEvent(new CustomEvent("open-floating-chat"))
+  }
 
   return (
     <>
       <header
         className={cn(
-          isFloating && !isScrolled ? "sticky top-2 z-50" : "sticky top-0 z-50",
-          "w-full transition-all duration-300 ease-in-out",
-          isFloating
-            ? isScrolled
-              ? "bg-white/90 backdrop-blur-xl border-b border-slate-200/80 shadow-xs pt-0 px-0"
-              : "bg-transparent border-b border-transparent shadow-none pt-2.5 sm:pt-3 px-4 sm:px-6 lg:px-8"
-            : "bg-white border-b border-slate-200/80",
+          "sticky top-0 z-50 w-full h-16 transition-colors duration-200 select-none",
+          isHeroUnscrolled
+            ? "bg-[#1877F2] border-b border-transparent text-white"
+            : "bg-white/95 backdrop-blur-md border-b border-gray-200/80 shadow-xs text-gray-900",
           className
         )}
       >
-        <div
-          className={cn(
-            "transition-all duration-300 ease-in-out",
-            isFloating
-              ? isScrolled
-                ? "mx-auto max-w-7xl w-full bg-transparent rounded-none px-4 sm:px-6 lg:px-8 border-transparent shadow-none"
-                : "mx-auto w-fit bg-white/90 backdrop-blur-xl rounded-full px-4 sm:px-6 border border-slate-200/80 shadow-[0_4px_24px_rgba(0,0,0,0.04)]"
-              : "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
-          )}
-          data-name={isEmployer ? "Header-employer" : "Header-jobseeker"}
-        >
-          <div className="flex h-[60px] sm:h-[64px] items-center justify-between gap-2 sm:gap-4">
-            {/* Left: Brand Logo */}
-            <div className="flex items-center shrink-0">
-              {logo ? (
-                logo
-              ) : (
-                <Link
-                  href={isEmployer ? "/for-employers" : "/"}
-                  className="flex items-center h-[38px] px-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20 rounded-lg transition-transform hover:opacity-90 active:scale-95"
-                  aria-label="EventMate Home"
-                >
-                  <EventMateLogo iconSize={32} />
-                </Link>
+        <div className="max-w-[1526px] mx-auto w-full h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3">
+          {/* Left: Hamburger (☰) + Logo + Price Badge */}
+          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+            {/* Hamburger Button (Mobile / Tablet only) */}
+            <button
+              type="button"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className={cn(
+                "size-10 rounded-full flex lg:hidden items-center justify-center transition-all cursor-pointer",
+                isHeroUnscrolled
+                  ? "bg-white text-gray-700 shadow-xs hover:bg-gray-100"
+                  : "text-gray-700 hover:bg-gray-100"
               )}
-            </div>
+              aria-label="Menu"
+              title="Menu"
+            >
+              <Menu className="size-5" />
+            </button>
 
-            {/* Center: Menu Navigation */}
-            <nav className="hidden lg:flex items-center justify-center gap-1 shrink-0">
-              {isEmployer ? (
-                /* Role: Organizer */
-                <>
-                  <Link href="/dashboard" className={navLinkClass(isDashboardActive)}>
-                    Bảng điều khiển
-                  </Link>
-                  <Link href="/manage-events" className={navLinkClass(isManageEventsActive)}>
-                    Quản lý sự kiện
-                  </Link>
-                  <Link href="/for-employers" className={navLinkClass(isEmployerHomeActive)}>
-                    Tìm ứng viên
-                  </Link>
-                  <Link href="/pricing" className={navLinkClass(isPricingActive)}>
-                    Bảng giá
-                  </Link>
-                </>
-              ) : !isGuest ? (
-                /* Role: Student (Logged in) */
-                <>
-                  <Link href="/events" className={navLinkClass(isFindJobActive)}>
-                    Việc làm
-                  </Link>
-                  <Link href="/companies" className={navLinkClass(isCompanyActive)}>
-                    Ban tổ chức
-                  </Link>
-                  <Link href="/blog" className={navLinkClass(isBlogActive)}>
-                    Cẩm nang
-                  </Link>
-                </>
-              ) : (
-                /* Role: Guest (Not logged in) */
-                <>
-                  <Link href="/events" className={navLinkClass(isFindJobActive)}>
-                    Việc làm
-                  </Link>
-                  <Link href="/companies" className={navLinkClass(isCompanyActive)}>
-                    Ban tổ chức
-                  </Link>
-                  <Link href="/blog" className={navLinkClass(isBlogActive)}>
-                    Cẩm nang
-                  </Link>
-                </>
-              )}
-            </nav>
-
-            {/* Right Controls */}
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              {/* Expandable Search Container */}
-              <div ref={searchContainerRef} className="relative flex items-center">
-                <AnimatePresence>
-                  {isSearchOpen && (
-                    <motion.form
-                      initial={{ width: 0, opacity: 0 }}
-                      animate={{ width: 220, opacity: 1 }}
-                      exit={{ width: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      onSubmit={handleSearchSubmit}
-                      className="overflow-hidden mr-1.5"
-                    >
-                      <input
-                        ref={searchInputRef}
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder={isEmployer ? "Tìm ứng viên..." : "Tìm sự kiện..."}
-                        className="w-full h-[36px] px-3.5 text-[13px] border border-slate-200 rounded-full focus:outline-none focus:border-black/40 focus:ring-2 focus:ring-black/5"
-                      />
-                    </motion.form>
-                  )}
-                </AnimatePresence>
-
-                <button
-                  onClick={() => {
-                    if (isSearchOpen && searchQuery.trim()) {
-                      handleSearchSubmit({ preventDefault: () => {} } as React.FormEvent)
-                    } else {
-                      setIsSearchOpen(!isSearchOpen)
-                    }
-                  }}
-                  className="size-[38px] flex items-center justify-center rounded-full hover:bg-slate-100 text-[#222222] transition-colors cursor-pointer"
-                  title={isEmployer ? "Tìm kiếm ứng viên" : "Tìm kiếm sự kiện"}
-                  aria-label="Tìm kiếm"
-                >
-                  <NavSearchIcon className="size-[20px]" />
-                </button>
-              </div>
-
-              {/* Authenticated rightActions vs Guest Controls */}
-              {rightActions ? (
-                rightActions
-              ) : (
-                <div className="hidden sm:flex items-center gap-1.5">
-                  {/* Switcher */}
-                  <Link
-                    href={isEmployer ? "/?view=jobseeker" : "/for-employers"}
-                    className="h-[36px] px-3 rounded-full flex items-center justify-center text-[#555555] hover:text-[#222222] hover:bg-slate-100/70 font-medium text-[14px] transition-colors whitespace-nowrap cursor-pointer"
-                  >
-                    {isEmployer ? "Dành cho ứng viên" : "Dành cho nhà tuyển dụng"}
-                  </Link>
-
-                  <div className="h-4 w-px bg-slate-200 mx-1 shrink-0" />
-
-                  {/* Log In */}
-                  <Link
-                    href={isEmployer ? "/login?role=organizer" : "/login"}
-                    className="h-[36px] px-3.5 rounded-full flex items-center justify-center text-[#222222] hover:bg-slate-100 font-medium text-[14.5px] transition-colors whitespace-nowrap cursor-pointer"
-                  >
-                    Đăng nhập
-                  </Link>
-
-                  {/* Sign Up */}
-                  <Link
-                    href={isEmployer ? "/register?role=organizer" : "/register"}
-                    className="h-[36px] px-4 rounded-full flex items-center justify-center bg-[#222222] hover:bg-black text-white font-medium text-[14.5px] transition-all shadow-xs active:scale-[0.97] whitespace-nowrap cursor-pointer"
-                  >
-                    Đăng ký
-                  </Link>
-                </div>
-              )}
-
-              {/* Mobile Menu Toggle Button */}
-              <button
-                className="lg:hidden p-2 text-[#222222] hover:bg-slate-100 rounded-full transition-colors ml-0.5 cursor-pointer"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                aria-label={isMobileMenuOpen ? "Đóng menu" : "Mở menu"}
-                aria-expanded={isMobileMenuOpen}
+            {/* Logo */}
+            {logo ? (
+              logo
+            ) : isHeroUnscrolled ? (
+              /* When unscrolled: Logo inside white pill capsule */
+              <Link
+                href={isAdmin ? "/admin" : isOrg ? "/for-employers" : "/"}
+                className="bg-white rounded-full h-10 px-3.5 flex items-center justify-center gap-1.5 shadow-xs hover:opacity-95 transition-opacity"
+                aria-label="EventMate Home"
               >
-                {isMobileMenuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+                <EventMateLogoIcon size={26} variant="monochrome" />
+                <span className="font-extrabold text-base tracking-tight text-gray-900">
+                  EventMate
+                </span>
+              </Link>
+            ) : (
+              /* When scrolled: Logo directly on white background */
+              <Link
+                href={isAdmin ? "/admin" : isOrg ? "/for-employers" : "/"}
+                className="flex items-center gap-2 h-10 px-1 focus:outline-none transition-transform hover:opacity-90 active:scale-95"
+                aria-label="EventMate Home"
+              >
+                <EventMateLogoIcon size={28} variant="monochrome" />
+                <span className="font-extrabold text-lg tracking-tight text-gray-900 hidden sm:inline">
+                  EventMate
+                </span>
+              </Link>
+            )}
+
+            {/* "Bảng giá cho Nhà Tuyển Dụng" - shown next to logo when unscrolled (hidden for students) */}
+            {isHeroUnscrolled && !isStudent && (
+              <Link
+                href="/pricing"
+                className="text-white font-bold text-sm hidden xl:block hover:underline whitespace-nowrap ml-1.5"
+              >
+                Bảng giá cho Nhà Tuyển Dụng
+              </Link>
+            )}
+          </div>
+
+          {/* Center: Nav Links */}
+          <div className="hidden lg:flex items-center justify-center gap-6 xl:gap-8">
+            <Link
+              href="/companies"
+              className={getNavLinkClass(Boolean(isCompanyActive))}
+            >
+              Ban tổ chức
+            </Link>
+            <Link
+              href="/blog"
+              className={getNavLinkClass(Boolean(isBlogActive))}
+            >
+              Cẩm nang
+            </Link>
+            {isStudent ? (
+              <Link
+                href="/my-events"
+                className={getNavLinkClass(Boolean(isMyEventsActive))}
+              >
+                Sự kiện của tôi
+              </Link>
+            ) : (
+              <Link
+                href="/pricing"
+                className={getNavLinkClass(Boolean(isPricingActive))}
+              >
+                Bảng giá
+              </Link>
+            )}
+            <Link
+              href="/events"
+              className={getNavLinkClass(Boolean(isFindJobActive))}
+            >
+              Việc làm
+            </Link>
+          </div>
+
+          {/* Right: Actions (Heart, Bell, Liên hệ, Quản lý tin / Đăng nhập, Đăng tuyển, Profile) */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* Heart / Tin đã lưu icon */}
+            <button
+              type="button"
+              onClick={handleSavedClick}
+              className={cn(
+                "size-10 rounded-full flex items-center justify-center transition-all cursor-pointer",
+                isHeroUnscrolled
+                  ? "bg-white text-gray-700 shadow-xs hover:bg-gray-100"
+                  : "text-gray-700 hover:bg-gray-100"
+              )}
+              title="Tin đã lưu"
+              aria-label="Tin đã lưu"
+            >
+              <Heart className="size-5" />
+            </button>
+
+            {/* Notification Bell */}
+            {!isGuest ? (
+              <NotificationDropdown
+                notifications={notifications}
+                unreadCount={unreadCount}
+                markAsRead={markAsRead}
+                triggerClassName={
+                  isHeroUnscrolled
+                    ? "bg-white text-gray-700 shadow-xs hover:bg-gray-100"
+                    : "text-gray-700 hover:bg-gray-100"
+                }
+              />
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  window.dispatchEvent(
+                    new CustomEvent("open-auth-modal", {
+                      detail: { message: "Vui lòng đăng nhập để xem thông báo" },
+                    })
+                  )
+                }}
+                className={cn(
+                  "size-10 rounded-full flex items-center justify-center transition-all cursor-pointer",
+                  isHeroUnscrolled
+                    ? "bg-white text-gray-700 shadow-xs hover:bg-gray-100"
+                    : "text-gray-700 hover:bg-gray-100"
+                )}
+                title="Thông báo"
+                aria-label="Thông báo"
+              >
+                <NavBellIcon className="size-5" />
               </button>
-            </div>
+            )}
+
+            {/* "Liên hệ" button (Figma Component 18) */}
+            <button
+              type="button"
+              onClick={handleContactClick}
+              className={cn(
+                "hidden sm:flex h-10 px-3.5 rounded-full items-center gap-1.5 text-sm font-semibold transition-all cursor-pointer",
+                isHeroUnscrolled
+                  ? "bg-white text-gray-800 shadow-xs hover:bg-gray-100"
+                  : "border border-gray-200 text-gray-800 hover:bg-gray-50 shadow-xs"
+              )}
+            >
+              <MessageCircle className="size-4" />
+              <span>Liên hệ</span>
+            </button>
+
+            {/* Middle Action: "Đăng nhập" (for guest) or "Quản lý tin" (for user) */}
+            {isGuest ? (
+              <Link
+                href={isEmployer ? "/login?role=organizer" : "/login"}
+                className={cn(
+                  "h-10 px-4 rounded-full flex items-center justify-center font-semibold text-sm transition-all whitespace-nowrap cursor-pointer",
+                  isHeroUnscrolled
+                    ? "bg-white text-gray-800 shadow-xs hover:bg-gray-100"
+                    : "border border-gray-200 text-gray-800 hover:bg-gray-50 shadow-xs"
+                )}
+              >
+                Đăng nhập
+              </Link>
+            ) : isOrg ? (
+              <Link
+                href="/manage-events"
+                className={cn(
+                  "hidden sm:flex h-10 px-4 rounded-full items-center justify-center font-semibold text-sm transition-all whitespace-nowrap cursor-pointer",
+                  isHeroUnscrolled
+                    ? "bg-white text-gray-800 shadow-xs hover:bg-gray-100"
+                    : "border border-gray-200 text-gray-800 hover:bg-gray-50 shadow-xs"
+                )}
+              >
+                Quản lý tin
+              </Link>
+            ) : null}
+
+            {/* Primary Action Button: "Đăng tuyển" (Hidden for Student) */}
+            {!isStudent && (
+              <Link
+                href={isEmployer ? "/register?role=organizer" : "/post-job"}
+                className={cn(
+                  "h-10 px-4 rounded-full flex items-center justify-center font-bold text-sm transition-all shadow-xs active:scale-95 whitespace-nowrap cursor-pointer",
+                  isHeroUnscrolled
+                    ? "bg-[#222222] hover:bg-black text-white"
+                    : "bg-[#1877F2] hover:bg-[#1366D6] text-white"
+                )}
+              >
+                Đăng tuyển
+              </Link>
+            )}
+
+            {/* Profile Avatar Dropdown / Guest Profile Pill */}
+            {!isGuest ? (
+              <JobseekerProfileDropdown
+                avatarUrl={avatarUrl}
+                fullName={fullName}
+                email={email}
+                role={role}
+                isEmployer={isOrg}
+                navigate={(path) => router.push(path)}
+                handleLogout={handleLogout}
+                isHeroUnscrolled={isHeroUnscrolled}
+              />
+            ) : (
+              /* Guest Avatar Pill with User Icon + Chevron */
+              <Link
+                href="/login"
+                className={cn(
+                  "h-10 px-2.5 rounded-full flex items-center gap-1.5 transition-all cursor-pointer",
+                  isHeroUnscrolled
+                    ? "bg-white text-gray-700 shadow-xs hover:bg-gray-100"
+                    : "border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-xs"
+                )}
+                title="Tài khoản"
+              >
+                <div className="size-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
+                  <User className="size-3.5" />
+                </div>
+                <ChevronDown className="size-3.5 text-gray-500" />
+              </Link>
+            )}
           </div>
         </div>
       </header>
@@ -320,197 +390,309 @@ export function NotchNavbar({
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -8 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            className={cn(
-              "lg:hidden z-50 bg-white/95 backdrop-blur-xl shadow-xl overflow-y-auto transition-all duration-300",
-              isFloating && !isScrolled
-                ? "mt-2 mx-auto max-w-[1240px] w-full rounded-[20px] border border-slate-200/80 shadow-[0_12px_36px_rgba(0,0,0,0.08)] max-h-[calc(100vh-100px)]"
-                : "fixed inset-x-0 top-[64px] border-b border-slate-200/80 max-h-[calc(100vh-64px)]"
-            )}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-x-3 sm:inset-x-6 top-[72px] z-50 max-w-[1240px] mx-auto bg-white/95 backdrop-blur-2xl border border-slate-200/90 rounded-2xl shadow-[0_16px_40px_rgba(0,0,0,0.12)] overflow-hidden max-h-[calc(100vh-96px)] overflow-y-auto"
           >
-            <nav className="p-4 flex flex-col gap-1.5">
-              {isEmployer ? (
-                <>
-                  <Link
-                    href="/dashboard"
-                    className={cn(
-                      "p-3 rounded-xl font-medium text-sm transition-colors",
-                      isDashboardActive ? "bg-slate-100 text-[#222222] font-semibold" : "text-[#555555] hover:bg-slate-50 hover:text-[#222222]"
-                    )}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Bảng điều khiển
-                  </Link>
-                  <Link
-                    href="/manage-events"
-                    className={cn(
-                      "p-3 rounded-xl font-medium text-sm transition-colors",
-                      isManageEventsActive ? "bg-slate-100 text-[#222222] font-semibold" : "text-[#555555] hover:bg-slate-50 hover:text-[#222222]"
-                    )}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Quản lý sự kiện
-                  </Link>
-                  <Link
-                    href="/for-employers"
-                    className={cn(
-                      "p-3 rounded-xl font-medium text-sm transition-colors",
-                      isEmployerHomeActive ? "bg-slate-100 text-[#222222] font-semibold" : "text-[#555555] hover:bg-slate-50 hover:text-[#222222]"
-                    )}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Tìm ứng viên
-                  </Link>
-                  <Link
-                    href="/pricing"
-                    className={cn(
-                      "p-3 rounded-xl font-medium text-sm transition-colors",
-                      isPricingActive ? "bg-slate-100 text-[#222222] font-semibold" : "text-[#555555] hover:bg-slate-50 hover:text-[#222222]"
-                    )}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Bảng giá
-                  </Link>
-                </>
-              ) : !isGuest ? (
-                <>
-                  <Link
-                    href="/events"
-                    className={cn(
-                      "p-3 rounded-xl font-medium text-sm transition-colors",
-                      isFindJobActive ? "bg-slate-100 text-[#222222] font-semibold" : "text-[#555555] hover:bg-slate-50 hover:text-[#222222]"
-                    )}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Việc làm
-                  </Link>
-                  <Link
-                    href="/companies"
-                    className={cn(
-                      "p-3 rounded-xl font-medium text-sm transition-colors",
-                      isCompanyActive ? "bg-slate-100 text-[#222222] font-semibold" : "text-[#555555] hover:bg-slate-50 hover:text-[#222222]"
-                    )}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Ban tổ chức
-                  </Link>
-                  <Link
-                    href="/blog"
-                    className={cn(
-                      "p-3 rounded-xl font-medium text-sm transition-colors",
-                      isBlogActive ? "bg-slate-100 text-[#222222] font-semibold" : "text-[#555555] hover:bg-slate-50 hover:text-[#222222]"
-                    )}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Cẩm nang
-                  </Link>
-                  <Link
-                    href="/dashboard"
-                    className={cn(
-                      "p-3 rounded-xl font-medium text-sm transition-colors",
-                      isDashboardActive ? "bg-slate-100 text-[#222222] font-semibold" : "text-[#555555] hover:bg-slate-50 hover:text-[#222222]"
-                    )}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Bảng điều khiển
-                  </Link>
-                </>
-              ) : (
-                <>
-                  <Link
-                    href="/events"
-                    className={cn(
-                      "p-3 rounded-xl font-medium text-sm transition-colors",
-                      isFindJobActive ? "bg-slate-100 text-[#222222] font-semibold" : "text-[#555555] hover:bg-slate-50 hover:text-[#222222]"
-                    )}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Việc làm
-                  </Link>
-                  <Link
-                    href="/companies"
-                    className={cn(
-                      "p-3 rounded-xl font-medium text-sm transition-colors",
-                      isCompanyActive ? "bg-slate-100 text-[#222222] font-semibold" : "text-[#555555] hover:bg-slate-50 hover:text-[#222222]"
-                    )}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Ban tổ chức
-                  </Link>
-                  <Link
-                    href="/blog"
-                    className={cn(
-                      "p-3 rounded-xl font-medium text-sm transition-colors",
-                      isBlogActive ? "bg-slate-100 text-[#222222] font-semibold" : "text-[#555555] hover:bg-slate-50 hover:text-[#222222]"
-                    )}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Cẩm nang
-                  </Link>
-                </>
-              )}
+            <div className="p-4 sm:p-5 flex flex-col gap-3">
+              {/* Mobile Role Banner / Status */}
+              <div className="p-3 bg-slate-50/70 border border-slate-100 rounded-xl flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <EventMateLogoIcon size={24} variant="monochrome" />
+                  <span className="font-semibold text-sm text-slate-800">EventMate</span>
+                </div>
+                {isAdmin ? (
+                  <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-purple-50 text-purple-700 border border-purple-200/60">
+                    Quản trị viên
+                  </span>
+                ) : isOrg ? (
+                  <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-zinc-100 text-zinc-800 border border-zinc-200">
+                    Nhà tuyển dụng
+                  </span>
+                ) : !isGuest ? (
+                  <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                    Ứng viên
+                  </span>
+                ) : null}
+              </div>
 
-              <div className="my-2 h-px bg-slate-100" />
+              {/* Navigation Links */}
+              <nav className="flex flex-col gap-1">
+                {isAdmin ? (
+                  <>
+                    <Link
+                      href="/admin"
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        isAdminActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
+                      )}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <LayoutDashboard className="size-4 shrink-0 text-purple-500" />
+                      <span>Quản trị hệ thống</span>
+                    </Link>
+                    <Link
+                      href="/events"
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        isFindJobActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
+                      )}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Briefcase className="size-4 shrink-0" />
+                      <span>Việc làm</span>
+                    </Link>
+                    <Link
+                      href="/companies"
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        isCompanyActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
+                      )}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Building2 className="size-4 shrink-0" />
+                      <span>Ban tổ chức</span>
+                    </Link>
+                    <Link
+                      href="/blog"
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        isBlogActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
+                      )}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <BookOpen className="size-4 shrink-0" />
+                      <span>Cẩm nang</span>
+                    </Link>
+                  </>
+                ) : isOrg ? (
+                  <>
+                    <Link
+                      href="/dashboard"
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        isDashboardActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
+                      )}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <LayoutDashboard className="size-4 shrink-0 text-zinc-900" />
+                      <span>Bảng điều khiển</span>
+                    </Link>
+                    <Link
+                      href="/post-job"
+                      className="flex items-center gap-3 p-3 rounded-xl font-medium text-sm text-emerald-700 bg-emerald-50/60 hover:bg-emerald-50 transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Plus className="size-4 shrink-0 text-emerald-600" />
+                      <span>Đăng tin tuyển dụng mới</span>
+                    </Link>
+                    <Link
+                      href="/manage-events"
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        isManageEventsActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
+                      )}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Briefcase className="size-4 shrink-0" />
+                      <span>Quản lý sự kiện</span>
+                    </Link>
+                    <Link
+                      href="/for-employers"
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        isEmployerHomeActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
+                      )}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <User className="size-4 shrink-0" />
+                      <span>Tìm ứng viên</span>
+                    </Link>
+                    <Link
+                      href="/pricing"
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        isPricingActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
+                      )}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Sparkles className="size-4 shrink-0 text-amber-500" />
+                      <span>Bảng giá & Dịch vụ VIP</span>
+                    </Link>
+                  </>
+                ) : isStudent ? (
+                  <>
+                    <Link
+                      href="/events"
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        isFindJobActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
+                      )}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Briefcase className="size-4 shrink-0" />
+                      <span>Việc làm sự kiện</span>
+                    </Link>
+                    <Link
+                      href="/companies"
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        isCompanyActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
+                      )}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Building2 className="size-4 shrink-0" />
+                      <span>Ban tổ chức</span>
+                    </Link>
+                    <Link
+                      href="/my-events"
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        isMyEventsActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
+                      )}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <CalendarDays className="size-4 shrink-0 text-emerald-600" />
+                      <span>Sự kiện của tôi</span>
+                    </Link>
+                    <Link
+                      href="/blog"
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        isBlogActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
+                      )}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <BookOpen className="size-4 shrink-0" />
+                      <span>Cẩm nang</span>
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/events"
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        isFindJobActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
+                      )}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Briefcase className="size-4 shrink-0" />
+                      <span>Việc làm sự kiện</span>
+                    </Link>
+                    <Link
+                      href="/companies"
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        isCompanyActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
+                      )}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Building2 className="size-4 shrink-0" />
+                      <span>Ban tổ chức</span>
+                    </Link>
+                    <Link
+                      href="/blog"
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        isBlogActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
+                      )}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <BookOpen className="size-4 shrink-0" />
+                      <span>Cẩm nang</span>
+                    </Link>
+                    <Link
+                      href="/pricing"
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        isPricingActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
+                      )}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <Sparkles className="size-4 shrink-0 text-amber-500" />
+                      <span>Bảng giá dịch vụ</span>
+                    </Link>
+                  </>
+                )}
+              </nav>
+
+              <div className="h-px bg-slate-100" />
+
+              {/* Role Switcher */}
               <Link
                 href={isEmployer ? "/?view=jobseeker" : "/for-employers"}
-                className="p-3 rounded-xl font-medium text-sm text-[#757575] hover:text-[#222222] hover:bg-slate-50 transition-colors"
+                className="flex items-center justify-between p-3 rounded-xl text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                {isEmployer ? "Dành cho Người tìm việc" : "Dành cho Nhà tuyển dụng"}
+                <span>{isEmployer ? "Chuyển sang Chế độ Ứng viên" : "Chuyển sang Chế độ Nhà tuyển dụng"}</span>
+                <ArrowRight className="size-4 text-slate-400" />
               </Link>
 
+              {/* Bottom Auth Section */}
               {isGuest ? (
                 <div className="pt-2 flex flex-col gap-2">
                   <Link
                     href={isEmployer ? "/register?role=organizer" : "/register"}
-                    className="text-white flex items-center justify-center gap-2 h-[42px] rounded-full bg-[#222222] hover:bg-black font-medium text-sm transition-all shadow-xs active:scale-[0.97]"
+                    className="text-white flex items-center justify-center gap-2 h-[42px] rounded-full bg-[#1877F2] hover:bg-[#1366D6] font-medium text-sm transition-all shadow-xs active:scale-[0.98]"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    <NavLogInIcon className="size-4.5 text-white" />
-                    <span>Đăng ký</span>
+                    <UserPlus className="size-4" />
+                    <span>Đăng ký tài khoản</span>
                   </Link>
                   <Link
                     href={isEmployer ? "/login?role=organizer" : "/login"}
-                    className="h-[42px] flex items-center justify-center rounded-full border border-slate-200 text-[#222222] font-medium text-sm hover:bg-slate-50 transition-colors"
+                    className="h-[42px] flex items-center justify-center gap-2 rounded-full border border-slate-200 text-slate-800 font-medium text-sm hover:bg-slate-50 transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    Đăng nhập
+                    <LogIn className="size-4" />
+                    <span>Đăng nhập</span>
                   </Link>
                 </div>
               ) : (
                 <div className="pt-2 flex flex-col gap-1">
                   <Link
-                    href="/profile"
-                    className="p-3 rounded-xl font-medium text-sm text-[#555555] hover:text-[#222222] hover:bg-slate-50 transition-colors"
+                    href="/dashboard"
+                    className="p-3 rounded-xl font-medium text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    Hồ sơ cá nhân
+                    Bảng điều khiển cá nhân
                   </Link>
                   <Link
                     href="/chat"
-                    className="p-3 rounded-xl font-medium text-sm text-[#555555] hover:text-[#222222] hover:bg-slate-50 transition-colors"
+                    className="p-3 rounded-xl font-medium text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    Tin nhắn
+                    Tin nhắn trực tiếp
+                  </Link>
+                  <Link
+                    href="/account"
+                    className="p-3 rounded-xl font-medium text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Cài đặt tài khoản
                   </Link>
                   <button
                     type="button"
-                    className="p-3 rounded-xl font-medium text-sm text-left text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                    className="flex items-center gap-2 p-3 rounded-xl font-medium text-sm text-left text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer w-full"
                     onClick={() => {
                       setIsMobileMenuOpen(false)
-                      window.dispatchEvent(new CustomEvent("trigger-logout"))
+                      handleLogout()
                     }}
                   >
-                    Đăng xuất
+                    <LogOut className="size-4" />
+                    <span>Đăng xuất</span>
                   </button>
                 </div>
               )}
-            </nav>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
     </>
   )
 }
+
+export default NotchNavbar

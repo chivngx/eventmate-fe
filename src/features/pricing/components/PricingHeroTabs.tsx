@@ -1,63 +1,30 @@
 "use client"
 
 import React from "react"
+import { Sparkles } from "lucide-react"
 
 interface PricingHeroTabsProps {
-  billingCycle: "monthly" | "yearly"
-  setBillingCycle: (cycle: "monthly" | "yearly") => void
   title?: string
   caption?: string
-  monthlyLabel?: string
-  yearlyLabel?: string
 }
 
 export default function PricingHeroTabs({
-  billingCycle,
-  setBillingCycle,
   title = "Bảng Giá Tuyển Dụng Nhân Sự Sự Kiện",
   caption = "Tối ưu chi phí theo từng show diễn hoặc giải pháp tuyển dụng trọn gói tại Đà Nẵng.",
-  monthlyLabel = "Theo tháng",
-  yearlyLabel = "Theo năm",
 }: PricingHeroTabsProps) {
   return (
-    <div className="flex flex-col items-center gap-[32px] w-full max-w-[1232px] mx-auto">
-      {/* Titr home */}
-      <div className="flex flex-col items-center justify-center gap-[8px] text-center">
-        <h1 className="font-['Inter'] font-semibold text-[32px] sm:text-[36px] text-[#222222] leading-normal tracking-tight">
+    <div className="flex flex-col items-center gap-4 w-full max-w-[1232px] mx-auto text-center">
+      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 text-zinc-800 text-xs font-medium border border-zinc-200">
+        <Sparkles className="w-3.5 h-3.5 text-zinc-900" />
+        Linh hoạt theo sự kiện & gói tháng cho Agency
+      </div>
+      <div className="flex flex-col items-center justify-center gap-2">
+        <h1 className="font-['Inter'] font-semibold text-[32px] sm:text-[36px] text-zinc-950 leading-normal tracking-tight">
           {title}
         </h1>
-        <p className="font-['Inter'] font-normal text-[15px] sm:text-[16px] text-[#757575] leading-[1.6] max-w-[500px]">
+        <p className="font-['Inter'] font-normal text-[15px] sm:text-[16px] text-zinc-500 leading-[1.6] max-w-[540px]">
           {caption}
         </p>
-      </div>
-
-      {/* Plan Tabs */}
-      <div className="w-[400px] max-w-full h-[58px] bg-white border border-[#CBCBCB] rounded-[12px] p-[4px] flex items-center shadow-xs">
-        {/* Monthly Button */}
-        <button
-          type="button"
-          onClick={() => setBillingCycle("monthly")}
-          className={`flex-1 h-[48px] rounded-[8px] flex items-center justify-center font-['Inter'] font-medium text-[17px] sm:text-[18px] transition-colors cursor-pointer ${
-            billingCycle === "monthly"
-              ? "bg-[#282828] text-white"
-              : "text-[#222222] hover:text-[#005DDC]"
-          }`}
-        >
-          {monthlyLabel}
-        </button>
-
-        {/* Yearly Button */}
-        <button
-          type="button"
-          onClick={() => setBillingCycle("yearly")}
-          className={`flex-1 h-[48px] rounded-[8px] flex items-center justify-center font-['Inter'] font-medium text-[17px] sm:text-[18px] transition-colors cursor-pointer ${
-            billingCycle === "yearly"
-              ? "bg-[#282828] text-white"
-              : "text-[#222222] hover:text-[#005DDC]"
-          }`}
-        >
-          {yearlyLabel}
-        </button>
       </div>
     </div>
   )

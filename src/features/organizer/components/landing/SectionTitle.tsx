@@ -42,7 +42,7 @@ export default function SectionTitle({
           {moreHref ? (
             <Link
               href={moreHref}
-              className="inline-flex items-center gap-2 text-sm font-medium text-[#005DDC] hover:text-[#004EB7] px-4 py-2 rounded-lg transition-colors group"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-900 hover:text-black hover:bg-zinc-100 px-4 py-2 rounded-lg transition-colors group"
             >
               <span>{moreText}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
@@ -50,7 +50,7 @@ export default function SectionTitle({
           ) : (
             <button
               onClick={onMore}
-              className="inline-flex items-center gap-2 text-sm font-medium text-[#005DDC] hover:text-[#004EB7] px-4 py-2 rounded-lg transition-colors group cursor-pointer"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-900 hover:text-black hover:bg-zinc-100 px-4 py-2 rounded-lg transition-colors group cursor-pointer"
             >
               <span>{moreText}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />

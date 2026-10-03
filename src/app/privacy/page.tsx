@@ -29,7 +29,7 @@ export default function PrivacyPage() {
           <div className="prose prose-slate max-w-none space-y-8 text-sm sm:text-base text-[#353535] leading-relaxed">
             <section className="space-y-3">
               <h2 className="text-xl font-bold text-[#222222] flex items-center gap-2">
-                <Lock className="w-5 h-5 text-[#005DDC]" />
+                <Lock className="w-5 h-5 text-zinc-900" />
                 1. Mục Đích Thu Thập Thông Tin
               </h2>
               <p>
@@ -39,13 +39,13 @@ export default function PrivacyPage() {
                 <li>Tạo lập và xác thực tài khoản sử dụng nền tảng.</li>
                 <li>Hỗ trợ kết nối ứng tuyển vào các vị trí sự kiện phù hợp tại TP. Đà Nẵng.</li>
                 <li>Xác minh danh tính nhằm đảm bảo môi trường làm việc minh bạch, an toàn và chuyên nghiệp.</li>
-                <li>Gửi thông báo về trạng thái duyệt đơn, lịch phỏng vấn và các sự kiện mới.</li>
+                <li>Gửi thông báo về trạng thái duyệt đơn, phân công ca làm và các sự kiện mới.</li>
               </ul>
             </section>
 
             <section className="space-y-3">
               <h2 className="text-xl font-bold text-[#222222] flex items-center gap-2">
-                <Eye className="w-5 h-5 text-[#005DDC]" />
+                <Eye className="w-5 h-5 text-zinc-900" />
                 2. Phạm Vi Dữ Liệu Thu Thập
               </h2>
               <p>Các dữ liệu chúng tôi lưu trữ bao gồm:</p>
@@ -58,7 +58,7 @@ export default function PrivacyPage() {
 
             <section className="space-y-3">
               <h2 className="text-xl font-bold text-[#222222] flex items-center gap-2">
-                <FileText className="w-5 h-5 text-[#005DDC]" />
+                <FileText className="w-5 h-5 text-zinc-900" />
                 3. Cam Kết Bảo Mật
               </h2>
               <p>

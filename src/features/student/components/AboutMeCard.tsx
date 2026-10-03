@@ -105,7 +105,7 @@ export default function AboutMeCard({
             value={draftBio}
             onChange={(e) => setDraftBio(e.target.value)}
             placeholder="Viết một đoạn ngắn giới thiệu bản thân..."
-            className="w-full p-2.5 rounded-[8px] border border-[#005DDC] font-['Inter'] text-[13.5px] text-[#222222] leading-relaxed focus:outline-none bg-white resize-y"
+            className="w-full p-2.5 rounded-[8px] border border-zinc-900 font-['Inter'] text-[13.5px] text-[#222222] leading-relaxed focus:outline-none focus:ring-1 focus:ring-zinc-900 bg-white resize-y"
             autoFocus
           />
           <div className="flex justify-end items-center gap-2">
@@ -119,7 +119,7 @@ export default function AboutMeCard({
             <button
               type="button"
               onClick={handleSave}
-              className="px-4 py-1.5 rounded-[8px] bg-[#005DDC] hover:bg-[#004EB7] font-['Inter'] text-[13px] font-medium text-white transition-colors cursor-pointer shadow-xs"
+              className="px-4 py-1.5 rounded-[8px] bg-zinc-900 hover:bg-black font-['Inter'] text-[13px] font-semibold text-white transition-colors cursor-pointer shadow-xs"
             >
               Lưu
             </button>
@@ -153,7 +153,7 @@ export default function AboutMeCard({
           <button
             type="button"
             onClick={handleStartEdit}
-            className="inline-flex gap-[6px] h-[34px] items-center justify-center px-[12px] py-[6px] rounded-[8px] hover:bg-blue-50/70 transition-colors cursor-pointer text-[#005DDC]"
+            className="inline-flex gap-[6px] h-[34px] items-center justify-center px-[12px] py-[6px] rounded-[8px] hover:bg-zinc-100 transition-colors cursor-pointer text-zinc-900 font-semibold"
             data-node-id="I6818:50099;5928:48720"
             data-name="Buttons"
           >

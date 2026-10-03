@@ -25,10 +25,10 @@ export default function ChatReplyBanner({
     <div
       className={`${
         compact ? "px-3.5 py-1.5 text-[11px]" : "px-4 py-2 text-xs"
-      } bg-[#eff5ff] border-t border-[#0084FF]/20 flex items-center justify-between shrink-0 select-none`}
+      } bg-zinc-100 border-t border-zinc-200 flex items-center justify-between shrink-0 select-none`}
     >
       <div className="flex items-center gap-1.5 truncate min-w-0">
-        <MessengerReplyIcon className="size-3 text-[#0084FF] shrink-0" />
+        <MessengerReplyIcon className="size-3 text-zinc-900 shrink-0" />
         <span className="text-[#515151] truncate">
           Đang trả lời: <span className="font-medium text-[#222]">{textToShow}</span>
         </span>

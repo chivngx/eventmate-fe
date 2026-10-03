@@ -20,11 +20,7 @@ export default function ReceiptPrinterAnimation({
 }: ReceiptPrinterProps) {
   const isEnterprise =
     planId === "enterprise" || planId === "standard" || planId === "agency"
-  const defaultAmount = isEnterprise
-    ? billingCycle === "yearly"
-      ? "4.788.000đ"
-      : "499.000đ"
-    : "99.000đ"
+  const defaultAmount = isEnterprise ? "499.000đ" : "99.000đ"
   const displayAmount = amountFormatted || defaultAmount
   const planName = isEnterprise ? "DOANH NGHIỆP" : "SỰ KIỆN NHANH"
   const [currentMode, setCurrentMode] = useState<"smooth" | "classic">("smooth")
@@ -348,7 +344,7 @@ export default function ReceiptPrinterAnimation({
                     <>
                       <div className="receipt-item-row">
                         <span className="item-name">
-                          1X Gói {planName} ({billingCycle === "yearly" ? "12 Tháng" : "1 Tháng"})
+                          1X Gói {planName} (1 Tháng)
                         </span>
                         <span className="item-price">{displayAmount}</span>
                       </div>
@@ -357,7 +353,7 @@ export default function ReceiptPrinterAnimation({
                         <span className="item-price">0đ</span>
                       </div>
                       <div className="receipt-item-row">
-                        <span className="item-name">1X Lên lịch phỏng vấn & Hỗ trợ VIP</span>
+                        <span className="item-name">1X Tin nhắn trực tiếp & Hỗ trợ VIP</span>
                         <span className="item-price">Bao gồm</span>
                       </div>
                     </>

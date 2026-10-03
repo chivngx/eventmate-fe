@@ -1,19 +1,17 @@
-"use client"
-
 import React, { useState } from "react"
-import { Calendar, Video } from "lucide-react"
+import { Calendar, MapPin, Users } from "lucide-react"
 
-export interface InterviewItem {
+export interface ScheduleEventItem {
   id: string
-  name: string
-  role: string
-  time: string
-  meetLink?: string
+  title: string
+  location?: string
+  date: string
+  applicantsCount?: number
 }
 
 interface ScheduleWidgetProps {
-  interviews?: InterviewItem[]
-  onOpenMeet?: (item: InterviewItem) => void
+  events?: ScheduleEventItem[]
+  onSelectEvent?: (id: string) => void
 }
 
 const getWeekDays = () => {
@@ -33,8 +31,8 @@ const getWeekDays = () => {
 }
 
 export default function ScheduleWidget({
-  interviews = [],
-  onOpenMeet
+  events = [],
+  onSelectEvent
 }: ScheduleWidgetProps) {
   const days = getWeekDays()
   const todayNum = String(new Date().getDate())
@@ -86,52 +84,50 @@ export default function ScheduleWidget({
         </div>
       </div>
 
-      {/* 2. Phần Phỏng vấn hôm nay (Today's Interview) */}
+      {/* 2. Phần Sự kiện sắp diễn ra (Upcoming Events) */}
       <div className="flex flex-col gap-3 w-full">
         <div className="flex items-center w-full">
           <h4 className="text-[16px] font-semibold text-[#222222] dark:text-zinc-100 leading-normal">
-            Phỏng vấn hôm nay
+            Sự kiện sắp diễn ra
           </h4>
         </div>
 
         <div className="flex flex-col gap-3 w-full">
-          {interviews.length === 0 ? (
+          {events.length === 0 ? (
             <div className="py-6 text-center rounded-[8px] border border-dashed border-[#ededed] dark:border-zinc-800 text-[13px] text-[#757575] dark:text-zinc-400">
-              Không có lịch phỏng vấn nào hôm nay
+              Chưa có sự kiện nào sắp tới
             </div>
           ) : (
-            interviews.map((item) => (
+            events.map((item) => (
               <div
                 key={item.id}
-                className="bg-white dark:bg-zinc-900 border border-[#f4f4f4] dark:border-zinc-800 rounded-[8px] p-2.5 flex items-start justify-between gap-3 hover:border-slate-300 dark:hover:border-zinc-700 transition"
+                onClick={() => onSelectEvent && onSelectEvent(item.id)}
+                className="bg-white dark:bg-zinc-900 border border-[#f4f4f4] dark:border-zinc-800 rounded-[8px] p-2.5 flex items-start justify-between gap-3 hover:border-slate-300 dark:hover:border-zinc-700 transition cursor-pointer"
               >
-                <div className="flex flex-col gap-2 items-start min-w-0 flex-1">
-                  <p className="text-[10px] font-medium text-[#757575] dark:text-zinc-400 leading-normal truncate w-full">
-                    Phỏng vấn cùng{" "}
-                    <span className="text-[#282828] dark:text-zinc-100 font-semibold">{item.name}</span>
+                <div className="flex flex-col gap-1 items-start min-w-0 flex-1">
+                  <p className="text-[13px] font-medium text-[#282828] dark:text-zinc-100 leading-snug line-clamp-1">
+                    {item.title}
                   </p>
-                  <div className="flex flex-col gap-1 items-start w-full">
-                    <p className="text-[12px] font-medium text-[#282828] dark:text-zinc-200 leading-tight">
-                      {item.time}
-                    </p>
-                    <p className="text-[12px] font-normal text-[#757575] dark:text-zinc-400 leading-tight truncate w-full">
-                      {item.role}
-                    </p>
+                  <div className="flex items-center gap-2 text-[11px] text-[#757575] dark:text-zinc-400">
+                    <span className="flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      {item.date}
+                    </span>
+                    {item.location && (
+                      <span className="flex items-center gap-1 truncate">
+                        <MapPin className="w-3 h-3" />
+                        {item.location}
+                      </span>
+                    )}
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    onOpenMeet
-                      ? onOpenMeet(item)
-                      : window.open(item.meetLink || "https://meet.google.com/new", "_blank")
-                  }
-                  title="Tham gia Google Meet"
-                  className="w-6 h-6 sm:w-7 sm:h-7 rounded-[8px] bg-[#f4f4f4] dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-[#282828] dark:text-white flex items-center justify-center shrink-0 transition"
-                >
-                  <Video className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                </button>
+                {item.applicantsCount !== undefined && (
+                  <div className="flex items-center gap-1 text-[11px] font-medium text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-full shrink-0">
+                    <Users className="w-3 h-3" />
+                    <span>{item.applicantsCount}</span>
+                  </div>
+                )}
               </div>
             ))
           )}

@@ -15,7 +15,7 @@ import {
     AuthDivider,
     RoleSwitcherTabs,
 } from "./components/AuthComponents"
-import { isOrganizerRole } from "@/lib/auth-constants"
+import { isOrganizerRole } from "@/lib/utils"
 
 export default function LoginView() {
     const navigate = useNavigate()

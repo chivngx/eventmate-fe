@@ -40,7 +40,7 @@ export function SpinnerLoading({ className }: { className?: string }) {
           cx="28"
           cy="28"
           r="24"
-          stroke="#005DDC"
+          stroke="#18181B"
           strokeWidth="6"
           strokeLinecap="round"
           strokeDasharray="40 160"
@@ -78,7 +78,7 @@ export default function ProfileUploading({
   const displayName = fullName?.trim() || "Chưa cập nhật họ tên"
   const fallbackAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(
     fullName?.trim() || "EventMate"
-  )}&background=005DDC&color=fff&size=120`
+  )}&background=18181B&color=fff&size=120`
 
   return (
     <div
@@ -144,7 +144,7 @@ export default function ProfileUploading({
         <div className="flex flex-col items-start relative shrink-0 w-full min-w-0">
           <div className="flex flex-col gap-[4px] items-start relative shrink-0 w-full min-w-0">
             <h2
-              className="font-medium text-[#004EB7] text-[16px] leading-normal font-['Inter'] truncate max-w-full"
+              className="font-bold text-zinc-950 text-[18px] leading-normal font-['Inter'] truncate max-w-full"
               dir="auto"
               data-node-id="3988:55578"
             >
@@ -172,7 +172,7 @@ export default function ProfileUploading({
           <button
             type="button"
             onClick={onViewResume}
-            className="h-[34px] px-[18px] bg-[#005DDC] hover:bg-[#004EB7] text-white text-[14px] font-medium rounded-[8px] flex items-center justify-center transition-colors cursor-pointer whitespace-nowrap shadow-xs"
+            className="h-[34px] px-[18px] bg-zinc-900 hover:bg-black text-white text-[14px] font-semibold rounded-[8px] flex items-center justify-center transition-colors cursor-pointer whitespace-nowrap shadow-xs"
             data-node-id="3988:55584"
           >
             Xem hồ sơ

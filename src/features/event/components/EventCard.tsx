@@ -1,8 +1,9 @@
 "use client"
 
-import { useNavigate } from "@/lib/router"
-import { MapPin, Calendar, Users } from "lucide-react"
-import { formatSalary, formatTimeAgo, formatShiftTime, cn } from "@/lib/utils"
+import { useState } from "react"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { formatTimeAgo, cn } from "@/lib/utils"
 
 export interface JobItem {
   id: string
@@ -34,11 +35,24 @@ export interface JobItem {
     full_name?: string | null
     avatar_url?: string | null
     slug?: string | null
+    is_verified?: boolean | null
   } | null
   danang_wards?: {
     id?: number
     name: string
   } | null
+  // Extended fields for custom feeds & Vieclamtot items
+  company?: string | null
+  organizer_name?: string | null
+  verified?: boolean | null
+  isPartner?: boolean | null
+  salary?: string | null
+  priority?: boolean | null
+  timeAgo?: string | null
+  applicantsCount?: number | null
+  applicants_count?: number | null
+  applications_count?: number | null
+  imageUrl?: string | null
 }
 
 export interface EventCardProps {
@@ -56,55 +70,75 @@ export default function EventCard({
   onNavigate,
   className = "",
 }: EventCardProps) {
-  const navigate = useNavigate()
+  const router = useRouter()
+  const [imageError, setImageError] = useState(false)
 
-  const organizerName = job.profiles?.full_name || "Ban tổ chức sự kiện"
-  const logoUrl = job.profiles?.avatar_url || job.banner_url || null
-  const locationText = job.danang_wards?.name || job.location || "Đà Nẵng"
-  const formattedSalaryText = formatSalary(job.salary_amount, job.salary_type, "Thỏa thuận")
-  const timeAgoText = job.created_at ? formatTimeAgo(job.created_at) : "Gần đây"
+  const organizerName =
+    job.company ||
+    job.organizer_name ||
+    job.profiles?.full_name ||
+    "Ban tổ chức sự kiện"
 
-  // Event date & shift
-  let formattedDate: string | null = null
-  if (job.event_date) {
-    try {
-      const d = new Date(job.event_date)
-      if (!isNaN(d.getTime())) {
-        formattedDate = d.toLocaleDateString("vi-VN", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-        })
-      }
-    } catch {
-      formattedDate = null
+  const displayImage =
+    job.imageUrl ||
+    job.banner_url ||
+    job.profiles?.avatar_url ||
+    "/images/urgent/job-1.png"
+
+  const rawLocation =
+    job.danang_wards?.name ||
+    job.location ||
+    "Đà Nẵng"
+
+  const locationText = (() => {
+    if (!rawLocation) return "Đà Nẵng"
+    if (rawLocation.includes("•")) {
+      return rawLocation.split("•").pop()?.trim() || rawLocation
     }
-  }
-  const shiftTime = formatShiftTime(job.start_time, job.end_time)
-  const eventDateText = formattedDate
-    ? shiftTime
-      ? `${formattedDate} (${shiftTime})`
-      : formattedDate
-    : null
+    return (
+      rawLocation
+        .replace(/^(Q\.|Quận|Huyện)\s+[^,•]+[,•]\s*/i, "")
+        .replace(/\s*,\s*(TP\.|Thành phố\s+)?Đà Nẵng$/i, "")
+        .trim() || rawLocation
+    )
+  })()
 
-  // Badges
-  const badges: string[] = []
-  if (Array.isArray(job.tags) && job.tags.length > 0) {
-    badges.push(...job.tags)
-  } else {
-    if (job.position_type) badges.push(job.position_type)
-    if (job.category) badges.push(job.category)
-    if (job.job_type) badges.push(job.job_type)
-  }
-  if (badges.length === 0) {
-    badges.push(job.salary_type === "volunteer" ? "Tình nguyện viên" : "Theo sự kiện")
-  }
+  const salaryFormatted = job.salary
+    ? job.salary
+    : job.salary_amount
+      ? `${Number(job.salary_amount).toLocaleString("vi-VN")} đ${job.salary_type === "hourly"
+        ? "/giờ"
+        : job.salary_type === "fixed"
+          ? "/show"
+          : job.salary_type === "daily"
+            ? "/ngày"
+            : "/ca"
+      }`
+      : job.salary_type === "volunteer"
+        ? "Tình nguyện viên"
+        : "Thương lượng"
+
+  const timeAgoText =
+    job.timeAgo ||
+    (job.created_at ? formatTimeAgo(job.created_at) : "Vừa xong")
+
+
+  const isVerified = Boolean(
+    job.verified ?? job.profiles?.is_verified
+  )
+  const isPartner = Boolean(
+    job.isPartner ?? (job.plan_tier === "pro" || job.is_featured)
+  )
+  const isUrgent = Boolean(
+    job.is_urgent === true || (job.is_urgent === undefined && job.id.startsWith("urgent"))
+  )
+  const isPriority = Boolean(job.priority ?? job.is_featured)
 
   const handleCardClick = () => {
     if (onNavigate) {
       onNavigate(job.id)
     } else {
-      navigate(`/events/${job.slug || job.id}`)
+      router.push(`/events/${job.slug || job.id}`)
     }
   }
 
@@ -112,109 +146,98 @@ export default function EventCard({
     <article
       onClick={handleCardClick}
       className={cn(
-        "group relative bg-white border hover:shadow-[0_8px_25px_rgba(0,0,0,0.05)] hover:-translate-y-0.5 transition-all duration-200 rounded-2xl p-4.5 sm:p-5 cursor-pointer flex flex-col justify-between gap-3.5",
-        job.is_featured ? "border-amber-300/90 bg-gradient-to-b from-amber-50/25 to-white shadow-xs" : "border-zinc-200/80 hover:border-zinc-300",
+        "w-full h-full min-h-[192px] p-4 bg-white rounded-[16px] border border-[#e8e8e8] hover:shadow-md transition-shadow cursor-pointer flex gap-3 items-start select-none",
         className
       )}
     >
-      {/* Top Section: Squircle Logo & Titles */}
-      <div className="flex items-start gap-3.5">
-        {/* Logo: Modern Squircle badge */}
-        <div className="shrink-0 size-12 sm:size-13 rounded-xl bg-zinc-50 border border-zinc-200/70 p-1 flex items-center justify-center overflow-hidden transition-colors group-hover:border-zinc-300">
-          {logoUrl ? (
-            <img
-              src={logoUrl}
-              alt={organizerName}
-              className="size-full object-contain rounded-lg"
-              onError={(e: any) => {
-                e.currentTarget.style.display = "none"
-                if (e.currentTarget.nextElementSibling) {
-                  e.currentTarget.nextElementSibling.style.display = "flex"
-                }
-              }}
-            />
-          ) : null}
-          <div
-            className={`size-full rounded-lg bg-zinc-100 text-zinc-700 font-semibold text-base flex items-center justify-center ${
-              logoUrl ? "hidden" : ""
-            }`}
-          >
+      {/* Left Thumbnail */}
+      <div className="size-[56px] min-w-[56px] min-h-[56px] rounded-[6px] overflow-hidden relative shrink-0 bg-gray-50 border border-gray-100">
+        {imageError ? (
+          <div className="size-full flex items-center justify-center bg-gray-100 text-gray-500 font-bold text-sm">
             {organizerName.charAt(0).toUpperCase()}
           </div>
-        </div>
+        ) : (
+          <Image
+            src={displayImage}
+            alt={job.title}
+            fill
+            sizes="56px"
+            className="object-cover"
+            unoptimized
+            onError={() => setImageError(true)}
+          />
+        )}
+      </div>
 
-        {/* Organizer & Title */}
-        <div className="flex-1 min-w-0">
-          <span className="text-[12.5px] font-medium text-zinc-500 truncate block">
-            {organizerName}
-          </span>
+      {/* Right Content */}
+      <div className="flex-1 min-w-0 flex flex-col justify-between h-full gap-1">
+        {/* Title & Badges */}
+        <div className="w-full">
+          {(isUrgent || isPartner) && (
+            <div className="flex flex-wrap items-center gap-1.5 mb-1">
+              {isUrgent && (
+                <img
+                  src="/images/urgent/badge-tuyen-gap.svg"
+                  alt="Tuyển gấp"
+                  className="h-[18px] w-[77px] shrink-0"
+                />
+              )}
+              {isPartner && (
+                <span className="bg-[#FF8800] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-[4px] shrink-0">
+                  Đối Tác
+                </span>
+              )}
+            </div>
+          )}
           <h3
             title={job.title}
-            className="text-[15px] sm:text-[16px] font-semibold text-zinc-900 group-hover:text-black transition-colors leading-snug line-clamp-1 sm:line-clamp-2 mt-0.5"
+            className="font-semibold text-[#222222] text-[15px] sm:text-[16px] leading-[22px] sm:leading-[24px] line-clamp-2"
           >
             {job.title}
           </h3>
         </div>
-      </div>
 
-      {/* Middle Section: Event Meta & Badges */}
-      <div className="flex flex-col gap-2.5">
-        {/* Date & Location */}
-        <div className="flex items-center gap-3.5 text-[12.5px] text-zinc-500 flex-wrap">
-          {eventDateText && (
-            <span className="inline-flex items-center gap-1.5 font-normal text-zinc-600">
-              <Calendar className="size-3.5 text-zinc-400 shrink-0" />
-              <span>{eventDateText}</span>
-            </span>
-          )}
-          <span className="inline-flex items-center gap-1.5 font-normal text-zinc-600">
-            <MapPin className="size-3.5 text-zinc-400 shrink-0" />
-            <span className="truncate">{locationText}</span>
+        {/* Company Name & Verified */}
+        <div className="flex items-center gap-1.5 overflow-hidden">
+          <span className="text-[13px] sm:text-[14px] font-semibold text-[#8c8c8c] truncate">
+            {organizerName}
           </span>
-        </div>
-
-        {/* Badges row */}
-        <div className="flex items-center gap-1.5 flex-wrap">
-          {job.is_featured && (
-            <span className="inline-flex items-center gap-1 h-6 px-2.5 rounded-md text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200 shadow-2xs">
-              ★ Nổi bật
-            </span>
-          )}
-          {job.is_urgent && (
-            <span className="inline-flex items-center gap-1 h-6 px-2.5 rounded-md text-[11px] font-bold bg-rose-100 text-rose-700 border border-rose-200 shadow-2xs">
-              🔥 Tuyển gấp
-            </span>
-          )}
-          {badges.slice(0, 2).map((badgeText, idx) => (
-            <span
-              key={idx}
-              className="inline-flex items-center h-6 px-2.5 rounded-md text-[11.5px] font-medium bg-zinc-100/90 text-zinc-600"
-            >
-              {badgeText}
-            </span>
-          ))}
-          {job.work_mode && (
-            <span className="inline-flex items-center h-6 px-2.5 rounded-md text-[11.5px] font-medium bg-zinc-100/90 text-zinc-600">
-              {job.work_mode}
-            </span>
-          )}
-          {typeof job.slots_needed === "number" && job.slots_needed > 0 && (
-            <span className="inline-flex items-center gap-1 h-6 px-2.5 rounded-md text-[11.5px] font-medium bg-zinc-100/90 text-zinc-600">
-              <Users className="size-3 text-zinc-400 shrink-0" />
-              <span>Cần {job.slots_needed} bạn</span>
-            </span>
+          {isVerified && (
+            <img
+              src="/images/urgent/icon-verified.svg"
+              alt="Xác thực"
+              className="size-4 shrink-0"
+            />
           )}
         </div>
-      </div>
 
-      {/* Bottom Row: Salary & Time posted */}
-      <div className="pt-2.5 border-t border-zinc-100 flex items-center justify-between">
-        <span className="font-semibold text-[14px] sm:text-[14.5px] text-zinc-900">
-          {formattedSalaryText}
-        </span>
-        <span className="text-zinc-400 text-[11.5px] sm:text-[12px] font-normal">
-          {timeAgoText}
-        </span>
+        {/* Salary */}
+        <div className="text-[15px] sm:text-[16px] font-bold text-[#f0325e] leading-[24px] whitespace-nowrap">
+          {salaryFormatted}
+        </div>
+
+        {/* Location */}
+        <div className="flex items-center gap-1 text-[13px] sm:text-[14px] text-[#8c8c8c] whitespace-nowrap overflow-hidden">
+          <img
+            src="/images/urgent/icon-location.svg"
+            alt=""
+            className="size-4 shrink-0"
+          />
+          <span className="truncate">{locationText}</span>
+        </div>
+
+        {/* Footer: Priority + Time */}
+        <div className="flex items-center pt-1 border-t border-gray-50 text-[12px] text-[#8c8c8c]">
+          <div className="flex items-center gap-1.5 overflow-hidden">
+            {isPriority && (
+              <>
+                <span className="whitespace-nowrap">Tin ưu tiên</span>
+                <span className="size-[3px] rounded-full bg-[#9b9b9b] shrink-0" />
+              </>
+            )}
+            <span className="whitespace-nowrap">{timeAgoText}</span>
+          </div>
+        </div>
       </div>
     </article>
   )

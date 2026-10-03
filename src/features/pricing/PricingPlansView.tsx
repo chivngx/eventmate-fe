@@ -14,7 +14,6 @@ export default function PricingPlansView() {
   const router = useRouter()
   const { user, role, isPremium, singleEventCredits, profile } = useUser()
   const { showToast } = useToast()
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly")
 
   const handleSelectPlan = (planId: string) => {
     if (planId === "enterprise" && isPremium) {
@@ -46,24 +45,20 @@ export default function PricingPlansView() {
       return
     }
 
-    // Paid plans (Standard / Starter): Navigate directly to checkout page
-    router.push(`/pricing/checkout?plan=${encodeURIComponent(planId)}&billing=${encodeURIComponent(billingCycle)}`)
+    // Paid plans (Enterprise / Single Event): Navigate directly to checkout page
+    router.push(`/pricing/checkout?plan=${encodeURIComponent(planId)}`)
   }
 
   return (
-    <MainLayout fullWidth={true} className="bg-[#f3f5f7]">
-      <div className="w-full bg-[#f3f5f7] min-h-screen pt-6 sm:pt-10 pb-20 animate-in fade-in duration-300">
+    <MainLayout fullWidth={true} className="bg-[#FAFAFA]">
+      <div className="w-full bg-[#FAFAFA] min-h-screen pt-6 sm:pt-10 pb-20 animate-in fade-in duration-300">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-14 sm:gap-20">
           
-          {/* Section 1: Hero Header & Monthly/Yearly Toggle */}
-          <PricingHeroTabs
-            billingCycle={billingCycle}
-            setBillingCycle={setBillingCycle}
-          />
+          {/* Section 1: Hero Header */}
+          <PricingHeroTabs />
 
           {/* Section 2: 3 Pricing Cards Grid */}
           <PricingCardsGrid
-            billingCycle={billingCycle}
             onSelectPlan={handleSelectPlan}
             isPremium={isPremium}
             premiumUntil={profile?.premium_until}

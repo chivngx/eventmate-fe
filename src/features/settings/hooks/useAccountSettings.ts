@@ -338,8 +338,8 @@ export function useAccountSettings() {
       }
 
       const fileExt = file.name.split(".").pop()
-      const fileName = `${userId}-${Math.random().toString(36).substring(7)}.${fileExt}`
-      const filePath = fileName
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`
+      const filePath = `${userId}/${fileName}`
 
       const { error: uploadError } = await supabase.storage
         .from("avatars")

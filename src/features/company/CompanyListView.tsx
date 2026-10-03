@@ -39,9 +39,6 @@ export default function CompanyList() {
     sortBy: "popular",
   })
 
-  // Followed company state (synced with Supabase public.company_follows)
-  const [bookmarkedIds, setBookmarkedIds] = useState<Record<string, boolean>>({})
-
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1)
 
@@ -107,80 +104,7 @@ export default function CompanyList() {
     }
   }, [])
 
-  // 2. Fetch followed organizers from Supabase
-  useEffect(() => {
-    if (!user) {
-      setBookmarkedIds({})
-      return
-    }
-
-    let isMounted = true
-    const fetchFollows = async () => {
-      const { data, error } = await supabase
-        .from("company_follows")
-        .select("organizer_id")
-        .eq("user_id", user.id)
-
-      if (data && !error && isMounted) {
-        const map: Record<string, boolean> = {}
-        data.forEach((f: { organizer_id: string }) => {
-          map[f.organizer_id] = true
-        })
-        setBookmarkedIds(map)
-      }
-    }
-
-    fetchFollows()
-
-    return () => {
-      isMounted = false
-    }
-  }, [user])
-
-  const handleToggleBookmark = useCallback(async (id: string) => {
-    if (!user) {
-      showToast({
-        title: "Yêu cầu đăng nhập",
-        message: "Vui lòng đăng nhập để theo dõi ban tổ chức này!",
-        type: "info",
-      })
-      return
-    }
-
-    const isCurrentlyFollowed = !!bookmarkedIds[id]
-    setBookmarkedIds((prev) => ({
-      ...prev,
-      [id]: !isCurrentlyFollowed,
-    }))
-
-    if (isCurrentlyFollowed) {
-      const { error } = await supabase
-        .from("company_follows")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("organizer_id", id)
-
-      if (error) {
-        setBookmarkedIds((prev) => ({ ...prev, [id]: true }))
-        showToast({ title: "Lỗi", message: "Không thể bỏ theo dõi ban tổ chức.", type: "error" })
-      } else {
-        showToast({ title: "Đã bỏ theo dõi", message: "Đã xóa ban tổ chức khỏi danh sách theo dõi.", type: "info" })
-      }
-    } else {
-      const { error } = await supabase
-        .from("company_follows")
-        .insert([{ user_id: user.id, organizer_id: id }])
-
-      if (error) {
-        setBookmarkedIds((prev) => ({ ...prev, [id]: false }))
-        showToast({ title: "Lỗi", message: "Không thể theo dõi ban tổ chức.", type: "error" })
-      } else {
-        showToast({ title: "Đã theo dõi", message: "Đã lưu ban tổ chức vào danh sách theo dõi!", type: "success" })
-      }
-    }
-  }, [user, bookmarkedIds, showToast])
-
-  // 3. Reset filters handler
+  // 2. Reset filters handler
   const handleResetFilters = useCallback(() => {
     setSearchTerm("")
     setSelectedLocation("")
@@ -388,8 +312,6 @@ export default function CompanyList() {
                   <CompanyCard
                     key={org.id}
                     organizer={org}
-                    isBookmarked={!!bookmarkedIds[org.id]}
-                    onToggleBookmark={handleToggleBookmark}
                   />
                 ))}
 

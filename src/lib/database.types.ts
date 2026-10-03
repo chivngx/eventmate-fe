@@ -105,42 +105,6 @@ export type Database = {
           },
         ]
       }
-      company_follows: {
-        Row: {
-          created_at: string
-          id: string
-          organizer_id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          organizer_id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          organizer_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "company_follows_organizer_id_fkey"
-            columns: ["organizer_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "company_follows_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       danang_wards: {
         Row: {
           created_at: string
@@ -326,64 +290,6 @@ export type Database = {
             columns: ["ward_id"]
             isOneToOne: false
             referencedRelation: "danang_wards"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      interviews: {
-        Row: {
-          created_at: string
-          event_id: string
-          id: string
-          meeting_link: string | null
-          organizer_id: string
-          scheduled_at: string
-          status: string
-          student_id: string
-          title: string
-        }
-        Insert: {
-          created_at?: string
-          event_id: string
-          id?: string
-          meeting_link?: string | null
-          organizer_id: string
-          scheduled_at: string
-          status?: string
-          student_id: string
-          title: string
-        }
-        Update: {
-          created_at?: string
-          event_id?: string
-          id?: string
-          meeting_link?: string | null
-          organizer_id?: string
-          scheduled_at?: string
-          status?: string
-          student_id?: string
-          title?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "interviews_event_id_fkey"
-            columns: ["event_id"]
-            isOneToOne: false
-            referencedRelation: "events"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "interviews_organizer_id_fkey"
-            columns: ["organizer_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "interviews_student_id_fkey"
-            columns: ["student_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

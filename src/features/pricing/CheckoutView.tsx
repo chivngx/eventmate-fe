@@ -17,7 +17,7 @@ export default function CheckoutView() {
   const { refreshProfile, isPremium, profile } = useUser()
 
   const planId = searchParams.get("plan") || "standard"
-  const billingCycle = (searchParams.get("billing") as "monthly" | "yearly") || "monthly"
+  const billingCycle = "monthly"
 
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
@@ -25,11 +25,7 @@ export default function CheckoutView() {
 
   const isEnterprise =
     planId === "enterprise" || planId === "standard" || planId === "agency"
-  const totalRaw = isEnterprise
-    ? billingCycle === "yearly"
-      ? 399000 * 12
-      : 499000
-    : 99000
+  const totalRaw = isEnterprise ? 499000 : 99000
   const planPriceDisplay = `${totalRaw.toLocaleString("vi-VN")}đ`
 
   const handlePaymentSuccess = async (data: { orderCode?: number; transactionId?: string }) => {
@@ -48,7 +44,7 @@ export default function CheckoutView() {
       title: "Thanh toán thành công!",
       message: isSingle
         ? "Đã kích hoạt thành công 1 lượt đăng Sự Kiện Nhanh (99.000đ)!"
-        : `Đã kích hoạt thành công gói Doanh Nghiệp VIP (${billingCycle === "yearly" ? "Theo năm" : "Theo tháng"}).`,
+        : "Đã kích hoạt thành công gói Doanh Nghiệp VIP (Theo tháng).",
     })
   }
 

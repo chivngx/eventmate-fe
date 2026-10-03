@@ -9,9 +9,7 @@ import MainLayout from "@/components/layout/MainLayout"
 import {
   Building2,
   Globe,
-  Users,
   Star,
-  Check,
   Search,
   ChevronRight,
   Calendar,
@@ -49,9 +47,6 @@ export default function CompanyDetailView() {
   const [companyEvents, setCompanyEvents] = useState<any[]>([])
   const [reviews, setReviews] = useState<CompanyReview[]>([])
   const [loading, setLoading] = useState(true)
-  const [isFollowed, setIsFollowed] = useState(false)
-  const [followersCount, setFollowersCount] = useState(0)
-  const [isFollowLoading, setIsFollowLoading] = useState(false)
   const [activeTab, setActiveTab] = useState<"about" | "events">("about")
 
   // Search & Filter state for events tab
@@ -94,15 +89,7 @@ export default function CompanyDetailView() {
           setCompanyEvents(eventsData)
         }
 
-        // 2. Fetch real followers count
-        const { count: realFollowersCount } = await supabase
-          .from("company_follows")
-          .select("*", { count: "exact", head: true })
-          .eq("organizer_id", profileData.id)
-
-        setFollowersCount(realFollowersCount || 0)
-
-        // 3. Fetch reviews from students for this organizer
+        // 2. Fetch reviews from students for this organizer
         const { data: reviewsData } = await supabase
           .from("reviews")
           .select(`
@@ -119,18 +106,6 @@ export default function CompanyDetailView() {
         if (reviewsData) {
           setReviews(reviewsData as any)
         }
-
-        // 4. Check if current user is following this company
-        if (user) {
-          const { data: followRow } = await supabase
-            .from("company_follows")
-            .select("id")
-            .eq("user_id", user.id)
-            .eq("organizer_id", profileData.id)
-            .maybeSingle()
-
-          setIsFollowed(!!followRow)
-        }
       }
 
       setLoading(false)
@@ -138,51 +113,6 @@ export default function CompanyDetailView() {
 
     fetchCompanyDetails()
   }, [id, user, authLoading])
-
-  // Toggle follow/unfollow
-  const handleToggleFollow = async () => {
-    if (!user) {
-      navigate("/login")
-      return
-    }
-    if (!company || isFollowLoading) return
-    setIsFollowLoading(true)
-
-    try {
-      if (isFollowed) {
-        await supabase
-          .from("company_follows")
-          .delete()
-          .eq("user_id", user.id)
-          .eq("organizer_id", company.id)
-
-        setIsFollowed(false)
-        setFollowersCount((prev) => Math.max(0, prev - 1))
-        showToast({
-          type: "info",
-          title: "Đã hủy theo dõi",
-          message: `Bạn sẽ không nhận thông báo về sự kiện mới từ ${company.full_name}.`,
-        })
-      } else {
-        await supabase.from("company_follows").insert({
-          user_id: user.id,
-          organizer_id: company.id,
-        })
-
-        setIsFollowed(true)
-        setFollowersCount((prev) => prev + 1)
-        showToast({
-          type: "success",
-          title: "Đang theo dõi",
-          message: `Bạn sẽ nhận được thông báo khi ${company.full_name} đăng sự kiện mới!`,
-        })
-      }
-    } catch (err) {
-      console.error("Lỗi khi theo dõi đơn vị tổ chức:", err)
-    } finally {
-      setIsFollowLoading(false)
-    }
-  }
 
 
 
@@ -337,42 +267,8 @@ export default function CompanyDetailView() {
                           ({reviewStats.count} đánh giá)
                         </span>
                       </div>
-
-                      <span className="text-[#d1d5db] select-none">|</span>
-
-                      {/* Followers count */}
-                      <div className="inline-flex items-center gap-1.5">
-                        <Users className="size-4 text-[#757575] shrink-0" />
-                        <span>{followersCount} người theo dõi</span>
-                      </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Right Column: CTA Buttons */}
-                <div className="flex items-center gap-3 shrink-0 pt-2 lg:pt-0 border-t lg:border-t-0 border-[#ededed]">
-                  {/* Follow Button */}
-                  <button
-                    type="button"
-                    onClick={handleToggleFollow}
-                    disabled={isFollowLoading}
-                    className={`h-[40px] px-5 rounded-[8px] font-medium text-[14px] transition-all cursor-pointer inline-flex items-center gap-2 shadow-xs ${
-                      isFollowed
-                        ? "bg-white border border-[#cbcbcb] hover:border-slate-400 text-[#222222] hover:bg-slate-50"
-                        : "bg-[#005ddc] hover:bg-[#004bb3] text-white border border-transparent"
-                    }`}
-                  >
-                    {isFollowed ? (
-                      <>
-                        <Check className="size-4 text-emerald-600" />
-                        <span>Đang theo dõi</span>
-                      </>
-                    ) : (
-                      <>
-                        <span>+ Theo dõi</span>
-                      </>
-                    )}
-                  </button>
                 </div>
               </div>
             </div>

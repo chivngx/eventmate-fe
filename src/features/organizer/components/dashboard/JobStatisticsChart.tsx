@@ -271,15 +271,15 @@ export default function JobStatisticsChart({
             </span>
             <div className="flex items-center gap-4 text-[12px] text-[#757575] dark:text-zinc-400 font-['Inter']">
               <div className="flex items-center gap-1.5">
-                <span className="size-[8px] rounded-[4px] bg-[#004eb7] shrink-0" />
+                <span className="size-[8px] rounded-[4px] bg-zinc-900 dark:bg-zinc-100 shrink-0" />
                 <span>Lượt xem tin</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="size-[8px] rounded-[4px] bg-[#6eabff] shrink-0" />
+                <span className="size-[8px] rounded-[4px] bg-emerald-500 shrink-0" />
                 <span>Lượt ứng tuyển</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="size-[8px] rounded-[4px] bg-[#f6b500] shrink-0" />
+                <span className="size-[8px] rounded-[4px] bg-amber-500 shrink-0" />
                 <span>Tin đang mở</span>
               </div>
             </div>
@@ -313,10 +313,10 @@ export default function JobStatisticsChart({
                   preserveAspectRatio="none"
                   className="absolute inset-0 size-full overflow-visible"
                 >
-                  {/* Line 1: Lượt xem tin (Dark Blue #004eb7) */}
+                  {/* Line 1: Lượt xem tin (Obsidian #18181B) */}
                   <polyline
                     fill="none"
-                    stroke="#004eb7"
+                    stroke="#18181B"
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -324,10 +324,10 @@ export default function JobStatisticsChart({
                     className="transition-all duration-300"
                   />
 
-                  {/* Line 2: Lượt ứng tuyển (Light Blue #6eabff) */}
+                  {/* Line 2: Lượt ứng tuyển (Emerald #10B981) */}
                   <polyline
                     fill="none"
-                    stroke="#6eabff"
+                    stroke="#10B981"
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -335,10 +335,10 @@ export default function JobStatisticsChart({
                     className="transition-all duration-300"
                   />
 
-                  {/* Line 3: Tin đang mở (Yellow #f6b500) */}
+                  {/* Line 3: Tin đang mở (Amber #F59E0B) */}
                   <polyline
                     fill="none"
-                    stroke="#f6b500"
+                    stroke="#F59E0B"
                     strokeWidth="2"
                     strokeLinecap="round"
                     strokeLinejoin="round"

@@ -1,6 +1,5 @@
 "use client"
 
-import React from "react"
 import { X, Award, Printer, ShieldCheck } from "lucide-react"
 import { escapeHtml } from "@/lib/error"
 import { Button } from "@/components/ui/button"

@@ -164,7 +164,7 @@ function CheckinContent() {
               <CheckCircle2 className="size-9" />
             </div>
           ) : checkinStatus === "already" ? (
-            <div className="size-16 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-4">
+            <div className="size-16 rounded-full bg-zinc-100 text-zinc-900 border border-zinc-200 flex items-center justify-center mb-4">
               <ShieldCheck className="size-9" />
             </div>
           ) : checkinStatus === "not_approved" || checkinStatus === "invalid_code" || checkinStatus === "error" ? (

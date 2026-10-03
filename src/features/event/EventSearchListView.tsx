@@ -416,7 +416,7 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
         <section className="text-center mb-10 sm:mb-14 space-y-4">
           <h1 className="text-2xl sm:text-[32px] font-semibold text-[#222222] tracking-tight">
             {selectedPosition ? (
-              <>Tuyển Dụng Vị Trí <span className="text-[#005DDC]">{POSITION_SLUG_MAP[selectedPosition.toLowerCase()] || selectedPosition.replace(/-/g, " ").toUpperCase()}</span></>
+              <>Tuyển Dụng Vị Trí <span className="text-zinc-950 font-bold underline decoration-zinc-300 underline-offset-4">{POSITION_SLUG_MAP[selectedPosition.toLowerCase()] || selectedPosition.replace(/-/g, " ").toUpperCase()}</span></>
             ) : (
               "Khám phá Việc Làm Sự Kiện Hàng Đầu"
             )}
@@ -453,12 +453,12 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
           <main className="flex-1 w-full min-w-0 max-w-[920px]">
             {/* Active Position Filter Chip */}
             {selectedPosition && (
-              <div className="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-blue-200 text-xs font-medium text-[#005DDC]">
+              <div className="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-semibold text-zinc-900">
                 <span>Vị trí tuyển dụng: <strong>{POSITION_SLUG_MAP[selectedPosition.toLowerCase()] || selectedPosition.replace(/-/g, " ")}</strong></span>
                 <button
                   type="button"
                   onClick={() => setSelectedPosition("")}
-                  className="size-4 rounded-full bg-blue-200/70 hover:bg-blue-300 text-blue-800 flex items-center justify-center text-[11px] font-bold cursor-pointer"
+                  className="size-4 rounded-full bg-zinc-200 hover:bg-zinc-300 text-zinc-800 flex items-center justify-center text-[11px] font-bold cursor-pointer"
                   title="Xóa lọc vị trí"
                 >
                   ✕
@@ -481,14 +481,15 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
                 {[...Array(6)].map((_, i) => (
                   <div
                     key={`skeleton-${i}`}
-                    className="h-44 bg-white border border-[#ededed] rounded-[8px] p-6 animate-pulse flex gap-4"
+                    className="w-full min-h-[192px] p-4 bg-white rounded-[16px] border border-[#e8e8e8] animate-pulse flex gap-3 items-start"
                   >
-                    <div className="w-16 h-16 rounded-[8px] bg-slate-200 shrink-0" />
+                    <div className="size-[56px] min-w-[56px] rounded-[6px] bg-gray-100 shrink-0" />
                     <div className="flex-1 space-y-2.5">
-                      <div className="h-3.5 bg-slate-200 rounded w-1/3" />
-                      <div className="h-4 bg-slate-200 rounded w-3/4" />
-                      <div className="h-4 bg-slate-100 rounded w-16" />
-                      <div className="h-3 bg-slate-100 rounded w-1/2 pt-2" />
+                      <div className="h-4 bg-gray-100 rounded w-20" />
+                      <div className="h-4 bg-gray-100 rounded w-4/5" />
+                      <div className="h-3 bg-gray-100 rounded w-1/2" />
+                      <div className="h-4 bg-gray-100 rounded w-1/3" />
+                      <div className="h-3 bg-gray-100 rounded w-2/3" />
                     </div>
                   </div>
                 ))}

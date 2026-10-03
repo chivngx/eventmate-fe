@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { Plus, X } from "lucide-react"
 import { EditIcon } from "@/components/icons"
 
@@ -144,13 +144,13 @@ export default function ProfessionalSkillsCard({
                   handleAddSkill()
                 }
               }}
-              className="flex-1 h-10 px-3 rounded-[8px] border border-[#005DDC] font-['Inter'] text-[14px] text-[#282828] focus:outline-none bg-white"
+              className="flex-1 h-10 px-3 rounded-[8px] border border-zinc-900 font-['Inter'] text-[14px] text-[#282828] focus:outline-none focus:ring-1 focus:ring-zinc-900 bg-white"
               autoFocus
             />
             <button
               type="button"
               onClick={() => handleAddSkill()}
-              className="px-4 h-10 rounded-[8px] bg-[#005DDC] hover:bg-[#004EB7] font-['Inter'] text-[14px] font-medium text-white transition-colors cursor-pointer shadow-xs flex items-center gap-1.5"
+              className="px-4 h-10 rounded-[8px] bg-zinc-900 hover:bg-black font-['Inter'] text-[14px] font-semibold text-white transition-colors cursor-pointer shadow-xs flex items-center gap-1.5"
             >
               <Plus className="w-4 h-4" />
               <span>Thêm</span>
@@ -190,7 +190,7 @@ export default function ProfessionalSkillsCard({
                   key={i}
                   type="button"
                   onClick={() => handleAddSkill(popSkill)}
-                  className="px-3 py-1.5 rounded-[6px] bg-slate-100 hover:bg-blue-50 hover:text-[#005DDC] hover:border-blue-200 border border-transparent font-['Inter'] text-[13px] text-slate-700 transition-colors cursor-pointer flex items-center gap-1"
+                  className="px-3 py-1.5 rounded-[6px] bg-slate-100 hover:bg-zinc-100 hover:text-zinc-900 hover:border-zinc-300 border border-transparent font-['Inter'] text-[13px] text-slate-700 transition-colors cursor-pointer flex items-center gap-1"
                 >
                   <Plus className="w-3 h-3" />
                   <span>{popSkill}</span>
@@ -211,7 +211,7 @@ export default function ProfessionalSkillsCard({
             <button
               type="button"
               onClick={handleSave}
-              className="px-5 py-2 rounded-[8px] bg-[#005DDC] hover:bg-[#004EB7] font-['Inter'] text-[14px] font-medium text-white transition-colors cursor-pointer shadow-xs"
+              className="px-5 py-2 rounded-[8px] bg-zinc-900 hover:bg-black font-['Inter'] text-[14px] font-semibold text-white transition-colors cursor-pointer shadow-xs"
             >
               Lưu thay đổi
             </button>
@@ -251,7 +251,7 @@ export default function ProfessionalSkillsCard({
           <button
             type="button"
             onClick={handleStartEdit}
-            className="flex gap-[8px] h-[40px] items-center justify-center px-[16px] py-[8px] rounded-[8px] hover:bg-blue-50/60 transition-colors cursor-pointer"
+            className="flex gap-[8px] h-[40px] items-center justify-center px-[16px] py-[8px] rounded-[8px] hover:bg-zinc-100 transition-colors cursor-pointer"
             data-node-id="I6818:50100;5928:48720"
             data-name="Buttons"
           >
@@ -266,11 +266,11 @@ export default function ProfessionalSkillsCard({
               >
                 <path
                   d="M19.75 12C19.75 12.414 19.414 12.75 19 12.75H12.75V19C12.75 19.414 12.414 19.75 12 19.75C11.586 19.75 11.25 19.414 11.25 19V12.75H5C4.586 12.75 4.25 12.414 4.25 12C4.25 11.586 4.586 11.25 5 11.25H11.25V5C11.25 4.586 11.586 4.25 12 4.25C12.414 4.25 12.75 4.586 12.75 5V11.25H19C19.414 11.25 19.75 11.586 19.75 12Z"
-                  fill="#005DDC"
+                  fill="#18181B"
                 />
               </svg>
             </div>
-            <span className="font-['Inter'] font-medium text-[16px] text-[#005DDC] leading-normal whitespace-nowrap">
+            <span className="font-['Inter'] font-semibold text-[16px] text-zinc-900 leading-normal whitespace-nowrap">
               Thêm kỹ năng
             </span>
           </button>

@@ -1,8 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useCallback } from "react";
-import { X, AlertTriangle, Info } from "lucide-react";
-import ToastSuccessApply from "@/components/ui/toast-success-apply";
+import { X, AlertTriangle, Info, CheckCircle2 } from "lucide-react";
 
 export type ToastType = "info" | "success" | "warning" | "error";
 
@@ -52,34 +51,18 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       {children}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-[420px] w-full pointer-events-none px-4 sm:px-0">
         {toasts.map((toast) => {
-          // Render Figma Success Toast for success toasts
-          if (toast.type === "success") {
-            return (
-              <div key={toast.id} className="pointer-events-auto">
-                <ToastSuccessApply
-                  title={toast.title}
-                  message={toast.message}
-                  actionText={
-                    toast.actionText ||
-                    (toast.actionLink ? "Go to Dashboard" : undefined)
-                  }
-                  actionLink={toast.actionLink}
-                  onDismiss={() => dismissToast(toast.id)}
-                />
-              </div>
-            );
-          }
-
           const Icon = {
+            success: CheckCircle2,
             warning: AlertTriangle,
             error: AlertTriangle,
             info: Info,
           }[toast.type || "info"];
 
           const iconColor = {
+            success: "text-emerald-600 bg-emerald-50 border border-emerald-200",
             warning: "text-amber-600 bg-amber-50 border border-amber-200",
             error: "text-red-600 bg-red-50 border border-red-200",
-            info: "text-[#005DDC] bg-[#eff5ff] border border-blue-200",
+            info: "text-zinc-900 bg-zinc-100 border border-zinc-200",
           }[toast.type || "info"];
 
           return (
@@ -101,7 +84,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 {toast.actionLink && (
                   <a
                     href={toast.actionLink}
-                    className="inline-block text-xs font-medium text-[#005DDC] mt-2 hover:underline"
+                    className="inline-block text-xs font-semibold text-zinc-900 mt-2 hover:underline"
                   >
                     {toast.actionText || "Xem ngay"} &rarr;
                   </a>

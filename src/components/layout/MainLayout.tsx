@@ -11,8 +11,8 @@ import JobseekerProfileDropdown from "./JobseekerProfileDropdown"
 import FloatingChat from "@/features/chat/components/FloatingChat"
 import Footer from "./Footer"
 import AuthPromptModal from "@/features/auth/components/AuthPromptModal"
-import { isOrganizerRole } from "@/lib/auth-constants"
-import { cn } from "@/lib/utils"
+import { cn, isOrganizerRole } from "@/lib/utils"
+import { Plus, ShieldCheck, MessageSquare } from "lucide-react"
 
 export default function MainLayout({
     children,
@@ -36,14 +36,16 @@ export default function MainLayout({
     const email = user?.email || ""
     const avatarUrl = profile?.avatar_url || ""
     const userRole = role || profile?.role || "guest"
+    const isAdmin = userRole === "admin" || profile?.role === "admin"
 
     // Detect if current page/context is for Employer / Organizer
     const isEmployerContext =
-        isOrganizerRole(role) ||
+        !isAdmin &&
+        (isOrganizerRole(role) ||
         isOrganizerRole(profile?.role) ||
         pathname?.startsWith("/for-employers") ||
         pathname?.startsWith("/organizer") ||
-        (pathname?.startsWith("/pricing") && profile?.role !== "student")
+        (pathname?.startsWith("/pricing") && profile?.role !== "student"))
 
     const [isGuestMode, setIsGuestMode] = useState(false)
     useEffect(() => {
@@ -147,8 +149,6 @@ export default function MainLayout({
         setNotifications(notifications.map(n => ({ ...n, is_read: true })))
     }
 
-
-
     useEffect(() => {
         const handleNotificationsRead = (e: Event) => {
             const detail = (e as CustomEvent).detail
@@ -175,43 +175,60 @@ export default function MainLayout({
     }, [])
 
     const rightActions = loadingAuth ? null : effectiveUser ? (
-        isEmployerContext ? (
-            <div className="flex items-center gap-2 sm:gap-4">
-                <NotificationDropdown
-                    notifications={notifications}
-                    unreadCount={unreadCount}
-                    markAsRead={markAsRead}
-                />
-                <JobseekerProfileDropdown
-                    avatarUrl={avatarUrl}
-                    fullName={fullName}
-                    email={email}
-                    role={userRole}
-                    isEmployer={true}
-                    navigate={navigate}
-                    handleLogout={handleLogout}
-                />
-            </div>
-        ) : (
-            <div className="flex items-center gap-1.5 sm:gap-2">
-                <NotificationDropdown
-                    notifications={notifications}
-                    unreadCount={unreadCount}
-                    markAsRead={markAsRead}
-                />
-                <JobseekerProfileDropdown
-                    avatarUrl={avatarUrl}
-                    fullName={fullName}
-                    email={email}
-                    role={userRole}
-                    isEmployer={false}
-                    navigate={navigate}
-                    handleLogout={handleLogout}
-                />
-            </div>
-        )
-    ) : undefined
+        <div className="flex items-center gap-1 sm:gap-2">
+            {/* Quick Action CTA for Roles */}
+            {isAdmin ? (
+                <button
+                    type="button"
+                    onClick={() => navigate("/admin")}
+                    className="hidden sm:inline-flex items-center gap-1.5 h-[36px] px-3.5 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium text-[13px] shadow-xs active:scale-[0.97] transition-all cursor-pointer"
+                    title="Quản trị hệ thống"
+                >
+                    <ShieldCheck className="size-3.5" />
+                    <span>Admin Portal</span>
+                </button>
+            ) : isEmployerContext ? (
+                <button
+                    type="button"
+                    onClick={() => navigate("/post-job")}
+                    className="hidden sm:inline-flex items-center gap-1.5 h-[36px] px-3.5 rounded-full bg-zinc-900 hover:bg-black text-white font-semibold text-[13px] shadow-xs hover:shadow-sm active:scale-[0.97] transition-all cursor-pointer"
+                    title="Đăng tin tuyển dụng mới"
+                >
+                    <Plus className="size-3.5" />
+                    <span>Đăng tin</span>
+                </button>
+            ) : null}
 
+            {/* Direct Chat / Messages Shortcut */}
+            <button
+                type="button"
+                onClick={() => navigate("/chat")}
+                className="relative size-[38px] rounded-full flex items-center justify-center text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                title="Tin nhắn"
+                aria-label="Tin nhắn"
+            >
+                <MessageSquare className="size-[19px]" />
+            </button>
+
+            {/* Notification Dropdown */}
+            <NotificationDropdown
+                notifications={notifications}
+                unreadCount={unreadCount}
+                markAsRead={markAsRead}
+            />
+
+            {/* Profile Dropdown */}
+            <JobseekerProfileDropdown
+                avatarUrl={avatarUrl}
+                fullName={fullName}
+                email={email}
+                role={userRole}
+                isEmployer={isEmployerContext}
+                navigate={navigate}
+                handleLogout={handleLogout}
+            />
+        </div>
+    ) : undefined
 
     const isHomePage = pathname === "/" && !isEmployerContext
     const isEmployerLanding = pathname === "/for-employers"
@@ -220,20 +237,26 @@ export default function MainLayout({
 
     const navbarElement = (
         <NotchNavbar
-            variant="floating"
-            rightActions={rightActions}
-            role={effectiveUser ? (role || profile?.role || "student") : "guest"}
+            role={effectiveUser ? userRole : "guest"}
             isEmployer={isEmployerContext}
+            isHeroNavbar={isHomePage}
+            notifications={notifications}
+            unreadCount={unreadCount}
+            markAsRead={markAsRead}
+            avatarUrl={avatarUrl}
+            fullName={fullName}
+            email={email}
+            handleLogout={handleLogout}
+            user={effectiveUser}
         />
     )
 
     return (
-        <div className={cn("min-h-screen flex flex-col bg-background text-foreground", className)}>
+        <div className={cn("min-h-screen flex flex-col bg-background text-foreground", isHomePage && "bg-[#F2F6FC]", className)}>
             {navbarElement}
             <main
                 className={cn(
                     "flex-1 w-full",
-                    hasHeroHeader ? "-mt-[76px] sm:-mt-[80px]" : "",
                     !hasHeroHeader && !fullWidth ? "mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 sm:py-6" : ""
                 )}
             >

@@ -80,7 +80,7 @@ export default function OrganizerFeaturesGrid() {
 
               {/* Title and Description */}
               <div className="flex flex-col gap-[8px] items-center text-center w-full">
-                <h3 className="font-['Inter'] font-semibold text-[#222222] text-[20px] sm:text-[22px] lg:text-[24px] leading-tight group-hover:text-[#005DDC] transition-colors">
+                <h3 className="font-['Inter'] font-semibold text-[#222222] text-[20px] sm:text-[22px] lg:text-[24px] leading-tight group-hover:text-zinc-950 transition-colors">
                   {item.title}
                 </h3>
                 <p className="font-['Inter'] font-normal sm:font-medium text-[#757575] text-[13px] sm:text-[14px] leading-[1.6]">

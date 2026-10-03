@@ -46,8 +46,8 @@ function BookmarkIcon({ active = false }: { active?: boolean }) {
         <svg className="size-[24px]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path
                 d="M5 4C5 2.89543 5.89543 2 7 2H17C18.1046 2 19 2.89543 19 4V21.5C19 21.8492 18.5997 22.0435 18.3248 21.8276L12 16.8571L5.67523 21.8276C5.40034 22.0435 5 21.8492 5 21.5V4Z"
-                fill={active ? "#005DDC" : "none"}
-                stroke={active ? "#005DDC" : "#222222"}
+                fill={active ? "#18181B" : "none"}
+                stroke={active ? "#18181B" : "#222222"}
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -355,7 +355,7 @@ export default function EventDetail() {
             <button
                 onClick={handleApply}
                 disabled={disabledApply || isPastDeadline}
-                className="bg-[#005ddc] hover:bg-[#004bb3] text-white h-[40px] px-[16px] min-w-[147px] rounded-[8px] font-medium text-[16px] transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-none flex items-center justify-center cursor-pointer shrink-0"
+                className="bg-zinc-900 hover:bg-black text-white h-[40px] px-[16px] min-w-[147px] rounded-[8px] font-medium text-[16px] transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-none flex items-center justify-center cursor-pointer shrink-0"
             >
                 {isApplying ? "Đang xử lý..." : isPastDeadline ? "Đã hết hạn" : event.status !== "upcoming" ? "Đã đóng đơn" : "Ứng tuyển ngay"}
             </button>
@@ -462,7 +462,7 @@ export default function EventDetail() {
                                     <div className="flex items-center gap-[6px]" data-node-id="6365:34770">
                                         <button
                                             onClick={() => navigate(`/companies/${event.profiles?.slug || event.organizer_id}`)}
-                                            className="text-[14px] font-normal text-[#515151] hover:text-[#005DDC] transition-colors cursor-pointer"
+                                            className="text-[14px] font-normal text-[#515151] hover:text-zinc-950 transition-colors cursor-pointer"
                                             data-node-id="6365:34771"
                                         >
                                             {event.profiles?.full_name || "BMW"}
@@ -502,7 +502,7 @@ export default function EventDetail() {
                                     {renderApplyButton()}
                                     <button
                                         onClick={handleMessage}
-                                        className="border border-[#005DDC] text-[#005DDC] bg-white hover:bg-[#EFF5FF] h-[40px] px-[16px] min-w-[147px] rounded-[8px] font-medium text-[16px] transition-all active:scale-[0.98] shadow-none flex items-center justify-center cursor-pointer shrink-0"
+                                        className="border border-zinc-900 text-zinc-900 bg-white hover:bg-zinc-100 h-[40px] px-[16px] min-w-[147px] rounded-[8px] font-medium text-[16px] transition-all active:scale-[0.98] shadow-none flex items-center justify-center cursor-pointer shrink-0"
                                         data-name="Buttons"
                                     >
                                         Nhắn tin
@@ -531,7 +531,7 @@ export default function EventDetail() {
                                         cx="32"
                                         cy="32"
                                         r={progressRadius}
-                                        stroke="#005DDC"
+                                        stroke="#18181B"
                                         strokeWidth="2.5"
                                         strokeLinecap="round"
                                         strokeDasharray={progressCircumference}
@@ -557,7 +557,7 @@ export default function EventDetail() {
                             <div className="flex flex-col gap-[4px] items-center text-center" data-node-id="6365:34783">
                                 <div className="flex flex-col gap-[4px] items-center text-center" data-node-id="6365:34784">
                                     <p className="font-semibold text-[#222222] text-[12px] whitespace-nowrap text-center" data-node-id="6365:34785">
-                                        <span className="text-[#005DDC]">{completionPercent}%</span> hồ sơ đã hoàn thiện
+                                        <span className="text-zinc-950 font-bold">{completionPercent}%</span> hồ sơ đã hoàn thiện
                                     </p>
                                     <p className="font-normal text-[#757575] text-[10px] leading-[normal] w-[170px] text-center" data-node-id="6365:34786">
                                         Gần xong rồi! Hãy bổ sung thêm thông tin nhé.
@@ -565,7 +565,7 @@ export default function EventDetail() {
                                 </div>
                                 <button
                                     onClick={() => navigate("/profile")}
-                                    className="h-[32px] px-[16px] rounded-[8px] text-[#003E93] hover:text-[#002A66] hover:bg-blue-50/60 font-medium text-[14px] leading-[1.6] transition-colors cursor-pointer flex items-center justify-center whitespace-nowrap"
+                                    className="h-[32px] px-[16px] rounded-[8px] text-zinc-900 hover:text-black hover:bg-zinc-100 font-medium text-[14px] leading-[1.6] transition-colors cursor-pointer flex items-center justify-center whitespace-nowrap"
                                     data-node-id="6365:34787"
                                     data-name="Buttons"
                                 >
@@ -710,7 +710,7 @@ export default function EventDetail() {
                                 </h2>
                                 <button
                                     onClick={() => navigate(`/companies/${event.profiles?.slug || event.organizer_id}`)}
-                                    className="flex items-center gap-[4px] text-[#005ddc] hover:text-[#004bb3] text-[14px] font-medium leading-[1.6] cursor-pointer hover:underline"
+                                    className="flex items-center gap-[4px] text-zinc-900 hover:text-black text-[14px] font-medium leading-[1.6] cursor-pointer hover:underline"
                                 >
                                     <span>Xem chi tiết</span>
                                     <ChevronRight className="size-[18px]" />
@@ -732,7 +732,7 @@ export default function EventDetail() {
                                     </h2>
                                     <button
                                         onClick={() => navigate("/events")}
-                                        className="flex items-center gap-[4px] text-[#005ddc] hover:text-[#004bb3] text-[14px] font-medium leading-[1.6] cursor-pointer hover:underline"
+                                        className="flex items-center gap-[4px] text-zinc-900 hover:text-black text-[14px] font-medium leading-[1.6] cursor-pointer hover:underline"
                                     >
                                         <span>More</span>
                                         <ChevronRight className="size-[18px]" />

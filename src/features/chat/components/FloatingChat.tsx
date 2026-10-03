@@ -11,8 +11,7 @@ import type { ChatItem, Message, ChatPartnerProfile } from "../types"
 import { formatReplyContent, parseReplyContent, formatTimeAgo } from "../utils/chatHelpers"
 import ChatMessageList from "./ChatMessageList"
 import ChatReplyBanner from "./ChatReplyBanner"
-import { cn } from "@/lib/utils"
-import { isOrganizerRole } from "@/lib/auth-constants"
+import { cn, isOrganizerRole } from "@/lib/utils"
 
 export default function FloatingChat({ user, role }: { user: any; role: string }) {
     const isOrg = isOrganizerRole(role)
@@ -78,11 +77,10 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
                     let displayLastMsg = ""
                     if (msg?.content) {
                         let c = msg.content
-                        if (c.startsWith("__INTERVIEW_REQUEST__:")) c = "📅 Lời mời phỏng vấn"
-                        else if (c.startsWith("__REPLY__:")) {
+                        if (c.startsWith("__REPLY__:")) {
                             const parts = c.split(":::")
                             c = parts[2] || "Tin nhắn trả lời"
-                        } else if (c.startsWith("__VOICE__:")) c = "🎤 Tin nhắn thoại"
+                        }
                         displayLastMsg = c
                     }
 
@@ -132,6 +130,16 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
             window.removeEventListener("messages-read", handleMsgsRead)
         }
     }, [user])
+
+    useEffect(() => {
+        const handleOpenChat = () => {
+            setIsOpen(true)
+        }
+        window.addEventListener("open-floating-chat", handleOpenChat)
+        return () => {
+            window.removeEventListener("open-floating-chat", handleOpenChat)
+        }
+    }, [])
 
     const activeChatRef = useRef<ChatItem | null>(null)
     useEffect(() => {
@@ -188,11 +196,10 @@ export default function FloatingChat({ user, role }: { user: any; role: string }
                     if (!newMsg || !newMsg.chat_id) return
 
                     let preview = newMsg.content
-                    if (preview.startsWith("__INTERVIEW_REQUEST__:")) preview = "📅 Lời mời phỏng vấn"
-                    else if (preview.startsWith("__REPLY__:")) {
+                    if (preview.startsWith("__REPLY__:")) {
                         const parts = preview.split(":::")
                         preview = parts[2] || "Tin nhắn trả lời"
-                    } else if (preview.startsWith("__VOICE__:")) preview = "🎤 Tin nhắn thoại"
+                    }
 
                     const currentActive = activeChatRef.current
                     const isActiveMessage = Boolean(currentActive && (currentActive.id === newMsg.chat_id || currentActive.allChatIds.includes(newMsg.chat_id)))
