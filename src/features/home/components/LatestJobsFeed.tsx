@@ -20,12 +20,12 @@ export default function LatestJobsFeed({
 }: LatestJobsFeedProps) {
   return (
     <JobsSliderSection
-      title="Việc làm mới nhất"
+      title="Sự kiện mới nhất"
       variant="simple"
       jobs={events}
       loading={loading}
-      emptyMessage="Hiện chưa có việc làm nào trong danh mục này."
-      viewMoreText="Xem thêm việc làm mới nhất"
+      emptyMessage="Hiện chưa có sự kiện nào trong danh mục này."
+      viewMoreText="Xem thêm"
       viewMoreHref="/events"
       onNavigateToJob={onNavigateToJob}
       bookmarkedEvents={bookmarkedEvents}

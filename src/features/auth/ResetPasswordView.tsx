@@ -17,7 +17,12 @@ import { FloatingBadgeInput, AuthSuccessCard, AuthSubmitButton } from "./compone
 import { Loader2 } from "lucide-react"
 import { isOrganizerRole } from "@/lib/utils"
 
-export default function ResetPasswordView() {
+export interface ResetPasswordViewProps {
+    isModal?: boolean
+    onLoginClick?: () => void
+}
+
+export default function ResetPasswordView({ isModal = false, onLoginClick }: ResetPasswordViewProps = {}) {
     const [searchParams] = useSearchParams()
 
     const roleParam = searchParams.get("role") || searchParams.get("type")
@@ -166,7 +171,9 @@ export default function ResetPasswordView() {
             subtitle={subtitle}
             errorMessage={errorMessage}
             showBackButton
-            backLink={loginLink}
+            backLink={onLoginClick ? undefined : loginLink}
+            onBack={onLoginClick}
+            isModal={isModal}
         >
             {successMessage ? (
                 <AuthSuccessCard
@@ -174,6 +181,7 @@ export default function ResetPasswordView() {
                     message={successMessage}
                     actionText="Quay lại Đăng nhập"
                     actionLink={loginLink}
+                    onActionClick={onLoginClick}
                 />
             ) : isUpdateMode ? (
                 /* Update Password Form */
@@ -212,9 +220,19 @@ export default function ResetPasswordView() {
                         </AuthSubmitButton>
 
                         <div className="flex items-center justify-center gap-1.5 text-[13px] text-center pt-1">
-                            <Link to={loginLink} className="text-zinc-500 hover:text-zinc-900 hover:underline transition-colors font-medium">
-                                Hủy và quay lại Đăng nhập
-                            </Link>
+                            {onLoginClick ? (
+                                <button
+                                    type="button"
+                                    onClick={onLoginClick}
+                                    className="text-zinc-500 hover:text-zinc-900 hover:underline transition-colors font-medium cursor-pointer"
+                                >
+                                    Hủy và quay lại Đăng nhập
+                                </button>
+                            ) : (
+                                <Link to={loginLink} className="text-zinc-500 hover:text-zinc-900 hover:underline transition-colors font-medium">
+                                    Hủy và quay lại Đăng nhập
+                                </Link>
+                            )}
                         </div>
                     </div>
                 </form>
@@ -245,9 +263,19 @@ export default function ResetPasswordView() {
 
                         <div className="flex items-center justify-center gap-1.5 text-[13px] text-center pt-1">
                             <span className="text-zinc-500 font-normal">Đã nhớ mật khẩu?</span>
-                            <Link to={loginLink} className="text-zinc-900 font-semibold hover:underline transition-colors">
-                                Đăng nhập
-                            </Link>
+                            {onLoginClick ? (
+                                <button
+                                    type="button"
+                                    onClick={onLoginClick}
+                                    className="text-zinc-900 font-semibold hover:underline transition-colors cursor-pointer"
+                                >
+                                    Đăng nhập
+                                </button>
+                            ) : (
+                                <Link to={loginLink} className="text-zinc-900 font-semibold hover:underline transition-colors">
+                                    Đăng nhập
+                                </Link>
+                            )}
                         </div>
                     </div>
                 </form>

@@ -155,7 +155,7 @@ export default function CareerAdviceSection() {
         <button
           type="button"
           onClick={() => router.push("/blog")}
-          className="h-[40px] w-full max-w-[343px] border border-[#ddd] rounded-full bg-white text-[#222222] font-bold text-[16px] leading-[24px] hover:bg-gray-50 hover:border-gray-400 transition-colors flex items-center justify-center cursor-pointer active:scale-[0.98]"
+          className="h-[40px] px-6 border border-[#ddd] rounded-full bg-white text-[#222222] font-bold text-[15px] md:text-[16px] leading-[24px] hover:bg-gray-50 hover:border-gray-400 transition-colors flex items-center justify-center cursor-pointer active:scale-[0.98]"
         >
           Xem thêm
         </button>

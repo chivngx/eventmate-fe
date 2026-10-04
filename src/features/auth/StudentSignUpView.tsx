@@ -17,7 +17,21 @@ import {
     RoleSwitcherTabs,
 } from "./components/AuthComponents"
 
-export default function StudentSignUpView() {
+export interface StudentSignUpViewProps {
+    isModal?: boolean
+    redirectPath?: string
+    onLoginClick?: () => void
+    onRoleChange?: (role: "student" | "organizer") => void
+    onSuccess?: () => void
+}
+
+export default function StudentSignUpView({
+    isModal = false,
+    redirectPath,
+    onLoginClick,
+    onRoleChange,
+    onSuccess,
+}: StudentSignUpViewProps = {}) {
     const navigate = useNavigate()
 
     // UI Feedback & Loading states
@@ -70,6 +84,15 @@ export default function StudentSignUpView() {
 
             if (data.user) {
                 if (data.session) {
+                    if (isModal) {
+                        if (onSuccess) onSuccess()
+                        if (redirectPath && redirectPath.startsWith("/") && redirectPath !== "/") {
+                            navigate(redirectPath)
+                        } else {
+                            window.location.reload()
+                        }
+                        return
+                    }
                     navigate("/")
                 } else {
                     setSuccessMessage("Đăng ký tài khoản thành công! Vui lòng kiểm tra email của bạn để xác thực tài khoản.")
@@ -82,15 +105,19 @@ export default function StudentSignUpView() {
         }
     }
 
-    // Google Sign Up
+    // Google OAuth sign-up
     const handleGoogleSignUp = async () => {
         setErrorMessage(null)
         setGoogleLoading(true)
         try {
+            const targetRedirect = redirectPath
+                ? `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectPath)}`
+                : `${window.location.origin}/auth/callback`
+
             const { error: oauthError } = await supabase.auth.signInWithOAuth({
                 provider: "google",
                 options: {
-                    redirectTo: `${window.location.origin}/auth/callback`,
+                    redirectTo: targetRedirect,
                 },
             })
             if (oauthError) {
@@ -108,6 +135,7 @@ export default function StudentSignUpView() {
             title="Đăng ký tài khoản Ứng viên"
             subtitle="Tạo tài khoản để ứng tuyển các cơ hội việc làm sự kiện hàng đầu tại Đà Nẵng."
             errorMessage={errorMessage}
+            isModal={isModal}
         >
             {successMessage ? (
                 <AuthSuccessCard
@@ -115,6 +143,7 @@ export default function StudentSignUpView() {
                     message={successMessage}
                     actionText="Đi đến trang Đăng nhập"
                     actionLink="/login"
+                    onActionClick={onLoginClick}
                 />
             ) : (
                 <>
@@ -122,6 +151,7 @@ export default function StudentSignUpView() {
                     <RoleSwitcherTabs
                         activeRole="student"
                         mode="register"
+                        onRoleChange={onRoleChange}
                     />
 
                     <form onSubmit={handleSubmit(handleFormSubmit)} className="flex flex-col gap-3.5 sm:gap-4" noValidate>
@@ -173,9 +203,19 @@ export default function StudentSignUpView() {
                             />
                             <div className="flex items-center justify-center gap-1.5 text-[13px] text-center pt-1.5">
                                 <span className="text-zinc-500 font-normal">Bạn đã có tài khoản?</span>
-                                <Link to="/login" className="text-zinc-900 font-semibold hover:underline transition-colors">
-                                    Đăng nhập
-                                </Link>
+                                {onLoginClick ? (
+                                    <button
+                                        type="button"
+                                        onClick={onLoginClick}
+                                        className="text-zinc-900 font-semibold hover:underline transition-colors cursor-pointer"
+                                    >
+                                        Đăng nhập
+                                    </button>
+                                ) : (
+                                    <Link to="/login" className="text-zinc-900 font-semibold hover:underline transition-colors">
+                                        Đăng nhập
+                                    </Link>
+                                )}
                             </div>
                         </div>
                     </form>

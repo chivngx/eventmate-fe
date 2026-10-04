@@ -21,6 +21,7 @@ interface Step1EmployerInfoProps {
     onSubmit: (values: EmployerRegisterValues) => void
     onGoogleSignUp: () => void
     googleLoading?: boolean
+    onLoginClick?: () => void
 }
 
 export function Step1OrganizerInfo({
@@ -28,6 +29,7 @@ export function Step1OrganizerInfo({
     onSubmit,
     onGoogleSignUp,
     googleLoading = false,
+    onLoginClick,
 }: Step1EmployerInfoProps) {
     const {
         register,
@@ -114,9 +116,19 @@ export function Step1OrganizerInfo({
 
                 <div className="flex items-center justify-center gap-1.5 text-[13px] text-center pt-1.5">
                     <span className="text-zinc-500 font-normal">Bạn đã có tài khoản?</span>
-                    <Link to="/login?role=organizer" className="text-zinc-900 font-semibold hover:underline transition-colors">
-                        Đăng nhập
-                    </Link>
+                    {onLoginClick ? (
+                        <button
+                            type="button"
+                            onClick={onLoginClick}
+                            className="text-zinc-900 font-semibold hover:underline transition-colors cursor-pointer"
+                        >
+                            Đăng nhập
+                        </button>
+                    ) : (
+                        <Link to="/login?role=organizer" className="text-zinc-900 font-semibold hover:underline transition-colors">
+                            Đăng nhập
+                        </Link>
+                    )}
                 </div>
             </div>
         </form>

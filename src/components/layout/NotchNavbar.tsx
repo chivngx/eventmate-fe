@@ -27,6 +27,7 @@ import { EventMateLogoIcon } from "@/components/common/EventMateLogo"
 import { NavBellIcon } from "./JoblinIcons"
 import NotificationDropdown from "./NotificationDropdown"
 import JobseekerProfileDropdown from "./JobseekerProfileDropdown"
+import { useAuthModal } from "@/components/providers/AuthModalProvider"
 
 export interface NotchNavbarProps {
   className?: string
@@ -64,6 +65,7 @@ export function NotchNavbar({
 }: NotchNavbarProps) {
   const pathname = usePathname()
   const router = useRouter()
+  const { openLogin, openRegister } = useAuthModal()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
 
@@ -146,7 +148,7 @@ export function NotchNavbar({
           className
         )}
       >
-        <div className="max-w-[1526px] mx-auto w-full h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between gap-3">
+        <div className="max-w-[1380px] mx-auto w-full h-full px-6 sm:px-8 flex items-center justify-between gap-4">
           {/* Left: Hamburger (☰) + Logo + Price Badge */}
           <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
             {/* Hamburger Button (Mobile / Tablet only) */}
@@ -295,25 +297,11 @@ export function NotchNavbar({
               </button>
             )}
 
-            {/* "Liên hệ" button (Figma Component 18) */}
-            <button
-              type="button"
-              onClick={handleContactClick}
-              className={cn(
-                "hidden sm:flex h-10 px-3.5 rounded-full items-center gap-1.5 text-sm font-semibold transition-all cursor-pointer",
-                isHeroUnscrolled
-                  ? "bg-white text-gray-800 shadow-xs hover:bg-gray-100"
-                  : "border border-gray-200 text-gray-800 hover:bg-gray-50 shadow-xs"
-              )}
-            >
-              <MessageCircle className="size-4" />
-              <span>Liên hệ</span>
-            </button>
-
             {/* Middle Action: "Đăng nhập" (for guest) or "Quản lý tin" (for user) */}
             {isGuest ? (
-              <Link
-                href={isEmployer ? "/login?role=organizer" : "/login"}
+              <button
+                type="button"
+                onClick={() => openLogin({ role: isEmployer ? "organizer" : "student" })}
                 className={cn(
                   "h-10 px-4 rounded-full flex items-center justify-center font-semibold text-sm transition-all whitespace-nowrap cursor-pointer",
                   isHeroUnscrolled
@@ -322,7 +310,7 @@ export function NotchNavbar({
                 )}
               >
                 Đăng nhập
-              </Link>
+              </button>
             ) : isOrg ? (
               <Link
                 href="/manage-events"
@@ -339,21 +327,36 @@ export function NotchNavbar({
 
             {/* Primary Action Button: "Đăng tuyển" (Hidden for Student) */}
             {!isStudent && (
-              <Link
-                href={isEmployer ? "/register?role=organizer" : "/post-job"}
-                className={cn(
-                  "h-10 px-4 rounded-full flex items-center justify-center font-bold text-sm transition-all shadow-xs active:scale-95 whitespace-nowrap cursor-pointer",
-                  isHeroUnscrolled
-                    ? "bg-[#222222] hover:bg-black text-white"
-                    : "bg-[#FB7328] hover:bg-[#ea5d15] text-white"
-                )}
-              >
-                Đăng tuyển
-              </Link>
+              isGuest ? (
+                <button
+                  type="button"
+                  onClick={() => openRegister({ role: "organizer" })}
+                  className={cn(
+                    "h-10 px-4 rounded-full flex items-center justify-center font-bold text-sm transition-all shadow-xs active:scale-95 whitespace-nowrap cursor-pointer",
+                    isHeroUnscrolled
+                      ? "bg-[#222222] hover:bg-black text-white"
+                      : "bg-[#FB7328] hover:bg-[#ea5d15] text-white"
+                  )}
+                >
+                  Đăng tuyển
+                </button>
+              ) : (
+                <Link
+                  href="/post-job"
+                  className={cn(
+                    "h-10 px-4 rounded-full flex items-center justify-center font-bold text-sm transition-all shadow-xs active:scale-95 whitespace-nowrap cursor-pointer",
+                    isHeroUnscrolled
+                      ? "bg-[#222222] hover:bg-black text-white"
+                      : "bg-[#FB7328] hover:bg-[#ea5d15] text-white"
+                  )}
+                >
+                  Đăng tuyển
+                </Link>
+              )
             )}
 
-            {/* Profile Avatar Dropdown / Guest Profile Pill */}
-            {!isGuest ? (
+            {/* Profile Avatar Dropdown (only when logged in) */}
+            {!isGuest && (
               <JobseekerProfileDropdown
                 avatarUrl={avatarUrl}
                 fullName={fullName}
@@ -364,23 +367,6 @@ export function NotchNavbar({
                 handleLogout={handleLogout}
                 isHeroUnscrolled={isHeroUnscrolled}
               />
-            ) : (
-              /* Guest Avatar Pill with User Icon + Chevron */
-              <Link
-                href="/login"
-                className={cn(
-                  "h-10 px-2.5 rounded-full flex items-center gap-1.5 transition-all cursor-pointer",
-                  isHeroUnscrolled
-                    ? "bg-white text-gray-700 shadow-xs hover:bg-gray-100"
-                    : "border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-xs"
-                )}
-                title="Tài khoản"
-              >
-                <div className="size-6 rounded-full bg-gray-100 flex items-center justify-center text-gray-600">
-                  <User className="size-3.5" />
-                </div>
-                <ChevronDown className="size-3.5 text-gray-500" />
-              </Link>
             )}
           </div>
         </div>
@@ -634,22 +620,28 @@ export function NotchNavbar({
               {/* Bottom Auth Section */}
               {isGuest ? (
                 <div className="pt-2 flex flex-col gap-2">
-                  <Link
-                    href={isEmployer ? "/register?role=organizer" : "/register"}
-                    className="text-white flex items-center justify-center gap-2 h-[42px] rounded-full bg-[#1877F2] hover:bg-[#1366D6] font-medium text-sm transition-all shadow-xs active:scale-[0.98]"
-                    onClick={() => setIsMobileMenuOpen(false)}
+                  <button
+                    type="button"
+                    className="text-white flex items-center justify-center gap-2 h-[42px] rounded-full bg-[#1877F2] hover:bg-[#1366D6] font-medium text-sm transition-all shadow-xs active:scale-[0.98] cursor-pointer"
+                    onClick={() => {
+                      setIsMobileMenuOpen(false)
+                      openRegister({ role: isEmployer ? "organizer" : "student" })
+                    }}
                   >
                     <UserPlus className="size-4" />
                     <span>Đăng ký tài khoản</span>
-                  </Link>
-                  <Link
-                    href={isEmployer ? "/login?role=organizer" : "/login"}
-                    className="h-[42px] flex items-center justify-center gap-2 rounded-full border border-slate-200 text-slate-800 font-medium text-sm hover:bg-slate-50 transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
+                  </button>
+                  <button
+                    type="button"
+                    className="h-[42px] flex items-center justify-center gap-2 rounded-full border border-slate-200 text-slate-800 font-medium text-sm hover:bg-slate-50 transition-colors cursor-pointer"
+                    onClick={() => {
+                      setIsMobileMenuOpen(false)
+                      openLogin({ role: isEmployer ? "organizer" : "student" })
+                    }}
                   >
                     <LogIn className="size-4" />
                     <span>Đăng nhập</span>
-                  </Link>
+                  </button>
                 </div>
               ) : (
                 <div className="pt-2 flex flex-col gap-1">

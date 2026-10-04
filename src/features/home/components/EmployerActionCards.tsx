@@ -85,11 +85,11 @@ export default function EmployerActionCards() {
   const router = useRouter()
 
   return (
-    <section className="w-full bg-white rounded-2xl p-5 md:p-6 shadow-xs" aria-label="Dành cho nhà tuyển dụng">
+    <section className="w-full bg-white rounded-2xl p-5 md:p-6 shadow-xs" aria-label="Dành cho Ban Tổ Chức">
       {/* Title */}
       <div className="mb-3 md:mb-4">
         <h2 className="text-[18px] md:text-[20px] font-bold text-[#222222] leading-[28px]">
-          Dành cho nhà tuyển dụng
+          Dành cho Ban Tổ Chức
         </h2>
       </div>
 

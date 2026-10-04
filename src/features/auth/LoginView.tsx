@@ -17,14 +17,34 @@ import {
 } from "./components/AuthComponents"
 import { isOrganizerRole } from "@/lib/utils"
 
-export default function LoginView() {
+export interface LoginViewProps {
+    isModal?: boolean
+    initialRole?: "student" | "organizer"
+    redirectPath?: string
+    customMessage?: string
+    onRegisterClick?: () => void
+    onForgotPasswordClick?: () => void
+    onRoleChange?: (role: "student" | "organizer") => void
+    onSuccess?: () => void
+}
+
+export default function LoginView({
+    isModal = false,
+    initialRole,
+    redirectPath,
+    customMessage,
+    onRegisterClick,
+    onForgotPasswordClick,
+    onRoleChange,
+    onSuccess,
+}: LoginViewProps = {}) {
     const navigate = useNavigate()
     const [searchParams] = useSearchParams()
 
     const roleParam = searchParams.get("role") || searchParams.get("type")
-    const isEmployer = isOrganizerRole(roleParam)
+    const isEmployer = initialRole ? initialRole === "organizer" : isOrganizerRole(roleParam)
 
-    const redirectTo = searchParams.get("redirect") || (isEmployer ? "/for-employers" : "/")
+    const redirectTo = redirectPath || searchParams.get("redirect") || (isEmployer ? "/for-employers" : "/")
 
     const [loading, setLoading] = useState(false)
     const [googleLoading, setGoogleLoading] = useState(false)
@@ -56,6 +76,21 @@ export default function LoginView() {
             }
 
             if (data.user) {
+                if (isModal) {
+                    if (onSuccess) {
+                        onSuccess()
+                    }
+                    const explicitRedirect = redirectPath || searchParams.get("redirect")
+                    if (explicitRedirect && explicitRedirect.startsWith("/") && explicitRedirect !== "/") {
+                        navigate(explicitRedirect)
+                    } else if (isEmployer) {
+                        navigate("/for-employers")
+                    } else {
+                        window.location.reload()
+                    }
+                    return
+                }
+
                 const explicitRedirect = searchParams.get("redirect")
                 if (explicitRedirect && explicitRedirect.startsWith("/") && explicitRedirect !== "/") {
                     navigate(explicitRedirect)
@@ -116,9 +151,9 @@ export default function LoginView() {
     }
 
     const title = isEmployer ? "Đăng nhập Ban tổ chức" : "Đăng nhập"
-    const subtitle = isEmployer
+    const subtitle = customMessage || (isEmployer
         ? "Chào mừng trở lại! Vui lòng đăng nhập để tiếp tục quản lý sự kiện và tuyển dụng."
-        : "Chào mừng trở lại! Vui lòng đăng nhập để tìm kiếm và ứng tuyển việc làm sự kiện."
+        : "Chào mừng trở lại! Vui lòng đăng nhập để tìm kiếm và ứng tuyển việc làm sự kiện.")
 
     const emailLabel = isEmployer ? "Email tổ chức / doanh nghiệp" : "Email"
     const emailPlaceholder = isEmployer ? "contact@company.com" : "name@example.com"
@@ -130,11 +165,13 @@ export default function LoginView() {
             title={title}
             subtitle={subtitle}
             errorMessage={errorMessage}
+            isModal={isModal}
         >
             {/* Role Switcher Tabs */}
             <RoleSwitcherTabs
                 activeRole={isEmployer ? "organizer" : "student"}
                 mode="login"
+                onRoleChange={onRoleChange}
             />
 
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3.5 sm:gap-4" noValidate>
@@ -158,12 +195,22 @@ export default function LoginView() {
                     autoComplete="current-password"
                     error={errors.password?.message}
                     rightAction={
-                        <Link
-                            to={forgotPasswordLink}
-                            className="text-[12px] font-medium text-zinc-500 hover:text-zinc-900 transition-colors"
-                        >
-                            Quên mật khẩu?
-                        </Link>
+                        onForgotPasswordClick ? (
+                            <button
+                                type="button"
+                                onClick={onForgotPasswordClick}
+                                className="text-[12px] font-medium text-zinc-500 hover:text-zinc-900 transition-colors cursor-pointer"
+                            >
+                                Quên mật khẩu?
+                            </button>
+                        ) : (
+                            <Link
+                                to={forgotPasswordLink}
+                                className="text-[12px] font-medium text-zinc-500 hover:text-zinc-900 transition-colors"
+                            >
+                                Quên mật khẩu?
+                            </Link>
+                        )
                     }
                     {...register("password")}
                 />
@@ -186,12 +233,22 @@ export default function LoginView() {
                         <span className="text-zinc-500 font-normal">
                             {isEmployer ? "Chưa có tài khoản Ban tổ chức?" : "Chưa có tài khoản?"}
                         </span>
-                        <Link
-                            to={registerLink}
-                            className="text-zinc-900 font-semibold hover:underline transition-colors"
-                        >
-                            Đăng ký ngay
-                        </Link>
+                        {onRegisterClick ? (
+                            <button
+                                type="button"
+                                onClick={onRegisterClick}
+                                className="text-zinc-900 font-semibold hover:underline transition-colors cursor-pointer"
+                            >
+                                Đăng ký ngay
+                            </button>
+                        ) : (
+                            <Link
+                                to={registerLink}
+                                className="text-zinc-900 font-semibold hover:underline transition-colors"
+                            >
+                                Đăng ký ngay
+                            </Link>
+                        )}
                     </div>
                 </div>
             </form>

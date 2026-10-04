@@ -65,12 +65,12 @@ export default function TopEmployers() {
   return (
     <section
       className="w-full bg-white rounded-2xl shadow-xs overflow-hidden"
-      aria-label="Việc làm từ Nhà tuyển dụng tiêu biểu"
+      aria-label="Ban tổ chức tiêu biểu"
     >
       {/* Header */}
       <div className="pt-4 md:pt-5 pb-3 px-5 md:px-6">
         <h2 className="text-[18px] md:text-[20px] font-bold text-[#222222] leading-[28px]">
-          Việc làm từ Nhà tuyển dụng tiêu biểu
+          Ban tổ chức tiêu biểu
         </h2>
       </div>
 

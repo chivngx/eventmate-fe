@@ -12,74 +12,74 @@ interface PopularCategoryItem {
 
 const POPULAR_CATEGORIES: PopularCategoryItem[] = [
   {
-    id: "nhan-vien-kinh-doanh",
-    name: "Nhân viên kinh doanh",
-    lines: ["Nhân viên", "kinh doanh"],
-    imageSrc: "/images/categories/nhan-vien-kinh-doanh.png",
-    searchKeyword: "Kinh doanh",
+    id: "pg-pb-su-kien",
+    name: "PG & PB Sự kiện",
+    lines: ["PG & PB", "Sự kiện"],
+    imageSrc: "/images/categories/pg-pb.png",
+    searchKeyword: "PG & PB Sự kiện",
   },
   {
-    id: "nhan-vien-phuc-vu",
-    name: "Nhân viên phục vụ",
-    lines: ["Nhân viên", "phục vụ"],
-    imageSrc: "/images/categories/nhan-vien-phuc-vu.png",
-    searchKeyword: "Phục vụ",
+    id: "le-tan-check-in",
+    name: "Lễ tân & Check-in",
+    lines: ["Lễ tân &", "Check-in"],
+    imageSrc: "/images/categories/le-tan.png",
+    searchKeyword: "Lễ tân & Check-in",
   },
   {
-    id: "ban-hang",
-    name: "Bán hàng",
-    lines: ["Bán hàng"],
-    imageSrc: "/images/categories/ban-hang.png",
-    searchKeyword: "Bán hàng",
+    id: "hau-can-san-khau",
+    name: "Hậu cần & Sân khấu",
+    lines: ["Hậu cần &", "Sân khấu"],
+    imageSrc: "/images/categories/hau-can.png",
+    searchKeyword: "Hậu cần & Sân khấu",
   },
   {
-    id: "bao-ve",
-    name: "Bảo vệ",
-    lines: ["Bảo vệ"],
-    imageSrc: "/images/categories/bao-ve.png",
-    searchKeyword: "Bảo vệ",
+    id: "dieu-phoi-su-kien",
+    name: "Điều phối sự kiện",
+    lines: ["Điều phối", "sự kiện"],
+    imageSrc: "/images/categories/dieu-phoi.png",
+    searchKeyword: "Điều phối sự kiện",
   },
   {
-    id: "tai-xe-o-to",
-    name: "Tài xế ô tô",
-    lines: ["Tài xế ô tô"],
-    imageSrc: "/images/categories/tai-xe-o-to.png",
-    searchKeyword: "Tài xế",
+    id: "mc-hoat-nao",
+    name: "MC & Hoạt náo",
+    lines: ["MC &", "Hoạt náo"],
+    imageSrc: "/images/categories/mc-hoat-nao.png",
+    searchKeyword: "MC & Hoạt náo",
   },
   {
-    id: "cong-nhan",
-    name: "Công nhân",
-    lines: ["Công nhân"],
-    imageSrc: "/images/categories/cong-nhan.png",
-    searchKeyword: "Công nhân",
+    id: "quay-phim-chup-anh",
+    name: "Quay phim & Chụp ảnh",
+    lines: ["Quay phim &", "Chụp ảnh"],
+    imageSrc: "/images/categories/media.png",
+    searchKeyword: "Quay phim & Chụp ảnh",
   },
   {
-    id: "nhan-vien-kho-van",
-    name: "Nhân viên kho vận",
-    lines: ["Nhân viên", "kho vận"],
-    imageSrc: "/images/categories/nhan-vien-kho-van.png",
-    searchKeyword: "Kho vận",
+    id: "phuc-vu-tiec-banquet",
+    name: "Phục vụ tiệc (Banquet)",
+    lines: ["Phục vụ tiệc", "(Banquet)"],
+    imageSrc: "/images/categories/banquet.png",
+    searchKeyword: "Phục vụ tiệc (Banquet)",
   },
   {
-    id: "nhan-vien-giao-hang",
-    name: "Nhân viên giao hàng",
-    lines: ["Nhân viên", "giao hàng"],
-    imageSrc: "/images/categories/nhan-vien-giao-hang.png",
-    searchKeyword: "Giao hàng",
-  },
-  {
-    id: "phu-bep",
-    name: "Phụ bếp",
-    lines: ["Phụ bếp"],
-    imageSrc: "/images/categories/phu-bep.png",
-    searchKeyword: "Phụ bếp",
-  },
-  {
-    id: "pha-che",
-    name: "Pha chế",
-    lines: ["Pha chế"],
+    id: "pha-che-su-kien",
+    name: "Pha chế sự kiện",
+    lines: ["Pha chế", "sự kiện"],
     imageSrc: "/images/categories/pha-che.png",
-    searchKeyword: "Pha chế",
+    searchKeyword: "Pha chế sự kiện",
+  },
+  {
+    id: "mascot-bieu-dien",
+    name: "Mascot & Biểu diễn",
+    lines: ["Mascot &", "Biểu diễn"],
+    imageSrc: "/images/categories/mascot.png",
+    searchKeyword: "Mascot & Biểu diễn",
+  },
+  {
+    id: "tinh-nguyen-vien",
+    name: "Tình nguyện viên",
+    lines: ["Tình nguyện", "viên"],
+    imageSrc: "/images/categories/soat-ve.png",
+    searchKeyword: "Tình nguyện viên",
   },
 ]
 
@@ -94,7 +94,7 @@ export default function PopularCategories() {
     <section className="w-full bg-white rounded-2xl p-5 md:p-6 shadow-xs" aria-label="Các ngành nghề phổ biến">
       {/* Title */}
       <h2 className="text-[20px] font-bold text-[#222222] leading-[30px] mb-3">
-        Các ngành nghề phổ biến
+        Các vị trí phổ biến
       </h2>
 
       {/* Grid of 10 category cards */}
@@ -132,7 +132,7 @@ export default function PopularCategories() {
           onClick={() => router.push("/events")}
           className="h-[40px] px-6 rounded-full border border-[#dadada] bg-white hover:bg-gray-50 hover:border-gray-400 text-[#222222] text-[15px] md:text-[16px] font-bold transition-all flex items-center justify-center cursor-pointer shadow-2xs hover:shadow-xs active:scale-[0.98]"
         >
-          Xem tất cả ngành nghề
+          Xem tất cả
         </button>
       </div>
     </section>

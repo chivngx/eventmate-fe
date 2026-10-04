@@ -10,7 +10,6 @@ import NotificationDropdown from "./NotificationDropdown"
 import JobseekerProfileDropdown from "./JobseekerProfileDropdown"
 import FloatingChat from "@/features/chat/components/FloatingChat"
 import Footer from "./Footer"
-import AuthPromptModal from "@/features/auth/components/AuthPromptModal"
 import { cn, isOrganizerRole } from "@/lib/utils"
 import { Plus, ShieldCheck, MessageSquare } from "lucide-react"
 
@@ -60,33 +59,6 @@ export default function MainLayout({
     const effectiveUser = isGuestMode ? null : user
     const [notifications, setNotifications] = useState<any[]>([])
     const unreadCount = notifications.filter(n => !n.is_read).length
-
-    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
-    const [authModalMessage, setAuthModalMessage] = useState<string | undefined>()
-    const [authModalRedirect, setAuthModalRedirect] = useState<string | undefined>()
-
-    // Open auth prompt modal from anywhere via CustomEvent
-    useEffect(() => {
-        const handleOpenAuth = (e: Event) => {
-            const customEvent = e as CustomEvent
-            if (customEvent.detail?.directNavigate) {
-                const targetRedirect = customEvent.detail?.redirect ? `&redirect=${encodeURIComponent(customEvent.detail.redirect)}` : ''
-                if (customEvent.detail?.mode === "register") {
-                    navigate(isEmployerContext ? `/register?role=organizer${targetRedirect}` : `/register${targetRedirect}`)
-                } else if (customEvent.detail?.mode === "forgot") {
-                    navigate(isEmployerContext ? `/reset-password?role=organizer${targetRedirect}` : `/reset-password${targetRedirect}`)
-                } else {
-                    navigate(isEmployerContext ? `/login?role=organizer${targetRedirect}` : `/login${targetRedirect}`)
-                }
-            } else {
-                setAuthModalMessage(customEvent.detail?.message)
-                setAuthModalRedirect(customEvent.detail?.redirect)
-                setIsAuthModalOpen(true)
-            }
-        }
-        window.addEventListener("open-auth-modal", handleOpenAuth)
-        return () => window.removeEventListener("open-auth-modal", handleOpenAuth)
-    }, [isEmployerContext])
 
     // Fetch notifications + subscribe to realtime INSERTs for the current user.
     useEffect(() => {
@@ -268,16 +240,6 @@ export default function MainLayout({
             <Footer />
 
             <FloatingChat user={user} role={userRole} />
-            <AuthPromptModal
-                isOpen={isAuthModalOpen}
-                onClose={() => {
-                    setIsAuthModalOpen(false)
-                    setAuthModalRedirect(undefined)
-                }}
-                customMessage={authModalMessage}
-                redirectPath={authModalRedirect || pathname || undefined}
-                role={isEmployerContext ? "organizer" : "student"}
-            />
         </div>
     )
 }

@@ -26,35 +26,66 @@ export function EventMateLogo({ className = "" }: { className?: string }) {
 export function RoleSwitcherTabs({
     activeRole,
     mode,
+    onRoleChange,
 }: {
     activeRole: "student" | "organizer"
     mode: "login" | "register"
+    onRoleChange?: (role: "student" | "organizer") => void
 }) {
     const studentUrl = mode === "login" ? "/login" : "/register"
     const organizerUrl = mode === "login" ? "/login?role=organizer" : "/register?role=organizer"
 
     return (
         <div className="w-full grid grid-cols-2 p-1 bg-zinc-100/90 rounded-xl text-[13px] font-medium border border-zinc-200/60 mb-2 select-none">
-            <Link
-                to={studentUrl}
-                className={`py-2 text-center rounded-lg transition-all duration-200 ${
-                    activeRole === "student"
-                        ? "bg-white text-zinc-900 font-semibold shadow-xs"
-                        : "text-zinc-500 hover:text-zinc-900"
-                }`}
-            >
-                Ứng viên
-            </Link>
-            <Link
-                to={organizerUrl}
-                className={`py-2 text-center rounded-lg transition-all duration-200 ${
-                    activeRole === "organizer"
-                        ? "bg-white text-zinc-900 font-semibold shadow-xs"
-                        : "text-zinc-500 hover:text-zinc-900"
-                }`}
-            >
-                Ban tổ chức
-            </Link>
+            {onRoleChange ? (
+                <>
+                    <button
+                        type="button"
+                        onClick={() => onRoleChange("student")}
+                        className={`py-2 text-center rounded-lg transition-all duration-200 cursor-pointer ${
+                            activeRole === "student"
+                                ? "bg-white text-zinc-900 font-semibold shadow-xs"
+                                : "text-zinc-500 hover:text-zinc-900"
+                        }`}
+                    >
+                        Ứng viên
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => onRoleChange("organizer")}
+                        className={`py-2 text-center rounded-lg transition-all duration-200 cursor-pointer ${
+                            activeRole === "organizer"
+                                ? "bg-white text-zinc-900 font-semibold shadow-xs"
+                                : "text-zinc-500 hover:text-zinc-900"
+                        }`}
+                    >
+                        Ban tổ chức
+                    </button>
+                </>
+            ) : (
+                <>
+                    <Link
+                        to={studentUrl}
+                        className={`py-2 text-center rounded-lg transition-all duration-200 ${
+                            activeRole === "student"
+                                ? "bg-white text-zinc-900 font-semibold shadow-xs"
+                                : "text-zinc-500 hover:text-zinc-900"
+                        }`}
+                    >
+                        Ứng viên
+                    </Link>
+                    <Link
+                        to={organizerUrl}
+                        className={`py-2 text-center rounded-lg transition-all duration-200 ${
+                            activeRole === "organizer"
+                                ? "bg-white text-zinc-900 font-semibold shadow-xs"
+                                : "text-zinc-500 hover:text-zinc-900"
+                        }`}
+                    >
+                        Ban tổ chức
+                    </Link>
+                </>
+            )}
         </div>
     )
 }
@@ -170,23 +201,35 @@ export function AuthSuccessCard({
     message,
     actionText = "Đi đến trang Đăng nhập",
     actionLink = "/login",
+    onActionClick,
 }: {
     title: string
     message: string
     actionText?: string
     actionLink?: string
+    onActionClick?: () => void
 }) {
     return (
         <div className="flex flex-col items-center text-center gap-3.5 p-6 rounded-2xl bg-zinc-50 border border-zinc-200/80 text-zinc-800 animate-in fade-in duration-200 w-full">
             <CheckCircle2 className="w-10 h-10 text-emerald-600" />
             <h2 className="text-[17px] font-semibold text-zinc-900">{title}</h2>
             <p className="text-[13px] leading-relaxed text-zinc-600">{message}</p>
-            <Link
-                to={actionLink}
-                className="mt-1 inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-medium text-[14px] transition-colors shadow-xs"
-            >
-                {actionText}
-            </Link>
+            {onActionClick ? (
+                <button
+                    type="button"
+                    onClick={onActionClick}
+                    className="mt-1 inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-medium text-[14px] transition-colors shadow-xs cursor-pointer"
+                >
+                    {actionText}
+                </button>
+            ) : (
+                <Link
+                    to={actionLink}
+                    className="mt-1 inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-medium text-[14px] transition-colors shadow-xs"
+                >
+                    {actionText}
+                </Link>
+            )}
         </div>
     )
 }

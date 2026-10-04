@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { FaFacebookF, FaInstagram } from "react-icons/fa6";
-import { Button } from "@/components/base-ui/button";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { EventMateLogoIcon } from "@/components/common/EventMateLogo";
 

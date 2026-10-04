@@ -140,15 +140,15 @@ export default function UrgentJobsSection({
 
   return (
     <JobsSliderSection
-      title="Việc tuyển gấp"
+      title="Sự kiện tuyển gấp"
       variant="banner"
-      badgeText="Việc làm xác thực"
+      badgeText="Sự kiện xác thực"
       infoIcon
       isUrgentCardBadge
       jobs={jobs}
       loading={loading}
-      emptyMessage="Hiện chưa có việc làm tuyển gấp nào."
-      viewMoreText="Xem thêm việc tuyển gấp"
+      emptyMessage="Hiện chưa có sự kiện tuyển gấp nào."
+      viewMoreText="Xem thêm"
       viewMoreHref="/events"
       onNavigateToJob={onNavigateToJob}
       bookmarkedEvents={bookmarkedEvents}

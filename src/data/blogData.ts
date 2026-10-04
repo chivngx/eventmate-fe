@@ -22,8 +22,8 @@ export const BLOG_POSTS: BlogPostItem[] = [
     date: "15 Th03, 2026",
     category: "jobseeker",
     tags: ["Mẹo viết CV", "Cẩm nang tìm việc"],
-    imageSrc: "/images/advice/blog-1.png",
-    imageUrl: "/images/advice/blog-1.png",
+    imageSrc: "/images/advice/blog-1.jpg",
+    imageUrl: "/images/advice/blog-1.jpg",
     content: `Ngành sự kiện luôn đòi hỏi tốc độ, sự thích ứng và tinh thần trách nhiệm cao. Khi ứng tuyển vào các vị trí nhân sự sự kiện (Event Crew, Check-in Coordinator, MC hay Stage Support), hồ sơ của bạn cần thể hiện rõ tính cách năng động và khả năng làm việc nhóm.
 
 1. Làm nổi bật các sự kiện từng tham gia: Đừng chỉ liệt kê chức danh chung chung, hãy ghi rõ quy mô sự kiện (ví dụ: Hội nghị 500 khách tại Furama, Lễ hội âm nhạc 5.000 khán giả) và nhiệm vụ cụ thể bạn đảm nhận.
@@ -39,8 +39,8 @@ export const BLOG_POSTS: BlogPostItem[] = [
     date: "28 Th02, 2026",
     category: "industry",
     tags: ["Kỹ năng mềm", "Điều phối"],
-    imageSrc: "/images/advice/blog-2.png",
-    imageUrl: "/images/advice/blog-2.png",
+    imageSrc: "/images/advice/blog-2.jpg",
+    imageUrl: "/images/advice/blog-2.jpg",
     content: `Để một sự kiện diễn ra suôn sẻ, vai trò của người điều phối (Event Coordinator) là mắt xích không thể thiếu kết nối ban tổ chức và nhân sự hiện trường.
 
 1. Khả năng bao quát và chú ý tiểu tiết: Từ khâu sắp xếp bàn đón khách, hệ thống âm thanh micro cho đến biển chỉ dẫn check-in.
@@ -58,8 +58,8 @@ export const BLOG_POSTS: BlogPostItem[] = [
     date: "02 Th03, 2026",
     category: "jobseeker",
     tags: ["Điểm tín nhiệm", "Cẩm nang tìm việc"],
-    imageSrc: "/images/advice/blog-3.png",
-    imageUrl: "/images/advice/blog-3.png",
+    imageSrc: "/images/advice/blog-3.jpg",
+    imageUrl: "/images/advice/blog-3.jpg",
     content: `Tại EventMate, độ tin cậy là tiêu chí quan trọng nhất để kết nối người tìm việc với nhà tổ chức sự kiện.
 
 1. Điểm tín nhiệm được tính thế nào: Khởi đầu từ 100 điểm, bạn sẽ được cộng điểm khi hoàn thành ca đúng giờ, được nhà tổ chức đánh giá 5 sao và tích lũy số giờ làm việc uy tín.
@@ -75,8 +75,8 @@ export const BLOG_POSTS: BlogPostItem[] = [
     date: "24 Th02, 2026",
     category: "jobseeker",
     tags: ["Kinh nghiệm", "Event Crew"],
-    imageSrc: "/images/advice/blog-4.png",
-    imageUrl: "/images/advice/blog-4.png",
+    imageSrc: "/images/advice/blog-4.jpg",
+    imageUrl: "/images/advice/blog-4.jpg",
     content: `Lần đầu bước chân vào ngành chạy sự kiện có thể khiến bạn bỡ ngỡ trước nhịp độ hối hả. Dưới đây là những điều bạn nhất định phải chuẩn bị:
 
 1. Trang phục và giày dép: Một đôi giày thể thao đen êm ái là vật bất ly thân vì bạn sẽ phải đứng hoặc di chuyển liên tục 6-8 tiếng. Luôn tuân thủ dresscode quần tây/kaki đen áo polo hoặc đồng phục BTC.
@@ -92,8 +92,8 @@ export const BLOG_POSTS: BlogPostItem[] = [
     date: "12 Th01, 2026",
     category: "employer",
     tags: ["Tuyển dụng", "Tiêu chí ứng viên"],
-    imageSrc: "/images/advice/blog-5.png",
-    imageUrl: "/images/advice/blog-5.png",
+    imageSrc: "/images/advice/blog-5.jpg",
+    imageUrl: "/images/advice/blog-5.jpg",
     content: `Các nhà tổ chức sự kiện chuyên nghiệp tại Đà Nẵng luôn tìm kiếm những nhân sự có thái độ tích cực và kỷ luật làm việc cao:
 
 1. Tinh thần chủ động (Proactive): Biết tự quan sát và hỗ trợ đồng đội khi khu vực của mình đã ổn định thay vì đứng nhìn thụ động.
@@ -110,8 +110,8 @@ export const BLOG_POSTS: BlogPostItem[] = [
     date: "05 Th01, 2026",
     category: "employer",
     tags: ["Tuyển dụng gấp", "Quản trị nhân sự"],
-    imageSrc: "/images/advice/blog-6.png",
-    imageUrl: "/images/advice/blog-6.png",
+    imageSrc: "/images/advice/blog-6.jpg",
+    imageUrl: "/images/advice/blog-6.jpg",
     content: `Khi quy mô sự kiện mở rộng đột xuất hoặc nhà thầu phụ gặp sự cố, ban tổ chức cần phương án tuyển quân thần tốc nhưng vẫn đảm bảo chất lượng:
 
 1. Đăng tin tuyển gấp với mức thù lao rõ ràng: Các tin gắn tag Tuyển Gấp trên EventMate nhận được lượng ứng tuyển nhanh gấp 3 lần nhờ thông báo đẩy tới mạng lưới cộng tác viên tích cực.
@@ -127,8 +127,8 @@ export const BLOG_POSTS: BlogPostItem[] = [
     date: "18 Th01, 2026",
     category: "industry",
     tags: ["Giải chạy", "Vận hành sự kiện"],
-    imageSrc: "/images/advice/blog-7.png",
-    imageUrl: "/images/advice/blog-7.png",
+    imageSrc: "/images/advice/blog-7.jpg",
+    imageUrl: "/images/advice/blog-7.jpg",
     content: `Các giải chạy marathon biển tại Đà Nẵng là một trong những loại hình sự kiện có quy mô nhân sự hiện trường lớn nhất:
 
 1. Chuỗi trạm tiếp nước và dinh dưỡng: Mỗi trạm cần từ 15-20 tình nguyện viên phối hợp rót nước, phát chuối và dọn dẹp ly giấy tốc độ cao.
@@ -144,8 +144,8 @@ export const BLOG_POSTS: BlogPostItem[] = [
     date: "10 Th02, 2026",
     category: "jobseeker",
     tags: ["PG / PB", "Giao tiếp"],
-    imageSrc: "/images/advice/blog-8.png",
-    imageUrl: "/images/advice/blog-8.png",
+    imageSrc: "/images/advice/blog-8.jpg",
+    imageUrl: "/images/advice/blog-8.jpg",
     content: `Vị trí PG/PB luôn là bộ mặt đại diện trực tiếp của nhãn hàng và sự kiện trong mắt khách mời:
 
 1. Nắm vững thông tin sản phẩm và chương trình: Dành 15 phút trước giờ mở cửa đọc kỹ key-message để trả lời tự tin mọi câu hỏi của khách hàng.

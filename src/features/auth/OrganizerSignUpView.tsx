@@ -12,14 +12,28 @@ import {
     Step2OrganizerCompanyInfo,
 } from "./components/OrganizerSignUpSteps"
 
-export default function OrganizerSignUpView() {
+export interface OrganizerSignUpViewProps {
+    isModal?: boolean
+    redirectPath?: string
+    onLoginClick?: () => void
+    onRoleChange?: (role: "student" | "organizer") => void
+    onSuccess?: () => void
+}
+
+export default function OrganizerSignUpView({
+    isModal = false,
+    redirectPath,
+    onLoginClick,
+    onRoleChange,
+    onSuccess,
+}: OrganizerSignUpViewProps = {}) {
     const navigate = useNavigate()
     const [searchParams, setSearchParams] = useSearchParams()
 
     // Steps: 1 (Basic info), 2 (Company details)
     const stepParam = searchParams.get("step")
     const initialStep =
-        stepParam === "2" || stepParam === "company"
+        !isModal && (stepParam === "2" || stepParam === "company")
             ? 2
             : 1
     const [step, setStep] = useState<number>(initialStep)
@@ -34,24 +48,27 @@ export default function OrganizerSignUpView() {
     const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
     useEffect(() => {
-        if ((stepParam === "2" || stepParam === "company") && step !== 2) {
-            // If user jumped to step 2 without step1Data, keep them on step 1
-            if (!step1Data) {
+        if (!isModal) {
+            if ((stepParam === "2" || stepParam === "company") && step !== 2) {
+                if (!step1Data) {
+                    setStep(1)
+                } else {
+                    setStep(2)
+                }
+            } else if (!stepParam && step !== 1 && !step1Data) {
                 setStep(1)
-            } else {
-                setStep(2)
             }
-        } else if (!stepParam && step !== 1 && !step1Data) {
-            setStep(1)
         }
-    }, [stepParam, step1Data])
+    }, [stepParam, step1Data, isModal, step])
 
     // Step 1: Save basic organizer info and advance to step 2
     const handleStep1Submit = (values: EmployerRegisterValues) => {
         setErrorMessage(null)
         setStep1Data(values)
         setStep(2)
-        setSearchParams({ role: "organizer", step: "2" })
+        if (!isModal) {
+            setSearchParams({ role: "organizer", step: "2" })
+        }
     }
 
     // Step 2: Finalize registration with company details & trigger Supabase signup
@@ -65,7 +82,9 @@ export default function OrganizerSignUpView() {
         if (!step1Data) {
             setErrorMessage("Vui lòng nhập thông tin người đại diện ở bước 1 trước.")
             setStep(1)
-            setSearchParams({ role: "organizer", step: "1" })
+            if (!isModal) {
+                setSearchParams({ role: "organizer", step: "1" })
+            }
             return
         }
 
@@ -98,102 +117,96 @@ export default function OrganizerSignUpView() {
                         role: "organizer",
                         company_field: orgField,
                         scale: orgField,
-                        description: orgBio,
                         bio: orgBio,
                     },
                     emailRedirectTo: `${typeof window !== "undefined" ? window.location.origin : ""}/auth/callback?role=organizer`,
                 },
             })
 
-            // If session is returned immediately, upload logo right away
-            if (signUpData?.session?.user && companyData?.logoPreviewUrl) {
-                try {
-                    const parts = companyData.logoPreviewUrl.split(",")
-                    const byteString = atob(parts[1] || "")
-                    const mimeString = parts[0]?.split(":")[1]?.split(";")[0] || "image/jpeg"
-                    const ab = new ArrayBuffer(byteString.length)
-                    const ia = new Uint8Array(ab)
-                    for (let i = 0; i < byteString.length; i++) {
-                        ia[i] = byteString.charCodeAt(i)
-                    }
-                    const blob = new Blob([ab], { type: mimeString })
-                    const fileExt = mimeString.split("/")[1] || "jpeg"
-                    const fileName = `${signUpData.session.user.id}/${Date.now()}.${fileExt}`
-                    const { error: uploadError } = await supabase.storage
-                        .from("avatars")
-                        .upload(fileName, blob, { contentType: mimeString, upsert: true })
-
-                    if (!uploadError) {
-                        const { data: { publicUrl } } = supabase.storage
-                            .from("avatars")
-                            .getPublicUrl(fileName)
-                        await supabase
-                            .from("profiles")
-                            .update({ avatar_url: publicUrl })
-                            .eq("id", signUpData.session.user.id)
-                        localStorage.removeItem("pending_org_logo")
-                    }
-                } catch (e) {
-                    console.warn("Failed to upload immediate logo", e)
-                }
-            }
-
             if (signUpError) {
-                if (
-                    signUpError.message?.toLowerCase().includes("already registered") ||
-                    signUpError.message?.toLowerCase().includes("user already registered")
-                ) {
-                    setErrorMessage("Email này đã được đăng ký tài khoản. Vui lòng đăng nhập.")
-                    setLoading(false)
-                    return
-                }
-                throw signUpError
+                setErrorMessage(getUserFacingMessage(signUpError, "Đăng ký không thành công. Vui lòng thử lại sau."))
+                return
             }
 
-            setSuccessMessage(
-                `Đăng ký tài khoản thành công! Chúng tôi đã gửi email xác nhận đến ${step1Data.email}. Vui lòng kiểm tra hộp thư và nhấp vào liên kết xác nhận để kích hoạt tài khoản Ban tổ chức.`
-            )
+            if (signUpData.user) {
+                if (companyData?.logoFile) {
+                    try {
+                        const fileExt = companyData.logoFile.name.split(".").pop()
+                        const filePath = `${signUpData.user.id}/logo.${fileExt}`
+                        const { error: uploadError } = await supabase.storage
+                            .from("company-logos")
+                            .upload(filePath, companyData.logoFile, { upsert: true })
+
+                        if (!uploadError) {
+                            const { data: urlData } = supabase.storage
+                                .from("company-logos")
+                                .getPublicUrl(filePath)
+
+                            await (supabase as any)
+                                .from("companies")
+                                .update({ logo_url: urlData.publicUrl })
+                                .eq("user_id", signUpData.user.id)
+                        }
+                    } catch (logoErr) {
+                        console.warn("Failed to upload logo immediately:", logoErr)
+                    }
+                }
+
+                if (signUpData.session) {
+                    if (isModal) {
+                        if (onSuccess) onSuccess()
+                        navigate(redirectPath || "/for-employers")
+                        return
+                    }
+                    navigate("/for-employers")
+                } else {
+                    setSuccessMessage(
+                        "Đăng ký tài khoản Ban tổ chức thành công! Vui lòng kiểm tra email của bạn để xác thực tài khoản trước khi đăng nhập."
+                    )
+                }
+            }
         } catch (err: any) {
-            setErrorMessage(getUserFacingMessage(err, "Có lỗi xảy ra trong quá trình đăng ký. Vui lòng thử lại."))
+            setErrorMessage(err?.message || "Đã xảy ra lỗi ngoài ý muốn. Vui lòng thử lại.")
         } finally {
             setLoading(false)
         }
     }
 
-    // Step 2: Skip action
     const handleSkip = () => {
         handleFinalSubmit()
     }
 
-    // Google OAuth Sign Up
     const handleGoogleSignUp = async () => {
+        setErrorMessage(null)
+        setGoogleLoading(true)
         try {
-            setErrorMessage(null)
-            setGoogleLoading(true)
-            const { error } = await supabase.auth.signInWithOAuth({
+            const targetRedirect = redirectPath
+                ? `${window.location.origin}/auth/callback?role=organizer&redirect=${encodeURIComponent(redirectPath)}`
+                : `${window.location.origin}/auth/callback?role=organizer`
+
+            const { error: oauthError } = await supabase.auth.signInWithOAuth({
                 provider: "google",
                 options: {
-                    redirectTo: `${typeof window !== "undefined" ? window.location.origin : ""}/auth/callback?role=organizer`,
-                    queryParams: {
-                        access_type: "offline",
-                        prompt: "consent",
-                    },
+                    redirectTo: targetRedirect,
                 },
             })
-            if (error) {
-                setErrorMessage(getUserFacingMessage(error, "Không thể kết nối với Google. Vui lòng thử lại."))
-                setGoogleLoading(false)
+            if (oauthError) {
+                setErrorMessage(getUserFacingMessage(oauthError, "Không thể kết nối với Google. Vui lòng thử lại."))
             }
         } catch (err: any) {
-            setErrorMessage(getUserFacingMessage(err, "Đăng ký với Google thất bại."))
+            setErrorMessage(err?.message || "Lỗi đăng nhập Google.")
+        } finally {
             setGoogleLoading(false)
         }
     }
 
-    // 2-Step Progress indicator
-    const progressBar = <SignUpProgressBar currentStep={step} totalSteps={2} />
+    const progressBar = (
+        <SignUpProgressBar
+            currentStep={step}
+            totalSteps={2}
+        />
+    )
 
-    // Dynamic Title and Subtitle based on Step
     const title =
         step === 1
             ? "Đăng ký Ban tổ chức"
@@ -212,9 +225,12 @@ export default function OrganizerSignUpView() {
             showBackButton={step > 1 && !successMessage}
             onBack={() => {
                 setStep(1)
-                setSearchParams({ role: "organizer", step: "1" })
+                if (!isModal) {
+                    setSearchParams({ role: "organizer", step: "1" })
+                }
             }}
             topElement={!successMessage ? progressBar : undefined}
+            isModal={isModal}
         >
             {successMessage ? (
                 <AuthSuccessCard
@@ -222,18 +238,21 @@ export default function OrganizerSignUpView() {
                     message={successMessage}
                     actionText="Đi đến Đăng nhập"
                     actionLink="/login?role=organizer"
+                    onActionClick={onLoginClick}
                 />
             ) : step === 1 ? (
                 <>
                     <RoleSwitcherTabs
                         activeRole="organizer"
                         mode="register"
+                        onRoleChange={onRoleChange}
                     />
                     <Step1OrganizerInfo
                         defaultValues={step1Data || undefined}
                         onSubmit={handleStep1Submit}
                         onGoogleSignUp={handleGoogleSignUp}
                         googleLoading={googleLoading}
+                        onLoginClick={onLoginClick}
                     />
                 </>
             ) : (

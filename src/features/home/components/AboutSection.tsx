@@ -69,7 +69,7 @@ export default function AboutSection() {
       {/* Description */}
       <p className="text-[14px] text-[#222222] leading-[22px] font-normal mb-5 w-full">
         EventMate là nền tảng kết nối nhân sự và cơ hội việc làm sự kiện hàng đầu dành cho sinh viên và ban tổ chức tại Đà Nẵng. Với sứ mệnh xây dựng môi trường làm việc minh bạch, năng động và an tâm cho người trẻ, EventMate cung cấp giải pháp trực tuyến{" "}
-        <span className="font-bold text-[#306BD9]">Hiệu quả & Đáng tin cậy</span>{" "}
+        <span className="font-bold text-[#FB7328]">Hiệu quả & Đáng tin cậy</span>{" "}
         cho Nhà tổ chức sự kiện và Lực lượng nhân sự năng động.
       </p>
 
@@ -77,7 +77,7 @@ export default function AboutSection() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 pt-1">
         {/* Stat 1: Việc làm sự kiện */}
         <div className="flex items-center gap-3">
-          <div className="w-[72px] h-[72px] md:w-[80px] md:h-[80px] shrink-0 rounded-full overflow-hidden bg-[#F2F6FC] relative flex items-center justify-center">
+          <div className="w-[72px] h-[72px] md:w-[80px] md:h-[80px] shrink-0 rounded-full overflow-hidden bg-[#FFF4EC] relative flex items-center justify-center">
             <img
               src="/images/about/jobs-stat.png"
               alt="Ca làm sự kiện kết nối"
@@ -88,9 +88,9 @@ export default function AboutSection() {
             />
           </div>
           <div className="flex flex-col justify-center">
-            <span className="text-[#306BD9] text-[20px] md:text-[22px] font-bold leading-[27px] min-h-[27px] flex items-center">
+            <span className="text-[#FB7328] text-[20px] md:text-[22px] font-bold leading-[27px] min-h-[27px] flex items-center">
               {loading ? (
-                <span className="inline-block h-5 w-14 bg-blue-100/70 rounded animate-pulse" />
+                <span className="inline-block h-5 w-14 bg-orange-100/70 rounded animate-pulse" />
               ) : (
                 stats.events.toLocaleString("vi-VN")
               )}
@@ -103,7 +103,7 @@ export default function AboutSection() {
 
         {/* Stat 2: Ban tổ chức & Doanh nghiệp */}
         <div className="flex items-center gap-3">
-          <div className="w-[72px] h-[72px] md:w-[80px] md:h-[80px] shrink-0 rounded-full overflow-hidden bg-[#F2F6FC] relative flex items-center justify-center">
+          <div className="w-[72px] h-[72px] md:w-[80px] md:h-[80px] shrink-0 rounded-full overflow-hidden bg-[#FFF4EC] relative flex items-center justify-center">
             <img
               src="/images/about/employers-stat.png"
               alt="Ban tổ chức & Doanh nghiệp"
@@ -114,9 +114,9 @@ export default function AboutSection() {
             />
           </div>
           <div className="flex flex-col justify-center">
-            <span className="text-[#306BD9] text-[20px] md:text-[22px] font-bold leading-[27px] min-h-[27px] flex items-center">
+            <span className="text-[#FB7328] text-[20px] md:text-[22px] font-bold leading-[27px] min-h-[27px] flex items-center">
               {loading ? (
-                <span className="inline-block h-5 w-14 bg-blue-100/70 rounded animate-pulse" />
+                <span className="inline-block h-5 w-14 bg-orange-100/70 rounded animate-pulse" />
               ) : (
                 stats.organizers.toLocaleString("vi-VN")
               )}
@@ -129,7 +129,7 @@ export default function AboutSection() {
 
         {/* Stat 3: Nhân sự sẵn sàng nhận show */}
         <div className="flex items-center gap-3">
-          <div className="w-[72px] h-[72px] md:w-[80px] md:h-[80px] shrink-0 rounded-full overflow-hidden bg-[#F2F6FC] relative flex items-center justify-center">
+          <div className="w-[72px] h-[72px] md:w-[80px] md:h-[80px] shrink-0 rounded-full overflow-hidden bg-[#FFF4EC] relative flex items-center justify-center">
             <img
               src="/images/about/traffic-stat.png"
               alt="Nhân sự sẵn sàng nhận show"
@@ -140,9 +140,9 @@ export default function AboutSection() {
             />
           </div>
           <div className="flex flex-col justify-center">
-            <span className="text-[#306BD9] text-[20px] md:text-[22px] font-bold leading-[27px] min-h-[27px] flex items-center">
+            <span className="text-[#FB7328] text-[20px] md:text-[22px] font-bold leading-[27px] min-h-[27px] flex items-center">
               {loading ? (
-                <span className="inline-block h-5 w-14 bg-blue-100/70 rounded animate-pulse" />
+                <span className="inline-block h-5 w-14 bg-orange-100/70 rounded animate-pulse" />
               ) : (
                 stats.students.toLocaleString("vi-VN")
               )}

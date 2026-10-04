@@ -13,14 +13,16 @@ interface HeroSearchBannerProps {
 }
 
 const EVENT_ROLES = [
-  "PG & PB",
-  "Lễ tân hội nghị",
+  "PG & PB Sự kiện",
+  "Lễ tân & Check-in",
   "Hậu cần & Sân khấu",
-  "Soát vé & Check-in",
-  "Chạy tiệc (Banquet)",
+  "Điều phối sự kiện",
   "MC & Hoạt náo",
-  "Mascot & Hoá trang",
-  "Media & Quay chụp",
+  "Quay phim & Chụp ảnh",
+  "Phục vụ tiệc (Banquet)",
+  "Pha chế sự kiện",
+  "Mascot & Biểu diễn",
+  "Tình nguyện viên",
 ]
 
 
@@ -150,7 +152,7 @@ export default function HeroSearchBanner({
       <div className="max-w-4xl mx-auto relative z-10 text-center pt-8 pb-0 md:pt-10 md:pb-0 px-4">
         {/* Punchy Vieclamtot-style Slogan */}
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-6 md:mb-8">
-          Việc tới tay, đi làm ngay!
+          Sự kiện tới tay, đi làm ngay!
         </h1>
 
         {/* Vieclamtot-style Single Capsule Search Bar */}
