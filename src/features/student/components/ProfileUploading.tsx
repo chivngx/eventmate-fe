@@ -86,7 +86,6 @@ export default function ProfileUploading({
         className ||
         "bg-white border border-[#EDEDED] border-solid flex flex-col sm:flex-row gap-[16px] items-start p-[16px] relative rounded-[16px] w-full"
       }
-      data-node-id="5875:27796"
       data-state={state}
     >
       {/* Input tệp ẩn để tải lên ảnh đại diện */}
@@ -116,7 +115,6 @@ export default function ProfileUploading({
           {isUploading && (
             <div
               className="absolute inset-0 backdrop-blur-[0.75px] bg-[rgba(0,0,0,0.65)] border border-[#515151] border-dashed rounded-[16px] flex items-center justify-center z-10"
-              data-node-id="3988:55505"
             >
               <SpinnerLoading className="size-[48px]" />
             </div>
@@ -131,7 +129,6 @@ export default function ProfileUploading({
             className="absolute -bottom-1 -right-1 size-[28px] bg-[#222222] hover:bg-black text-white transition-colors flex items-center justify-center rounded-full border-2 border-white cursor-pointer shadow-xs z-10"
             title="Đổi ảnh đại diện"
             aria-label="Đổi ảnh đại diện"
-            data-node-id="3988:55586"
           >
             <EditIcon className="size-[14px]" />
           </button>
@@ -146,13 +143,11 @@ export default function ProfileUploading({
             <h2
               className="font-bold text-zinc-950 text-[18px] leading-normal font-['Inter'] truncate max-w-full"
               dir="auto"
-              data-node-id="3988:55578"
             >
               {displayName}
             </h2>
             <div
               className="flex items-center gap-1.5 text-[#515151] text-[14px] font-normal leading-normal flex-wrap"
-              data-node-id="3988:55579"
             >
               <span className="truncate max-w-[220px]">
                 {jobTitle?.trim() || "Nhân sự sự kiện"}
@@ -173,7 +168,6 @@ export default function ProfileUploading({
             type="button"
             onClick={onViewResume}
             className="h-[34px] px-[18px] bg-zinc-900 hover:bg-black text-white text-[14px] font-semibold rounded-[8px] flex items-center justify-center transition-colors cursor-pointer whitespace-nowrap shadow-xs"
-            data-node-id="3988:55584"
           >
             Xem hồ sơ
           </button>

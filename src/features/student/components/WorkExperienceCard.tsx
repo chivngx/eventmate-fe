@@ -137,18 +137,12 @@ export default function WorkExperienceCard({
         className ||
         "bg-white border border-[#EDEDED] flex flex-col gap-[24px] sm:gap-[32px] items-start px-[16px] py-[24px] rounded-[8px] w-full shadow-xs"
       }
-      data-node-id={hasContent ? "5875:27836" : "6818:50101"}
-      data-name="Work Experience"
     >
       {/* Title Header (Figma: my resume/ title) */}
-      <div
-        className="flex items-center justify-between w-full"
-        data-node-id={hasContent ? "5875:27837" : "I6818:50101;5928:48697"}
-        data-name="my resume/ title"
-      >
+      <div className="flex items-center justify-between w-full">
         <div className="flex gap-[8px] items-center">
           {/* Building Icon (Figma: building 24x24 SVG #222222) */}
-          <div className="size-[24px] shrink-0 flex items-center justify-center" data-name="building">
+          <div className="size-[24px] shrink-0 flex items-center justify-center">
             <svg
               width="24"
               height="24"
@@ -175,7 +169,6 @@ export default function WorkExperienceCard({
             onClick={handleStartAdd}
             aria-label="Chỉnh sửa kinh nghiệm"
             className="size-[30px] rounded-[8px] text-slate-400 hover:text-slate-800 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer shrink-0"
-            data-name="edit"
           >
             <EditIcon className="size-[17px]" />
           </button>
@@ -335,21 +328,20 @@ export default function WorkExperienceCard({
         </div>
       ) : hasContent ? (
         /* FILLED STATE (Figma Node 5875:27836) */
-        <div className="flex flex-col gap-[12px] w-full" data-node-id="5875:27836">
+        <div className="flex flex-col gap-[12px] w-full">
           {experiences.map((exp) => (
             <div
               key={exp.id}
               className="border border-[#F4F4F4] flex items-center justify-between gap-[4px] px-[12px] py-[8px] rounded-[8px] w-full bg-white hover:border-[#EDEDED] transition-colors"
-              data-node-id="4490:77885"
             >
-              <div className="flex flex-1 flex-col gap-[4px] items-start min-w-0" data-node-id="4490:77855">
+              <div className="flex flex-1 flex-col gap-[4px] items-start min-w-0">
                 {/* Role / Job Title (Figma: font-medium 14px text-[#515151]) */}
-                <p className="font-['Inter'] font-medium leading-[1.6] text-[#515151] text-[14px] truncate w-full" data-node-id="4490:77856">
+                <p className="font-['Inter'] font-medium leading-[1.6] text-[#515151] text-[14px] truncate w-full">
                   {exp.title}
                 </p>
                 {/* Caption / Company & Year (Figma: font-normal 14px text-[#757575]) */}
-                <div className="flex flex-col items-start w-full" data-node-id="4490:77857">
-                  <p className="font-['Inter'] font-normal leading-normal text-[#757575] text-[14px] truncate w-full" data-node-id="4490:77858">
+                <div className="flex flex-col items-start w-full">
+                  <p className="font-['Inter'] font-normal leading-normal text-[#757575] text-[14px] truncate w-full">
                     {exp.company}
                     {exp.year ? ` _ ${exp.year}` : ""}
                   </p>
@@ -360,25 +352,17 @@ export default function WorkExperienceCard({
         </div>
       ) : (
         /* EMPTY STATE (Figma Node 6818:50101) */
-        <div
-          className="border border-[#CBCBCB] border-dashed flex flex-col gap-[12px] items-center justify-center p-[16px] rounded-[8px] w-full"
-          data-node-id="I6818:50101;5928:48718"
-        >
-          <p
-            className="font-['Inter'] font-medium leading-normal text-[#757575] text-[16px] whitespace-nowrap text-center"
-            data-node-id="I6818:50101;5928:48719"
-          >
+        <div className="border border-[#CBCBCB] border-dashed flex flex-col gap-[12px] items-center justify-center p-[16px] rounded-[8px] w-full">
+          <p className="font-['Inter'] font-medium leading-normal text-[#757575] text-[16px] whitespace-nowrap text-center">
             Chưa có thông tin kinh nghiệm
           </p>
           <button
             type="button"
             onClick={handleStartAdd}
             className="flex gap-[8px] h-[40px] items-center justify-center px-[16px] py-[8px] rounded-[8px] hover:bg-zinc-100 transition-colors cursor-pointer"
-            data-node-id="I6818:50101;5928:48720"
-            data-name="Buttons"
           >
             {/* Plus Icon */}
-            <div className="size-[24px] shrink-0 flex items-center justify-center" data-name="plus">
+            <div className="size-[24px] shrink-0 flex items-center justify-center">
               <svg
                 width="24"
                 height="24"
@@ -396,10 +380,7 @@ export default function WorkExperienceCard({
                 />
               </svg>
             </div>
-            <span
-              className="font-['Inter'] font-semibold leading-normal text-zinc-900 text-[16px] whitespace-nowrap"
-              data-node-id="I6818:50101;5928:48720;2626:8339"
-            >
+            <span className="font-['Inter'] font-semibold leading-normal text-zinc-900 text-[16px] whitespace-nowrap">
               Thêm kinh nghiệm
             </span>
           </button>

@@ -51,7 +51,7 @@ export default function CVProfile({ embedded = false }: { embedded?: boolean } =
   useEffect(() => {
     if (authLoading) return
     if (!user) {
-      router.push("/login")
+      router.push("/?auth=login&redirect=/cv")
       return
     }
     if (role === "organizer" || profile?.role === "organizer") {

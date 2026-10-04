@@ -5,6 +5,7 @@ import { useParams, useNavigate, useSearchParams } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
 import { getUserFacingMessage } from "@/lib/error"
 import { useUser } from "@/components/providers/AuthProvider"
+import { useAuthModal } from "@/components/providers/AuthModalProvider"
 import { useToast } from "@/components/providers/ToastProvider"
 import { isOrganizerRole } from "@/lib/utils"
 import {
@@ -40,6 +41,7 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
   const targetChatId = initialChatId || routeChatId
   const navigate = useNavigate()
   const { showToast } = useToast()
+  const { openLogin } = useAuthModal()
   const { user, profile, role, isPremium, loading: authLoading } = useUser()
   const currentUser = user
 
@@ -102,11 +104,11 @@ export default function Chat({ embedded = false, initialChatId = null }: ChatPro
   useEffect(() => {
     if (authLoading) return
     if (!user) {
-      navigate("/login")
+      openLogin({ redirectPath: "/chat", message: "Vui lòng đăng nhập để sử dụng tính năng trò chuyện." })
       return
     }
     setLoading(false)
-  }, [user, authLoading, navigate])
+  }, [user, authLoading, openLogin])
 
   const fetchChats = async () => {
     if (!currentUser) return

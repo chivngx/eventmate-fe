@@ -15,22 +15,18 @@ import ApplicationCard from "./components/ApplicationCard"
 import DashboardLayout from "@/components/layout/DashboardLayout"
 import {
   Search,
-  Clock,
-  MapPin,
   Bookmark,
   Trash2,
-  Building2,
   Inbox,
   ArrowRight,
 } from "lucide-react"
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
-export default function MyEvents({ 
-  embedded = false, 
-  initialTab = "apply_status" 
-}: { 
+export default function MyEvents({
+  embedded = false,
+  initialTab = "apply_status"
+}: {
   embedded?: boolean
-  initialTab?: MainTab 
+  initialTab?: MainTab
 } = {}) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -85,7 +81,7 @@ export default function MyEvents({
   useEffect(() => {
     if (authLoading) return
     if (!user) {
-      router.push("/login")
+      router.push("/?auth=login&redirect=/my-events")
       return
     }
     if (role === "organizer" || profile?.role === "organizer") {

@@ -6,7 +6,7 @@ const PROTECTED_ROUTES = [
     '/settings', '/cv', '/my-events', '/manage-events', '/post-job',
     '/chat', '/saved', '/account', '/notifications', '/profile', '/dashboard'
 ]
-const AUTH_ROUTES = ['/login', '/register']
+const AUTH_ROUTES = ['/login', '/register', '/reset-password']
 const STUDENT_ONLY_ROUTES = ['/cv', '/profile', '/my-events']
 const ORG_ONLY_ROUTES = ['/post-job', '/manage-events']
 
@@ -40,9 +40,26 @@ export async function updateSession(request: NextRequest) {
     const matchesRoute = (routes: string[]) =>
         routes.some((r) => pathname === r || pathname.startsWith(r + '/'))
 
-    // 1. Admin route protection
+    // 1. Auth routes interception -> always redirect to modal on home page
+    if (pathname === '/login') {
+        const search = request.nextUrl.searchParams.toString()
+        const redirectParam = request.nextUrl.searchParams.get('redirect')
+        if (user) return redirect(redirectParam?.startsWith('/') ? redirectParam : '/')
+        return redirect('/', `?auth=login${search ? `&${search}` : ''}`)
+    }
+    if (pathname === '/register') {
+        const search = request.nextUrl.searchParams.toString()
+        if (user) return redirect('/')
+        return redirect('/', `?auth=register${search ? `&${search}` : ''}`)
+    }
+    if (pathname === '/reset-password') {
+        const search = request.nextUrl.searchParams.toString()
+        return redirect('/', `?auth=forgot${search ? `&${search}` : ''}`)
+    }
+
+    // 2. Admin route protection
     if (pathname === '/admin' || pathname.startsWith('/admin/')) {
-        if (!user) return redirect('/login', `?redirect=${pathname}`)
+        if (!user) return redirect('/', `?auth=login&role=organizer&redirect=${pathname}`)
 
         const { data: profile } = await supabase
             .from('profiles')
@@ -53,12 +70,12 @@ export async function updateSession(request: NextRequest) {
         if (profile?.role !== 'admin') return redirect('/')
     }
 
-    // 2. Protected routes require login
+    // 3. Protected routes require login -> redirect to home and trigger modal
     if (!user && matchesRoute(PROTECTED_ROUTES)) {
-        return redirect('/login', `?redirect=${pathname}`)
+        return redirect('/', `?auth=login&redirect=${pathname}`)
     }
 
-    // 3. Role-based restrictions
+    // 4. Role-based restrictions
     if (user) {
         const userRole = user.user_metadata?.role
 
@@ -68,16 +85,6 @@ export async function updateSession(request: NextRequest) {
 
         if (matchesRoute(ORG_ONLY_ROUTES) && (userRole === 'student' || userRole === 'candidate')) {
             return redirect('/my-events')
-        }
-
-        // 4. Logged-in user visiting auth routes
-        if (AUTH_ROUTES.includes(pathname)) {
-            const redirectParam = request.nextUrl.searchParams.get('redirect')
-            if (redirectParam?.startsWith('/')) return redirect(redirectParam)
-
-            const roleParam = request.nextUrl.searchParams.get('role')
-            const isOrganizer = roleParam === 'organizer' || userRole === 'organizer' || userRole === 'employer'
-            return redirect(isOrganizer ? '/for-employers' : '/')
         }
     }
 

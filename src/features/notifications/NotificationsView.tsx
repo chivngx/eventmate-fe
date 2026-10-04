@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
-import Link from "next/link"
 import { supabase } from "@/lib/supabase"
 import { useUser } from "@/components/providers/AuthProvider"
 import { useToast } from "@/components/providers/ToastProvider"
@@ -19,7 +18,6 @@ import {
   UserCheck,
   MessageSquare,
   Search,
-  ExternalLink,
   ArrowRight,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -84,7 +82,7 @@ export default function NotificationsView({ embedded = false }: { embedded?: boo
   useEffect(() => {
     if (authLoading) return
     if (!user) {
-      router.push("/login")
+      router.push("/?auth=login&redirect=/notifications")
       return
     }
 
@@ -358,17 +356,17 @@ export default function NotificationsView({ embedded = false }: { embedded?: boo
               {searchQuery.trim() || categoryFilter !== "all"
                 ? "Không tìm thấy thông báo phù hợp"
                 : filter === "unread"
-                ? "Không có thông báo chưa đọc"
-                : "Chưa có thông báo nào"}
+                  ? "Không có thông báo chưa đọc"
+                  : "Chưa có thông báo nào"}
             </h3>
             <p className="text-sm text-slate-500 mt-1 max-w-[360px] leading-relaxed">
               {searchQuery.trim() || categoryFilter !== "all"
                 ? "Hãy thử tìm với từ khóa khác hoặc chuyển danh mục hiển thị."
                 : filter === "unread"
-                ? "Bạn đã đọc hết tất cả thông báo gần đây."
-                : isOrganizer
-                ? "Khi có ứng viên mới, cập nhật sự kiện hoặc báo cáo tuyển dụng, thông báo sẽ hiển thị tại đây."
-                : "Khi có kết quả duyệt hồ sơ, lời mời sự kiện hoặc lịch trình mới, thông báo sẽ hiển thị tại đây."}
+                  ? "Bạn đã đọc hết tất cả thông báo gần đây."
+                  : isOrganizer
+                    ? "Khi có ứng viên mới, cập nhật sự kiện hoặc báo cáo tuyển dụng, thông báo sẽ hiển thị tại đây."
+                    : "Khi có kết quả duyệt hồ sơ, lời mời sự kiện hoặc lịch trình mới, thông báo sẽ hiển thị tại đây."}
             </p>
           </div>
         ) : (

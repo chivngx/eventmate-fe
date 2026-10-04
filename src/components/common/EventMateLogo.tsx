@@ -2,119 +2,50 @@ import React from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
-export type LogoColorVariant = "monochrome" | "blue-teal" | "ocean" | "solid" | "white"
+export type LogoColorVariant = "orange" | "white" | "monochrome" | "blue-teal" | "ocean" | "solid"
 
-export interface EventMateLogoIconProps extends React.SVGProps<SVGSVGElement> {
-  size?: number | string
-  className?: string
-  idPrefix?: string
-  variant?: LogoColorVariant
+const LOGO_SRC_MAP: Record<LogoColorVariant, string> = {
+  orange: "/images/logo/eventmate-logo-square-512.png",
+  "blue-teal": "/images/logo/eventmate-logo-square-512.png",
+  ocean: "/images/logo/eventmate-logo-square-512.png",
+  white: "/images/logo/eventmate-logo-square-white.png",
+  monochrome: "/images/logo/eventmate-logo-square-charcoal.png",
+  solid: "/images/logo/eventmate-logo-square-charcoal.png",
 }
 
-/**
- * Modern Geometric Isometric 3D "E" Mark for EventMate
- * Style: Monochrome Minimalist (Glossy Charcoal & Metallic Graphite)
- */
+export interface EventMateLogoIconProps
+  extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, "src" | "alt"> {
+  size?: number | string
+  variant?: LogoColorVariant
+  idPrefix?: string
+}
+
 export function EventMateLogoIcon({
   size = 28,
   className,
-  idPrefix = "em",
-  variant = "monochrome",
+  variant = "orange",
+  idPrefix: _idPrefix,
+  style,
   ...props
 }: EventMateLogoIconProps) {
-  const gradBodyId = `${idPrefix}-body-grad`
-  const gradAccentId = `${idPrefix}-accent-grad`
+  const src = LOGO_SRC_MAP[variant] || LOGO_SRC_MAP.orange
+  const dimension = typeof size === "number" ? `${size}px` : size
 
   return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 2000 1903"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={cn("shrink-0 transition-transform duration-200", className)}
+    <img
+      src={src}
+      alt="EventMate"
+      width={typeof size === "number" ? size : undefined}
+      height={typeof size === "number" ? size : undefined}
+      style={{
+        width: dimension,
+        height: dimension,
+        ...style,
+      }}
+      className={cn("shrink-0 transition-transform duration-200 select-none object-contain", className)}
+      draggable={false}
       {...props}
-    >
-      <defs>
-        {variant === "monochrome" && (
-          <>
-            {/* Body: Deep Obsidian / Glossy Carbon Black */}
-            <linearGradient id={gradBodyId} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#27272A" />
-              <stop offset="40%" stopColor="#18181B" />
-              <stop offset="100%" stopColor="#09090B" />
-            </linearGradient>
-
-            {/* Accent facet: High-end Metallic Graphite / Silver sheen */}
-            <linearGradient id={gradAccentId} x1="0%" y1="100%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#3F3F46" />
-              <stop offset="50%" stopColor="#71717A" />
-              <stop offset="100%" stopColor="#9CA3AF" />
-            </linearGradient>
-          </>
-        )}
-
-        {variant === "white" && (
-          <>
-            {/* Pure Crisp White with Subtle Soft Silver Body */}
-            <linearGradient id={gradBodyId} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#FFFFFF" />
-              <stop offset="100%" stopColor="#F1F5F9" />
-            </linearGradient>
-
-            {/* Glowing White Accent Facet */}
-            <linearGradient id={gradAccentId} x1="0%" y1="100%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.95" />
-              <stop offset="100%" stopColor="#E2E8F0" stopOpacity="0.8" />
-            </linearGradient>
-          </>
-        )}
-
-        {variant === "blue-teal" && (
-          <>
-            <linearGradient id={gradBodyId} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#0066FF" />
-              <stop offset="50%" stopColor="#0052D4" />
-              <stop offset="100%" stopColor="#003EB0" />
-            </linearGradient>
-            <linearGradient id={gradAccentId} x1="0%" y1="100%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#00B894" />
-              <stop offset="60%" stopColor="#00D2B4" />
-              <stop offset="100%" stopColor="#20E2C8" />
-            </linearGradient>
-          </>
-        )}
-
-        {variant === "ocean" && (
-          <>
-            <linearGradient id={gradBodyId} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#2563EB" />
-              <stop offset="100%" stopColor="#1D4ED8" />
-            </linearGradient>
-            <linearGradient id={gradAccentId} x1="0%" y1="100%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#0284C7" />
-              <stop offset="100%" stopColor="#38BDF8" />
-            </linearGradient>
-          </>
-        )}
-      </defs>
-
-      {/* Main Isometric Body (Path 1) */}
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M527.187 1325.8L1334.14 859.901V656.135L1159.2 555.156L352.271 1021.03V677.651L587.75 541.698L824.562 404.958L1175.29 202.479L911.958 50.4688L824.562 0L737.213 50.4688L412.984 237.63L88.7759 424.828L0.0415039 476.068V1426.38L88.7759 1477.61L412.984 1664.8L737.213 1851.98L824.562 1902.42L911.958 1851.98L1560.37 1477.61L1649.11 1426.38V1021.43L1647.6 1022.32L1296.88 1224.76L1061.42 1360.74L824.562 1497.48L587.75 1360.74L527.187 1325.8Z"
-        fill={variant === "solid" ? "#18181B" : `url(#${gradBodyId})`}
-      />
-
-      {/* Top-Right Accent Facet (Path 2) */}
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M1647.6 475.182V1022.32L1649.11 1021.43L1999.83 818.958V273.583L1911.1 222.354L1586.89 35.1458L1526.01 0L1175.29 202.479L1412.15 339.219L1472.67 374.167L1647.6 475.182Z"
-        fill={variant === "solid" ? "#52525B" : `url(#${gradAccentId})`}
-      />
-    </svg>
+    />
   )
 }
 
@@ -129,9 +60,6 @@ export interface EventMateLogoProps {
   idPrefix?: string
 }
 
-/**
- * EventMate Logo Component with Icon and Typography
- */
 export function EventMateLogo({
   className,
   iconSize = 32,

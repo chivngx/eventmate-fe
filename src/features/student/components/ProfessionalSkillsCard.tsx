@@ -83,18 +83,12 @@ export default function ProfessionalSkillsCard({
         className ||
         "bg-white border border-[#EDEDED] flex flex-col gap-[24px] sm:gap-[32px] items-start px-[16px] py-[24px] rounded-[8px] w-full shadow-xs"
       }
-      data-node-id={hasContent ? "5875:27830" : "6818:50100"}
-      data-name="Professional Skills"
     >
       {/* Title Header (Figma: my resume/ title) */}
-      <div
-        className="flex items-center justify-between w-full"
-        data-node-id={hasContent ? "5875:27831" : "I6818:50100;5928:48697"}
-        data-name="my resume/ title"
-      >
+      <div className="flex items-center justify-between w-full">
         <div className="flex gap-[8px] items-center">
           {/* Medal Star Icon (Figma: medal-star - 24x24 SVG) */}
-          <div className="size-[24px] shrink-0 flex items-center justify-center" data-name="medal-star">
+          <div className="size-[24px] shrink-0 flex items-center justify-center">
             <svg
               width="24"
               height="24"
@@ -121,7 +115,6 @@ export default function ProfessionalSkillsCard({
             onClick={handleStartEdit}
             aria-label="Chỉnh sửa kỹ năng nổi bật"
             className="size-[30px] rounded-[8px] text-slate-400 hover:text-slate-800 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer shrink-0"
-            data-name="edit"
           >
             <EditIcon className="size-[17px]" />
           </button>
@@ -219,16 +212,11 @@ export default function ProfessionalSkillsCard({
         </div>
       ) : hasContent ? (
         /* FILLED STATE (Matching Figma node 5875:27830 - Frame 2147225301) */
-        <div
-          className="flex flex-wrap gap-[12px] items-center w-full"
-          data-node-id="5875:27832"
-        >
+        <div className="flex flex-wrap gap-[12px] items-center w-full">
           {skills.map((skill, idx) => (
             <div
               key={idx}
               className="bg-[#EDEDED] flex items-center justify-center h-[32px] px-[12px] rounded-[8px]"
-              data-node-id="4488:62732"
-              data-name="badge"
             >
               <span className="font-['Inter'] font-normal text-[#353535] text-[14px] whitespace-nowrap">
                 {skill}
@@ -238,24 +226,16 @@ export default function ProfessionalSkillsCard({
         </div>
       ) : (
         /* EMPTY STATE (Matching Figma node 6818:50100 - my resume/ No-Data) */
-        <div
-          className="border border-[#CBCBCB] border-dashed flex flex-col gap-[12px] items-center justify-center p-[16px] rounded-[8px] w-full min-h-[103px]"
-          data-node-id="I6818:50100;5928:48718"
-        >
-          <p
-            className="font-['Inter'] font-medium text-[16px] text-[#757575] leading-normal text-center"
-            data-node-id="I6818:50100;5928:48719"
-          >
+        <div className="border border-[#CBCBCB] border-dashed flex flex-col gap-[12px] items-center justify-center p-[16px] rounded-[8px] w-full min-h-[103px]">
+          <p className="font-['Inter'] font-medium text-[16px] text-[#757575] leading-normal text-center">
             Chưa có thông tin kỹ năng nổi bật
           </p>
           <button
             type="button"
             onClick={handleStartEdit}
             className="flex gap-[8px] h-[40px] items-center justify-center px-[16px] py-[8px] rounded-[8px] hover:bg-zinc-100 transition-colors cursor-pointer"
-            data-node-id="I6818:50100;5928:48720"
-            data-name="Buttons"
           >
-            <div className="size-[24px] shrink-0 flex items-center justify-center" data-name="angle-left-small">
+            <div className="size-[24px] shrink-0 flex items-center justify-center">
               <svg
                 width="24"
                 height="24"

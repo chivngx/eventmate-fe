@@ -1,11 +1,17 @@
-import type { Metadata } from "next"
-import RegisterView from "@/features/auth/RegisterView"
+import { redirect } from "next/navigation"
 
-export const metadata: Metadata = {
-  title: "Đăng ký tài khoản",
-  description: "Tạo tài khoản EventMate để bắt đầu tham gia và tổ chức các sự kiện sôi động tại Đà Nẵng.",
-}
-
-export default function RegisterPage() {
-  return <RegisterView />
+export default async function RegisterPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const sp = await searchParams
+  const query = new URLSearchParams()
+  query.set("auth", "register")
+  for (const [key, value] of Object.entries(sp)) {
+    if (typeof value === "string") {
+      query.set(key, value)
+    }
+  }
+  redirect(`/?${query.toString()}`)
 }

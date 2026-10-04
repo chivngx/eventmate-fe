@@ -1,7 +1,6 @@
 "use client"
 
-import React from "react"
-import { Check, ShieldCheck } from "lucide-react"
+import { Check } from "lucide-react"
 
 interface PaymentOrderSummaryProps {
   planId: string

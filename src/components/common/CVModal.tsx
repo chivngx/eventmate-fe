@@ -7,7 +7,6 @@ import {
   GraduationCap,
   Sparkles,
   ShieldCheck,
-  FileText,
   ExternalLink,
   Heart,
   Calendar,
@@ -120,7 +119,7 @@ export default function CVModal({
   const experiences: CVExperienceItem[] = Array.isArray(rawExperiences)
     ? (rawExperiences as CVExperienceItem[])
     : typeof rawExperiences === "string"
-    ? (() => {
+      ? (() => {
         try {
           const parsed = JSON.parse(rawExperiences)
           return Array.isArray(parsed) ? (parsed as CVExperienceItem[]) : []
@@ -128,13 +127,13 @@ export default function CVModal({
           return []
         }
       })()
-    : []
+      : []
 
   const skillsList = Array.isArray(data.skills)
     ? data.skills
     : typeof data.skills === "string"
-    ? data.skills.split(",").map((s) => s.trim()).filter(Boolean)
-    : []
+      ? data.skills.split(",").map((s) => s.trim()).filter(Boolean)
+      : []
 
   const isExternalViewer = user && studentId && user.id !== studentId
 
@@ -324,11 +323,10 @@ export default function CVModal({
               type="button"
               onClick={handleToggleLike}
               disabled={isLiking}
-              className={`h-9 px-4 rounded-lg border inline-flex items-center gap-2 text-[13px] font-medium transition-colors cursor-pointer ${
-                isLiked
+              className={`h-9 px-4 rounded-lg border inline-flex items-center gap-2 text-[13px] font-medium transition-colors cursor-pointer ${isLiked
                   ? "border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100"
                   : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-              }`}
+                }`}
             >
               <Heart className={`size-4 ${isLiked ? "fill-rose-500 text-rose-500" : "text-slate-400"}`} />
               <span>{isLiked ? "Đã thích hồ sơ" : "Thích hồ sơ"}</span>

@@ -15,6 +15,7 @@ import {
     AuthDivider,
     FloatingBadgeInput,
     RoleSwitcherTabs,
+    signInWithGoogle,
 } from "./components/AuthComponents"
 
 export interface StudentSignUpViewProps {
@@ -106,28 +107,12 @@ export default function StudentSignUpView({
     }
 
     // Google OAuth sign-up
-    const handleGoogleSignUp = async () => {
-        setErrorMessage(null)
-        setGoogleLoading(true)
-        try {
-            const targetRedirect = redirectPath
-                ? `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectPath)}`
-                : `${window.location.origin}/auth/callback`
-
-            const { error: oauthError } = await supabase.auth.signInWithOAuth({
-                provider: "google",
-                options: {
-                    redirectTo: targetRedirect,
-                },
-            })
-            if (oauthError) {
-                setErrorMessage(getUserFacingMessage(oauthError, "Không thể kết nối với Google. Vui lòng thử lại."))
-            }
-        } catch (err: any) {
-            setErrorMessage(err?.message || "Lỗi đăng nhập Google.")
-        } finally {
-            setGoogleLoading(false)
-        }
+    const handleGoogleSignUp = () => {
+        signInWithGoogle({
+            redirectPath,
+            setLoading: setGoogleLoading,
+            onError: setErrorMessage,
+        })
     }
 
     return (
@@ -142,7 +127,7 @@ export default function StudentSignUpView({
                     title="Đăng ký tài khoản thành công!"
                     message={successMessage}
                     actionText="Đi đến trang Đăng nhập"
-                    actionLink="/login"
+                    actionLink="/?auth=login"
                     onActionClick={onLoginClick}
                 />
             ) : (
@@ -212,7 +197,7 @@ export default function StudentSignUpView({
                                         Đăng nhập
                                     </button>
                                 ) : (
-                                    <Link to="/login" className="text-zinc-900 font-semibold hover:underline transition-colors">
+                                    <Link to="/?auth=login" className="text-zinc-900 font-semibold hover:underline transition-colors">
                                         Đăng nhập
                                     </Link>
                                 )}

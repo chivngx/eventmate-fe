@@ -5,6 +5,7 @@ import { useParams, useNavigate } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
 import { getUserFacingMessage } from "@/lib/error"
 import { useUser } from "@/components/providers/AuthProvider"
+import { useAuthModal } from "@/components/providers/AuthModalProvider"
 import MainLayout from "@/components/layout/MainLayout"
 import {
     CheckCircle2,
@@ -93,6 +94,7 @@ export default function EventDetail() {
     const { id } = useParams<{ id: string }>()
     const navigate = useNavigate()
     const { showToast } = useToast()
+    const { openLogin } = useAuthModal()
     const { user, role, profile, loading: authLoading } = useUser()
     const completionStats = useMemo(() => {
         return calculateProfileCompletion({
@@ -207,7 +209,7 @@ export default function EventDetail() {
 
     const handleApply = async () => {
         if (!user) {
-            navigate("/login")
+            openLogin({ message: "Vui lòng đăng nhập để ứng tuyển sự kiện này." })
             return
         }
         if (!event || isApplying) return
@@ -250,7 +252,7 @@ export default function EventDetail() {
 
     const handleMessage = () => {
         if (!user) {
-            navigate("/login")
+            openLogin({ message: "Vui lòng đăng nhập để gửi tin nhắn cho Ban tổ chức." })
             return
         }
         if (event?.organizer_id === user.id) {
@@ -266,7 +268,7 @@ export default function EventDetail() {
 
     const toggleBookmark = async () => {
         if (!user) {
-            navigate("/login")
+            openLogin({ message: "Vui lòng đăng nhập để lưu sự kiện này." })
             return
         }
 
@@ -435,12 +437,12 @@ export default function EventDetail() {
 
                     {/* HEADER HERO & KEY STATS CARD (Merged into 1 white frame) */}
                     <div className="bg-white rounded-[12px] border border-[#ededed] p-6 sm:p-8 flex flex-col gap-6 shadow-xs">
-                        {/* TOP HERO ROW: Job Header Left & Profile Card Right (Figma: Frame 2147225888 - node 6365:34765) */}
-                        <div className="flex flex-col lg:flex-row items-start justify-between gap-6 lg:gap-8 w-full" data-node-id="6365:34765">
-                        {/* LEFT: Logo + Title + Buttons (Figma: Frame 2147225887 w-742 - node 6365:34766) */}
-                        <div className="flex flex-col sm:flex-row items-start gap-[16px] flex-1 min-w-0" data-node-id="6365:34766">
-                            {/* Company Logo (Figma: size 117x117 rounded-full - node 6365:34767) */}
-                            <div className="relative size-[100px] sm:size-[117px] rounded-full shrink-0 overflow-hidden bg-slate-100 flex items-center justify-center border border-[#EDEDED]" data-node-id="6365:34767">
+                        {/* TOP HERO ROW: Job Header Left & Profile Card Right (Figma: Frame 2147225888) */}
+                        <div className="flex flex-col lg:flex-row items-start justify-between gap-6 lg:gap-8 w-full">
+                        {/* LEFT: Logo + Title + Buttons (Figma: Frame 2147225887 w-742) */}
+                        <div className="flex flex-col sm:flex-row items-start gap-[16px] flex-1 min-w-0">
+                            {/* Company Logo (Figma: size 117x117 rounded-full) */}
+                            <div className="relative size-[100px] sm:size-[117px] rounded-full shrink-0 overflow-hidden bg-slate-100 flex items-center justify-center border border-[#EDEDED]">
                                 <img
                                     alt={event.profiles?.full_name || "Company Logo"}
                                     className="size-full object-cover rounded-full"
@@ -455,26 +457,25 @@ export default function EventDetail() {
                                 />
                             </div>
 
-                            {/* Job Details Stack (Figma: Frame 2147225756 w-609 - node 6365:34768) */}
-                            <div className="flex-1 min-w-0 flex flex-col gap-[16px]" data-node-id="6365:34768">
-                                <div className="flex flex-col gap-[4px]" data-node-id="6365:34769">
-                                    {/* Company Name + Verified Check (Figma: Frame 2147224607 - node 6365:34770) */}
-                                    <div className="flex items-center gap-[6px]" data-node-id="6365:34770">
+                            {/* Job Details Stack (Figma: Frame 2147225756 w-609) */}
+                            <div className="flex-1 min-w-0 flex flex-col gap-[16px]">
+                                <div className="flex flex-col gap-[4px]">
+                                    {/* Company Name + Verified Check (Figma: Frame 2147224607) */}
+                                    <div className="flex items-center gap-[6px]">
                                         <button
                                             onClick={() => navigate(`/companies/${event.profiles?.slug || event.organizer_id}`)}
                                             className="text-[14px] font-normal text-[#515151] hover:text-zinc-950 transition-colors cursor-pointer"
-                                            data-node-id="6365:34771"
                                         >
                                             {event.profiles?.full_name || "BMW"}
                                         </button>
-                                        <div className="size-[16px] shrink-0 flex items-center justify-center" data-node-id="6365:34772" data-name="badge-check">
+                                        <div className="size-[16px] shrink-0 flex items-center justify-center">
                                             <VerifiedBadge variant="icon" />
                                         </div>
                                     </div>
 
-                                    {/* Job Title + Bookmark (Figma: Frame 2147225268 - node 6365:34773) */}
-                                    <div className="flex items-center gap-[8px] flex-wrap" data-node-id="6365:34773">
-                                        <h1 className="text-[24px] font-medium text-[#222222] tracking-tight leading-[normal]" data-node-id="6365:34774">
+                                    {/* Job Title + Bookmark (Figma: Frame 2147225268) */}
+                                    <div className="flex items-center gap-[8px] flex-wrap">
+                                        <h1 className="text-[24px] font-medium text-[#222222] tracking-tight leading-[normal]">
                                             {event.title || "UI/UX Designer"}
                                         </h1>
                                         <button
@@ -482,28 +483,25 @@ export default function EventDetail() {
                                             title={isBookmarked ? "Bỏ lưu sự kiện" : "Lưu sự kiện"}
                                             aria-label="Lưu sự kiện"
                                             className="cursor-pointer size-[24px] flex items-center justify-center hover:opacity-80 transition-opacity shrink-0"
-                                            data-node-id="6365:34775"
-                                            data-name="New BookMark"
                                         >
                                             <BookmarkIcon active={isBookmarked} />
                                         </button>
                                     </div>
                                 </div>
 
-                                {/* Short Summary (Figma: text 16px leading 1.6 #757575 w-571 - node 6365:34776) */}
-                                <p className="text-[16px] text-[#757575] font-normal leading-[1.6] max-w-[571px] line-clamp-2" data-node-id="6365:34776">
+                                {/* Short Summary (Figma: text 16px leading 1.6 #757575 w-571) */}
+                                <p className="text-[16px] text-[#757575] font-normal leading-[1.6] max-w-[571px] line-clamp-2">
                                     {event.description
                                         ? event.description.split("\n")[0]
                                         : "A Senior UX Designer is a pivotal member of product development teams, responsible for ensuring that digital"}
                                 </p>
 
-                                {/* Action Buttons (Figma: Frame 2147225755 - node 6365:34777) */}
-                                <div className="flex items-center gap-[16px] pt-[2px] flex-wrap" data-node-id="6365:34777">
+                                {/* Action Buttons (Figma: Frame 2147225755) */}
+                                <div className="flex items-center gap-[16px] pt-[2px] flex-wrap">
                                     {renderApplyButton()}
                                     <button
                                         onClick={handleMessage}
                                         className="border border-zinc-900 text-zinc-900 bg-white hover:bg-zinc-100 h-[40px] px-[16px] min-w-[147px] rounded-[8px] font-medium text-[16px] transition-all active:scale-[0.98] shadow-none flex items-center justify-center cursor-pointer shrink-0"
-                                        data-name="Buttons"
                                     >
                                         Nhắn tin
                                     </button>
@@ -515,9 +513,9 @@ export default function EventDetail() {
                             <div className="hidden lg:block w-px bg-[#ededed] self-stretch my-1" />
 
                             {/* RIGHT: Profile Resume Completion (Inside the single white frame) */}
-                            <div className="w-full lg:w-[260px] flex flex-col gap-[8px] items-center justify-center shrink-0 py-2" data-node-id="6365:34780" data-name="profile card">
-                            {/* Circular Avatar Progress Gauge (Figma: Frame 2147225274 size 64x64 border 2.25px - node 6365:34781) */}
-                            <div className="relative size-[64px] flex items-center justify-center shrink-0" data-node-id="6365:34781">
+                            <div className="w-full lg:w-[260px] flex flex-col gap-[8px] items-center justify-center shrink-0 py-2">
+                            {/* Circular Avatar Progress Gauge (Figma: Frame 2147225274 size 64x64 border 2.25px) */}
+                            <div className="relative size-[64px] flex items-center justify-center shrink-0">
                                 <svg className="absolute inset-0 size-full transform -rotate-90" viewBox="0 0 64 64">
                                     <circle
                                         cx="32"
@@ -553,21 +551,19 @@ export default function EventDetail() {
                                 </div>
                             </div>
 
-                            {/* Resume Completion & Subtitle (Figma: Frame 2147224730 - node 6365:34783) */}
-                            <div className="flex flex-col gap-[4px] items-center text-center" data-node-id="6365:34783">
-                                <div className="flex flex-col gap-[4px] items-center text-center" data-node-id="6365:34784">
-                                    <p className="font-semibold text-[#222222] text-[12px] whitespace-nowrap text-center" data-node-id="6365:34785">
+                            {/* Resume Completion & Subtitle (Figma: Frame 2147224730) */}
+                            <div className="flex flex-col gap-[4px] items-center text-center">
+                                <div className="flex flex-col gap-[4px] items-center text-center">
+                                    <p className="font-semibold text-[#222222] text-[12px] whitespace-nowrap text-center">
                                         <span className="text-zinc-950 font-bold">{completionPercent}%</span> hồ sơ đã hoàn thiện
                                     </p>
-                                    <p className="font-normal text-[#757575] text-[10px] leading-[normal] w-[170px] text-center" data-node-id="6365:34786">
+                                    <p className="font-normal text-[#757575] text-[10px] leading-[normal] w-[170px] text-center">
                                         Gần xong rồi! Hãy bổ sung thêm thông tin nhé.
                                     </p>
                                 </div>
                                 <button
                                     onClick={() => navigate("/profile")}
                                     className="h-[32px] px-[16px] rounded-[8px] text-zinc-900 hover:text-black hover:bg-zinc-100 font-medium text-[14px] leading-[1.6] transition-colors cursor-pointer flex items-center justify-center whitespace-nowrap"
-                                    data-node-id="6365:34787"
-                                    data-name="Buttons"
                                 >
                                     Hoàn thiện hồ sơ
                                 </button>
@@ -578,10 +574,10 @@ export default function EventDetail() {
                     {/* HORIZONTAL DIVIDER LINE (Figma: Line 168) */}
                     <div className="w-full h-px bg-[#ededed]" />
 
-                    {/* 4-COLUMN ACHIEVEMENT / KEY STATS BAR (Figma: achievement - node 6365:34789) */}
-                    <div className="flex flex-col md:flex-row items-center justify-between py-2 w-full gap-6 md:gap-0" data-node-id="6365:34789" data-name="achievement">
+                    {/* 4-COLUMN ACHIEVEMENT / KEY STATS BAR (Figma: achievement) */}
+                    <div className="flex flex-col md:flex-row items-center justify-between py-2 w-full gap-6 md:gap-0">
                         {/* 1. Employment Type */}
-                        <div className="flex gap-[8px] items-center justify-start md:justify-center px-4 w-full md:w-1/4" data-node-id="6365:34790" data-name="Job cart/diffrent states/achievement">
+                        <div className="flex gap-[8px] items-center justify-start md:justify-center px-4 w-full md:w-1/4">
                             <StatClockIcon />
                             <div className="flex flex-col items-start justify-center min-w-0">
                                 <div className="flex items-center mb-[-2px]">
@@ -596,10 +592,10 @@ export default function EventDetail() {
                         </div>
 
                         {/* Divider 1 */}
-                        <div className="hidden md:block h-[52px] w-px bg-[#ededed] shrink-0" data-node-id="6365:34791" />
+                        <div className="hidden md:block h-[52px] w-px bg-[#ededed] shrink-0" />
 
                         {/* 2. Experience Level */}
-                        <div className="flex gap-[8px] items-center justify-start md:justify-center px-4 w-full md:w-1/4" data-node-id="6365:34792" data-name="Job cart/diffrent states/achievement">
+                        <div className="flex gap-[8px] items-center justify-start md:justify-center px-4 w-full md:w-1/4">
                             <StatCalendarIcon />
                             <div className="flex flex-col items-start justify-center min-w-0">
                                 <div className="flex items-center mb-[-2px]">
@@ -614,10 +610,10 @@ export default function EventDetail() {
                         </div>
 
                         {/* Divider 2 */}
-                        <div className="hidden md:block h-[52px] w-px bg-[#ededed] shrink-0" data-node-id="6365:34793" />
+                        <div className="hidden md:block h-[52px] w-px bg-[#ededed] shrink-0" />
 
                         {/* 3. Location */}
-                        <div className="flex gap-[8px] items-center justify-start md:justify-center px-4 w-full md:w-1/4" data-node-id="6365:34794" data-name="Job cart/diffrent states/achievement">
+                        <div className="flex gap-[8px] items-center justify-start md:justify-center px-4 w-full md:w-1/4">
                             <StatLocationIcon />
                             <div className="flex flex-col items-start justify-center min-w-0">
                                 <div className="flex items-center mb-[-2px]">
@@ -632,10 +628,10 @@ export default function EventDetail() {
                         </div>
 
                         {/* Divider 3 */}
-                        <div className="hidden md:block h-[52px] w-px bg-[#ededed] shrink-0" data-node-id="6365:34795" />
+                        <div className="hidden md:block h-[52px] w-px bg-[#ededed] shrink-0" />
 
                         {/* 4. Salary */}
-                        <div className="flex gap-[8px] items-center justify-start md:justify-center px-4 w-full md:w-1/4" data-node-id="6365:34796" data-name="Job cart/diffrent states/achievement">
+                        <div className="flex gap-[8px] items-center justify-start md:justify-center px-4 w-full md:w-1/4">
                             <StatDollarIcon />
                             <div className="flex flex-col items-start justify-center min-w-0">
                                 <div className="flex items-center mb-[-2px]">

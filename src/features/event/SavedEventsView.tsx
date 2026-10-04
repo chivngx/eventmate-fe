@@ -5,6 +5,7 @@ import { useNavigate } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
 import { getUserFacingMessage } from "@/lib/error"
 import { useUser } from "@/components/providers/AuthProvider"
+import { useAuthModal } from "@/components/providers/AuthModalProvider"
 import MainLayout from "@/components/layout/MainLayout"
 import { Bookmark, MapPin, Building2, Briefcase, Tag, Trash2, ArrowRight, Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -15,6 +16,7 @@ import { useToast } from "@/components/providers/ToastProvider"
 export default function SavedEvents() {
   const navigate = useNavigate()
   const { showToast } = useToast()
+  const { openLogin } = useAuthModal()
   const { user, role, loading: authLoading } = useUser()
   const [bookmarks, setBookmarks] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -22,7 +24,7 @@ export default function SavedEvents() {
   useEffect(() => {
     if (authLoading) return
     if (!user) {
-      navigate("/login")
+      openLogin({ redirectPath: "/saved", message: "Vui lòng đăng nhập để xem danh sách sự kiện đã lưu." })
       return
     }
     const fetchMyBookmarks = async () => {

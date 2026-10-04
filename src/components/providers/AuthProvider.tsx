@@ -1,19 +1,5 @@
 "use client";
 
-/**
- * AuthProvider — centralized Supabase auth + profile state.
- *
- * Replaces the previous pattern where 14+ components each called
- * `supabase.auth.getUser()` + `from("profiles").select(...)` on mount (31
- * redundant network calls). Now a single provider fetches the session and
- * profile once, subscribes to `onAuthStateChange`, and exposes the result
- * via `useUser()`.
- *
- * Session is stored in httpOnly cookies (via @supabase/ssr, see Phase 1
- * Task 2). This provider only reads it reactively — it does NOT store
- * anything in localStorage (the old `em_user_profile` cache is obsolete).
- */
-
 import {
   createContext,
   useContext,
@@ -26,7 +12,6 @@ import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import type { Database } from "@/lib/database.types";
 
-/** Subset of the `profiles` row needed across the app. */
 export interface Profile {
   id: string;
   role: string;
@@ -55,15 +40,10 @@ export interface Profile {
 interface AuthContextValue {
   user: User | null;
   profile: Profile | null;
-  /** Convenience: profile?.role ?? null (null while loading). */
   role: string | null;
-  /** True during the initial session/profile fetch. Use to gate render. */
   loading: boolean;
-  /** Re-fetch the profile from the DB (e.g. after avatar upload). */
   refreshProfile: () => Promise<void>;
-  /** True only when is_premium is set AND premium_until is in the future. */
   isPremium: boolean;
-  /** Number of purchased Single Event (99k) credits remaining. */
   singleEventCredits: number;
 }
 
@@ -92,9 +72,9 @@ async function ensureProfile(user: User): Promise<Profile | null> {
     (isOrg && meta.company_name)
       ? meta.company_name
       : meta.full_name ||
-        meta.name ||
-        user.email?.split("@")[0] ||
-        "Thành viên mới";
+      meta.name ||
+      user.email?.split("@")[0] ||
+      "Thành viên mới";
   const desiredBio = meta.description || meta.bio || null;
   const desiredScale = meta.scale || meta.company_field || null;
 
@@ -116,7 +96,6 @@ async function ensureProfile(user: User): Promise<Profile | null> {
     await supabase.from("profiles").upsert(newProfile, { onConflict: "id" });
     p = await fetchProfile(user.id);
   } else if (isOrg) {
-    // If existing organizer profile has incomplete info or personal name instead of company name
     const patch: Database["public"]["Tables"]["profiles"]["Update"] = {};
     if (meta.company_name && p.full_name !== meta.company_name) {
       patch.full_name = meta.company_name;
@@ -127,26 +106,24 @@ async function ensureProfile(user: User): Promise<Profile | null> {
     if (desiredScale && !p.scale) {
       patch.scale = desiredScale;
     }
-
     if (Object.keys(patch).length > 0) {
       await supabase.from("profiles").update(patch).eq("id", user.id);
       p = await fetchProfile(user.id);
     }
   }
 
-function dataURItoBlob(dataURI: string): Blob {
-  const parts = dataURI.split(",");
-  const byteString = atob(parts[1] || "");
-  const mimeString = parts[0]?.split(":")[1]?.split(";")[0] || "image/jpeg";
-  const ab = new ArrayBuffer(byteString.length);
-  const ia = new Uint8Array(ab);
-  for (let i = 0; i < byteString.length; i++) {
-    ia[i] = byteString.charCodeAt(i);
+  function dataURItoBlob(dataURI: string): Blob {
+    const parts = dataURI.split(",");
+    const byteString = atob(parts[1] || "");
+    const mimeString = parts[0]?.split(":")[1]?.split(";")[0] || "image/jpeg";
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], { type: mimeString });
   }
-  return new Blob([ab], { type: mimeString });
-}
 
-  // Check and upload pending logo from organizer registration
   if (typeof window !== "undefined") {
     const pendingLogo = localStorage.getItem("pending_org_logo");
     if (pendingLogo && user.id) {
@@ -194,12 +171,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(p);
   }, [user]);
 
-  // Initial load + subscribe to auth changes.
   useEffect(() => {
     let active = true;
 
     const init = async () => {
-      // getSession() reads from httpOnly cookie (fast, no network when cached).
       const {
         data: { session },
       } = await supabase.auth.getSession();
@@ -215,8 +190,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
     init();
 
-    // React to sign-in / sign-out / token-refresh. This replaces the
-    // `window.location.reload()` hack AuthModal used after login.
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {

@@ -3,6 +3,8 @@
 import React, { useState, forwardRef } from "react"
 import { Link } from "@/lib/router"
 import { Loader2, AlertCircle, CheckCircle2, Eye, EyeOff } from "lucide-react"
+import { supabase } from "@/lib/supabase"
+import { getUserFacingMessage } from "@/lib/error"
 import { EventMateLogo as GlobalEventMateLogo } from "@/components/common/EventMateLogo"
 
 // ==========================================
@@ -32,8 +34,8 @@ export function RoleSwitcherTabs({
     mode: "login" | "register"
     onRoleChange?: (role: "student" | "organizer") => void
 }) {
-    const studentUrl = mode === "login" ? "/login" : "/register"
-    const organizerUrl = mode === "login" ? "/login?role=organizer" : "/register?role=organizer"
+    const studentUrl = mode === "login" ? "/?auth=login" : "/?auth=register"
+    const organizerUrl = mode === "login" ? "/?auth=login&role=organizer" : "/?auth=register&role=organizer"
 
     return (
         <div className="w-full grid grid-cols-2 p-1 bg-zinc-100/90 rounded-xl text-[13px] font-medium border border-zinc-200/60 mb-2 select-none">
@@ -166,6 +168,49 @@ export function GoogleAuthButton({
     )
 }
 
+export interface SignInWithGoogleOptions {
+    role?: "student" | "organizer"
+    redirectPath?: string
+    setLoading?: (loading: boolean) => void
+    onError?: (msg: string | null) => void
+}
+
+export async function signInWithGoogle({
+    role,
+    redirectPath,
+    setLoading,
+    onError,
+}: SignInWithGoogleOptions = {}) {
+    onError?.(null)
+    setLoading?.(true)
+    try {
+        const origin = typeof window !== "undefined" ? window.location.origin : ""
+        const params = new URLSearchParams()
+        if (role === "organizer") {
+            params.set("role", "organizer")
+        }
+        if (redirectPath) {
+            params.set("redirect", redirectPath)
+        }
+        const qs = params.toString()
+        const targetRedirect = `${origin}/auth/callback${qs ? `?${qs}` : ""}`
+
+        const { error } = await supabase.auth.signInWithOAuth({
+            provider: "google",
+            options: {
+                redirectTo: targetRedirect,
+            },
+        })
+        if (error) {
+            onError?.(getUserFacingMessage(error, "Không thể kết nối với Google. Vui lòng thử lại."))
+            setLoading?.(false)
+        }
+    } catch (err: any) {
+        onError?.(err?.message || "Lỗi kết nối với Google.")
+        setLoading?.(false)
+    }
+}
+
 // ==========================================
 // 5. AUTH DIVIDER ("HOẶC")
 // ==========================================
@@ -200,7 +245,7 @@ export function AuthSuccessCard({
     title,
     message,
     actionText = "Đi đến trang Đăng nhập",
-    actionLink = "/login",
+    actionLink = "/?auth=login",
     onActionClick,
 }: {
     title: string
@@ -302,8 +347,6 @@ export const FloatingBadgeInput = forwardRef<HTMLInputElement, FloatingBadgeInpu
         )
     }
 )
-
-export { FloatingBadgeInput as CleanAuthInput }
 
 // ==========================================
 // 9. SIGN UP PROGRESS BAR

@@ -16,7 +16,7 @@ import {
 // ==========================================
 // STEP 1: Basic Information
 // ==========================================
-interface Step1EmployerInfoProps {
+interface Step1OrganizerInfoProps {
     defaultValues?: Partial<EmployerRegisterValues>
     onSubmit: (values: EmployerRegisterValues) => void
     onGoogleSignUp: () => void
@@ -30,7 +30,7 @@ export function Step1OrganizerInfo({
     onGoogleSignUp,
     googleLoading = false,
     onLoginClick,
-}: Step1EmployerInfoProps) {
+}: Step1OrganizerInfoProps) {
     const {
         register,
         handleSubmit,
@@ -125,7 +125,7 @@ export function Step1OrganizerInfo({
                             Đăng nhập
                         </button>
                     ) : (
-                        <Link to="/login?role=organizer" className="text-zinc-900 font-semibold hover:underline transition-colors">
+                        <Link to="/?auth=login&role=organizer" className="text-zinc-900 font-semibold hover:underline transition-colors">
                             Đăng nhập
                         </Link>
                     )}
@@ -135,12 +135,10 @@ export function Step1OrganizerInfo({
     )
 }
 
-export { Step1OrganizerInfo as Step1EmployerInfo }
-
 // ==========================================
 // STEP 2: Company / Organization Details
 // ==========================================
-export interface Step2EmployerCompanyInfoProps {
+export interface Step2OrganizerCompanyInfoProps {
     onSubmit: (values: {
         companyName: string
         companyField: string
@@ -156,7 +154,7 @@ export function Step2OrganizerCompanyInfo({
     onSubmit,
     onSkip,
     loading = false,
-}: Step2EmployerCompanyInfoProps) {
+}: Step2OrganizerCompanyInfoProps) {
     const [companyName, setCompanyName] = useState("")
     const [companyField, setCompanyField] = useState("")
     const [description, setDescription] = useState("")
@@ -333,53 +331,27 @@ function resizeImageToDataUrl(file: File, maxSize = 512): Promise<string> {
             {/* 2. Form Inputs */}
             <div className="flex flex-col gap-3.5 w-full">
                 {/* Field 1: Company Name */}
-                <div className="flex flex-col gap-1.5 w-full text-left">
-                    <label htmlFor="company-name" className="text-[13px] font-medium text-zinc-700 flex items-center gap-1">
-                        <span>Tên đơn vị / Doanh nghiệp</span>
-                        <span className="text-rose-500">*</span>
-                    </label>
-                    <div
-                        className={`h-[46px] w-full rounded-xl border transition-all bg-zinc-50/50 hover:bg-white focus-within:bg-white flex items-center px-3.5 ${
-                            errors.companyName
-                                ? "border-rose-500 ring-3 ring-rose-500/10"
-                                : "border-zinc-200 hover:border-zinc-300 focus-within:border-zinc-900 focus-within:ring-4 focus-within:ring-zinc-900/5"
-                        }`}
-                    >
-                        <input
-                            id="company-name"
-                            type="text"
-                            value={companyName}
-                            onChange={(e) => {
-                                setCompanyName(e.target.value)
-                                if (errors.companyName) setErrors((prev) => ({ ...prev, companyName: undefined }))
-                            }}
-                            placeholder="Nhập tên công ty hoặc đơn vị tổ chức"
-                            className="w-full h-full bg-transparent border-none outline-none text-zinc-900 text-[14px] placeholder:text-zinc-400 shadow-none"
-                        />
-                    </div>
-                    {errors.companyName && (
-                        <p className="text-[12px] text-rose-600 font-medium pl-0.5 mt-0.5 animate-in fade-in duration-150">
-                            {errors.companyName}
-                        </p>
-                    )}
-                </div>
+                <FloatingBadgeInput
+                    id="company-name"
+                    label="Tên đơn vị / Doanh nghiệp"
+                    placeholder="Nhập tên công ty hoặc đơn vị tổ chức"
+                    required
+                    value={companyName}
+                    onChange={(e) => {
+                        setCompanyName(e.target.value)
+                        if (errors.companyName) setErrors((prev) => ({ ...prev, companyName: undefined }))
+                    }}
+                    error={errors.companyName}
+                />
 
                 {/* Field 2: Company Field */}
-                <div className="flex flex-col gap-1.5 w-full text-left">
-                    <label htmlFor="company-field" className="text-[13px] font-medium text-zinc-700">
-                        Lĩnh vực hoạt động
-                    </label>
-                    <div className="h-[46px] w-full rounded-xl border border-zinc-200 hover:border-zinc-300 focus-within:border-zinc-900 focus-within:ring-4 focus-within:ring-zinc-900/5 transition-all bg-zinc-50/50 hover:bg-white focus-within:bg-white flex items-center px-3.5">
-                        <input
-                            id="company-field"
-                            type="text"
-                            value={companyField}
-                            onChange={(e) => setCompanyField(e.target.value)}
-                            placeholder="Ví dụ: Sự kiện âm nhạc, Triển lãm, Workshop..."
-                            className="w-full h-full bg-transparent border-none outline-none text-zinc-900 text-[14px] placeholder:text-zinc-400 shadow-none"
-                        />
-                    </div>
-                </div>
+                <FloatingBadgeInput
+                    id="company-field"
+                    label="Lĩnh vực hoạt động"
+                    placeholder="Ví dụ: Sự kiện âm nhạc, Triển lãm, Workshop..."
+                    value={companyField}
+                    onChange={(e) => setCompanyField(e.target.value)}
+                />
 
                 {/* Field 3: Company Description */}
                 <div className="flex flex-col gap-1.5 w-full text-left">
@@ -445,6 +417,3 @@ function resizeImageToDataUrl(file: File, maxSize = 512): Promise<string> {
         </form>
     )
 }
-
-export { Step2OrganizerCompanyInfo as Step3OrganizerCompanyInfo }
-export { Step2OrganizerCompanyInfo as Step3EmployerCompanyInfo }

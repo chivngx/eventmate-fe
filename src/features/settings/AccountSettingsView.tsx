@@ -10,8 +10,6 @@ import { useAccountSettings } from "./hooks/useAccountSettings"
 import {
   Building2,
   User,
-  Upload,
-  Shield,
   Lock,
   Mail,
   Phone,
@@ -22,9 +20,7 @@ import {
   GraduationCap,
   CheckCircle2,
   AlertCircle,
-  Briefcase,
   ArrowRight,
-  Bell,
   Sliders,
   ShieldCheck,
   Globe,
@@ -94,7 +90,6 @@ export default function AccountSettingsView({ embedded = false }: { embedded?: b
     setMapEmbedUrl,
     reliabilityScore,
     isVerified,
-    isPremium,
     cvPercent,
     isSeekingJob,
     emailNotifications,
@@ -121,7 +116,7 @@ export default function AccountSettingsView({ embedded = false }: { embedded?: b
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   if (loading) return <SkeletonGenericPage />
-  if (!role) return <Navigate to="/login" replace />
+  if (!role) return <Navigate to="/?auth=login&redirect=/settings" replace />
 
   const isOrg = role === "organizer" || role === "employer"
 

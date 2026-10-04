@@ -86,7 +86,7 @@ export default function JobseekerProfileDropdown({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "h-[40px] pl-1 pr-2.5 rounded-full flex items-center gap-1.5 transition-all cursor-pointer outline-none shrink-0",
+          "h-[44px] pl-1.5 pr-3 rounded-full flex items-center gap-1.5 transition-all cursor-pointer outline-none shrink-0",
           isHeroUnscrolled
             ? "bg-white text-gray-700 shadow-xs hover:bg-gray-100 border-none"
             : "border border-gray-200 text-gray-700 hover:bg-gray-50 shadow-xs",
@@ -96,7 +96,7 @@ export default function JobseekerProfileDropdown({
         aria-haspopup="true"
         title={displayName}
       >
-        <div className="relative size-[32px] rounded-full overflow-hidden shrink-0 bg-slate-100 flex items-center justify-center">
+        <div className="relative size-[34px] rounded-full overflow-hidden shrink-0 bg-slate-100 flex items-center justify-center">
           {avatarUrl ? (
             <img
               src={avatarUrl}
@@ -120,7 +120,7 @@ export default function JobseekerProfileDropdown({
         </div>
         <ChevronDown
           className={cn(
-            "size-3.5 transition-transform duration-200",
+            "size-4 transition-transform duration-200",
             isOpen && "rotate-180",
             isHeroUnscrolled ? "text-white/80" : "text-gray-500"
           )}
@@ -418,4 +418,3 @@ export default function JobseekerProfileDropdown({
     </div>
   )
 }
-

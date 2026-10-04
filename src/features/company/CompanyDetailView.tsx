@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useMemo } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useParams, useNavigate } from "@/lib/router"
 import { supabase } from "@/lib/supabase"
 import { useUser } from "@/components/providers/AuthProvider"
@@ -11,7 +11,6 @@ import {
   Globe,
   Star,
   Search,
-  ChevronRight,
   Calendar,
   Sparkles,
 } from "lucide-react"
@@ -137,7 +136,7 @@ export default function CompanyDetailView() {
 
       const matchesLocation = selectedLocation
         ? (job.danang_wards?.name || "").includes(selectedLocation) ||
-          (job.location || "").includes(selectedLocation)
+        (job.location || "").includes(selectedLocation)
         : true
 
       return matchesSearch && matchesLocation
@@ -170,10 +169,10 @@ export default function CompanyDetailView() {
             Hồ sơ đơn vị này có thể đã được cập nhật hoặc không tồn tại trên hệ thống EventMate.
           </p>
           <button
-            onClick={() => navigate("/companies")}
+            onClick={() => navigate("/")}
             className="mt-6 h-[40px] px-5 rounded-[8px] bg-[#222222] text-white font-medium text-[14px] hover:bg-[#353535] transition cursor-pointer"
           >
-            Quay lại danh sách đơn vị
+            Về trang chủ
           </button>
         </div>
       </MainLayout>
@@ -187,10 +186,9 @@ export default function CompanyDetailView() {
   )
 
   const tabItemClass = (isActive: boolean) =>
-    `h-[44px] text-[15px] transition-all cursor-pointer flex items-center gap-1.5 border-b-2 ${
-      isActive
-        ? "text-[#222222] font-bold border-[#222222]"
-        : "text-[#757575] hover:text-[#222222] font-medium border-transparent"
+    `h-[44px] text-[15px] transition-all cursor-pointer flex items-center gap-1.5 border-b-2 ${isActive
+      ? "text-[#222222] font-bold border-[#222222]"
+      : "text-[#757575] hover:text-[#222222] font-medium border-transparent"
     }`
 
   return (
@@ -201,7 +199,6 @@ export default function CompanyDetailView() {
           {/* 1. BREADCRUMB */}
           <Breadcrumb
             items={[
-              { label: "Ban tổ chức", href: "/companies" },
               { label: displayName },
             ]}
           />
@@ -334,11 +331,10 @@ export default function CompanyDetailView() {
                           {[1, 2, 3, 4, 5].map((star) => (
                             <Star
                               key={star}
-                              className={`size-3.5 ${
-                                star <= Math.round(reviewStats.average)
+                              className={`size-3.5 ${star <= Math.round(reviewStats.average)
                                   ? "text-amber-500 fill-amber-500"
                                   : "text-slate-200 fill-slate-200"
-                              }`}
+                                }`}
                             />
                           ))}
                         </div>
@@ -392,11 +388,10 @@ export default function CompanyDetailView() {
                                       {[1, 2, 3, 4, 5].map((s) => (
                                         <Star
                                           key={s}
-                                          className={`size-3 ${
-                                            s <= rev.rating
+                                          className={`size-3 ${s <= rev.rating
                                               ? "text-amber-500 fill-amber-500"
                                               : "text-slate-300"
-                                          }`}
+                                            }`}
                                         />
                                       ))}
                                     </div>

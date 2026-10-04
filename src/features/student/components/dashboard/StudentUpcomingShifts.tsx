@@ -1,8 +1,7 @@
 "use client"
 
-import React from "react"
 import Link from "next/link"
-import { Calendar, MapPin, DollarSign, Clock, ArrowRight, Sparkles, CheckCircle2 } from "lucide-react"
+import { Calendar, MapPin, Clock, ArrowRight, Sparkles, CheckCircle2 } from "lucide-react"
 
 export interface UpcomingShift {
   id: string

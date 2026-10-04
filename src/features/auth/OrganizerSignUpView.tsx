@@ -6,7 +6,7 @@ import { supabase } from "@/lib/supabase"
 import { getUserFacingMessage } from "@/lib/error"
 import type { EmployerRegisterValues } from "@/lib/schemas"
 import { AuthSplitLayout } from "./components/AuthSplitLayout"
-import { AuthSuccessCard, RoleSwitcherTabs, SignUpProgressBar } from "./components/AuthComponents"
+import { AuthSuccessCard, RoleSwitcherTabs, SignUpProgressBar, signInWithGoogle } from "./components/AuthComponents"
 import {
     Step1OrganizerInfo,
     Step2OrganizerCompanyInfo,
@@ -155,10 +155,10 @@ export default function OrganizerSignUpView({
                 if (signUpData.session) {
                     if (isModal) {
                         if (onSuccess) onSuccess()
-                        navigate(redirectPath || "/for-employers")
+                        navigate(redirectPath || "/")
                         return
                     }
-                    navigate("/for-employers")
+                    navigate("/")
                 } else {
                     setSuccessMessage(
                         "Đăng ký tài khoản Ban tổ chức thành công! Vui lòng kiểm tra email của bạn để xác thực tài khoản trước khi đăng nhập."
@@ -176,28 +176,13 @@ export default function OrganizerSignUpView({
         handleFinalSubmit()
     }
 
-    const handleGoogleSignUp = async () => {
-        setErrorMessage(null)
-        setGoogleLoading(true)
-        try {
-            const targetRedirect = redirectPath
-                ? `${window.location.origin}/auth/callback?role=organizer&redirect=${encodeURIComponent(redirectPath)}`
-                : `${window.location.origin}/auth/callback?role=organizer`
-
-            const { error: oauthError } = await supabase.auth.signInWithOAuth({
-                provider: "google",
-                options: {
-                    redirectTo: targetRedirect,
-                },
-            })
-            if (oauthError) {
-                setErrorMessage(getUserFacingMessage(oauthError, "Không thể kết nối với Google. Vui lòng thử lại."))
-            }
-        } catch (err: any) {
-            setErrorMessage(err?.message || "Lỗi đăng nhập Google.")
-        } finally {
-            setGoogleLoading(false)
-        }
+    const handleGoogleSignUp = () => {
+        signInWithGoogle({
+            role: "organizer",
+            redirectPath,
+            setLoading: setGoogleLoading,
+            onError: setErrorMessage,
+        })
     }
 
     const progressBar = (
@@ -237,7 +222,7 @@ export default function OrganizerSignUpView({
                     title="Kiểm tra email của bạn"
                     message={successMessage}
                     actionText="Đi đến Đăng nhập"
-                    actionLink="/login?role=organizer"
+                    actionLink="/?auth=login&role=organizer"
                     onActionClick={onLoginClick}
                 />
             ) : step === 1 ? (

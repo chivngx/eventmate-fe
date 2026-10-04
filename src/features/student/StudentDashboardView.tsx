@@ -41,7 +41,7 @@ export default function JobSeekerDashboard() {
   useEffect(() => {
     if (authLoading) return
     if (!user) {
-      router.push("/login")
+      router.push("/?auth=login&redirect=/dashboard")
       return
     }
     if (role === "organizer" || profile?.role === "organizer") {

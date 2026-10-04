@@ -81,8 +81,8 @@ export default function ResetPasswordView({ isModal = false, onLoginClick }: Res
 
         try {
             const redirectUrl = isEmployer
-                ? `${window.location.origin}/auth/callback?role=organizer&redirect=/reset-password?role=organizer&mode=update`
-                : `${window.location.origin}/auth/callback?redirect=/reset-password&mode=update`
+                ? `${window.location.origin}/auth/callback?role=organizer&redirect=${encodeURIComponent("/?auth=forgot&role=organizer&mode=update")}`
+                : `${window.location.origin}/auth/callback?redirect=${encodeURIComponent("/?auth=forgot&mode=update")}`
 
             const { error } = await supabase.auth.resetPasswordForEmail(values.email.trim(), {
                 redirectTo: redirectUrl,
@@ -145,7 +145,7 @@ export default function ResetPasswordView({ isModal = false, onLoginClick }: Res
         )
     }
 
-    const loginLink = isEmployer ? "/login?role=organizer" : "/login"
+    const loginLink = isEmployer ? "/?auth=login&role=organizer" : "/?auth=login"
 
     const title = isUpdateMode
         ? "Đặt lại mật khẩu mới"

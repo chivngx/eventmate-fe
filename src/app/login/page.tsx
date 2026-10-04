@@ -1,11 +1,17 @@
-import type { Metadata } from "next"
-import LoginView from "@/features/auth/LoginView"
+import { redirect } from "next/navigation"
 
-export const metadata: Metadata = {
-  title: "Đăng nhập",
-  description: "Đăng nhập vào tài khoản EventMate của bạn.",
-}
-
-export default function LoginPage() {
-  return <LoginView />
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const sp = await searchParams
+  const query = new URLSearchParams()
+  query.set("auth", "login")
+  for (const [key, value] of Object.entries(sp)) {
+    if (typeof value === "string") {
+      query.set(key, value)
+    }
+  }
+  redirect(`/?${query.toString()}`)
 }

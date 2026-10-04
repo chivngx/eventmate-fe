@@ -16,14 +16,6 @@ export const IconBell = BellIcon
 export const IconMessageText = MessageIcon
 export const IconSettings = SettingIcon
 
-export function JoblinMiniLogo({ className = "size-[40px]" }: { className?: string; color?: "Blue" | "Black" }) {
-  return (
-    <div className={cn("relative shrink-0 flex items-center justify-center", className)}>
-      <EventMateLogoIcon size={36} idPrefix="menudash" variant="monochrome" />
-    </div>
-  )
-}
-
 export function IconPlusSquare({ className = "size-6" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className={cn("shrink-0", className)}>
@@ -419,24 +411,22 @@ export default function MenuDashboard({
         isCollapsed ? "w-[88px]" : "w-full lg:w-[244px]",
         className
       )}
-      data-node-id={isOrganizer ? "5875:28309" : "5875:25295"}
-      data-name="menu dashboard"
     >
       <div>
-        {/* Top Header: Brand MiniLogo & Joblin Title + Collapse/Expand Button */}
+        {/* Top Header: Brand MiniLogo & EventMate Title + Collapse/Expand Button */}
         <div className={cn(
           "relative flex items-center justify-between pb-4",
           isCollapsed && "flex-col items-center gap-2 pb-2"
         )}>
           <Link
-            href={isOrganizer ? "/for-employers" : "/"}
+            href="/"
             className={cn(
               "flex items-center gap-2.5 group cursor-pointer transition-opacity hover:opacity-90",
               isCollapsed && "justify-center w-full"
             )}
             title={isOrganizer ? "Bảng điều khiển Nhà tuyển dụng" : "Bảng điều khiển EventMate"}
           >
-            <EventMateLogoIcon size={isCollapsed ? 34 : 36} idPrefix="menudash" variant="monochrome" />
+            <EventMateLogoIcon size={isCollapsed ? 34 : 36} idPrefix="menudash" variant="orange" />
             {!isCollapsed && (
               <div className="flex flex-col justify-center">
                 <span className="font-['Inter',sans-serif] font-bold text-[18px] leading-tight text-[#222222] tracking-tight">

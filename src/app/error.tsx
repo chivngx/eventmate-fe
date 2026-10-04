@@ -1,9 +1,5 @@
 "use client"
 
-/**
- * Root error boundary — catches unhandled errors in any route segment.
- * Shows a friendly Vietnamese message with a retry button.
- */
 import { useEffect } from "react"
 
 export default function Error({
@@ -14,7 +10,6 @@ export default function Error({
     reset: () => void
 }) {
     useEffect(() => {
-        // Log to console for dev diagnostics (production should use Sentry).
         console.error("[App Error Boundary]:", error)
     }, [error])
 

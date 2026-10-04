@@ -62,7 +62,7 @@ export default function Pagination({
   }
 
   return (
-    <div className={`flex items-center justify-center gap-3 sm:gap-5 py-8 ${className}`} data-name="pagination">
+    <div className={`flex items-center justify-center gap-3 sm:gap-5 py-8 ${className}`}>
       {/* Prev button */}
       <button
         type="button"

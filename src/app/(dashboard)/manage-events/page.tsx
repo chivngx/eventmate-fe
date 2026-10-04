@@ -13,7 +13,7 @@ export default function ManageEventsPage() {
   useEffect(() => {
     if (!loading) {
       if (!user) {
-        router.push("/login")
+        router.push("/?auth=login&redirect=/manage-events")
       } else if (role !== "organizer") {
         router.replace("/my-events")
       }

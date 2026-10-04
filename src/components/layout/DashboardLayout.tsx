@@ -29,149 +29,20 @@ export interface DashboardLayoutProps {
   onLogout?: () => void
 }
 
-const orgTabInfo: Record<string, { title: string; subtitle: string }> = {
-  "post-job": {
-    title: "Đăng tin tuyển dụng",
-    subtitle: "Cập nhật thông tin chi tiết để thu hút nhân sự phù hợp nhất",
-  },
-  "feed": {
-    title: "Bảng điều khiển",
-    subtitle: "Tổng quan hiệu suất tuyển dụng và các chiến dịch sự kiện của bạn",
-  },
-  "dashboard": {
-    title: "Bảng điều khiển",
-    subtitle: "Tổng quan hiệu suất tuyển dụng và các chiến dịch sự kiện của bạn",
-  },
-  "events": {
-    title: "Quản lý tuyển dụng",
-    subtitle: "Theo dõi, quản lý và chỉnh sửa các chiến dịch tuyển dụng đang hoạt động",
-  },
-  "recommended": {
-    title: "Ứng viên gợi ý",
-    subtitle: "Ứng viên được AI gợi ý phù hợp với yêu cầu sự kiện",
-  },
-  "reports": {
-    title: "Báo cáo tuyển dụng",
-    subtitle: "Số liệu phân tích chi tiết về hiệu quả ứng tuyển",
-  },
-  "services": {
-    title: "Gói dịch vụ & VIP",
-    subtitle: "Nâng cấp tài khoản để tiếp cận nhân sự chất lượng cao",
-  },
-  "chat": {
-    title: "Tin nhắn",
-    subtitle: "Kênh trao đổi trực tiếp với ứng viên và điều phối viên",
-  },
-  "message": {
-    title: "Tin nhắn",
-    subtitle: "Kênh trao đổi trực tiếp với ứng viên và điều phối viên",
-  },
-  "notification": {
-    title: "Thông báo",
-    subtitle: "Cập nhật tiến độ ứng tuyển và thông tin mới nhất từ hệ thống",
-  },
-  "notifications": {
-    title: "Thông báo",
-    subtitle: "Cập nhật tiến độ ứng tuyển và thông tin mới nhất từ hệ thống",
-  },
-  "account": {
-    title: "Cài đặt tài khoản",
-    subtitle: "Quản lý thông tin công ty, trạng thái xác thực và bảo mật",
-  },
-  "settings": {
-    title: "Cài đặt tài khoản",
-    subtitle: "Quản lý thông tin công ty, trạng thái xác thực và bảo mật",
-  },
-}
-
-const studentTabInfo: Record<string, { title: string; subtitle: string }> = {
-  "dashboard": {
-    title: "Bảng điều khiển",
-    subtitle: "Cập nhật thông tin đầy đủ giúp bạn nhận được cơ hội sự kiện phù hợp nhất",
-  },
-  "feed": {
-    title: "Bảng điều khiển",
-    subtitle: "Cập nhật thông tin đầy đủ giúp bạn nhận được cơ hội sự kiện phù hợp nhất",
-  },
-  "resume": {
-    title: "Hồ sơ của tôi",
-    subtitle: "Xây dựng hồ sơ năng lực và kỹ năng để ứng tuyển các sự kiện",
-  },
-  "cv": {
-    title: "Hồ sơ của tôi",
-    subtitle: "Xây dựng hồ sơ năng lực và kỹ năng để ứng tuyển các sự kiện",
-  },
-  "notification": {
-    title: "Thông báo",
-    subtitle: "Cập nhật tiến độ ứng tuyển và thông tin mới nhất từ Ban tổ chức",
-  },
-  "notifications": {
-    title: "Thông báo",
-    subtitle: "Cập nhật tiến độ ứng tuyển và thông tin mới nhất từ Ban tổ chức",
-  },
-  "message": {
-    title: "Tin nhắn",
-    subtitle: "Trò chuyện và kết nối trực tiếp với Nhà tuyển dụng sự kiện",
-  },
-  "chat": {
-    title: "Tin nhắn",
-    subtitle: "Trò chuyện và kết nối trực tiếp với Nhà tuyển dụng sự kiện",
-  },
-  "settings": {
-    title: "Cài đặt tài khoản",
-    subtitle: "Quản lý thông tin định danh cá nhân, thông số phục vụ sự kiện và bảo mật",
-  },
-  "account": {
-    title: "Cài đặt tài khoản",
-    subtitle: "Quản lý thông tin định danh cá nhân, thông số phục vụ sự kiện và bảo mật",
-  },
-  "activity": {
-    title: "Hoạt động",
-    subtitle: "Theo dõi trạng thái các sự kiện đã ứng tuyển, lưu và được mời",
-  },
-  "my-events": {
-    title: "Hoạt động",
-    subtitle: "Theo dõi trạng thái các sự kiện đã ứng tuyển, lưu và được mời",
-  },
-}
-
 export default function DashboardLayout({
   children,
   role = "organizer",
   activeTab = "feed",
   setActiveTab,
   activeItem,
-  title: customTitle,
-  subtitle: customSubtitle,
   isPremium = false,
-  userProfile,
-  avatarUrl,
   unreadCount,
   notificationCount,
   messageCount,
-  searchQuery = "",
-  setSearchQuery,
-  onSearchSubmit,
-  onPostJobClick,
-  onNotificationClick,
   onLogout,
 }: DashboardLayoutProps) {
   const router = useRouter()
   const [isSidebarOpen, setIsSidebarOpen] = useState(true)
-
-  const isOrganizer = role === "organizer"
-  const tabDict = isOrganizer ? orgTabInfo : studentTabInfo
-  const currentTabKey = activeTab || activeItem || (isOrganizer ? "feed" : "dashboard")
-
-  const defaultTabInfo = tabDict[currentTabKey] || {
-    title: isOrganizer ? "Bảng điều khiển" : "Bảng điều khiển",
-    subtitle: isOrganizer
-      ? "Chào mừng bạn đến với Trung tâm Nhà tuyển dụng EventMate"
-      : "Cập nhật thông tin đầy đủ giúp bạn nhận được cơ hội sự kiện phù hợp nhất",
-  }
-
-  const title = customTitle || defaultTabInfo.title
-  const subtitle = customSubtitle || defaultTabInfo.subtitle
 
   const handleLogout = async () => {
     if (onLogout) {
@@ -207,11 +78,11 @@ export default function DashboardLayout({
           setActiveTab={
             setActiveTab
               ? (tab) => {
-                  setActiveTab(tab)
-                  if (typeof window !== "undefined" && window.innerWidth < 1024) {
-                    setIsSidebarOpen(false)
-                  }
+                setActiveTab(tab)
+                if (typeof window !== "undefined" && window.innerWidth < 1024) {
+                  setIsSidebarOpen(false)
                 }
+              }
               : undefined
           }
           notificationCount={notificationCount ?? unreadCount}

@@ -14,6 +14,7 @@ import {
     GoogleAuthButton,
     AuthDivider,
     RoleSwitcherTabs,
+    signInWithGoogle,
 } from "./components/AuthComponents"
 import { isOrganizerRole } from "@/lib/utils"
 
@@ -44,7 +45,7 @@ export default function LoginView({
     const roleParam = searchParams.get("role") || searchParams.get("type")
     const isEmployer = initialRole ? initialRole === "organizer" : isOrganizerRole(roleParam)
 
-    const redirectTo = redirectPath || searchParams.get("redirect") || (isEmployer ? "/for-employers" : "/")
+    const redirectTo = redirectPath || searchParams.get("redirect") || "/"
 
     const [loading, setLoading] = useState(false)
     const [googleLoading, setGoogleLoading] = useState(false)
@@ -83,8 +84,6 @@ export default function LoginView({
                     const explicitRedirect = redirectPath || searchParams.get("redirect")
                     if (explicitRedirect && explicitRedirect.startsWith("/") && explicitRedirect !== "/") {
                         navigate(explicitRedirect)
-                    } else if (isEmployer) {
-                        navigate("/for-employers")
                     } else {
                         window.location.reload()
                     }
@@ -97,27 +96,7 @@ export default function LoginView({
                     return
                 }
 
-                if (isEmployer) {
-                    navigate("/for-employers")
-                    return
-                }
-
-                // Check role from metadata or profile
-                let userRole = data.user.user_metadata?.role
-                if (!userRole) {
-                    const { data: profile } = await supabase
-                        .from("profiles")
-                        .select("role")
-                        .eq("id", data.user.id)
-                        .maybeSingle()
-                    userRole = profile?.role
-                }
-
-                if (isOrganizerRole(userRole)) {
-                    navigate("/for-employers")
-                } else {
-                    navigate(explicitRedirect || "/")
-                }
+                navigate(explicitRedirect || "/")
             }
         } catch (err: any) {
             setErrorMessage(err?.message || "Đã xảy ra lỗi ngoài ý muốn. Vui lòng thử lại.")
@@ -126,28 +105,13 @@ export default function LoginView({
         }
     }
 
-    const handleGoogleSignIn = async () => {
-        setErrorMessage(null)
-        setGoogleLoading(true)
-        try {
-            const targetRedirect = isEmployer
-                ? `${window.location.origin}/auth/callback?role=organizer&redirect=${encodeURIComponent(redirectTo)}`
-                : `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectTo)}`
-
-            const { error: oauthError } = await supabase.auth.signInWithOAuth({
-                provider: "google",
-                options: {
-                    redirectTo: targetRedirect,
-                },
-            })
-            if (oauthError) {
-                setErrorMessage(getUserFacingMessage(oauthError, "Không thể kết nối với Google. Vui lòng thử lại."))
-                setGoogleLoading(false)
-            }
-        } catch (err: any) {
-            setErrorMessage(err?.message || "Lỗi đăng nhập Google.")
-            setGoogleLoading(false)
-        }
+    const handleGoogleSignIn = () => {
+        signInWithGoogle({
+            role: isEmployer ? "organizer" : undefined,
+            redirectPath: redirectTo,
+            setLoading: setGoogleLoading,
+            onError: setErrorMessage,
+        })
     }
 
     const title = isEmployer ? "Đăng nhập Ban tổ chức" : "Đăng nhập"
@@ -157,8 +121,8 @@ export default function LoginView({
 
     const emailLabel = isEmployer ? "Email tổ chức / doanh nghiệp" : "Email"
     const emailPlaceholder = isEmployer ? "contact@company.com" : "name@example.com"
-    const registerLink = isEmployer ? "/register?role=organizer" : "/register"
-    const forgotPasswordLink = isEmployer ? "/reset-password?role=organizer" : "/reset-password"
+    const registerLink = isEmployer ? "/?auth=register&role=organizer" : "/?auth=register"
+    const forgotPasswordLink = isEmployer ? "/?auth=forgot&role=organizer" : "/?auth=forgot"
 
     return (
         <AuthSplitLayout

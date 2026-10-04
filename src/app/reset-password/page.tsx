@@ -1,11 +1,17 @@
-import type { Metadata } from "next"
-import ResetPasswordView from "@/features/auth/ResetPasswordView"
+import { redirect } from "next/navigation"
 
-export const metadata: Metadata = {
-    title: "Đặt lại mật khẩu - EventMate",
-    description: "Cập nhật mật khẩu mới cho tài khoản EventMate của bạn.",
-}
-
-export default function ResetPasswordPage() {
-    return <ResetPasswordView />
+export default async function ResetPasswordPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const sp = await searchParams
+  const query = new URLSearchParams()
+  query.set("auth", "forgot")
+  for (const [key, value] of Object.entries(sp)) {
+    if (typeof value === "string") {
+      query.set(key, value)
+    }
+  }
+  redirect(`/?${query.toString()}`)
 }

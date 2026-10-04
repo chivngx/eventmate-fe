@@ -227,7 +227,7 @@ function CheckinContent() {
               Vui lòng đăng nhập bằng tài khoản sinh viên đã ứng tuyển để hoàn tất điểm danh.
             </p>
             <Link
-              href={`/login?redirect=${encodeURIComponent(typeof window !== "undefined" ? window.location.pathname + window.location.search : "/checkin")}`}
+              href={`/?auth=login&redirect=${encodeURIComponent(typeof window !== "undefined" ? window.location.pathname + window.location.search : "/checkin")}`}
               className="w-full h-10.5 rounded-lg bg-zinc-900 hover:bg-black text-white text-xs font-semibold flex items-center justify-center gap-2 transition"
             >
               <span>Đăng nhập để điểm danh</span>

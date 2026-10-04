@@ -1,7 +1,7 @@
 "use client"
 
-import React, { useEffect, useState, useCallback } from "react"
-import { Loader2, Copy, Check, Download } from "lucide-react"
+import { useEffect, useState, useCallback } from "react"
+import { Loader2, Copy, Check } from "lucide-react"
 import { useToast } from "@/components/providers/ToastProvider"
 
 interface PaymentFormProps {
@@ -125,7 +125,7 @@ export default function PaymentForm({
             })
           }
         }
-      } catch {}
+      } catch { }
     }, 2500)
 
     return () => clearInterval(interval)

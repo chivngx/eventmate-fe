@@ -1,6 +1,5 @@
 "use client"
 
-import React from "react"
 import { Check, Sparkles } from "lucide-react"
 
 interface PricingCardsGridProps {
@@ -18,7 +17,7 @@ export default function PricingCardsGrid({
 }: PricingCardsGridProps) {
   return (
     <div className="flex flex-col lg:flex-row items-center lg:items-stretch justify-center gap-[16px] max-w-[1232px] mx-auto w-full">
-      
+
       {/* 1. FREE PLAN - KHỞI ĐẦU */}
       <div className="w-full lg:w-[296px] min-h-[622px] px-[16px] py-[32px] bg-white border border-[#CBCBCB] rounded-[16px] flex flex-col justify-between shrink-0">
         <div>
@@ -86,11 +85,10 @@ export default function PricingCardsGrid({
             type="button"
             onClick={() => onSelectPlan("free")}
             disabled={isPremium}
-            className={`w-full h-[48px] rounded-[8px] border font-medium text-[16px] sm:text-[18px] transition-colors flex items-center justify-center ${
-              isPremium
+            className={`w-full h-[48px] rounded-[8px] border font-medium text-[16px] sm:text-[18px] transition-colors flex items-center justify-center ${isPremium
                 ? "border-slate-200 text-slate-400 bg-slate-50 cursor-not-allowed"
                 : "border-[#282828] text-[#282828] hover:bg-[#282828] hover:text-white cursor-pointer"
-            }`}
+              }`}
           >
             {isPremium ? "Đã nâng cấp VIP" : "Bắt đầu miễn phí"}
           </button>
@@ -195,11 +193,10 @@ export default function PricingCardsGrid({
 
       {/* 3. DOANH NGHIỆP - ENTERPRISE */}
       <div
-        className={`w-full lg:w-[296px] min-h-[622px] px-[16px] py-[32px] bg-white border ${
-          isPremium
+        className={`w-full lg:w-[296px] min-h-[622px] px-[16px] py-[32px] bg-white border ${isPremium
             ? "border-emerald-500 ring-2 ring-emerald-500/20 shadow-md"
             : "border-[#CBCBCB]"
-        } rounded-[16px] flex flex-col justify-between shrink-0 relative`}
+          } rounded-[16px] flex flex-col justify-between shrink-0 relative`}
       >
         {isPremium && (
           <div className="absolute top-[-1px] right-[24px] bg-emerald-600 text-white px-[12px] py-[4px] rounded-b-[6px] text-[12px] font-semibold flex items-center gap-1 shadow-xs">

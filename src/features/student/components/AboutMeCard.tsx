@@ -9,11 +9,6 @@ export interface AboutMeCardProps {
   onSaveBio?: (newBio: string) => void | Promise<void>
 }
 
-/**
- * AboutMeCard component matching Figma nodes:
- * - Empty State: Node 6818:50099 (my resume/input/about me)
- * - Filled State: Node 5875:27826 (Frame 2147225298)
- */
 export default function AboutMeCard({
   className,
   bio = "",
@@ -51,18 +46,12 @@ export default function AboutMeCard({
         className ||
         "bg-white border border-[#EDEDED] flex flex-col gap-[16px] p-[20px] rounded-[16px] w-full shadow-xs"
       }
-      data-node-id={hasContent ? "5875:27826" : "6818:50099"}
-      data-name="my resume/input/about me"
     >
       {/* Title Header */}
-      <div
-        className="flex items-center justify-between w-full"
-        data-node-id={hasContent ? "5875:27827" : "I6818:50099;5928:48697"}
-        data-name="my resume/ title"
-      >
+      <div className="flex items-center justify-between w-full">
         <div className="flex gap-[8px] items-center">
           {/* User Icon */}
-          <div className="size-[20px] shrink-0 flex items-center justify-center text-[#222222]" data-name="user-alt">
+          <div className="size-[20px] shrink-0 flex items-center justify-center text-[#222222]">
             <svg
               width="20"
               height="20"
@@ -90,7 +79,6 @@ export default function AboutMeCard({
             onClick={handleStartEdit}
             aria-label="Chỉnh sửa giới thiệu bản thân"
             className="size-[30px] rounded-[8px] text-slate-400 hover:text-slate-800 hover:bg-slate-100 flex items-center justify-center transition-colors cursor-pointer shrink-0"
-            data-name="edit"
           >
             <EditIcon className="size-[17px]" />
           </button>
@@ -127,35 +115,21 @@ export default function AboutMeCard({
         </div>
       ) : hasContent ? (
         /* Filled State */
-        <div
-          className="border border-[#F4F4F4] flex items-center px-[14px] py-[12px] rounded-[10px] w-full bg-slate-50/50"
-          data-node-id="5875:27828"
-        >
-          <p
-            className="w-full font-['Inter'] font-normal text-[13.5px] text-[#333333] leading-[1.6] whitespace-pre-line"
-            data-node-id="5875:27829"
-          >
+        <div className="border border-[#F4F4F4] flex items-center px-[14px] py-[12px] rounded-[10px] w-full bg-slate-50/50">
+          <p className="w-full font-['Inter'] font-normal text-[13.5px] text-[#333333] leading-[1.6] whitespace-pre-line">
             {bio}
           </p>
         </div>
       ) : (
         /* Empty State */
-        <div
-          className="border border-[#CBCBCB] border-dashed flex flex-col gap-[10px] items-center justify-center p-[16px] rounded-[12px] w-full min-h-[90px]"
-          data-node-id="I6818:50099;5928:48718"
-        >
-          <p
-            className="font-['Inter'] font-normal text-[13px] text-[#757575] leading-normal text-center"
-            data-node-id="I6818:50099;5928:48719"
-          >
+        <div className="border border-[#CBCBCB] border-dashed flex flex-col gap-[10px] items-center justify-center p-[16px] rounded-[12px] w-full min-h-[90px]">
+          <p className="font-['Inter'] font-normal text-[13px] text-[#757575] leading-normal text-center">
             Chưa có lời giới thiệu bản thân
           </p>
           <button
             type="button"
             onClick={handleStartEdit}
             className="inline-flex gap-[6px] h-[34px] items-center justify-center px-[12px] py-[6px] rounded-[8px] hover:bg-zinc-100 transition-colors cursor-pointer text-zinc-900 font-semibold"
-            data-node-id="I6818:50099;5928:48720"
-            data-name="Buttons"
           >
             <div className="size-[16px] shrink-0 flex items-center justify-center">
               <svg

@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
 
     let next = redirectParam && redirectParam.startsWith('/')
         ? redirectParam
-        : (roleParam === 'organizer' ? '/for-employers' : '/')
+        : '/'
 
     if (code) {
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
         const { error } = await supabase.auth.exchangeCodeForSession(code)
         if (error) {
             console.error('[auth/callback] exchangeCodeForSession failed:', error)
-            return NextResponse.redirect(`${origin}/login?error=auth_failed`)
+            return NextResponse.redirect(`${origin}/?auth=login&error=auth_failed`)
         }
 
         // Ensure user profile is initialized
@@ -86,10 +86,7 @@ export async function GET(request: NextRequest) {
                 }
             }
 
-            const finalRole = existingProfile?.role || userRole
-            if (!redirectParam && finalRole === 'organizer') {
-                next = '/for-employers'
-            }
+            // Role handling complete, next retains redirectParam or defaults to '/'
         }
 
         const response = NextResponse.redirect(`${origin}${next}`)

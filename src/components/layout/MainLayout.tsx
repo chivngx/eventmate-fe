@@ -42,7 +42,6 @@ export default function MainLayout({
         !isAdmin &&
         (isOrganizerRole(role) ||
         isOrganizerRole(profile?.role) ||
-        pathname?.startsWith("/for-employers") ||
         pathname?.startsWith("/organizer") ||
         (pathname?.startsWith("/pricing") && profile?.role !== "student"))
 
@@ -109,7 +108,7 @@ export default function MainLayout({
         const privatePaths = ["/account", "/my-events", "/dashboard", "/chat", "/profile", "/post-job", "/notifications", "/saved"]
         const isPrivate = privatePaths.some(path => window.location.pathname.startsWith(path))
         if (isPrivate) {
-            navigate(isEmployerContext ? "/for-employers" : "/")
+            navigate("/")
         } else {
             window.location.reload()
         }
@@ -202,9 +201,8 @@ export default function MainLayout({
         </div>
     ) : undefined
 
-    const isHomePage = pathname === "/" && !isEmployerContext
-    const isEmployerLanding = pathname === "/for-employers"
-    const hasHeroHeader = isHomePage || isEmployerLanding
+    const isHomePage = pathname === "/"
+    const hasHeroHeader = isHomePage
     const isRenderProp = typeof children === "function"
 
     const navbarElement = (
@@ -237,7 +235,7 @@ export default function MainLayout({
                     : children}
             </main>
 
-            <Footer />
+            <Footer className={isHomePage ? "pt-6" : undefined} />
 
             <FloatingChat user={user} role={userRole} />
         </div>

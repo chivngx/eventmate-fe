@@ -17,9 +17,9 @@ export default function AppDashboardLayout({
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/login")
+      router.push(`/?auth=login&redirect=${encodeURIComponent(pathname || "/")}`)
     }
-  }, [user, loading, router])
+  }, [user, loading, router, pathname])
 
   if (loading || !user) {
     return <SkeletonGenericPage />

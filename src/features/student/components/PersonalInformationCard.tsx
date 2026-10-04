@@ -24,10 +24,6 @@ export interface PersonalInformationCardProps {
   onSave?: (updatedData: PersonalInfoData) => void | Promise<void>
 }
 
-/**
- * PersonalInformationCard component implemented from Figma node 5875:27797 (Frame 2147225296)
- * Tinh gọn và tối ưu cho nhân sự sự kiện (Họ tên, SĐT Zalo, Email, Khu vực, Trường học, MXH, Năm sinh, Giới tính)
- */
 export default function PersonalInformationCard({
   className,
   data,
@@ -97,18 +93,12 @@ export default function PersonalInformationCard({
         className ||
         "bg-white border border-[#EDEDED] flex flex-col gap-[24px] sm:gap-[32px] items-start px-[16px] py-[24px] rounded-[8px] w-full shadow-xs"
       }
-      data-node-id="5875:27797"
-      data-name="Personal Information"
     >
       {/* Title Header (Figma: my resume/ title) */}
-      <div
-        className="flex items-center justify-between w-full"
-        data-node-id="5875:27798"
-        data-name="my resume/ title"
-      >
+      <div className="flex items-center justify-between w-full">
         <div className="flex gap-[8px] items-center">
           {/* User Tag Icon (Figma: user-tag - 24x24 SVG) */}
-          <div className="size-[24px] shrink-0 flex items-center justify-center" data-name="user-tag">
+          <div className="size-[24px] shrink-0 flex items-center justify-center">
             <svg
               width="24"
               height="24"
@@ -151,10 +141,7 @@ export default function PersonalInformationCard({
 
       {/* VIEW MODE */}
       {!isEditing ? (
-        <div
-          className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 sm:gap-x-16 gap-y-6 sm:gap-y-7 w-full"
-          data-node-id="5875:27799"
-        >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 sm:gap-x-16 gap-y-6 sm:gap-y-7 w-full">
           {/* Cột trái */}
           <div className="flex flex-col gap-[20px] sm:gap-[24px] items-start w-full">
             {/* Họ và tên */}

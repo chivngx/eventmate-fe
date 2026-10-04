@@ -13,7 +13,7 @@ export default function PostJobPage() {
   useEffect(() => {
     if (!loading) {
       if (!user) {
-        router.push("/login")
+        router.push("/?auth=login&redirect=/post-job")
       } else if (role !== "organizer") {
         router.replace("/dashboard")
       }

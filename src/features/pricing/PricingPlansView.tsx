@@ -1,18 +1,18 @@
 "use client"
 
-import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import MainLayout from "@/components/layout/MainLayout"
 import PricingHeroTabs from "./components/PricingHeroTabs"
 import PricingCardsGrid from "./components/PricingCardsGrid"
 import PricingFaqAccordion from "./components/PricingFaqAccordion"
-import PricingTestimonials from "./components/PricingTestimonials"
 import { useUser } from "@/components/providers/AuthProvider"
+import { useAuthModal } from "@/components/providers/AuthModalProvider"
 import { useToast } from "@/components/providers/ToastProvider"
 
 export default function PricingPlansView() {
   const router = useRouter()
-  const { user, role, isPremium, singleEventCredits, profile } = useUser()
+  const { user, isPremium, singleEventCredits, profile } = useUser()
+  const { openRegister } = useAuthModal()
   const { showToast } = useToast()
 
   const handleSelectPlan = (planId: string) => {
@@ -33,7 +33,7 @@ export default function PricingPlansView() {
           title: "Bắt đầu miễn phí",
           message: "Vui lòng đăng ký tài khoản Ban tổ chức để bắt đầu tạo sự kiện.",
         })
-        router.push("/register?role=organizer")
+        openRegister({ role: "organizer" })
       } else {
         showToast({
           type: "success",
@@ -53,7 +53,7 @@ export default function PricingPlansView() {
     <MainLayout fullWidth={true} className="bg-[#FAFAFA]">
       <div className="w-full bg-[#FAFAFA] min-h-screen pt-6 sm:pt-10 pb-20 animate-in fade-in duration-300">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-14 sm:gap-20">
-          
+
           {/* Section 1: Hero Header */}
           <PricingHeroTabs />
 
@@ -67,9 +67,6 @@ export default function PricingPlansView() {
 
           {/* Section 3: FAQs Accordion */}
           <PricingFaqAccordion />
-
-          {/* Section 4: Customer Reviews & Feedback */}
-          <PricingTestimonials />
 
         </div>
       </div>

@@ -16,7 +16,8 @@ import { useUser } from "@/components/providers/AuthProvider"
 
 export default function HomeLandingView({ navbar }: { navbar?: React.ReactNode }) {
   const router = useRouter()
-  const { user } = useUser()
+  const { user, role } = useUser()
+  const isOrganizer = role === "organizer" || role === "employer"
   const { data: wards = [] } = useActiveWards()
   const [searchTerm, setSearchTerm] = useState("")
   const [wardIdTerm, setWardIdTerm] = useState("")
@@ -98,7 +99,7 @@ export default function HomeLandingView({ navbar }: { navbar?: React.ReactNode }
   }
 
   return (
-    <div className="w-full bg-[#F2F6FC] text-gray-900 pb-4">
+    <div className="w-full bg-[#F2F6FC] text-gray-900">
       {/* 1. Sticky / Top Navbar Container */}
       {navbar && (
         <div className="w-full bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -117,16 +118,18 @@ export default function HomeLandingView({ navbar }: { navbar?: React.ReactNode }
       />
 
       {/* 3. Main Content Container - Dense, scannable, white cards on soft gray */}
-      <div className="w-full max-w-[1200px] mx-auto px-0 py-6 flex flex-col gap-6">
+      <div className="w-full max-w-[1200px] mx-auto px-4 xl:px-0 pt-6 pb-0 flex flex-col gap-6">
         {/* Popular Categories (8 Photo Tiles) */}
         <PopularCategories />
 
-        {/* Urgent Hiring Jobs (Phản hồi 24h & Bold Red Salaries) */}
-        <UrgentJobsSection
-          bookmarkedEvents={bookmarkedEvents}
-          onToggleBookmark={toggleBookmark}
-          onNavigateToJob={(id) => router.push(`/events/${id}`)}
-        />
+        {/* Urgent Hiring Jobs (Phản hồi 24h & Bold Red Salaries) - Chỉ hiện cho Student & Khách */}
+        {!isOrganizer && (
+          <UrgentJobsSection
+            bookmarkedEvents={bookmarkedEvents}
+            onToggleBookmark={toggleBookmark}
+            onNavigateToJob={(id) => router.push(`/events/${id}`)}
+          />
+        )}
 
         {/* Top Employers / Event Venues in Da Nang */}
         <TopEmployers />
@@ -140,11 +143,11 @@ export default function HomeLandingView({ navbar }: { navbar?: React.ReactNode }
           onNavigateToJob={(id) => router.push(`/events/${id}`)}
         />
 
-        {/* For Employers & Organizers */}
-        <EmployerActionCards />
+        {/* For Employers & Organizers - Ẩn khi đã là Organizer */}
+        {!isOrganizer && <EmployerActionCards />}
 
-        {/* Career Advice / Tư vấn việc làm */}
-        <CareerAdviceSection />
+        {/* Career Advice / Tư vấn việc làm - Ẩn khi đã là Organizer */}
+        {!isOrganizer && <CareerAdviceSection />}
 
         {/* About / Introduction */}
         <AboutSection />

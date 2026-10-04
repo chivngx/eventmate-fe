@@ -59,7 +59,46 @@ export function AuthModalProvider({ children }: { children: React.ReactNode }) {
     const closeModal = useCallback(() => {
         setIsOpen(false)
         setCustomMessage(undefined)
+        if (typeof window !== "undefined") {
+            const url = new URL(window.location.href)
+            if (url.searchParams.has("auth") || url.searchParams.has("mode")) {
+                url.searchParams.delete("auth")
+                url.searchParams.delete("mode")
+                const newQuery = url.searchParams.toString()
+                window.history.replaceState({}, "", url.pathname + (newQuery ? `?${newQuery}` : ""))
+            }
+        }
     }, [])
+
+    // URL-based trigger: Automatically open modal when ?auth=login|register|forgot exists
+    useEffect(() => {
+        if (typeof window === "undefined") return
+
+        const checkUrlAuth = () => {
+            const params = new URLSearchParams(window.location.search)
+            const authParam = params.get("auth") || params.get("mode")
+            const roleParam = params.get("role") || params.get("type")
+            const redirectParam = params.get("redirect")
+
+            if (authParam === "login") {
+                openLogin({
+                    role: roleParam === "organizer" || roleParam === "employer" ? "organizer" : "student",
+                    redirectPath: redirectParam || undefined,
+                })
+            } else if (authParam === "register" || authParam === "signup") {
+                openRegister({
+                    role: roleParam === "organizer" || roleParam === "employer" ? "organizer" : "student",
+                    redirectPath: redirectParam || undefined,
+                })
+            } else if (authParam === "forgot" || authParam === "reset-password") {
+                openForgotPassword()
+            }
+        }
+
+        checkUrlAuth()
+        window.addEventListener("popstate", checkUrlAuth)
+        return () => window.removeEventListener("popstate", checkUrlAuth)
+    }, [openLogin, openRegister, openForgotPassword])
 
     // Global event listeners for triggering modal across app
     useEffect(() => {

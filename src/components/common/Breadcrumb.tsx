@@ -1,6 +1,5 @@
 "use client"
 
-import React from "react"
 import Link from "next/link"
 import { ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -24,9 +23,7 @@ export function Breadcrumb({
   const fullItems: BreadcrumbItem[] = showHome
     ? [{ label: "Trang chủ", href: "/" }, ...items]
     : items
-
   if (fullItems.length === 0) return null
-
   return (
     <nav
       aria-label="Breadcrumb"
@@ -35,7 +32,6 @@ export function Breadcrumb({
       <ol className="flex items-center flex-wrap gap-1.5 min-w-0">
         {fullItems.map((item, index) => {
           const isLast = index === fullItems.length - 1
-
           return (
             <li key={`${item.label}-${index}`} className="flex items-center gap-1.5 min-w-0">
               {index > 0 && (

@@ -3,7 +3,7 @@
 import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { NavBellIcon } from "./JoblinIcons"
+import { BellIcon } from "@/components/icons"
 import { BellOff, CheckCheck, ArrowRight, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useUser } from "@/components/providers/AuthProvider"
@@ -71,7 +71,7 @@ export default function NotificationDropdown({
                 aria-label="Thông báo"
                 title="Thông báo"
             >
-                <NavBellIcon className="size-[20px]" />
+                <BellIcon className="size-[20px]" />
                 {unreadCount > 0 && (
                     <span className="absolute top-2 right-2 size-2 bg-red-500 rounded-full ring-2 ring-white" />
                 )}
