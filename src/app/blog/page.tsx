@@ -8,56 +8,8 @@ export const metadata: Metadata = {
   description: "Chia sẻ kinh nghiệm thực chiến, kỹ năng điều phối và bí quyết viết CV xin việc sự kiện tại Đà Nẵng.",
 }
 
-export const BLOG_POSTS = [
-  {
-    id: "blog-1",
-    title: "Bí quyết viết CV xin việc sự kiện gây ấn tượng mạnh",
-    author: "Ban Biên Tập EventMate",
-    date: "15 Th03, 2026",
-    tags: ["Mẹo viết CV", "Sự nghiệp"],
-    excerpt:
-      "Một bộ hồ sơ xin việc chuẩn chỉnh và làm nổi bật kinh nghiệm thực chiến giúp bạn tăng 80% cơ hội trúng tuyển vào các vị trí điều phối, lễ tân hay hậu cần sự kiện lớn.",
-    content: `Ngành sự kiện luôn đòi hỏi tốc độ, sự thích ứng và tinh thần trách nhiệm cao. Khi ứng tuyển vào các vị trí nhân sự sự kiện (Event Crew, Check-in Coordinator, MC hay Stage Support), hồ sơ của bạn cần thể hiện rõ tính cách năng động và khả năng làm việc nhóm.
-
-1. Làm nổi bật các sự kiện từng tham gia: Đừng chỉ liệt kê chức danh, hãy ghi rõ quy mô sự kiện (ví dụ: Hội nghị 500 khách, Lễ hội âm nhạc 5.000 khán giả) và nhiệm vụ cụ thể bạn đảm nhận.
-2. Nêu bật các kỹ năng mềm quan trọng: Giao tiếp linh hoạt, phản xạ xử lý sự cố, chịu được áp lực thời gian và sự tỉ mỉ.
-3. Uy tín và cam kết: Ban tổ chức đặc biệt trân trọng những ứng viên đúng giờ, tuân thủ ca làm và không bỏ ca sát giờ. Điểm tín nhiệm trên EventMate chính là minh chứng rõ nhất cho độ tin cậy của bạn!`,
-    imageUrl: "/images/home/blog-figma-1.png",
-  },
-  {
-    id: "blog-2",
-    title: "5 Kỹ năng cốt lõi của một Event Coordinator chuyên nghiệp",
-    author: "Minh Trí (Lead Coordinator)",
-    date: "28 Th02, 2026",
-    tags: ["Kỹ năng mềm", "Điều phối"],
-    excerpt:
-      "Khám phá cách quản lý rủi ro, phân bổ thời gian và điều phối các bộ phận ăn khớp khi vận hành sự kiện trực tiếp với hàng ngàn khách tham dự.",
-    content: `Để một sự kiện diễn ra suôn sẻ, vai trò của người điều phối (Event Coordinator) là mắt xích không thể thiếu kết nối ban tổ chức và nhân sự hiện trường.
-
-1. Khả năng bao quát và chú ý tiểu tiết: Từ khâu sắp xếp bàn đón khách, âm thanh micro cho đến biển chỉ dẫn.
-2. Quản lý thời gian theo Timeline chặt chẽ: Mỗi tiết mục, bài phát biểu đều có khung giờ vàng cần tuân thủ.
-3. Kỹ năng giao tiếp qua bộ đàm: Ngắn gọn, rõ ràng, tập trung vào giải pháp thay vì phàn nàn sự cố.
-4. Tinh thần bình tĩnh trước khủng hoảng: Luôn có phương án dự phòng (Plan B) cho thời tiết, kỹ thuật và phát sinh ngoài ý muốn.
-5. Thái độ phục vụ và chăm sóc khách hàng: Nụ cười và sự niềm nở luôn tạo ấn tượng đẹp nhất cho người tham dự.`,
-    imageUrl: "/images/home/blog-figma-2.png",
-  },
-  {
-    id: "blog-3",
-    title: "Những kỹ năng hàng đầu nhà tuyển dụng sự kiện tìm kiếm",
-    author: "Thảo Nhi (DIFF Organizer)",
-    date: "12 Th01, 2026",
-    tags: ["Sự nghiệp", "Kinh nghiệm"],
-    excerpt:
-      "Ban tổ chức luôn đánh giá cao sự kết hợp giữa kỹ năng chuyên môn, tinh thần trách nhiệm, phản xạ giải quyết vấn đề linh hoạt và kỹ năng giao tiếp truyền tải thông tin.",
-    content: `Các nhà tổ chức lễ hội lớn tại Đà Nẵng như Lễ hội pháo hoa quốc tế DIFF, Marathon Quốc tế hay TechFest luôn tìm kiếm những gương mặt trẻ có tinh thần lăn xả và nhiệt huyết.
-
-1. Ngoại ngữ giao tiếp (Tiếng Anh, Hàn, Trung): Điểm cộng cực lớn khi Đà Nẵng là thành phố du lịch quốc tế đón hàng triệu lượt du khách.
-2. Khả năng làm việc dưới áp lực cao: Những ca làm việc kéo dài cả ngày đòi hỏi thể lực tốt và tinh thần bền bỉ.
-3. Kỹ năng công nghệ cơ bản: Sử dụng thành thạo các ứng dụng check-in QR code, máy POS hay bộ đàm cầm tay.
-4. Tác phong trang phục chuyên nghiệp: Tuân thủ quy định dresscode của từng chương trình.`,
-    imageUrl: "/images/home/blog-figma-3.png",
-  },
-]
+import { BLOG_POSTS } from "@/data/blogData"
+export { BLOG_POSTS }
 
 export default function BlogListPage() {
   return (

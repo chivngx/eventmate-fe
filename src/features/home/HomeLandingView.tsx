@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import HeroSearchBanner from "./components/HeroSearchBanner"
 import PopularCategories from "./components/PopularCategories"
 import UrgentJobsSection from "./components/UrgentJobsSection"
-import FeaturedCampaignBanner from "./components/FeaturedCampaignBanner"
 import TopEmployers from "./components/TopEmployers"
 import LatestJobsFeed from "./components/LatestJobsFeed"
 import EmployerActionCards from "./components/EmployerActionCards"
@@ -128,9 +127,6 @@ export default function HomeLandingView({ navbar }: { navbar?: React.ReactNode }
           onToggleBookmark={toggleBookmark}
           onNavigateToJob={(id) => router.push(`/events/${id}`)}
         />
-
-        {/* High-visibility Campaign Banner (DIFF 2026 / Big Event) */}
-        <FeaturedCampaignBanner />
 
         {/* Top Employers / Event Venues in Da Nang */}
         <TopEmployers />

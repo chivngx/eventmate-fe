@@ -93,7 +93,7 @@ export function NotchNavbar({
     return () => window.removeEventListener("resize", handleResize)
   }, [])
 
-  // When on Hero page and not yet scrolled, match hero's blue color (#1877F2)
+  // When on Hero page and not yet scrolled, match hero's orange color (#FB7328)
   const isHeroUnscrolled = Boolean(isHeroNavbar && !isScrolled)
 
   // Active state checkers
@@ -115,7 +115,7 @@ export function NotchNavbar({
           ? "text-white font-extrabold"
           : "text-white/75 hover:text-white"
         : isActive
-          ? "text-[#1877F2] font-extrabold"
+          ? "text-[#FB7328] font-extrabold"
           : "text-gray-600 hover:text-gray-900"
     )
 
@@ -141,7 +141,7 @@ export function NotchNavbar({
         className={cn(
           "sticky top-0 z-50 w-full h-16 transition-colors duration-200 select-none",
           isHeroUnscrolled
-            ? "bg-[#1877F2] border-b border-transparent text-white"
+            ? "bg-[#FB7328] border-b border-transparent text-white"
             : "bg-white/95 backdrop-blur-md border-b border-gray-200/80 shadow-xs text-gray-900",
           className
         )}
@@ -345,7 +345,7 @@ export function NotchNavbar({
                   "h-10 px-4 rounded-full flex items-center justify-center font-bold text-sm transition-all shadow-xs active:scale-95 whitespace-nowrap cursor-pointer",
                   isHeroUnscrolled
                     ? "bg-[#222222] hover:bg-black text-white"
-                    : "bg-[#1877F2] hover:bg-[#1366D6] text-white"
+                    : "bg-[#FB7328] hover:bg-[#ea5d15] text-white"
                 )}
               >
                 Đăng tuyển

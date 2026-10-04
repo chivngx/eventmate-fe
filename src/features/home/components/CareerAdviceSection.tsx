@@ -3,79 +3,13 @@
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 
-interface AdviceItem {
-  id: string
-  title: string
-  description: string
-  imageSrc: string
-  category: "all" | "jobseeker" | "industry" | "employer"
-  url?: string
-}
+import { BLOG_POSTS } from "@/data/blogData"
 
 const ADVICE_TABS = [
   { id: "all", label: "Tin nổi bật" },
   { id: "jobseeker", label: "Cẩm nang tìm việc" },
   { id: "industry", label: "Cẩm nang ngành nghề" },
   { id: "employer", label: "Cẩm nang tuyển dụng" },
-]
-
-const ADVICE_ARTICLES: AdviceItem[] = [
-  {
-    id: "muc-luong-viec-lam-tphcm",
-    title: "Mức lương việc làm TPHCM theo ngành: So sánh thu nhập các nghề",
-    description: "Tìm hiểu mức lương việc làm TPHCM theo ngành năm 2026 chi tiết nhất giúp bạn so sánh thu nhập các nghề.",
-    imageSrc: "/images/advice/blog-1.png",
-    category: "jobseeker",
-  },
-  {
-    id: "benchmark-luong",
-    title: "Benchmark lương là gì? Cách xây dựng khung lương chuẩn thị trường",
-    description: "Benchmark lương giúp doanh nghiệp xác định mức thu nhập cạnh tranh để thu hút nhân tài.",
-    imageSrc: "/images/advice/blog-2.png",
-    category: "employer",
-  },
-  {
-    id: "ngay-van-hoa-viet-nam-24-11",
-    title: "Ngày văn hóa Việt Nam 24/11 áp dụng từ khi nào?",
-    description: "Ngày văn hóa Việt Nam 24/11 sắp được áp dụng chính thức. Người lao động có được nghỉ…",
-    imageSrc: "/images/advice/blog-3.png",
-    category: "jobseeker",
-  },
-  {
-    id: "lich-nghi-le-2-9-may-ngay",
-    title: "Lịch nghỉ lễ 2/9 năm 2026: Được nghỉ mấy ngày hưởng lương?",
-    description: "Lịch nghỉ lễ 2/9 năm 2026 chính thức cho CBCCVC và người lao động. Bao nhiêu ngày được nghỉ hưởng lương?",
-    imageSrc: "/images/advice/blog-4.png",
-    category: "jobseeker",
-  },
-  {
-    id: "lich-nghi-le-2-9-5-ngay",
-    title: "Lịch nghỉ lễ 2/9 năm 2026: Có được nghỉ liên tiếp 5 ngày?",
-    description: "Lịch nghỉ lễ 2/9 năm 2026 chính thức được công bố. Người lao động có thể nghỉ đến 5 ngày liên tục.",
-    imageSrc: "/images/advice/blog-5.png",
-    category: "jobseeker",
-  },
-  {
-    id: "hdld-xac-dinh-thoi-han-ky-lan-3",
-    title: "HĐLĐ xác định thời hạn ký lần 3 bị phạt bao nhiêu?",
-    description: "HĐLĐ xác định thời hạn chỉ được ký tối đa 2 lần. Nếu ký lần 3 sẽ bị phạt bao nhiêu và có…",
-    imageSrc: "/images/advice/blog-6.png",
-    category: "employer",
-  },
-  {
-    id: "cham-dut-hop-dong-thu-viec-mang-thai",
-    title: "Chấm dứt hợp đồng thử việc với lao động nữ mang thai được không?",
-    description: "Chấm dứt hợp đồng thử việc với lao động nữ mang thai có đúng luật không? Cập nhật…",
-    imageSrc: "/images/advice/blog-7.png",
-    category: "industry",
-  },
-  {
-    id: "tien-tro-cap-that-nghiep",
-    title: "Trợ cấp thất nghiệp bao giờ nhận được tiền đầu tiên?",
-    description: "Trợ cấp thất nghiệp được nhận trong bao nhiêu ngày? Quy định mới nhất về thời gian,…",
-    imageSrc: "/images/advice/blog-8.png",
-    category: "jobseeker",
-  },
 ]
 
 export default function CareerAdviceSection() {
@@ -86,8 +20,8 @@ export default function CareerAdviceSection() {
   const [canScrollRight, setCanScrollRight] = useState(true)
 
   const filteredArticles = activeTab === "all"
-    ? ADVICE_ARTICLES
-    : ADVICE_ARTICLES.filter((item) => item.category === activeTab)
+    ? BLOG_POSTS
+    : BLOG_POSTS.filter((item) => item.category === activeTab)
 
   const checkScroll = () => {
     if (scrollRef.current) {
@@ -183,6 +117,7 @@ export default function CareerAdviceSection() {
           {filteredArticles.map((article) => (
             <article
               key={article.id}
+              onClick={() => router.push(`/blog/${article.id}`)}
               className="w-[222px] min-w-[222px] rounded-xl border border-[#e8e8e8] bg-white flex flex-col shrink-0 overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all group/card cursor-pointer"
             >
               {/* Thumbnail */}
@@ -219,7 +154,7 @@ export default function CareerAdviceSection() {
       <div className="flex justify-center pt-3 pb-1">
         <button
           type="button"
-          onClick={() => router.push("/events")}
+          onClick={() => router.push("/blog")}
           className="h-[40px] w-full max-w-[343px] border border-[#ddd] rounded-full bg-white text-[#222222] font-bold text-[16px] leading-[24px] hover:bg-gray-50 hover:border-gray-400 transition-colors flex items-center justify-center cursor-pointer active:scale-[0.98]"
         >
           Xem thêm
