@@ -12,12 +12,15 @@ import {
     XCircle,
     Clock3,
     ChevronRight,
-    ExternalLink
+    ExternalLink,
+    Briefcase,
+    X,
+    Sparkles
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/providers/ToastProvider"
 import { SkeletonEventDetail } from "@/components/ui/skeleton"
-import { formatSalary } from "@/lib/utils"
+import { formatSalary, cn } from "@/lib/utils"
 import VerifiedBadge from "@/components/ui/verified-badge"
 import EventCard from "./components/EventCard"
 import { calculateProfileCompletion } from "@/lib/profile-completion"
@@ -109,9 +112,15 @@ export default function EventDetail() {
     const [event, setEvent] = useState<any>(null)
     const [loading, setLoading] = useState(true)
     const [applyStatus, setApplyStatus] = useState<string | null>(null)
+    const [userApplication, setUserApplication] = useState<any>(null)
     const [isApplying, setIsApplying] = useState(false)
     const [isBookmarked, setIsBookmarked] = useState(false)
     const [similarJobs, setSimilarJobs] = useState<SimilarJob[]>([])
+
+    // State for Position Application Modal
+    const [isApplyModalOpen, setIsApplyModalOpen] = useState(false)
+    const [selectedPositionId, setSelectedPositionId] = useState<string>("")
+    const [studentNote, setStudentNote] = useState("")
 
     useEffect(() => {
         if (authLoading) return
@@ -131,23 +140,76 @@ export default function EventDetail() {
             const { data: eventData, error } = await eventQuery.maybeSingle()
 
             if (eventData) {
-                setEvent(eventData)
-
                 // Tự động chuyển hướng URL từ ID dạng UUID sang dạng Slug SEO thân thiện
                 if (isUuid && eventData.slug) {
                     navigate(`/events/${eventData.slug}`, { replace: true })
+                }
+
+                // Lấy danh sách vị trí tuyển dụng với cơ chế an toàn (fallback về thông tin gốc của sự kiện)
+                const { data: posData } = await supabase
+                    .from("event_positions")
+                    .select("*")
+                    .eq("event_id", eventData.id)
+                    .order("created_at", { ascending: true })
+
+                let positions = (posData && posData.length > 0) ? posData : []
+                if (positions.length === 0) {
+                    const titles = eventData.position_type
+                        ? eventData.position_type.split(",").map((s: string) => s.trim()).filter(Boolean)
+                        : []
+                    if (titles.length > 1) {
+                        positions = titles.map((t: string, idx: number) => ({
+                            id: `pos_${idx}`,
+                            event_id: eventData.id,
+                            title: t,
+                            slots_needed: Math.max(1, Math.floor((eventData.slots_needed || titles.length) / titles.length)),
+                            salary_amount: eventData.salary_amount || 0,
+                            salary_type: eventData.salary_type || "per_shift",
+                            description: null,
+                            created_at: new Date().toISOString(),
+                        }))
+                    } else {
+                        positions = [
+                            {
+                                id: "default",
+                                event_id: eventData.id,
+                                title: eventData.position_type || "Tình nguyện viên sự kiện",
+                                slots_needed: eventData.slots_needed || 1,
+                                salary_amount: eventData.salary_amount || 0,
+                                salary_type: eventData.salary_type || "per_shift",
+                                description: null,
+                                created_at: new Date().toISOString(),
+                            }
+                        ]
+                    }
+                }
+
+                ;(eventData as any).event_positions = positions
+                setEvent(eventData)
+
+                if (positions.length > 0) {
+                    setSelectedPositionId(positions[0].id)
                 }
 
                 if (user) {
                     if (role === "student") {
                         const { data: appData } = await supabase
                             .from("applications")
-                            .select("status")
+                            .select("id, status, position_id, student_note")
                             .eq("event_id", eventData.id)
                             .eq("student_id", user.id)
                             .maybeSingle()
 
-                        if (appData) setApplyStatus(appData.status)
+                        if (appData) {
+                            if (appData.position_id) {
+                                const foundPos = positions.find((p: any) => p.id === appData.position_id)
+                                if (foundPos) {
+                                    ;(appData as any).event_positions = foundPos
+                                }
+                            }
+                            setApplyStatus(appData.status)
+                            setUserApplication(appData)
+                        }
 
                         const { data: bookmarkData } = await supabase
                             .from("event_bookmarks")
@@ -163,7 +225,7 @@ export default function EventDetail() {
                 // Lấy danh sách việc làm tương tự (tối đa 6 items)
                 fetchSimilarJobs(eventData.id, eventData.category)
             } else {
-                console.error("Lỗi hoặc không tìm thấy sự kiện", error)
+                console.error("Lỗi hoặc không tìm thấy sự kiện", error?.message || error || "Không tìm thấy dữ liệu sự kiện")
             }
             setLoading(false)
         }
@@ -207,7 +269,20 @@ export default function EventDetail() {
         }
     }
 
-    const handleApply = async () => {
+    const openApplyModal = (preferredPositionId?: string) => {
+        if (!user) {
+            openLogin({ message: "Vui lòng đăng nhập để ứng tuyển sự kiện này." })
+            return
+        }
+        if (preferredPositionId) {
+            setSelectedPositionId(preferredPositionId)
+        } else if (event?.event_positions && event.event_positions.length > 0) {
+            setSelectedPositionId(event.event_positions[0].id)
+        }
+        setIsApplyModalOpen(true)
+    }
+
+    const handleConfirmApply = async () => {
         if (!user) {
             openLogin({ message: "Vui lòng đăng nhập để ứng tuyển sự kiện này." })
             return
@@ -216,10 +291,14 @@ export default function EventDetail() {
         setIsApplying(true)
 
         try {
+            const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(selectedPositionId || "")
             const { error } = await supabase.from("applications").insert([
                 {
                     event_id: event.id,
                     student_id: user.id,
+                    position_id: isUuid ? selectedPositionId : null,
+                    student_note: studentNote.trim() || null,
+                    status: "pending"
                 }
             ])
 
@@ -231,6 +310,13 @@ export default function EventDetail() {
                 })
             } else {
                 setApplyStatus("pending")
+                const matchedPos = event.event_positions?.find((p: any) => p.id === selectedPositionId)
+                setUserApplication({
+                    position_id: selectedPositionId,
+                    student_note: studentNote.trim() || null,
+                    event_positions: matchedPos || null,
+                })
+                setIsApplyModalOpen(false)
                 showToast({
                     title: "Ứng tuyển thành công",
                     message: "Đơn ứng tuyển của bạn đã được gửi tới Ban tổ chức!",
@@ -322,13 +408,16 @@ export default function EventDetail() {
     const renderApplyButton = () => {
         if (role === "organizer") return null
 
+        const posTitle = userApplication?.event_positions?.title
+
         if (applyStatus === "approved") {
             return (
                 <button
                     disabled
-                    className="h-[40px] px-[16px] rounded-[8px] font-medium text-[16px] bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center gap-2 cursor-default shrink-0"
+                    className="h-[40px] px-[16px] rounded-[8px] font-medium text-[15px] bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center gap-2 cursor-default shrink-0"
                 >
-                    <CheckCircle2 className="size-[16px] text-emerald-600" /> Trúng tuyển
+                    <CheckCircle2 className="size-[16px] text-emerald-600" />
+                    <span>Trúng tuyển {posTitle ? `(${posTitle})` : ""}</span>
                 </button>
             )
         }
@@ -336,7 +425,7 @@ export default function EventDetail() {
             return (
                 <button
                     disabled
-                    className="h-[40px] px-[16px] rounded-[8px] font-medium text-[16px] bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center gap-2 cursor-default shrink-0"
+                    className="h-[40px] px-[16px] rounded-[8px] font-medium text-[15px] bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center gap-2 cursor-default shrink-0"
                 >
                     <XCircle className="size-[16px] text-rose-600" /> Chưa phù hợp
                 </button>
@@ -346,16 +435,17 @@ export default function EventDetail() {
             return (
                 <button
                     disabled
-                    className="h-[40px] px-[16px] rounded-[8px] font-medium text-[16px] bg-slate-100 border border-slate-200 text-slate-600 flex items-center justify-center gap-2 cursor-default shrink-0"
+                    className="h-[40px] px-[16px] rounded-[8px] font-medium text-[15px] bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center gap-2 cursor-default shrink-0"
                 >
-                    <Clock3 className="size-[16px] text-slate-500" /> Đang chờ duyệt
+                    <Clock3 className="size-[16px] text-slate-500" />
+                    <span>Đang chờ duyệt {posTitle ? `(${posTitle})` : ""}</span>
                 </button>
             )
         }
 
         return (
             <button
-                onClick={handleApply}
+                onClick={() => openApplyModal()}
                 disabled={disabledApply || isPastDeadline}
                 className="bg-zinc-900 hover:bg-black text-white h-[40px] px-[16px] min-w-[147px] rounded-[8px] font-medium text-[16px] transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed shadow-none flex items-center justify-center cursor-pointer shrink-0"
             >
@@ -576,17 +666,19 @@ export default function EventDetail() {
 
                     {/* 4-COLUMN ACHIEVEMENT / KEY STATS BAR (Figma: achievement) */}
                     <div className="flex flex-col md:flex-row items-center justify-between py-2 w-full gap-6 md:gap-0">
-                        {/* 1. Employment Type */}
+                        {/* 1. Employment Type / Role */}
                         <div className="flex gap-[8px] items-center justify-start md:justify-center px-4 w-full md:w-1/4">
                             <StatClockIcon />
                             <div className="flex flex-col items-start justify-center min-w-0">
                                 <div className="flex items-center mb-[-2px]">
-                                    <p className="font-medium text-[#222222] text-[16px] truncate leading-normal">
-                                        {event.position_type || "Toàn thời gian"}
+                                    <p className="font-medium text-[#222222] text-[16px] truncate leading-normal" title={event.event_positions?.length > 1 ? `${event.event_positions.length} vị trí tuyển dụng` : (event.event_positions?.[0]?.title || event.position_type || "Cộng tác viên")}>
+                                        {event.event_positions?.length > 1
+                                            ? `${event.event_positions.length} vị trí tuyển dụng`
+                                            : (event.event_positions?.[0]?.title || event.position_type || "Cộng tác viên")}
                                     </p>
                                 </div>
                                 <p className="font-normal text-[#757575] text-[14px] leading-normal whitespace-nowrap">
-                                    Hình thức làm việc
+                                    {event.event_positions?.length > 1 ? "Đang mở tuyển" : "Vị trí tuyển dụng"}
                                 </p>
                             </div>
                         </div>
@@ -594,17 +686,17 @@ export default function EventDetail() {
                         {/* Divider 1 */}
                         <div className="hidden md:block h-[52px] w-px bg-[#ededed] shrink-0" />
 
-                        {/* 2. Experience Level */}
+                        {/* 2. Total Slots / Quota */}
                         <div className="flex gap-[8px] items-center justify-start md:justify-center px-4 w-full md:w-1/4">
                             <StatCalendarIcon />
                             <div className="flex flex-col items-start justify-center min-w-0">
                                 <div className="flex items-center mb-[-2px]">
                                     <p className="font-medium text-[#222222] text-[16px] truncate leading-normal">
-                                        {event.slots_needed ? `${event.slots_needed} vị trí tuyển` : "Không giới hạn"}
+                                        {event.slots_needed ? `${event.slots_needed} nhân sự${event.event_positions?.length > 1 ? ` (${event.event_positions.length} vị trí)` : ""}` : "Không giới hạn"}
                                     </p>
                                 </div>
                                 <p className="font-normal text-[#757575] text-[14px] leading-normal whitespace-nowrap">
-                                    Số lượng tuyển
+                                    Tổng chỉ tiêu tuyển
                                 </p>
                             </div>
                         </div>
@@ -635,9 +727,28 @@ export default function EventDetail() {
                             <StatDollarIcon />
                             <div className="flex flex-col items-start justify-center min-w-0">
                                 <div className="flex items-center mb-[-2px]">
-                                    <p className="font-medium text-[#222222] text-[16px] truncate leading-normal" title={formatSalary(event.salary_amount, event.salary_type)}>
-                                        {formatSalary(event.salary_amount, event.salary_type)}
-                                    </p>
+                                    {(() => {
+                                        const positions = event.event_positions || []
+                                        let salaryText = formatSalary(event.salary_amount, event.salary_type)
+                                        if (positions.length > 1) {
+                                            const nonVol = positions.filter((p: any) => p.salary_type !== "volunteer")
+                                            if (nonVol.length === 0) {
+                                                salaryText = "Tình nguyện viên"
+                                            } else {
+                                                const amounts = nonVol.map((p: any) => Number(p.salary_amount) || 0)
+                                                const min = Math.min(...amounts)
+                                                const max = Math.max(...amounts)
+                                                salaryText = min === max
+                                                    ? formatSalary(min, nonVol[0].salary_type)
+                                                    : `${min.toLocaleString("vi-VN")} - ${max.toLocaleString("vi-VN")} đ`
+                                            }
+                                        }
+                                        return (
+                                            <p className="font-medium text-[#222222] text-[16px] truncate leading-normal" title={salaryText}>
+                                                {salaryText}
+                                            </p>
+                                        )
+                                    })()}
                                 </div>
                                 <p className="font-normal text-[#757575] text-[14px] leading-normal whitespace-nowrap">
                                     Mức thù lao
@@ -650,6 +761,78 @@ export default function EventDetail() {
                     {/* MAIN CONTENT STACK (Figma: Frame 2147225834 gap-88) */}
                     <div className="flex flex-col gap-[48px] w-full">
 
+                        {/* 1. VỊ TRÍ ĐANG TUYỂN DỤNG (OPEN POSITIONS) */}
+                        {event.event_positions && event.event_positions.length > 0 && (
+                            <div className="flex flex-col gap-[16px] items-start w-full">
+                                <div className="flex items-center justify-between w-full">
+                                    <h2 className="font-semibold text-[#222222] text-[18px] leading-[normal] flex items-center gap-2.5">
+                                        <span>Vị trí đang tuyển dụng</span>
+                                        <span className="text-[12px] font-medium px-2.5 py-0.5 rounded-full bg-zinc-100 text-zinc-600">
+                                            {event.event_positions.length} vị trí
+                                        </span>
+                                    </h2>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                                    {event.event_positions.map((pos: any) => {
+                                        const isSelectedByUser = userApplication?.position_id === pos.id
+                                        return (
+                                            <div
+                                                key={pos.id}
+                                                className={cn(
+                                                    "bg-white rounded-xl border p-5 flex flex-col justify-between gap-3.5 transition shadow-xs",
+                                                    isSelectedByUser
+                                                        ? "border-zinc-900 ring-1 ring-zinc-900/10 bg-zinc-50/30"
+                                                        : "border-[#ededed] hover:border-zinc-300"
+                                                )}
+                                            >
+                                                <div className="flex flex-col gap-2.5">
+                                                    <div className="flex items-start justify-between gap-2">
+                                                        <h3 className="font-semibold text-zinc-900 text-[16px] leading-snug">
+                                                            {pos.title}
+                                                        </h3>
+                                                        {isSelectedByUser && (
+                                                            <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-zinc-900 text-white shrink-0">
+                                                                Đã chọn
+                                                            </span>
+                                                        )}
+                                                    </div>
+
+                                                    <div className="flex items-center gap-2 flex-wrap text-xs">
+                                                        <span className="px-2.5 py-1 rounded-md bg-zinc-100 font-medium text-zinc-700">
+                                                            Cần tuyển: {pos.slots_needed} người
+                                                        </span>
+                                                        <span className="px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 font-semibold">
+                                                            {formatSalary(pos.salary_amount, pos.salary_type)}
+                                                        </span>
+                                                    </div>
+
+                                                    {pos.description && (
+                                                        <p className="text-[13.5px] text-zinc-600 leading-relaxed mt-0.5">
+                                                            {pos.description}
+                                                        </p>
+                                                    )}
+                                                </div>
+
+                                                {!applyStatus && role !== "organizer" && (
+                                                    <div className="pt-3 border-t border-zinc-100 flex items-center justify-end">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => openApplyModal(pos.id)}
+                                                            disabled={disabledApply || isPastDeadline}
+                                                            className="text-[13px] font-medium text-zinc-900 hover:text-black hover:underline cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1"
+                                                        >
+                                                            <span>Ứng tuyển vị trí này</span>
+                                                            <ChevronRight className="size-3.5" />
+                                                        </button>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        )}
 
                         {/* 2. JOB DESCRIPTION (Figma: Frame 2147225681) */}
                         <div className="flex flex-col gap-[16px] items-start w-full">
@@ -682,19 +865,27 @@ export default function EventDetail() {
 
                             {/* Badges List (Figma: Frame 2147224614 h-20 bg-[#ededed] text-[#515151]) */}
                             <div className="flex flex-wrap gap-[12px] items-center">
-                                {[
-                                    event.position_type || "Nhân sự sự kiện",
-                                    event.category || "Sự kiện văn hóa",
-                                    event.salary_type === "per_shift" ? "Theo ca làm" : event.salary_type === "per_hour" ? "Theo giờ" : event.salary_type === "volunteer" ? "Tình nguyện" : "Theo chiến dịch",
-                                    event.danang_wards?.name ? `Khu vực ${event.danang_wards.name}` : "Đà Nẵng",
-                                    "Trực tiếp tại sự kiện"
-                                ].map((tag, idx) => (
-                                    <div key={idx} className="bg-[#ededed] flex h-[24px] items-center justify-center px-[10px] py-[4px] rounded-[4px] shrink-0">
-                                        <span className="text-[#515151] text-[12px] font-medium leading-[normal]">
-                                            {tag}
-                                        </span>
-                                    </div>
-                                ))}
+                                {(() => {
+                                    const positionBadges = (event.event_positions && event.event_positions.length > 0)
+                                        ? event.event_positions.map((p: any) => p.title)
+                                        : (event.position_type ? event.position_type.split(",").map((s: string) => s.trim()).filter(Boolean) : ["Nhân sự sự kiện"])
+
+                                    const allTags = [
+                                        ...positionBadges,
+                                        event.category || "Sự kiện văn hóa",
+                                        event.salary_type === "per_shift" ? "Theo ca làm" : event.salary_type === "per_hour" ? "Theo giờ" : event.salary_type === "volunteer" ? "Tình nguyện" : "Theo chiến dịch",
+                                        event.danang_wards?.name ? `Khu vực ${event.danang_wards.name}` : "Đà Nẵng",
+                                        "Trực tiếp tại sự kiện"
+                                    ]
+
+                                    return allTags.map((tag, idx) => (
+                                        <div key={idx} className="bg-[#ededed] flex h-[24px] items-center justify-center px-[10px] py-[4px] rounded-[4px] shrink-0">
+                                            <span className="text-[#515151] text-[12px] font-medium leading-[normal]">
+                                                {tag}
+                                            </span>
+                                        </div>
+                                    ))
+                                })()}
                             </div>
                         </div>
 
@@ -749,6 +940,138 @@ export default function EventDetail() {
                     </div>
                 </div>
             </div>
+
+            {/* MODAL ỨNG TUYỂN VỊ TRÍ */}
+            {isApplyModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-xs animate-in fade-in duration-150">
+                    <div className="bg-white rounded-2xl max-w-[560px] w-full p-6 sm:p-7 shadow-2xl border border-zinc-200 flex flex-col gap-5 max-h-[90vh] overflow-y-auto">
+                        <div className="flex items-start justify-between gap-4 pb-3 border-b border-zinc-100">
+                            <div>
+                                <h3 className="text-[18px] font-bold text-zinc-900 leading-tight">
+                                    Ứng tuyển sự kiện
+                                </h3>
+                                <p className="text-[13px] text-zinc-500 mt-1 line-clamp-1">
+                                    {event.title}
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setIsApplyModalOpen(false)}
+                                className="size-8 rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-700 hover:bg-zinc-100 transition cursor-pointer"
+                            >
+                                <X className="size-4" />
+                            </button>
+                        </div>
+
+                        {/* Chọn vị trí tuyển dụng */}
+                        <div>
+                            <label className="block text-[13.5px] font-semibold text-zinc-900 mb-2">
+                                Chọn vị trí bạn muốn ứng tuyển <span className="text-red-500">*</span>
+                            </label>
+                            {event.event_positions && event.event_positions.length > 0 ? (
+                                <div className="space-y-2.5">
+                                    {event.event_positions.map((pos: any) => {
+                                        const isSelected = selectedPositionId === pos.id
+                                        return (
+                                            <div
+                                                key={pos.id}
+                                                onClick={() => setSelectedPositionId(pos.id)}
+                                                className={cn(
+                                                    "p-3.5 rounded-xl border transition cursor-pointer flex items-start justify-between gap-3 select-none",
+                                                    isSelected
+                                                        ? "border-zinc-900 bg-zinc-50/80 ring-1 ring-zinc-900/10 shadow-xs"
+                                                        : "border-zinc-200 hover:border-zinc-300 bg-white"
+                                                )}
+                                            >
+                                                <div className="flex items-start gap-3">
+                                                    <div className={cn(
+                                                        "size-4 rounded-full border flex items-center justify-center mt-1 shrink-0 transition",
+                                                        isSelected ? "border-zinc-900 bg-zinc-900" : "border-zinc-300 bg-white"
+                                                    )}>
+                                                        {isSelected && <div className="size-1.5 rounded-full bg-white" />}
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-[14px] font-semibold text-zinc-900 leading-tight">
+                                                            {pos.title}
+                                                        </h4>
+                                                        {pos.description && (
+                                                            <p className="text-[12px] text-zinc-500 mt-1 line-clamp-1">
+                                                                {pos.description}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                                <div className="text-right shrink-0">
+                                                    <span className="text-[12.5px] font-bold text-zinc-900 block">
+                                                        {formatSalary(pos.salary_amount, pos.salary_type)}
+                                                    </span>
+                                                    <span className="text-[11px] text-zinc-400">
+                                                        {pos.slots_needed} chỉ tiêu
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            ) : (
+                                <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-200 text-[13px] text-zinc-700">
+                                    {event.position_type || "Cộng tác viên sự kiện"}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Ghi chú / Lời nhắn tới BTC */}
+                        <div>
+                            <label className="block text-[13.5px] font-semibold text-zinc-900 mb-1.5">
+                                Lời nhắn gửi Ban tổ chức <span className="text-zinc-400 text-xs font-normal">(tùy chọn)</span>
+                            </label>
+                            <textarea
+                                rows={3}
+                                placeholder="VD: Em đã có kinh nghiệm điều phối giải chạy, sẵn sàng hỗ trợ ca từ 07:00..."
+                                value={studentNote}
+                                onChange={(e) => setStudentNote(e.target.value)}
+                                className="w-full p-3 rounded-xl border border-zinc-300 focus:border-zinc-900 focus:outline-none text-[13.5px] text-zinc-900 placeholder-zinc-400 resize-none transition"
+                            />
+                        </div>
+
+                        {/* Thông tin ứng viên tóm tắt */}
+                        <div className="p-3.5 rounded-xl bg-zinc-50 border border-zinc-200/80 flex items-center justify-between text-xs text-zinc-600">
+                            <div>
+                                <span className="font-semibold text-zinc-800">{profile?.full_name || user?.user_metadata?.full_name || "Ứng viên"}</span>
+                                {profile?.university && <span className="text-zinc-400"> • {profile.university}</span>}
+                            </div>
+                            <span className="text-emerald-700 font-medium">Hồ sơ đã sẵn sàng</span>
+                        </div>
+
+                        {/* Action buttons */}
+                        <div className="flex items-center justify-end gap-3 pt-2">
+                            <button
+                                type="button"
+                                onClick={() => setIsApplyModalOpen(false)}
+                                className="h-10 px-4 rounded-xl border border-zinc-200 text-zinc-700 hover:bg-zinc-100 text-[13.5px] font-medium transition cursor-pointer"
+                            >
+                                Hủy bỏ
+                            </button>
+                            <button
+                                type="button"
+                                disabled={isApplying}
+                                onClick={handleConfirmApply}
+                                className="h-10 px-6 rounded-xl bg-zinc-900 hover:bg-black text-white text-[13.5px] font-semibold shadow-xs transition flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                            >
+                                {isApplying ? (
+                                    <>
+                                        <span className="size-3.5 border-2 border-white border-t-transparent animate-spin rounded-full" />
+                                        <span>Đang gửi...</span>
+                                    </>
+                                ) : (
+                                    "Xác nhận nộp đơn"
+                                )}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </MainLayout>
     )

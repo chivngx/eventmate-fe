@@ -69,6 +69,24 @@ export default function OrgEventApplicationsDetail({
 
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "rejected">("all")
+  const [positionFilter, setPositionFilter] = useState<string>("all")
+
+  // Available positions for filtering
+  const availablePositions = useMemo(() => {
+    if (Array.isArray(event?.event_positions) && event.event_positions.length > 0) {
+      return event.event_positions
+    }
+    const posMap = new Map<string, { id: string; title: string }>()
+    applications.forEach((app) => {
+      if (app.event_positions?.id && app.event_positions?.title) {
+        posMap.set(app.event_positions.id, {
+          id: app.event_positions.id,
+          title: app.event_positions.title,
+        })
+      }
+    })
+    return Array.from(posMap.values())
+  }, [event?.event_positions, applications])
 
   // Selected applications for bulk operations
   const [selectedAppIds, setSelectedAppIds] = useState<Set<string>>(new Set())
@@ -115,7 +133,7 @@ export default function OrgEventApplicationsDetail({
         `"${(p.phone || "Chưa cập nhật").replace(/"/g, '""')}"`,
         `"${(p.email || "Chưa cập nhật").replace(/"/g, '""')}"`,
         `"${(p.university || "Chưa cập nhật").replace(/"/g, '""')}"`,
-        `"${(event?.title || "Tình nguyện viên").replace(/"/g, '""')}"`,
+        `"${(app.event_positions?.title || event?.position_type || "Cộng tác viên").replace(/"/g, '""')}"`,
         `"${statusMap[app.status] || "Chờ duyệt"}"`,
         `"${attendanceMap[app.attendance_status] || "Chưa điểm danh"}"`,
         p.trust_score ?? 100
@@ -178,9 +196,15 @@ export default function OrgEventApplicationsDetail({
       if (statusFilter === "approved") matchesStatus = app.status === "approved"
       if (statusFilter === "rejected") matchesStatus = app.status === "rejected"
 
-      return matchesSearch && matchesStatus
+      // 3. Position matching
+      const matchesPosition =
+        positionFilter === "all" ||
+        app.position_id === positionFilter ||
+        app.event_positions?.id === positionFilter
+
+      return matchesSearch && matchesStatus && matchesPosition
     })
-  }, [applications, searchQuery, statusFilter])
+  }, [applications, searchQuery, statusFilter, positionFilter])
 
   // Approved applications for Tab 2 (Attendance & Reviews)
   const approvedApps = useMemo(() => {
@@ -190,9 +214,14 @@ export default function OrgEventApplicationsDetail({
       const fullName = student.full_name || ""
       const phone = student.phone || ""
       const q = searchQuery.toLowerCase().trim()
-      return !q || fullName.toLowerCase().includes(q) || phone.includes(q)
+      const matchesSearch = !q || fullName.toLowerCase().includes(q) || phone.includes(q)
+      const matchesPosition =
+        positionFilter === "all" ||
+        app.position_id === positionFilter ||
+        app.event_positions?.id === positionFilter
+      return matchesSearch && matchesPosition
     })
-  }, [applications, searchQuery])
+  }, [applications, searchQuery, positionFilter])
 
   // Bulk selection toggles
   const toggleSelectApp = (id: string) => {
@@ -443,30 +472,52 @@ export default function OrgEventApplicationsDetail({
       {/* 4. TAB 1: PIPELINE (DUYỆT HỒ SƠ ỨNG TUYỂN) */}
       {workspaceTab === "pipeline" && (
         <div className="space-y-4">
-          {/* Sub Controls: Status Tabs & Search */}
+          {/* Sub Controls: Status Tabs, Position Filter & Search */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white dark:bg-zinc-900 p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs">
-            {/* Status Switcher Tabs */}
-            <div className="inline-flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg self-start sm:self-auto overflow-x-auto max-w-full">
-              {[
-                { id: "all", label: `Tất cả (${counts.all})` },
-                { id: "pending", label: `Chờ duyệt (${counts.pending})` },
-                { id: "approved", label: `Trúng tuyển (${counts.approved})` },
-                { id: "rejected", label: `Từ chối (${counts.rejected})` },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setStatusFilter(tab.id as any)}
-                  className={cn(
-                    "px-3 py-1.5 rounded-md text-[13px] font-medium transition-all cursor-pointer whitespace-nowrap",
-                    statusFilter === tab.id
-                      ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 font-semibold shadow-xs"
-                      : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900"
-                  )}
-                >
-                  {tab.label}
-                </button>
-              ))}
+            {/* Status Switcher Tabs & Position Filter */}
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="inline-flex bg-zinc-100 dark:bg-zinc-800 p-1 rounded-lg self-start sm:self-auto overflow-x-auto max-w-full">
+                {[
+                  { id: "all", label: `Tất cả (${counts.all})` },
+                  { id: "pending", label: `Chờ duyệt (${counts.pending})` },
+                  { id: "approved", label: `Trúng tuyển (${counts.approved})` },
+                  { id: "rejected", label: `Từ chối (${counts.rejected})` },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setStatusFilter(tab.id as any)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-md text-[13px] font-medium transition-all cursor-pointer whitespace-nowrap",
+                      statusFilter === tab.id
+                        ? "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 font-semibold shadow-xs"
+                        : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900"
+                    )}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              {availablePositions.length > 0 && (
+                <div className="flex items-center gap-1.5">
+                  <select
+                    value={positionFilter}
+                    onChange={(e) => setPositionFilter(e.target.value)}
+                    className="h-9 px-3 bg-zinc-100 dark:bg-zinc-800 border-0 rounded-lg text-[13px] font-medium text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-zinc-900 cursor-pointer"
+                  >
+                    <option value="all">Tất cả vị trí ({availablePositions.length})</option>
+                    {availablePositions.map((pos: any) => {
+                      const countForPos = applications.filter((a) => a.position_id === pos.id || a.event_positions?.id === pos.id).length
+                      return (
+                        <option key={pos.id} value={pos.id}>
+                          {pos.title} ({countForPos} đơn)
+                        </option>
+                      )
+                    })}
+                  </select>
+                </div>
+              )}
             </div>
 
             {/* Search Input */}
@@ -604,6 +655,13 @@ export default function OrgEventApplicationsDetail({
                             {displayName}
                           </h4>
 
+                          {/* Position Applied Badge */}
+                          {(app.event_positions?.title || event.position_type) && (
+                            <span className="inline-flex items-center gap-1 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/60 px-2 py-0.5 rounded text-[11px] font-semibold">
+                              {app.event_positions?.title || (event.event_positions?.length > 1 ? "Ứng tuyển chung" : event.position_type)}
+                            </span>
+                          )}
+
                           {/* Status */}
                           {isApproved && (
                             <span className="inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/60 px-2 py-0.5 rounded text-[11px] font-medium">
@@ -739,16 +797,33 @@ export default function OrgEventApplicationsDetail({
               </p>
             </div>
 
-            {/* Quick Search inside Attendance */}
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-zinc-400 pointer-events-none" />
-              <input
-                type="text"
-                placeholder="Tìm tên, SĐT..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-8.5 pl-9 pr-3 bg-white dark:bg-zinc-800/50 border border-zinc-300 dark:border-zinc-700 rounded-lg text-[13px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900 transition"
-              />
+            {/* Filter and Quick Search inside Attendance */}
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+              {availablePositions.length > 0 && (
+                <select
+                  value={positionFilter}
+                  onChange={(e) => setPositionFilter(e.target.value)}
+                  className="h-8.5 px-2.5 bg-zinc-100 dark:bg-zinc-800 border-0 rounded-lg text-[12.5px] font-medium text-zinc-800 dark:text-zinc-200 focus:outline-none focus:ring-1 focus:ring-zinc-900 cursor-pointer"
+                >
+                  <option value="all">Tất cả vị trí ({availablePositions.length})</option>
+                  {availablePositions.map((pos: any) => (
+                    <option key={pos.id} value={pos.id}>
+                      {pos.title}
+                    </option>
+                  ))}
+                </select>
+              )}
+
+              <div className="relative flex-1 sm:w-64">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-zinc-400 pointer-events-none" />
+                <input
+                  type="text"
+                  placeholder="Tìm tên, SĐT..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full h-8.5 pl-9 pr-3 bg-white dark:bg-zinc-800/50 border border-zinc-300 dark:border-zinc-700 rounded-lg text-[13px] text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900 transition"
+                />
+              </div>
             </div>
           </div>
 
@@ -780,6 +855,7 @@ export default function OrgEventApplicationsDetail({
                   <thead className="bg-zinc-50 dark:bg-zinc-800/60 border-b border-zinc-200 dark:border-zinc-800 text-[12px] font-medium text-zinc-500 uppercase tracking-wider">
                     <tr>
                       <th className="py-3 px-4">Nhân sự</th>
+                      <th className="py-3 px-4">Vị trí</th>
                       <th className="py-3 px-4">Liên hệ</th>
                       <th className="py-3 px-4 text-center">Trạng thái điểm danh</th>
                       <th className="py-3 px-4 text-right">Đánh giá uy tín</th>
@@ -810,6 +886,13 @@ export default function OrgEventApplicationsDetail({
                                 </p>
                               </div>
                             </div>
+                          </td>
+
+                          {/* Position */}
+                          <td className="py-3.5 px-4">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11.5px] font-medium bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 whitespace-nowrap">
+                              {app.event_positions?.title || event.position_type || "Cộng tác viên"}
+                            </span>
                           </td>
 
                           {/* Contact (Phone call & Chat) */}

@@ -18,6 +18,7 @@ export type Database = {
           attendance_status: string | null
           event_id: string
           id: string
+          position_id: string | null
           status: string | null
           student_id: string
           student_note: string | null
@@ -27,6 +28,7 @@ export type Database = {
           attendance_status?: string | null
           event_id: string
           id?: string
+          position_id?: string | null
           status?: string | null
           student_id: string
           student_note?: string | null
@@ -36,6 +38,7 @@ export type Database = {
           attendance_status?: string | null
           event_id?: string
           id?: string
+          position_id?: string | null
           status?: string | null
           student_id?: string
           student_note?: string | null
@@ -46,6 +49,13 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "applications_position_id_fkey"
+            columns: ["position_id"]
+            isOneToOne: false
+            referencedRelation: "event_positions"
             referencedColumns: ["id"]
           },
           {
@@ -183,6 +193,47 @@ export type Database = {
           slug?: string | null
         }
         Relationships: []
+      }
+      event_positions: {
+        Row: {
+          created_at: string
+          description: string | null
+          event_id: string
+          id: string
+          salary_amount: number
+          salary_type: string
+          slots_needed: number
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          event_id: string
+          id?: string
+          salary_amount?: number
+          salary_type?: string
+          slots_needed?: number
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          event_id?: string
+          id?: string
+          salary_amount?: number
+          salary_type?: string
+          slots_needed?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_positions_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       events: {
         Row: {

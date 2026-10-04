@@ -39,7 +39,7 @@ export default function ManageEventsView() {
 
     const { data, error } = await supabase
       .from("events")
-      .select("*, applications(id, status, attendance_status), danang_wards(id, name)")
+      .select("*, applications(id, status, attendance_status, position_id), danang_wards(id, name), event_positions(*)")
       .eq("organizer_id", user.id)
       .is("deleted_at", null)
       .order("created_at", { ascending: false })
@@ -67,7 +67,20 @@ export default function ManageEventsView() {
     }
 
     try {
-      // Fetch applications for this event
+      // Ensure event_positions is attached if not already in eventObj
+      if (!eventObj.event_positions || eventObj.event_positions.length === 0) {
+        const { data: posData } = await supabase
+          .from("event_positions")
+          .select("*")
+          .eq("event_id", eventObj.id)
+          .order("created_at", { ascending: true })
+        if (posData && posData.length > 0) {
+          eventObj = { ...eventObj, event_positions: posData }
+          setSelectedEventForCandidates(eventObj)
+        }
+      }
+
+      // Fetch applications for this specific event
       const { data: appsData, error: appsError } = await supabase
         .from("applications")
         .select(`
@@ -77,6 +90,14 @@ export default function ManageEventsView() {
           applied_at,
           student_note,
           student_id,
+          position_id,
+          event_positions (
+            id,
+            title,
+            slots_needed,
+            salary_amount,
+            salary_type
+          ),
           profiles (
             id,
             full_name,
@@ -97,8 +118,45 @@ export default function ManageEventsView() {
         .eq("event_id", eventObj.id)
         .order("applied_at", { ascending: false })
 
-      if (!appsError && appsData) {
-        setApplications(appsData)
+      let appsList: any[] | null = appsData
+      if (appsError || !appsList) {
+        const { data: fallbackApps } = await supabase
+          .from("applications")
+          .select(`
+            id,
+            status,
+            attendance_status,
+            applied_at,
+            student_note,
+            student_id,
+            position_id,
+            profiles (
+              id,
+              full_name,
+              email,
+              phone,
+              avatar_url,
+              university,
+              skills,
+              bio,
+              reliability_score,
+              cv_url,
+              experiences,
+              social_link,
+              gender,
+              birth_year
+            )
+          `)
+          .eq("event_id", eventObj.id)
+          .order("applied_at", { ascending: false })
+
+        if (fallbackApps) {
+          appsList = fallbackApps
+        }
+      }
+
+      if (appsList) {
+        setApplications(appsList as any)
       }
 
       // Fetch existing reviews submitted by this organizer for this event

@@ -101,6 +101,14 @@ export default function MyEvents({
           applied_at,
           student_note,
           attendance_status,
+          position_id,
+          event_positions (
+            id,
+            title,
+            slots_needed,
+            salary_amount,
+            salary_type
+          ),
           events (
             id, title, location, status, position_type, category, benefits, event_date, end_date,
             start_time, end_time, salary_amount, salary_type, payment_method, zalo_group_link,
@@ -112,13 +120,38 @@ export default function MyEvents({
         .eq("student_id", user.id)
         .order("applied_at", { ascending: false })
 
-      if (appsError) {
-        showToast({ title: "Lỗi", message: getUserFacingMessage(appsError, "Không thể tải danh sách đơn ứng tuyển."), type: "error" })
-      } else if (appsData) {
-        setApplications(appsData)
+      let finalApps: any[] | null = appsData
+      if (appsError || !finalApps) {
+        const { data: fallbackData } = await supabase
+          .from("applications")
+          .select(`
+            id, 
+            status, 
+            applied_at,
+            student_note,
+            attendance_status,
+            position_id,
+            events (
+              id, title, location, status, position_type, category, benefits, event_date, end_date,
+              start_time, end_time, salary_amount, salary_type, payment_method, zalo_group_link,
+              application_deadline, ward_id, slug, organizer_id,
+              danang_wards (name),
+              profiles:organizer_id (id, full_name, avatar_url, university)
+            )
+          `)
+          .eq("student_id", user.id)
+          .order("applied_at", { ascending: false })
+
+        if (fallbackData) {
+          finalApps = fallbackData
+        }
+      }
+
+      if (finalApps) {
+        setApplications(finalApps as any)
         // Default expand first card
-        if (appsData.length > 0 && appsData[0].id) {
-          setExpandedCards({ [appsData[0].id]: true })
+        if (finalApps.length > 0 && finalApps[0].id) {
+          setExpandedCards({ [finalApps[0].id]: true })
         }
       }
 

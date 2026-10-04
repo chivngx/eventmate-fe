@@ -303,7 +303,11 @@ export default function OrgEventsTab({
 
                     <div className="flex items-center gap-1.5 truncate" title={job.position_type || "Tình nguyện viên"}>
                       <Briefcase className="size-3 text-zinc-400 shrink-0" />
-                      <span className="truncate">{job.position_type || "Tình nguyện viên"}</span>
+                      <span className="truncate">
+                        {job.event_positions && job.event_positions.length > 1
+                          ? `${job.event_positions.length} vị trí: ${job.event_positions.map((p: any) => p.title).join(", ")}`
+                          : (job.position_type || "Tình nguyện viên")}
+                      </span>
                     </div>
 
                     <div className="flex items-center gap-1.5 truncate" title={dateStr}>

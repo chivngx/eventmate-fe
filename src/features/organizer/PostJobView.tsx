@@ -7,8 +7,10 @@ import { useToast } from "@/components/providers/ToastProvider"
 import { supabase } from "@/lib/supabase"
 import { getUserFacingMessage } from "@/lib/error"
 import { useWards, useJobPositions, useEventCategories } from "@/hooks/useLookups"
-import PostJobForm from "./components/post-job/PostJobForm"
+import PostJobForm, { EventPositionInput } from "./components/post-job/PostJobForm"
 import { SkeletonGenericPage } from "@/components/ui/skeleton"
+
+export type { EventPositionInput }
 
 export default function PostJobView() {
   const router = useRouter()
@@ -22,16 +24,21 @@ export default function PostJobView() {
   const [desc, setDesc] = useState("")
   const [location, setLocation] = useState("")
   const [wardId, setWardId] = useState("")
-  const [positionType, setPositionType] = useState("")
   const [benefits, setBenefits] = useState("")
   const [category, setCategory] = useState("")
-  const [slotsNeeded, setSlotsNeeded] = useState("")
+  const [positions, setPositions] = useState<EventPositionInput[]>([
+    {
+      title: "Lễ tân & Check-in",
+      slots_needed: "2",
+      salary_amount: "200000",
+      salary_type: "per_shift",
+      description: "",
+    },
+  ])
   const [eventDate, setEventDate] = useState("")
   const [endDate, setEndDate] = useState("")
   const [startTime, setStartTime] = useState("")
   const [endTime, setEndTime] = useState("")
-  const [salaryAmount, setSalaryAmount] = useState("")
-  const [salaryType, setSalaryType] = useState("per_shift")
   const [paymentMethod, setPaymentMethod] = useState("cash_after_event")
   const [zaloGroupLink, setZaloGroupLink] = useState("")
   const [applicationDeadline, setApplicationDeadline] = useState("")
@@ -63,11 +70,11 @@ export default function PostJobView() {
     const d = String(now.getDate()).padStart(2, "0")
     const todayStr = `${y}-${m}-${d}`
 
-    // 1. Tên vị trí
+    // 1. Tên sự kiện
     if (!title.trim()) {
-      errs.title = "Vui lòng nhập tên vị trí tuyển dụng"
+      errs.title = "Vui lòng nhập tên sự kiện"
     } else if (title.trim().length < 5) {
-      errs.title = "Tên vị trí phải có ít nhất 5 ký tự"
+      errs.title = "Tên sự kiện phải có ít nhất 5 ký tự"
     }
 
     // 2. Danh mục sự kiện
@@ -75,37 +82,47 @@ export default function PostJobView() {
       errs.category = "Vui lòng chọn danh mục sự kiện"
     }
 
-    // 3. Vai trò phụ trách
-    if (!positionType.trim()) {
-      errs.positionType = "Vui lòng chọn vai trò phụ trách"
+    // 3. Vị trí tuyển dụng
+    if (!positions || positions.length === 0) {
+      errs.positions = "Vui lòng thêm ít nhất 1 vị trí tuyển dụng"
+    } else {
+      positions.forEach((p, idx) => {
+        if (!p.title.trim()) {
+          errs[`position_${idx}_title`] = `Vui lòng chọn hoặc nhập tên cho vị trí #${idx + 1}`
+        }
+        const s = parseInt(String(p.slots_needed), 10)
+        if (!p.slots_needed || isNaN(s) || s < 1) {
+          errs[`position_${idx}_slots`] = `Số lượng vị trí #${idx + 1} phải từ 1 người trở lên`
+        }
+        if (p.salary_type !== "volunteer") {
+          const sal = Number(p.salary_amount)
+          if (p.salary_amount === "" || isNaN(sal) || sal < 0) {
+            errs[`position_${idx}_salary`] = `Vui lòng nhập thù lao hợp lệ cho vị trí #${idx + 1}`
+          }
+        }
+      })
     }
 
-    // 4. Số lượng tuyển dụng
-    const slots = parseInt(slotsNeeded, 10)
-    if (!slotsNeeded || isNaN(slots) || slots < 1) {
-      errs.slotsNeeded = "Số lượng cần tuyển phải từ 1 người trở lên"
-    }
-
-    // 5. Hạn chót nộp đơn
+    // 4. Hạn chót nộp đơn
     if (!applicationDeadline) {
       errs.applicationDeadline = "Vui lòng chọn hạn chót nhận đơn"
     } else if (applicationDeadline < todayStr) {
       errs.applicationDeadline = "Hạn chót ứng tuyển không thể ở trong quá khứ"
     }
 
-    // 6. Phường / Xã
+    // 5. Phường / Xã
     if (!wardId) {
       errs.wardId = "Vui lòng chọn Phường / Xã tại Đà Nẵng"
     }
 
-    // 7. Địa chỉ cụ thể
+    // 6. Địa chỉ cụ thể
     if (!location.trim()) {
       errs.location = "Vui lòng nhập địa chỉ / địa điểm chi tiết"
     } else if (location.trim().length < 3) {
       errs.location = "Địa chỉ phải có ít nhất 3 ký tự"
     }
 
-    // 8. Ngày bắt đầu sự kiện
+    // 7. Ngày bắt đầu sự kiện
     if (!eventDate) {
       errs.eventDate = "Vui lòng chọn ngày bắt đầu sự kiện"
     } else if (eventDate < todayStr) {
@@ -117,27 +134,19 @@ export default function PostJobView() {
       errs.applicationDeadline = "Hạn chót không được sau ngày diễn ra sự kiện"
     }
 
-    // 9. Ngày kết thúc (nếu có)
+    // 8. Ngày kết thúc (nếu có)
     if (endDate && eventDate && endDate < eventDate) {
       errs.endDate = "Ngày kết thúc không thể trước ngày bắt đầu"
     }
 
-    // 10. Giờ ca trực
+    // 9. Giờ ca trực
     if (startTime && endTime && (!endDate || endDate === eventDate)) {
       if (startTime >= endTime) {
         errs.endTime = "Giờ kết thúc ca trực phải sau giờ bắt đầu"
       }
     }
 
-    // 11. Mức thù lao
-    if (salaryType !== "volunteer") {
-      const sal = Number(salaryAmount)
-      if (!salaryAmount || isNaN(sal) || sal < 0) {
-        errs.salaryAmount = "Vui lòng nhập mức thù lao hợp lệ (>= 0 đ)"
-      }
-    }
-
-    // 12. Link nhóm Zalo
+    // 10. Link nhóm Zalo
     if (zaloGroupLink.trim()) {
       const isUrl = /^https?:\/\/.+/i.test(zaloGroupLink.trim())
       if (!isUrl) {
@@ -145,7 +154,7 @@ export default function PostJobView() {
       }
     }
 
-    // 13. Mô tả chi tiết
+    // 11. Mô tả chi tiết
     if (!desc.trim()) {
       errs.desc = "Vui lòng nhập mô tả nhiệm vụ và yêu cầu"
     } else if (desc.trim().length < 20) {
@@ -204,16 +213,12 @@ export default function PostJobView() {
         setDesc(data.description || "")
         setLocation(data.location || "")
         setWardId(data.ward_id ? String(data.ward_id) : "")
-        setPositionType(data.position_type || "")
         setCategory(data.category || "")
         setBenefits(Array.isArray(data.benefits) ? data.benefits.join(", ") : data.benefits || "")
-        setSlotsNeeded(data.slots_needed ? String(data.slots_needed) : "1")
         setEventDate(data.event_date ? data.event_date.split("T")[0] : "")
         setEndDate(data.end_date ? data.end_date.split("T")[0] : "")
         setStartTime(data.start_time || "07:30")
         setEndTime(data.end_time || "17:00")
-        setSalaryAmount(data.salary_amount != null ? String(data.salary_amount) : "0")
-        setSalaryType(data.salary_type || "per_shift")
         setPaymentMethod(data.payment_method || "cash_after_event")
         setZaloGroupLink(data.zalo_group_link || "")
         setApplicationDeadline(data.application_deadline ? data.application_deadline.split("T")[0] : "")
@@ -223,6 +228,49 @@ export default function PostJobView() {
         setIsUrgent(canKeepUrgent ? Boolean(data.is_urgent) : false)
         setIsFeatured(isPremium ? Boolean(data.is_featured) : false)
         setExistingQrCode(canKeepQr ? data.qr_checkin_code || null : null)
+
+        // Fetch positions for this event
+        const { data: posData } = await supabase
+          .from("event_positions")
+          .select("*")
+          .eq("event_id", editId)
+          .order("created_at", { ascending: true })
+
+        if (posData && posData.length > 0) {
+          setPositions(posData.map((p) => ({
+            id: p.id,
+            title: p.title,
+            slots_needed: String(p.slots_needed),
+            salary_amount: String(p.salary_amount),
+            salary_type: p.salary_type || "per_shift",
+            description: p.description || "",
+          })))
+        } else {
+          // Fallback parsing for legacy events with comma-separated position_type
+          const titles = data.position_type
+            ? data.position_type.split(",").map((s: string) => s.trim()).filter(Boolean)
+            : []
+          if (titles.length > 1) {
+            const eachSlot = Math.max(1, Math.floor((data.slots_needed || titles.length) / titles.length))
+            setPositions(titles.map((t: string) => ({
+              title: t,
+              slots_needed: String(eachSlot),
+              salary_amount: String(data.salary_amount || 0),
+              salary_type: data.salary_type || "per_shift",
+              description: "",
+            })))
+          } else {
+            setPositions([
+              {
+                title: data.position_type || "Tình nguyện viên sự kiện",
+                slots_needed: String(data.slots_needed || 1),
+                salary_amount: String(data.salary_amount || 0),
+                salary_type: data.salary_type || "per_shift",
+                description: "",
+              }
+            ])
+          }
+        }
       }
       setFetchingEdit(false)
     }
@@ -291,21 +339,28 @@ export default function PostJobView() {
       ? "single_event"
       : "free"
 
+    const totalSlots = positions.reduce((acc, p) => acc + (parseInt(String(p.slots_needed), 10) || 1), 0)
+    const combinedPositions = positions.map(p => p.title.trim()).filter(Boolean).join(", ")
+    const minSalary = positions.some(p => p.salary_type === "volunteer")
+      ? 0
+      : Math.min(...positions.map(p => Number(p.salary_amount) || 0))
+    const primarySalaryType = positions[0]?.salary_type || "per_shift"
+
     const eventPayload = {
       title,
       description: desc,
       location,
       ward_id: Number(wardId),
-      position_type: positionType || "Tình nguyện viên",
+      position_type: combinedPositions || "Tình nguyện viên sự kiện",
       benefits,
       category: category || "Sự kiện chung",
-      slots_needed: parseInt(slotsNeeded, 10) || 1,
+      slots_needed: totalSlots,
       event_date: eventDate ? new Date(eventDate).toISOString() : null,
       end_date: endDate ? new Date(endDate).toISOString() : null,
       start_time: startTime || null,
       end_time: endTime || null,
-      salary_amount: salaryAmount ? Number(salaryAmount) : 0,
-      salary_type: salaryType,
+      salary_amount: minSalary,
+      salary_type: primarySalaryType,
       payment_method: paymentMethod,
       zalo_group_link: zaloGroupLink ? zaloGroupLink.trim() : null,
       application_deadline: applicationDeadline ? new Date(applicationDeadline).toISOString() : null,
@@ -316,6 +371,8 @@ export default function PostJobView() {
     }
 
     try {
+      let savedEventId = editId
+
       if (editId) {
         const { error } = await supabase
           .from("events")
@@ -324,18 +381,17 @@ export default function PostJobView() {
           .eq("organizer_id", user.id)
 
         if (error) throw error
-
-        showToast({
-          title: "Thành công",
-          message: "Cập nhật bài tuyển dụng thành công!",
-          type: "success",
-        })
       } else {
-        const { error } = await supabase.from("events").insert([
-          { organizer_id: user.id, ...eventPayload, status: "upcoming" },
-        ])
+        const { data: newEvent, error } = await supabase
+          .from("events")
+          .insert([
+            { organizer_id: user.id, ...eventPayload, status: "upcoming" },
+          ])
+          .select("id")
+          .single()
 
         if (error) throw error
+        savedEventId = newEvent.id
 
         // Nếu dùng credit Sự Kiện Nhanh, trừ đi 1 lượt
         if (willBeSingleEvent) {
@@ -345,15 +401,63 @@ export default function PostJobView() {
             .eq("id", user.id)
           if (refreshProfile) await refreshProfile()
         }
-
-        showToast({
-          title: "Thành công",
-          message: willBeSingleEvent
-            ? "Đăng bài Sự Kiện Nhanh thành công! Đã tự động kích hoạt Ghim Tuyển Gấp và Điểm danh QR."
-            : "Tạo bài tuyển dụng sự kiện mới thành công!",
-          type: "success",
-        })
       }
+
+      // Sync event_positions
+      if (savedEventId) {
+        const { data: currentDbPositions } = await supabase
+          .from("event_positions")
+          .select("id")
+          .eq("event_id", savedEventId)
+
+        const currentDbIds = (currentDbPositions || []).map((p) => p.id)
+        const keptIds = positions.filter((p) => p.id).map((p) => p.id as string)
+
+        // Delete positions that were removed
+        const idsToDelete = currentDbIds.filter((id) => !keptIds.includes(id))
+        if (idsToDelete.length > 0) {
+          const { error: delErr } = await supabase.from("event_positions").delete().in("id", idsToDelete)
+          if (delErr) {
+            console.error("Lỗi khi xóa vị trí sự kiện cũ:", delErr)
+            throw delErr
+          }
+        }
+
+        // Insert or update positions
+        for (const p of positions) {
+          const posPayload = {
+            event_id: savedEventId,
+            title: p.title.trim(),
+            slots_needed: parseInt(String(p.slots_needed), 10) || 1,
+            salary_amount: p.salary_type === "volunteer" ? 0 : Number(p.salary_amount) || 0,
+            salary_type: p.salary_type,
+            description: p.description?.trim() || null,
+          }
+          if (p.id && currentDbIds.includes(p.id)) {
+            const { error: updErr } = await supabase.from("event_positions").update(posPayload).eq("id", p.id)
+            if (updErr) {
+              console.error("Lỗi khi cập nhật vị trí sự kiện:", updErr)
+              throw updErr
+            }
+          } else {
+            const { error: insErr } = await supabase.from("event_positions").insert([posPayload])
+            if (insErr) {
+              console.error("Lỗi khi thêm vị trí sự kiện:", insErr)
+              throw insErr
+            }
+          }
+        }
+      }
+
+      showToast({
+        title: "Thành công",
+        message: editId
+          ? "Cập nhật bài tuyển dụng thành công!"
+          : willBeSingleEvent
+          ? "Đăng bài Sự Kiện Nhanh thành công! Đã tự động kích hoạt Ghim Tuyển Gấp và Điểm danh QR."
+          : "Tạo bài tuyển dụng sự kiện mới thành công!",
+        type: "success",
+      })
 
       router.push("/manage-events")
     } catch (err: any) {
@@ -394,24 +498,18 @@ export default function PostJobView() {
         setStartTime={setStartTime}
         endTime={endTime}
         setEndTime={setEndTime}
-        salaryAmount={salaryAmount}
-        setSalaryAmount={setSalaryAmount}
-        salaryType={salaryType}
-        setSalaryType={setSalaryType}
+        positions={positions}
+        setPositions={setPositions}
         paymentMethod={paymentMethod}
         setPaymentMethod={setPaymentMethod}
         zaloGroupLink={zaloGroupLink}
         setZaloGroupLink={setZaloGroupLink}
         applicationDeadline={applicationDeadline}
         setApplicationDeadline={setApplicationDeadline}
-        positionType={positionType}
-        setPositionType={setPositionType}
         category={category}
         setCategory={setCategory}
         benefits={benefits}
         setBenefits={setBenefits}
-        slotsNeeded={slotsNeeded}
-        setSlotsNeeded={setSlotsNeeded}
         desc={desc}
         setDesc={setDesc}
         isUrgent={isUrgent}

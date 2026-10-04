@@ -22,6 +22,7 @@ import {
   AlertTriangle,
   Plus,
   Minus,
+  Trash2,
 } from "lucide-react"
 import Link from "next/link"
 import { useUser } from "@/components/providers/AuthProvider"
@@ -31,6 +32,15 @@ import { cn } from "@/lib/utils"
 import { CustomSelect } from "@/components/ui/custom-select"
 import { DatePicker } from "@/components/ui/date-picker"
 import { TimePicker } from "@/components/ui/time-picker"
+
+export interface EventPositionInput {
+  id?: string
+  title: string
+  slots_needed: string | number
+  salary_amount: string | number
+  salary_type: string
+  description?: string
+}
 
 export interface PostJobFormProps {
   editingId?: string | null
@@ -49,6 +59,8 @@ export interface PostJobFormProps {
   setStartTime?: (val: string) => void
   endTime?: string
   setEndTime?: (val: string) => void
+  positions?: EventPositionInput[]
+  setPositions?: React.Dispatch<React.SetStateAction<EventPositionInput[]>>
   salaryAmount?: string
   setSalaryAmount?: (val: string) => void
   salaryType?: string
@@ -59,14 +71,14 @@ export interface PostJobFormProps {
   setZaloGroupLink?: (val: string) => void
   applicationDeadline: string
   setApplicationDeadline: (val: string) => void
-  positionType: string
-  setPositionType: (val: string) => void
+  positionType?: string
+  setPositionType?: (val: string) => void
   category: string
   setCategory: (val: string) => void
   benefits: string
   setBenefits: (val: string) => void
-  slotsNeeded: string
-  setSlotsNeeded: (val: string) => void
+  slotsNeeded?: string
+  setSlotsNeeded?: (val: string) => void
   desc: string
   setDesc: (val: string) => void
   isUrgent?: boolean
@@ -103,6 +115,8 @@ export default function PostJobForm({
   setStartTime,
   endTime = "",
   setEndTime,
+  positions = [],
+  setPositions,
   salaryAmount = "",
   setSalaryAmount,
   salaryType = "per_shift",
@@ -113,13 +127,13 @@ export default function PostJobForm({
   setZaloGroupLink,
   applicationDeadline,
   setApplicationDeadline,
-  positionType,
+  positionType = "",
   setPositionType,
   category,
   setCategory,
   benefits,
   setBenefits,
-  slotsNeeded,
+  slotsNeeded = "1",
   setSlotsNeeded,
   desc,
   setDesc,
@@ -167,18 +181,18 @@ export default function PostJobForm({
   }, [])
 
   // DB categories and positions fallback
-  const [positions, setPositions] = useState<string[]>(positionsList)
+  const [availableJobRoles, setAvailableJobRoles] = useState<string[]>(positionsList)
   const [categories, setCategories] = useState<string[]>(categoriesList)
 
   useEffect(() => {
-    if (positions.length === 0 || categories.length === 0) {
+    if (availableJobRoles.length === 0 || categories.length === 0) {
       const loadOptions = async () => {
         const { data: posData } = await supabase
           .from("job_positions")
           .select("name")
           .order("name", { ascending: true })
         if (posData && posData.length > 0) {
-          setPositions(posData.map((p: any) => p.name))
+          setAvailableJobRoles(posData.map((p: any) => p.name))
         }
         const { data: catData } = await supabase
           .from("event_categories")
@@ -191,6 +205,37 @@ export default function PostJobForm({
       loadOptions()
     }
   }, [])
+
+  const handleAddPosition = () => {
+    if (!setPositions) return
+    setPositions((prev) => [
+      ...prev,
+      {
+        title: "",
+        slots_needed: "2",
+        salary_amount: "150000",
+        salary_type: "per_shift",
+        description: "",
+      },
+    ])
+  }
+
+  const handleRemovePosition = (idx: number) => {
+    if (!setPositions || positions.length <= 1) return
+    setPositions((prev) => prev.filter((_, i) => i !== idx))
+  }
+
+  const handleUpdatePosition = (idx: number, field: keyof EventPositionInput, value: string) => {
+    if (!setPositions) return
+    setPositions((prev) => {
+      const next = [...prev]
+      next[idx] = { ...next[idx], [field]: value }
+      return next
+    })
+    if (field === "title") clearError(`position_${idx}_title`)
+    if (field === "slots_needed") clearError(`position_${idx}_slots`)
+    if (field === "salary_amount") clearError(`position_${idx}_salary`)
+  }
 
   // Event Benefits Options
   const benefitOptions = [
@@ -257,30 +302,34 @@ export default function PostJobForm({
     label: c,
   }))
 
-  const positionOptions = (positions.length > 0 ? positions : fallbackPositions).map((p) => ({
-    value: p,
-    label: p,
-  }))
-
   const wardOptions = wards.map((w) => ({
     value: String(w.id),
     label: w.name,
   }))
 
+  const totalSlotsCount = positions.reduce(
+    (sum, p) => sum + (parseInt(String(p.slots_needed || "0"), 10) || 0),
+    0
+  )
+  const combinedPositionTitles = positions
+    .map((p) => p.title.trim())
+    .filter(Boolean)
+    .join(" • ")
+
   // Realtime Preview Job Item for EventCard
   const previewJob: JobItem = {
     id: editingId || "preview-id",
-    title: title.trim() || "Tiêu đề vị trí tuyển dụng sự kiện",
+    title: title.trim() || "Tiêu đề sự kiện",
     category: category || "Sự kiện chung",
-    position_type: positionType || "Cộng tác viên sự kiện",
+    position_type: combinedPositionTitles || positionType || "Cộng tác viên sự kiện",
     event_date: eventDate || null,
     start_time: startTime || null,
     end_time: endTime || null,
     location: location.trim() || "Địa điểm sự kiện",
-    salary_amount: salaryAmount ? Number(salaryAmount.replace(/\D/g, "")) : 0,
-    salary_type: salaryType,
+    salary_amount: positions[0]?.salary_amount ? Number(String(positions[0].salary_amount).replace(/\D/g, "")) : 0,
+    salary_type: positions[0]?.salary_type || "per_shift",
     payment_method: paymentMethod,
-    slots_needed: slotsNeeded ? Number(slotsNeeded) : 1,
+    slots_needed: totalSlotsCount > 0 ? totalSlotsCount : 1,
     benefits: selectedBenefits,
     created_at: new Date().toISOString(),
     danang_wards: selectedWard ? { id: selectedWard.id, name: selectedWard.name } : null,
@@ -292,11 +341,15 @@ export default function PostJobForm({
 
   // Checklist computation
   const checklist = [
-    { label: "Tiêu đề bài đăng rõ ràng", done: title.trim().length >= 5 },
+    { label: "Tiêu đề sự kiện rõ ràng", done: title.trim().length >= 5 },
+    {
+      label: "Đã có ít nhất 1 vị trí tuyển dụng",
+      done: positions.length > 0 && positions.every((p) => p.title.trim().length > 0),
+    },
     { label: "Chọn Phường/Xã & Địa chỉ cụ thể", done: Boolean(wardId && location.trim()) },
     { label: "Chọn ngày diễn ra sự kiện", done: Boolean(eventDate) },
     { label: "Đặt hạn chót nhận đăng ký", done: Boolean(applicationDeadline) },
-    { label: "Mô tả nhiệm vụ & Yêu cầu", done: desc.trim().length >= 20 },
+    { label: "Mô tả sự kiện & yêu cầu chung", done: desc.trim().length >= 20 },
   ]
   const completedChecklistCount = checklist.filter((c) => c.done).length
   const isQuotaExceeded = !editingId && eventsThisMonthCount >= monthlyLimit
@@ -333,34 +386,34 @@ export default function PostJobForm({
           {/* CỘT TRÁI: FORM NHẬP LIỆU */}
           <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-6">
             
-            {/* KHỐI 1: THÔNG TIN CÔNG VIỆC & VỊ TRÍ */}
+            {/* KHỐI 1: THÔNG TIN SỰ KIỆN */}
             <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 sm:p-6 shadow-sm">
               <div className="flex items-center gap-2.5 pb-4 mb-5 border-b border-zinc-100 dark:border-zinc-800/80">
                 <div className="size-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-800 dark:text-zinc-200">
-                  <Briefcase className="w-4 h-4 stroke-[2]" />
+                  <FileText className="w-4 h-4 stroke-[2]" />
                 </div>
                 <div>
                   <h2 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">
-                    1. Thông tin vị trí & Sự kiện
+                    1. Thông tin sự kiện
                   </h2>
                   <p className="text-[12px] text-zinc-500 dark:text-zinc-400">
-                    Vị trí, danh mục và số lượng nhân sự cần tuyển
+                    Tên chương trình, danh mục và hạn chót nhận đăng ký
                   </p>
                 </div>
               </div>
 
               <div className="space-y-5">
-                {/* Tiêu đề vị trí tuyển dụng */}
+                {/* Tên sự kiện */}
                 <div>
                   <label htmlFor="event-title" className="block text-[13px] font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
-                    Tên vị trí tuyển dụng <span className="text-red-500">*</span>
+                    Tên sự kiện / Chiến dịch <span className="text-red-500">*</span>
                   </label>
                   <input
                     id="event-title"
                     name="title"
                     type="text"
                     required
-                    placeholder="VD: CTV Hướng dẫn khách mời, TNV Điều phối sân khấu..."
+                    placeholder="VD: Lễ hội Âm nhạc Danang Electronic 2026, Giải chạy Marathon Quốc tế..."
                     value={title}
                     onChange={(e) => {
                       setTitle(e.target.value)
@@ -380,7 +433,7 @@ export default function PostJobForm({
                   )}
                 </div>
 
-                {/* Danh mục & Vai trò */}
+                {/* Danh mục sự kiện & Hạn chót ứng tuyển */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Danh mục sự kiện */}
                   <div>
@@ -399,130 +452,6 @@ export default function PostJobForm({
                       placeholder="Chọn danh mục sự kiện"
                       error={errors.category}
                     />
-                  </div>
-
-                  {/* Vai trò / Vị trí */}
-                  <div>
-                    <label htmlFor="event-positionType" className="block text-[13px] font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
-                      Vai trò phụ trách <span className="text-red-500">*</span>
-                    </label>
-                    <CustomSelect
-                      id="event-positionType"
-                      name="positionType"
-                      value={positionType}
-                      onChange={(val) => {
-                        setPositionType(val)
-                        clearError("positionType")
-                      }}
-                      options={positionOptions}
-                      placeholder="Chọn vai trò phụ trách"
-                      error={errors.positionType}
-                    />
-                  </div>
-                </div>
-
-                {/* Số lượng & Hạn chót ứng tuyển */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {/* Số lượng cần tuyển */}
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <label htmlFor="event-slotsNeeded" className="block text-[13px] font-medium text-zinc-700 dark:text-zinc-300">
-                        Số lượng nhân sự <span className="text-red-500">*</span>
-                      </label>
-                      <span className="text-xs text-zinc-400">Tối thiểu: 1 người</span>
-                    </div>
-                    <div className="relative flex items-center">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const current = parseInt(slotsNeeded || "0", 10)
-                          const next = Math.max(1, current - 1)
-                          setSlotsNeeded(String(next))
-                          clearError("slotsNeeded")
-                        }}
-                        disabled={parseInt(slotsNeeded || "0", 10) <= 1}
-                        className="absolute left-1.5 top-1/2 -translate-y-1/2 size-7 rounded-md flex items-center justify-center text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
-                        title="Giảm 1 người"
-                      >
-                        <Minus className="w-3.5 h-3.5" />
-                      </button>
-
-                      <input
-                        id="event-slotsNeeded"
-                        name="slotsNeeded"
-                        type="text"
-                        inputMode="numeric"
-                        pattern="[0-9]*"
-                        placeholder="VD: 5"
-                        value={slotsNeeded}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/\D/g, "")
-                          setSlotsNeeded(val)
-                          const num = parseInt(val, 10)
-                          if (!val || isNaN(num) || num < 1) {
-                            setErrorField("slotsNeeded", "Số lượng cần tuyển phải từ 1 người trở lên")
-                          } else {
-                            clearError("slotsNeeded")
-                          }
-                        }}
-                        onBlur={() => {
-                          const num = parseInt(slotsNeeded, 10)
-                          if (!slotsNeeded || isNaN(num) || num < 1) {
-                            setErrorField("slotsNeeded", "Số lượng cần tuyển phải từ 1 người trở lên")
-                          } else {
-                            clearError("slotsNeeded")
-                          }
-                        }}
-                        className={cn(
-                          "w-full h-10.5 px-10 rounded-lg border bg-white dark:bg-zinc-800/50 text-center font-medium text-[14px] text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none transition",
-                          errors.slotsNeeded
-                            ? "border-rose-500 ring-1 ring-rose-500/20"
-                            : "border-zinc-300 dark:border-zinc-700 focus:border-zinc-900 dark:focus:border-zinc-100 focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-100"
-                        )}
-                      />
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const current = parseInt(slotsNeeded || "0", 10)
-                          const next = current < 1 ? 1 : current + 1
-                          setSlotsNeeded(String(next))
-                          clearError("slotsNeeded")
-                        }}
-                        className="absolute right-1.5 top-1/2 -translate-y-1/2 size-7 rounded-md flex items-center justify-center text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
-                        title="Tăng 1 người"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-
-                    {/* Quick Selection Chips */}
-                    <div className="flex items-center gap-1.5 mt-2 flex-wrap">
-                      {["3", "5", "10", "20", "50"].map((num) => (
-                        <button
-                          key={num}
-                          type="button"
-                          onClick={() => {
-                            setSlotsNeeded(num)
-                            clearError("slotsNeeded")
-                          }}
-                          className={cn(
-                            "px-2.5 py-0.5 text-xs rounded-md border transition cursor-pointer font-medium",
-                            slotsNeeded === num
-                              ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 border-transparent shadow-xs"
-                              : "bg-zinc-50 dark:bg-zinc-800/60 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:border-zinc-400"
-                          )}
-                        >
-                          {num} người
-                        </button>
-                      ))}
-                    </div>
-
-                    {errors.slotsNeeded && (
-                      <p className="text-[12px] text-rose-500 dark:text-rose-400 mt-1 font-medium flex items-center gap-1">
-                        {errors.slotsNeeded}
-                      </p>
-                    )}
                   </div>
 
                   {/* Hạn chót nhận đăng ký */}
@@ -562,7 +491,258 @@ export default function PostJobForm({
               </div>
             </div>
 
-            {/* KHỐI 2: THỜI GIAN & ĐỊA ĐIỂM TỔ CHỨC */}
+            {/* KHỐI 2: CÁC VỊ TRÍ TUYỂN DỤNG & THÙ LAO */}
+            <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 sm:p-6 shadow-sm">
+              <div className="flex items-center justify-between pb-4 mb-5 border-b border-zinc-100 dark:border-zinc-800/80">
+                <div className="flex items-center gap-2.5">
+                  <div className="size-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-800 dark:text-zinc-200">
+                    <Briefcase className="w-4 h-4 stroke-[2]" />
+                  </div>
+                  <div>
+                    <h2 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">
+                      2. Các vị trí tuyển dụng & Thù lao
+                    </h2>
+                    <p className="text-[12px] text-zinc-500 dark:text-zinc-400">
+                      Thêm một hoặc nhiều vị trí tuyển dụng cho sự kiện này
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-[12px] font-medium px-2.5 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300">
+                    {positions.length} vị trí • {totalSlotsCount} nhân sự
+                  </span>
+                </div>
+              </div>
+
+              {errors.positions && (
+                <div className="mb-4 p-3 rounded-lg bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800 text-[13px] text-rose-600 dark:text-rose-400">
+                  {errors.positions}
+                </div>
+              )}
+
+              <div className="space-y-4">
+                {positions.map((pos, idx) => {
+                  const titleError = errors[`position_${idx}_title`]
+                  const slotsError = errors[`position_${idx}_slots`]
+                  const salaryError = errors[`position_${idx}_salary`]
+
+                  return (
+                    <div
+                      key={pos.id || idx}
+                      className="p-4 sm:p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-800/30 transition relative space-y-4"
+                    >
+                      {/* Thẻ Header vị trí */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 rounded-md bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 text-xs font-bold flex items-center justify-center">
+                            {idx + 1}
+                          </span>
+                          <span className="text-[13.5px] font-semibold text-zinc-800 dark:text-zinc-200">
+                            {pos.title.trim() ? pos.title : `Vị trí #${idx + 1}`}
+                          </span>
+                        </div>
+
+                        {positions.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => handleRemovePosition(idx)}
+                            className="text-xs font-medium text-rose-500 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 flex items-center gap-1 px-2 py-1 rounded-md hover:bg-rose-50 dark:hover:bg-rose-950/40 transition cursor-pointer"
+                            title="Xóa vị trí này"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Xóa vị trí</span>
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Tên vị trí tuyển dụng */}
+                      <div>
+                        <label className="block text-[13px] font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
+                          Tên vị trí tuyển dụng <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          id={`event-position_${idx}_title`}
+                          type="text"
+                          required
+                          placeholder="VD: TNV Check-in & Hướng dẫn, CTV Kỹ thuật sân khấu..."
+                          value={pos.title}
+                          onChange={(e) => handleUpdatePosition(idx, "title", e.target.value)}
+                          className={cn(
+                            "w-full h-10 px-3.5 rounded-lg border bg-white dark:bg-zinc-900 text-[14px] text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none transition",
+                            titleError
+                              ? "border-rose-500 ring-1 ring-rose-500/20"
+                              : "border-zinc-300 dark:border-zinc-700 focus:border-zinc-900 dark:focus:border-zinc-100 focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-100"
+                          )}
+                        />
+                        {titleError && (
+                          <p className="text-[12px] text-rose-500 dark:text-rose-400 mt-1 font-medium">
+                            {titleError}
+                          </p>
+                        )}
+
+                        {/* Gợi ý chọn nhanh vai trò */}
+                        <div className="flex items-center gap-1.5 mt-2 flex-wrap">
+                          <span className="text-xs text-zinc-400">Gợi ý nhanh:</span>
+                          {(availableJobRoles.length > 0 ? availableJobRoles : fallbackPositions).slice(0, 5).map((role) => (
+                            <button
+                              key={role}
+                              type="button"
+                              onClick={() => handleUpdatePosition(idx, "title", role)}
+                              className={cn(
+                                "px-2 py-0.5 text-xs rounded-md border transition cursor-pointer font-medium",
+                                pos.title === role
+                                  ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 border-transparent shadow-xs"
+                                  : "bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:border-zinc-400"
+                              )}
+                            >
+                              {role}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Số lượng + Hình thức thù lao + Mức thù lao */}
+                      <div className="grid grid-cols-1 md:grid-cols-12 gap-3.5 items-start">
+                        {/* Số lượng */}
+                        <div className="md:col-span-4">
+                          <label className="block text-[13px] font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
+                            Số lượng cần <span className="text-red-500">*</span>
+                          </label>
+                          <div className="relative flex items-center">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const cur = parseInt(String(pos.slots_needed || "0"), 10)
+                                handleUpdatePosition(idx, "slots_needed", String(Math.max(1, cur - 1)))
+                              }}
+                              disabled={parseInt(String(pos.slots_needed || "0"), 10) <= 1}
+                              className="absolute left-1 top-1/2 -translate-y-1/2 size-8 rounded-md flex items-center justify-center text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition disabled:opacity-30 disabled:pointer-events-none cursor-pointer"
+                            >
+                              <Minus className="w-3.5 h-3.5" />
+                            </button>
+                            <input
+                              id={`event-position_${idx}_slots`}
+                              type="text"
+                              inputMode="numeric"
+                              value={pos.slots_needed}
+                              onChange={(e) => {
+                                const val = e.target.value.replace(/\D/g, "")
+                                handleUpdatePosition(idx, "slots_needed", val)
+                              }}
+                              className={cn(
+                                "w-full h-10 px-9 rounded-lg border bg-white dark:bg-zinc-900 text-center font-medium text-[14px] text-zinc-900 dark:text-zinc-100 focus:outline-none transition",
+                                slotsError
+                                  ? "border-rose-500 ring-1 ring-rose-500/20"
+                                  : "border-zinc-300 dark:border-zinc-700 focus:border-zinc-900 dark:focus:border-zinc-100"
+                              )}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const cur = parseInt(String(pos.slots_needed || "0"), 10)
+                                handleUpdatePosition(idx, "slots_needed", String(cur < 1 ? 1 : cur + 1))
+                              }}
+                              className="absolute right-1 top-1/2 -translate-y-1/2 size-8 rounded-md flex items-center justify-center text-zinc-500 hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
+                            >
+                              <Plus className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                          {slotsError && (
+                            <p className="text-[12px] text-rose-500 dark:text-rose-400 mt-1 font-medium">
+                              {slotsError}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Hình thức thù lao */}
+                        <div className="md:col-span-4">
+                          <label className="block text-[13px] font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
+                            Hình thức thù lao
+                          </label>
+                          <select
+                            value={pos.salary_type}
+                            onChange={(e) => {
+                              handleUpdatePosition(idx, "salary_type", e.target.value)
+                              if (e.target.value === "volunteer") {
+                                handleUpdatePosition(idx, "salary_amount", "0")
+                              }
+                            }}
+                            className="w-full h-10 px-3 rounded-lg border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-[13.5px] text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-zinc-900 dark:focus:border-zinc-100 transition cursor-pointer"
+                          >
+                            <option value="per_shift">Theo ca trực</option>
+                            <option value="hourly">Theo giờ</option>
+                            <option value="per_event">Trọn gói sự kiện</option>
+                            <option value="volunteer">Tình nguyện viên (0đ)</option>
+                          </select>
+                        </div>
+
+                        {/* Mức thù lao */}
+                        <div className="md:col-span-4">
+                          <label className="block text-[13px] font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
+                            Mức thù lao (VNĐ)
+                          </label>
+                          <div className="relative">
+                            <input
+                              id={`event-position_${idx}_salary`}
+                              type="text"
+                              disabled={pos.salary_type === "volunteer"}
+                              placeholder={pos.salary_type === "volunteer" ? "Tình nguyện viên" : "VD: 150000"}
+                              value={pos.salary_type === "volunteer" ? "" : pos.salary_amount}
+                              onChange={(e) => {
+                                handleUpdatePosition(idx, "salary_amount", e.target.value.replace(/\D/g, ""))
+                              }}
+                              className={cn(
+                                "w-full h-10 px-3 pr-8 rounded-lg border bg-white dark:bg-zinc-900 text-[14px] text-zinc-900 dark:text-zinc-100 focus:outline-none disabled:bg-zinc-100 dark:disabled:bg-zinc-800 disabled:cursor-not-allowed transition",
+                                salaryError
+                                  ? "border-rose-500 ring-1 ring-rose-500/20"
+                                  : "border-zinc-300 dark:border-zinc-700 focus:border-zinc-900 dark:focus:border-zinc-100"
+                              )}
+                            />
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-semibold text-zinc-400 pointer-events-none">
+                              đ
+                            </span>
+                          </div>
+                          {salaryError && (
+                            <p className="text-[12px] text-rose-500 dark:text-rose-400 mt-1 font-medium">
+                              {salaryError}
+                            </p>
+                          )}
+                          {pos.salary_amount && Number(pos.salary_amount) > 0 && pos.salary_type !== "volunteer" && (
+                            <span className="text-[11.5px] text-zinc-500 mt-0.5 block">
+                              = <strong>{Number(pos.salary_amount).toLocaleString("vi-VN")} đ</strong>
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Ghi chú / Yêu cầu riêng cho vị trí */}
+                      <div>
+                        <input
+                          type="text"
+                          placeholder="Mô tả / yêu cầu riêng cho vị trí này (VD: Chiều cao từ 1m60, biết chụp máy cơ, tự túc xe máy...)"
+                          value={pos.description || ""}
+                          onChange={(e) => handleUpdatePosition(idx, "description", e.target.value)}
+                          className="w-full h-9 px-3 rounded-lg border border-zinc-200 dark:border-zinc-700/80 bg-white/70 dark:bg-zinc-900 text-[13px] text-zinc-800 dark:text-zinc-200 placeholder-zinc-400 focus:outline-none focus:border-zinc-900 dark:focus:border-zinc-100 transition"
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
+
+                {/* Nút thêm vị trí tuyển dụng mới */}
+                <button
+                  type="button"
+                  onClick={handleAddPosition}
+                  className="w-full py-3 px-4 border-2 border-dashed border-zinc-300 dark:border-zinc-700 hover:border-zinc-500 dark:hover:border-zinc-500 rounded-xl text-[13.5px] font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white flex items-center justify-center gap-2 hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Thêm vị trí tuyển dụng khác</span>
+                </button>
+              </div>
+            </div>
+
+            {/* KHỐI 3: THỜI GIAN & ĐỊA ĐIỂM TỔ CHỨC */}
             <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 sm:p-6 shadow-sm">
               <div className="flex items-center gap-2.5 pb-4 mb-5 border-b border-zinc-100 dark:border-zinc-800/80">
                 <div className="size-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-800 dark:text-zinc-200">
@@ -570,7 +750,7 @@ export default function PostJobForm({
                 </div>
                 <div>
                   <h2 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">
-                    2. Thời gian & Địa điểm tổ chức
+                    3. Thời gian & Địa điểm tổ chức
                   </h2>
                   <p className="text-[12px] text-zinc-500 dark:text-zinc-400">
                     Khu vực tại Đà Nẵng, địa chỉ chi tiết và khung giờ ca trực
@@ -760,7 +940,7 @@ export default function PostJobForm({
               </div>
             </div>
 
-            {/* KHỐI 3: THÙ LAO & QUYỀN LỢI */}
+            {/* KHỐI 4: QUYỀN LỢI & PHƯƠNG THỨC THANH TOÁN */}
             <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 sm:p-6 shadow-sm">
               <div className="flex items-center gap-2.5 pb-4 mb-5 border-b border-zinc-100 dark:border-zinc-800/80">
                 <div className="size-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-800 dark:text-zinc-200">
@@ -768,113 +948,35 @@ export default function PostJobForm({
                 </div>
                 <div>
                   <h2 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">
-                    3. Thù lao & Quyền lợi nhân sự
+                    4. Quyền lợi & Phương thức thanh toán
                   </h2>
                   <p className="text-[12px] text-zinc-500 dark:text-zinc-400">
-                    Mức hỗ trợ tài chính, hình thức chi trả và các chế độ đãi ngộ
+                    Hình thức chi trả và các chế độ đãi ngộ cho nhân sự
                   </p>
                 </div>
               </div>
 
               <div className="space-y-5">
-                {/* Hình thức tính thù lao (Segmented Selector) */}
+                {/* Phương thức thanh toán */}
                 <div>
-                  <label className="block text-[13px] font-medium text-zinc-700 dark:text-zinc-300 mb-2">
-                    Hình thức tính thù lao
+                  <label htmlFor="event-payment-method" className="block text-[13px] font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
+                    Phương thức thanh toán <span className="text-red-500">*</span>
                   </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                    {[
-                      { id: "per_shift", label: "Theo ca trực" },
-                      { id: "hourly", label: "Theo giờ" },
-                      { id: "per_event", label: "Trọn gói sự kiện" },
-                      { id: "volunteer", label: "Tình nguyện viên" },
-                    ].map((item) => {
-                      const isSelected = salaryType === item.id
-                      return (
-                        <button
-                          key={item.id}
-                          type="button"
-                          onClick={() => {
-                            if (setSalaryType) setSalaryType(item.id)
-                            if (item.id === "volunteer" && setSalaryAmount) {
-                              setSalaryAmount("0")
-                            }
-                            clearError("salaryAmount")
-                          }}
-                          className={`h-10 px-3 rounded-lg text-[13px] font-medium transition cursor-pointer border text-center ${
-                            isSelected
-                              ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-950"
-                              : "border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-800/40 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                          }`}
-                        >
-                          {item.label}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                {/* Mức thù lao & Phương thức thanh toán */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label htmlFor="event-salaryAmount" className="block text-[13px] font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
-                      Mức thù lao (VNĐ)
-                    </label>
-                    <div className="relative">
-                      <input
-                        id="event-salaryAmount"
-                        name="salaryAmount"
-                        type="text"
-                        disabled={salaryType === "volunteer"}
-                        placeholder={salaryType === "volunteer" ? "Không tính thù lao (TNV)" : "VD: 200000"}
-                        value={salaryType === "volunteer" ? "" : salaryAmount}
-                        onChange={(e) => {
-                          if (setSalaryAmount) setSalaryAmount(e.target.value.replace(/[^\d]/g, ""))
-                          clearError("salaryAmount")
-                        }}
-                        className={cn(
-                          "w-full h-10.5 px-3.5 pr-10 rounded-lg border bg-white dark:bg-zinc-800/50 text-[14px] text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none disabled:bg-zinc-100 dark:disabled:bg-zinc-800/60 disabled:cursor-not-allowed transition",
-                          errors.salaryAmount
-                            ? "border-rose-500 ring-1 ring-rose-500/20"
-                            : "border-zinc-300 dark:border-zinc-700 focus:border-zinc-900 dark:focus:border-zinc-100 focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-100"
-                        )}
-                      />
-                      <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-semibold text-zinc-400 pointer-events-none">
-                        đ
-                      </span>
-                    </div>
-                    {errors.salaryAmount && (
-                      <p className="text-[12px] text-rose-500 dark:text-rose-400 mt-1 font-medium flex items-center gap-1">
-                        {errors.salaryAmount}
-                      </p>
-                    )}
-                    {salaryAmount && !isNaN(Number(salaryAmount)) && Number(salaryAmount) > 0 && (
-                      <span className="text-[12px] text-zinc-500 mt-1 block">
-                        Quy đổi: <strong className="text-zinc-800 dark:text-zinc-200">{Number(salaryAmount).toLocaleString("vi-VN")} đ</strong>
-                      </span>
-                    )}
-                  </div>
-
-                  <div>
-                    <label htmlFor="event-payment-method" className="block text-[13px] font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
-                      Phương thức thanh toán
-                    </label>
-                    <CustomSelect
-                      id="event-payment-method"
-                      name="paymentMethod"
-                      value={paymentMethod}
-                      onChange={(val) => {
-                        if (setPaymentMethod) setPaymentMethod(val)
-                        clearError("paymentMethod")
-                      }}
-                      options={[
-                        { value: "cash_after_event", label: "Nhận tiền mặt ngay sau sự kiện" },
-                        { value: "bank_transfer", label: "Chuyển khoản sau khi kết thúc ca" },
-                        { value: "after_project", label: "Quyết toán sau chuỗi sự kiện" },
-                      ]}
-                      placeholder="Chọn phương thức thanh toán"
-                    />
-                  </div>
+                  <CustomSelect
+                    id="event-payment-method"
+                    name="paymentMethod"
+                    value={paymentMethod}
+                    onChange={(val) => {
+                      if (setPaymentMethod) setPaymentMethod(val)
+                      clearError("paymentMethod")
+                    }}
+                    options={[
+                      { value: "cash_after_event", label: "Nhận tiền mặt ngay sau sự kiện" },
+                      { value: "bank_transfer", label: "Chuyển khoản sau khi kết thúc ca" },
+                      { value: "after_project", label: "Quyết toán sau chuỗi sự kiện" },
+                    ]}
+                    placeholder="Chọn phương thức thanh toán"
+                  />
                 </div>
 
                 {/* Danh sách quyền lợi dạng Chips 1-chạm */}
@@ -910,7 +1012,7 @@ export default function PostJobForm({
               </div>
             </div>
 
-            {/* KHỐI 4: MÔ TẢ CÔNG VIỆC & KÊNH TIẾP NHẬN */}
+            {/* KHỐI 5: MÔ TẢ CHI TIẾT & KÊNH TIẾP NHẬN */}
             <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 sm:p-6 shadow-sm">
               <div className="flex items-center gap-2.5 pb-4 mb-5 border-b border-zinc-100 dark:border-zinc-800/80">
                 <div className="size-8 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-800 dark:text-zinc-200">
@@ -918,7 +1020,7 @@ export default function PostJobForm({
                 </div>
                 <div>
                   <h2 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">
-                    4. Mô tả chi tiết & Kênh tiếp nhận
+                    5. Mô tả chi tiết & Kênh tiếp nhận
                   </h2>
                   <p className="text-[12px] text-zinc-500 dark:text-zinc-400">
                     Nội dung nhiệm vụ, trang phục, lưu ý và link nhóm liên hệ
@@ -977,7 +1079,7 @@ export default function PostJobForm({
                     name="description"
                     rows={6}
                     required
-                    placeholder="• Nhiệm vụ: Hướng dẫn check-in, phát thẻ đeo, hỗ trợ điều phối chỗ ngồi...&#10;• Yêu cầu: Đúng giờ, nhiệt tình, có trách nhiệm, ưu tiên sinh viên các trường ĐH tại Đà Nẵng...&#10;• Trang phục: Áo thun trắng/đen, quần dài tối màu, giày thể thao..."
+                    placeholder="• Tổng quan: Giới thiệu sự kiện, mục tiêu và quy mô...&#10;• Yêu cầu chung: Đúng giờ, nhiệt tình, có trách nhiệm, ưu tiên sinh viên các trường ĐH tại Đà Nẵng...&#10;• Trang phục & Tác phong: Áo thun trắng/đen, quần dài tối màu, giày thể thao..."
                     value={desc}
                     onChange={(e) => {
                       setDesc(e.target.value)
@@ -1003,7 +1105,7 @@ export default function PostJobForm({
               </div>
             </div>
 
-            {/* KHỐI 4: TÙY CHỌN GÓI DỊCH VỤ & HIỂN THỊ ƯU TIÊN */}
+            {/* KHỐI 6: TÙY CHỌN GÓI DỊCH VỤ & HIỂN THỊ ƯU TIÊN */}
             <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 sm:p-6 shadow-sm">
               <div className="flex items-center gap-2.5 pb-4 mb-5 border-b border-zinc-100 dark:border-zinc-800/80">
                 <div className="size-8 rounded-lg bg-amber-50 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center shrink-0">
@@ -1011,7 +1113,7 @@ export default function PostJobForm({
                 </div>
                 <div>
                   <h2 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">
-                    4. Gói dịch vụ & Tùy chọn hiển thị ưu tiên
+                    6. Gói dịch vụ & Tùy chọn hiển thị ưu tiên
                   </h2>
                   <p className="text-[12px] text-zinc-500 dark:text-zinc-400">
                     Ghim tin tuyển gấp hoặc nổi bật trên trang chủ để tiếp cận ứng viên nhanh nhất

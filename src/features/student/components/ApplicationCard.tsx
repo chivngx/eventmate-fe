@@ -62,11 +62,15 @@ export default function ApplicationCard({
   const status = app.status || "pending"
   const timeAgo = formatTimeAgo(app.applied_at)
 
+  const positionTitle = app.event_positions?.title || event.position_type
+  const effectiveSalaryAmount = app.event_positions?.salary_amount ?? event.salary_amount
+  const effectiveSalaryType = app.event_positions?.salary_type ?? event.salary_type
+
   // Salary string
   const salaryDisplay = formatSalary
-    ? formatSalary(event.salary_amount, event.salary_type)
-    : event.salary_amount
-    ? `${event.salary_amount.toLocaleString("vi-VN")}đ`
+    ? formatSalary(effectiveSalaryAmount, effectiveSalaryType)
+    : effectiveSalaryAmount
+    ? `${effectiveSalaryAmount.toLocaleString("vi-VN")}đ`
     : "Thù lao thỏa thuận"
 
   // Date string
@@ -107,12 +111,19 @@ export default function ApplicationCard({
               </span>
             </div>
 
-            <Link
-              href={`/events/${event.id}`}
-              className="font-semibold text-base text-zinc-900 dark:text-zinc-100 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors line-clamp-1 block"
-            >
-              {event.title || "Vị trí Sự kiện"}
-            </Link>
+            <div className="flex items-center gap-2 flex-wrap">
+              <Link
+                href={`/events/${event.id}`}
+                className="font-semibold text-base text-zinc-900 dark:text-zinc-100 hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors line-clamp-1 block"
+              >
+                {event.title || "Vị trí Sự kiện"}
+              </Link>
+              {positionTitle && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-200/80 dark:border-indigo-800/60 shrink-0">
+                  {positionTitle}
+                </span>
+              )}
+            </div>
 
             {/* Quick Meta Chips */}
             <div className="flex flex-wrap items-center gap-y-1 gap-x-3 text-xs text-zinc-500 dark:text-zinc-400 pt-0.5">
@@ -278,6 +289,12 @@ export default function ApplicationCard({
                 </>
               )}
             </div>
+            {/* Student Note */}
+            {app.student_note && (
+              <div className="mt-3 p-3 rounded-lg bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-xs text-zinc-600 dark:text-zinc-300">
+                <span className="font-semibold text-zinc-800 dark:text-zinc-200">Lời nhắn của bạn:</span> {app.student_note}
+              </div>
+            )}
           </div>
 
           {/* Action Links & Buttons */}
@@ -302,7 +319,7 @@ export default function ApplicationCard({
                     onViewCertificate({
                       studentName: studentFullName,
                       eventTitle: event.title,
-                      position: event.position_type || "Nhân sự sự kiện",
+                      position: positionTitle || "Nhân sự sự kiện",
                       eventDate: event.event_date
                         ? new Date(event.event_date).toLocaleDateString("vi-VN")
                         : "2025",
