@@ -6,17 +6,12 @@ import {
   MapPin,
   CircleDollarSign,
   FileText,
-  Calendar,
-  Clock,
   Check,
   CheckCircle2,
   Circle,
-  Users,
   Eye,
-  ChevronDown,
   Sparkles,
   Flame,
-  Award,
   Lock,
   AlertTriangle,
   Plus,
@@ -80,8 +75,6 @@ export interface PostJobFormProps {
   setDesc: (val: string) => void
   isUrgent?: boolean
   setIsUrgent?: (val: boolean) => void
-  isFeatured?: boolean
-  setIsFeatured?: (val: boolean) => void
   isPremium?: boolean
   singleEventCredits?: number
   eventsThisMonthCount?: number
@@ -134,8 +127,6 @@ export default function PostJobForm({
   setDesc,
   isUrgent = false,
   setIsUrgent,
-  isFeatured = false,
-  setIsFeatured,
   isPremium = false,
   singleEventCredits = 0,
   eventsThisMonthCount = 0,
@@ -326,6 +317,7 @@ export default function PostJobForm({
     payment_method: paymentMethod,
     slots_needed: totalSlotsCount > 0 ? totalSlotsCount : 1,
     benefits: selectedBenefits,
+    is_urgent: isUrgent,
     created_at: new Date().toISOString(),
     danang_wards: selectedWard ? { id: selectedWard.id, name: selectedWard.name } : null,
     profiles: {
@@ -377,10 +369,10 @@ export default function PostJobForm({
       <form onSubmit={onSubmit} className="space-y-6">
         {/* 2-COLUMN LAYOUT: Form (Left 65%) + Live Preview Sticky (Right 35%) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          
+
           {/* CỘT TRÁI: FORM NHẬP LIỆU */}
           <div className="lg:col-span-7 xl:col-span-8 flex flex-col gap-6">
-            
+
             {/* KHỐI 1: THÔNG TIN SỰ KIỆN */}
             <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-5 sm:p-6 shadow-sm">
               <div className="flex items-center gap-2.5 pb-4 mb-5 border-b border-zinc-100 dark:border-zinc-800/80">
@@ -987,11 +979,10 @@ export default function PostJobForm({
                           key={b}
                           type="button"
                           onClick={() => toggleBenefit(b)}
-                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition cursor-pointer border select-none ${
-                            isChecked
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[13px] font-medium transition cursor-pointer border select-none ${isChecked
                               ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-950 shadow-xs"
                               : "border-zinc-200 dark:border-zinc-700 bg-zinc-50/50 dark:bg-zinc-800/40 text-zinc-700 dark:text-zinc-300 hover:border-zinc-300 dark:hover:border-zinc-600 hover:bg-zinc-100"
-                          }`}
+                            }`}
                         >
                           {isChecked ? (
                             <Check className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -1077,7 +1068,7 @@ export default function PostJobForm({
                     6. Gói dịch vụ & Tùy chọn hiển thị ưu tiên
                   </h2>
                   <p className="text-[12px] text-zinc-500 dark:text-zinc-400">
-                    Ghim tin tuyển gấp hoặc nổi bật trên trang chủ để tiếp cận ứng viên nhanh nhất
+                    Ghim tin tuyển gấp lên đầu danh sách để tiếp cận ứng viên nhanh nhất
                   </p>
                 </div>
               </div>
@@ -1124,37 +1115,6 @@ export default function PostJobForm({
                   />
                 </label>
 
-                {/* 2. Ghim tin Nổi bật trang chủ */}
-                <label className={cn(
-                  "p-4 rounded-xl border transition-all flex items-start justify-between gap-4 cursor-pointer",
-                  isFeatured ? "border-amber-300 bg-amber-50/50 dark:bg-amber-950/20 shadow-xs" : "border-zinc-200 dark:border-zinc-800 bg-zinc-50/40 dark:bg-zinc-800/30 hover:border-zinc-300",
-                  !isPremium && "opacity-75 cursor-not-allowed"
-                )}>
-                  <div className="flex items-start gap-3">
-                    <Award className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-                    <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[14px] font-semibold text-zinc-900 dark:text-zinc-100">
-                          Ghim Nổi Bật Trang Chủ
-                        </span>
-                        <span className="text-[10.5px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">
-                          Gói Doanh nghiệp VIP
-                        </span>
-                      </div>
-                      <p className="text-[12px] text-zinc-500 dark:text-zinc-400 mt-1 leading-relaxed">
-                        Đưa sự kiện vào khu vực Tin Nổi Bật hàng đầu với viền vàng kim và huy hiệu VIP.
-                      </p>
-                    </div>
-                  </div>
-                  <input
-                    type="checkbox"
-                    checked={isFeatured}
-                    disabled={!isPremium}
-                    onChange={(e) => setIsFeatured && setIsFeatured(e.target.checked)}
-                    className="size-5 rounded border-zinc-300 text-amber-600 focus:ring-amber-500 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed mt-0.5"
-                  />
-                </label>
-
                 {!isPremium && (
                   <div className="p-3 bg-zinc-100 dark:bg-zinc-800/60 rounded-lg flex items-center justify-between gap-3 text-xs text-zinc-600 dark:text-zinc-400">
                     <span className="flex items-center gap-1.5">
@@ -1176,7 +1136,7 @@ export default function PostJobForm({
 
           {/* CỘT PHẢI: LIVE PREVIEW STICKY & TIÊU CHUẨN ĐĂNG TIN */}
           <div className="lg:col-span-5 xl:col-span-4 lg:sticky lg:top-4 flex flex-col gap-5">
-            
+
             {/* THẺ PREVIEW CARD */}
             <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl p-4 sm:p-5 shadow-sm">
               <div className="flex items-center justify-between pb-3 mb-3.5 border-b border-zinc-100 dark:border-zinc-800">

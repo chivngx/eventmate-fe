@@ -15,8 +15,6 @@ ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.job_positions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.profile_views ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.profile_likes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
 
 -- -------------------------------------------------------------------------
@@ -114,7 +112,14 @@ CREATE POLICY "Allow public read on applications"
 
 DROP POLICY IF EXISTS "Allow students to insert their own applications" ON public.applications;
 CREATE POLICY "Allow students to insert their own applications" 
-  ON public.applications FOR INSERT TO authenticated WITH CHECK (auth.uid() = student_id);
+  ON public.applications FOR INSERT TO authenticated 
+  WITH CHECK (
+    auth.uid() = student_id 
+    AND EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = auth.uid() AND is_verified = true
+    )
+  );
 
 DROP POLICY IF EXISTS "Allow students to delete their own applications" ON public.applications;
 CREATE POLICY "Allow students to delete their own applications" 
@@ -234,38 +239,7 @@ CREATE POLICY "Cho phép mọi người xem vị trí công việc"
   ON public.job_positions FOR SELECT USING (true);
 
 -- -------------------------------------------------------------------------
--- 12. Bảng PROFILE_VIEWS
--- -------------------------------------------------------------------------
-DROP POLICY IF EXISTS "Users can view their profile view stats or what they viewed" ON public.profile_views;
-CREATE POLICY "Users can view their profile view stats or what they viewed"
-  ON public.profile_views FOR SELECT
-  USING (auth.uid() = student_id OR auth.uid() = viewer_id);
-
-DROP POLICY IF EXISTS "Authenticated users can record a profile view" ON public.profile_views;
-CREATE POLICY "Authenticated users can record a profile view"
-  ON public.profile_views FOR INSERT
-  WITH CHECK (auth.uid() = viewer_id AND auth.uid() != student_id);
-
--- -------------------------------------------------------------------------
--- 13. Bảng PROFILE_LIKES
--- -------------------------------------------------------------------------
-DROP POLICY IF EXISTS "Users can view profile likes" ON public.profile_likes;
-CREATE POLICY "Users can view profile likes"
-  ON public.profile_likes FOR SELECT
-  USING (auth.uid() = student_id OR auth.uid() = organizer_id);
-
-DROP POLICY IF EXISTS "Organizers can like a profile" ON public.profile_likes;
-CREATE POLICY "Organizers can like a profile"
-  ON public.profile_likes FOR INSERT
-  WITH CHECK (auth.uid() = organizer_id AND auth.uid() != student_id);
-
-DROP POLICY IF EXISTS "Organizers can unlike a profile" ON public.profile_likes;
-CREATE POLICY "Organizers can unlike a profile"
-  ON public.profile_likes FOR DELETE
-  USING (auth.uid() = organizer_id);
-
--- -------------------------------------------------------------------------
--- 14. Bảng TRANSACTIONS
+-- 13. Bảng TRANSACTIONS
 -- -------------------------------------------------------------------------
 DROP POLICY IF EXISTS "Users can view their own transactions or admin can view all" ON public.transactions;
 CREATE POLICY "Users can view their own transactions or admin can view all"

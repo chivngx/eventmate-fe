@@ -6,7 +6,6 @@ export interface ProfileCompletionInput {
   experiences?: unknown[] | null
   skills?: string[] | string | null
   bio?: string | null
-  cvUrl?: string | null
 }
 
 export interface MissingQualityItem {
@@ -58,14 +57,13 @@ export function calculateProfileCompletion(input: ProfileCompletionInput): Profi
 export function getStudentProfileCompletion(
   user: any,
   profile: any,
-  extra?: { experiences?: any[]; cvUrl?: string; skills?: any }
+  extra?: { experiences?: any[]; skills?: any }
 ): ProfileCompletionResult {
   const fullName = profile?.full_name || user?.user_metadata?.full_name || user?.user_metadata?.name || ""
   const avatarUrl = profile?.avatar_url || user?.user_metadata?.avatar_url || ""
   const phone = profile?.phone || user?.user_metadata?.phone || ""
   const university = profile?.university || user?.user_metadata?.university || ""
   const bio = profile?.bio || user?.user_metadata?.bio || ""
-  const cvUrl = extra?.cvUrl || profile?.cv_url || user?.user_metadata?.cv_url || ""
   const skills = extra?.skills !== undefined ? extra.skills : (profile?.skills || user?.user_metadata?.skills || "")
 
   let experiences = extra?.experiences
@@ -95,6 +93,5 @@ export function getStudentProfileCompletion(
     experiences,
     skills,
     bio,
-    cvUrl,
   })
 }

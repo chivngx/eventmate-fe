@@ -44,11 +44,10 @@ export async function GET(request: NextRequest) {
                 ? user.user_metadata.company_name
                 : (user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Thành viên mới')
             const bio = user.user_metadata?.description || user.user_metadata?.bio || null
-            const scale = user.user_metadata?.scale || user.user_metadata?.company_field || null
 
             const { data: existingProfile } = await supabase
                 .from('profiles')
-                .select('id, role, full_name, bio, scale')
+                .select('id, role, full_name, bio')
                 .eq('id', user.id)
                 .maybeSingle()
 
@@ -59,7 +58,6 @@ export async function GET(request: NextRequest) {
                 avatar_url: avatarUrl,
             }
             if (bio) profilePayload.bio = bio
-            if (scale) profilePayload.scale = scale
 
             if (!existingProfile) {
                 await supabase.from('profiles').insert({
@@ -74,9 +72,6 @@ export async function GET(request: NextRequest) {
                 }
                 if (bio && !existingProfile.bio) {
                     updatePayload.bio = bio
-                }
-                if (scale && !existingProfile.scale) {
-                    updatePayload.scale = scale
                 }
                 if (userRole && existingProfile.role !== userRole) {
                     updatePayload.role = userRole

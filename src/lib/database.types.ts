@@ -171,25 +171,19 @@ export type Database = {
       }
       event_categories: {
         Row: {
-          color: string | null
           created_at: string
-          icon: string | null
           id: number
           name: string
           slug: string | null
         }
         Insert: {
-          color?: string | null
           created_at?: string
-          icon?: string | null
           id?: number
           name: string
           slug?: string | null
         }
         Update: {
-          color?: string | null
           created_at?: string
-          icon?: string | null
           id?: number
           name?: string
           slug?: string | null
@@ -250,7 +244,6 @@ export type Database = {
           end_time: string | null
           event_date: string | null
           id: string
-          is_featured: boolean | null
           is_urgent: boolean | null
           location: string | null
           organizer_id: string
@@ -279,7 +272,6 @@ export type Database = {
           end_time?: string | null
           event_date?: string | null
           id?: string
-          is_featured?: boolean | null
           is_urgent?: boolean | null
           location?: string | null
           organizer_id: string
@@ -308,7 +300,6 @@ export type Database = {
           end_time?: string | null
           event_date?: string | null
           id?: string
-          is_featured?: boolean | null
           is_urgent?: boolean | null
           location?: string | null
           organizer_id?: string
@@ -440,78 +431,6 @@ export type Database = {
           },
         ]
       }
-      profile_likes: {
-        Row: {
-          created_at: string
-          id: string
-          organizer_id: string
-          student_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          organizer_id: string
-          student_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          organizer_id?: string
-          student_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "profile_likes_organizer_id_fkey"
-            columns: ["organizer_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "profile_likes_student_id_fkey"
-            columns: ["student_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      profile_views: {
-        Row: {
-          id: string
-          student_id: string
-          viewed_at: string
-          viewer_id: string
-        }
-        Insert: {
-          id?: string
-          student_id: string
-          viewed_at?: string
-          viewer_id: string
-        }
-        Update: {
-          id?: string
-          student_id?: string
-          viewed_at?: string
-          viewer_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "profile_views_student_id_fkey"
-            columns: ["student_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "profile_views_viewer_id_fkey"
-            columns: ["viewer_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       profiles: {
         Row: {
           address: string | null
@@ -520,12 +439,12 @@ export type Database = {
           birth_year: number | null
           created_at: string
           cv_completion_percent: number | null
-          cv_url: string | null
           email: string
           experiences: Json | null
           full_name: string
           gender: string | null
           id: string
+          id_card_hash: string | null
           is_premium: boolean
           is_verified: boolean | null
           map_embed_url: string | null
@@ -534,7 +453,6 @@ export type Database = {
           premium_until: string | null
           reliability_score: number | null
           role: string
-          scale: string | null
           single_event_credits: number
           skills: string | null
           slug: string | null
@@ -549,12 +467,12 @@ export type Database = {
           birth_year?: number | null
           created_at?: string
           cv_completion_percent?: number | null
-          cv_url?: string | null
           email: string
           experiences?: Json | null
           full_name: string
           gender?: string | null
           id: string
+          id_card_hash?: string | null
           is_premium?: boolean
           is_verified?: boolean | null
           map_embed_url?: string | null
@@ -563,7 +481,6 @@ export type Database = {
           premium_until?: string | null
           reliability_score?: number | null
           role: string
-          scale?: string | null
           single_event_credits?: number
           skills?: string | null
           slug?: string | null
@@ -578,12 +495,12 @@ export type Database = {
           birth_year?: number | null
           created_at?: string
           cv_completion_percent?: number | null
-          cv_url?: string | null
           email?: string
           experiences?: Json | null
           full_name?: string
           gender?: string | null
           id?: string
+          id_card_hash?: string | null
           is_premium?: boolean
           is_verified?: boolean | null
           map_embed_url?: string | null
@@ -592,7 +509,6 @@ export type Database = {
           premium_until?: string | null
           reliability_score?: number | null
           role?: string
-          scale?: string | null
           single_event_credits?: number
           skills?: string | null
           slug?: string | null
@@ -715,7 +631,6 @@ export type Database = {
         }
         Returns: Json
       }
-      clean_event_columns: { Args: never; Returns: undefined }
       complete_checkout_transaction: {
         Args: {
           p_amount: number
@@ -726,7 +641,6 @@ export type Database = {
         Returns: Json
       }
       confirm_payos_payment: { Args: { p_order_code: number }; Returns: Json }
-      record_profile_view: { Args: { p_student_id: string }; Returns: boolean }
       slugify: { Args: { t: string }; Returns: string }
     }
     Enums: {

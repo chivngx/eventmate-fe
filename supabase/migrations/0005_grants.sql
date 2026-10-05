@@ -15,8 +15,6 @@ REVOKE ALL ON public.messages FROM anon;
 REVOKE ALL ON public.reviews FROM anon;
 REVOKE ALL ON public.event_categories FROM anon;
 REVOKE ALL ON public.job_positions FROM anon;
-REVOKE ALL ON public.profile_views FROM anon;
-REVOKE ALL ON public.profile_likes FROM anon;
 REVOKE ALL ON public.transactions FROM anon;
 
 -- 2. Cấp quyền SELECT cho anon trên các bảng public-read
@@ -42,11 +40,8 @@ GRANT ALL ON TABLE public.messages TO authenticated, service_role, postgres;
 GRANT ALL ON TABLE public.reviews TO authenticated, service_role, postgres;
 GRANT ALL ON TABLE public.event_categories TO authenticated, service_role, postgres;
 GRANT ALL ON TABLE public.job_positions TO authenticated, service_role, postgres;
-GRANT ALL ON TABLE public.profile_views TO authenticated, service_role, postgres;
-GRANT ALL ON TABLE public.profile_likes TO authenticated, service_role, postgres;
 GRANT ALL ON TABLE public.transactions TO authenticated, service_role, postgres;
 
 -- 4. Cấp quyền thực thi các hàm RPC
-GRANT EXECUTE ON FUNCTION public.record_profile_view(UUID) TO authenticated, service_role, postgres;
 GRANT EXECUTE ON FUNCTION public.activate_premium_or_credits(TEXT, TEXT, BIGINT, TEXT) TO authenticated, service_role, postgres;
 GRANT EXECUTE ON FUNCTION public.confirm_payos_payment(BIGINT) TO anon, authenticated, service_role, postgres;

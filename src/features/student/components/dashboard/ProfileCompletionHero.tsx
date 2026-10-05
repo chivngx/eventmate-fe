@@ -1,26 +1,21 @@
 "use client"
 
 import Link from "next/link"
-import { Eye, Heart } from "lucide-react"
 
 interface ProfileCompletionHeroProps {
   fullName: string
   avatarUrl: string
   cvPercent: number
-  profileViewsCount: number
-  profileLikesCount: number
 }
 
 export default function ProfileCompletionHero({
   fullName,
   avatarUrl,
   cvPercent,
-  profileViewsCount,
-  profileLikesCount,
 }: ProfileCompletionHeroProps) {
   return (
     <div className="bg-white rounded-[16px] border border-[#ededed] shadow-xs p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative overflow-hidden">
-      {/* Left: Avatar + Completion Text + Linear Progress + Button */}
+      {/* Left: Avatar + Completion Text + Linear Progress */}
       <div className="flex items-center gap-[16px] flex-1 min-w-0">
         <div className="relative rounded-[64px] shrink-0 size-[88px] overflow-hidden border border-[#ededed]">
           <img
@@ -52,58 +47,17 @@ export default function ProfileCompletionHero({
               style={{ width: `${cvPercent}%` }}
             />
           </div>
-
-          {/* Complete your resume button */}
-          <Link
-            href="/profile"
-            className="flex items-center gap-[8px] h-[32px] text-zinc-900 font-['Inter'] font-semibold text-[14px] leading-[1.6] hover:text-black hover:underline cursor-pointer"
-          >
-            <span>Hoàn thiện hồ sơ</span>
-          </Link>
         </div>
       </div>
 
-      {/* Right: Insight cards */}
-      <div className="flex items-center gap-[16px] shrink-0 self-stretch sm:self-auto justify-start sm:justify-end">
-        {/* 1. Lượt xem hồ sơ */}
-        <div className="bg-white border border-[#ededed] flex flex-col gap-[12px] h-[96px] w-[116px] items-start justify-center px-[12px] py-[8px] rounded-[8px] shrink-0">
-          <div className="bg-white border border-[#ededed]/60 rounded-[4px] size-[32px] flex items-center justify-center shrink-0 shadow-xs">
-            <Eye className="size-[18px] text-[#282828]" />
-          </div>
-          <div className="flex flex-col gap-[4px] items-start leading-normal text-left whitespace-nowrap">
-            <div className="flex gap-[4px] items-center text-[#282828]">
-              <p className="font-['Inter'] font-semibold text-[14.8px]">
-                {profileViewsCount}
-              </p>
-              <p className="font-['Inter'] font-medium text-[10px] text-[#757575]">
-                người
-              </p>
-            </div>
-            <p className="font-['Inter'] font-medium text-[#757575] text-[10px]">
-              Đã xem hồ sơ
-            </p>
-          </div>
-        </div>
-
-        {/* 2. Lượt thích hồ sơ */}
-        <div className="bg-white border border-[#ededed] flex flex-col gap-[12px] h-[96px] w-[116px] items-start justify-center px-[12px] py-[8px] rounded-[8px] shrink-0">
-          <div className="bg-white border border-[#ededed]/60 rounded-[4px] size-[32px] flex items-center justify-center shrink-0 shadow-xs">
-            <Heart className="size-[18px] text-[#282828]" />
-          </div>
-          <div className="flex flex-col gap-[4px] items-start leading-normal text-left whitespace-nowrap">
-            <div className="flex gap-[4px] items-center text-[#282828]">
-              <p className="font-['Inter'] font-semibold text-[14.8px]">
-                {profileLikesCount}
-              </p>
-              <p className="font-['Inter'] font-medium text-[10px] text-[#757575]">
-                người
-              </p>
-            </div>
-            <p className="font-['Inter'] font-medium text-[#757575] text-[10px]">
-              Đã thích hồ sơ
-            </p>
-          </div>
-        </div>
+      {/* Right: Action button */}
+      <div className="shrink-0 self-stretch sm:self-auto flex items-center justify-end">
+        <Link
+          href="/profile"
+          className="inline-flex items-center justify-center px-4 py-2.5 bg-zinc-900 hover:bg-zinc-800 text-white rounded-xl text-[13.5px] font-semibold transition cursor-pointer shadow-xs"
+        >
+          Hoàn thiện hồ sơ &rarr;
+        </Link>
       </div>
     </div>
   )

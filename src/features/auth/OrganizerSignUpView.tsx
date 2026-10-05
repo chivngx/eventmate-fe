@@ -116,7 +116,6 @@ export default function OrganizerSignUpView({
                         job_title: step1Data.role.trim(),
                         role: "organizer",
                         company_field: orgField,
-                        scale: orgField,
                         bio: orgBio,
                     },
                     emailRedirectTo: `${typeof window !== "undefined" ? window.location.origin : ""}/auth/callback?role=organizer`,

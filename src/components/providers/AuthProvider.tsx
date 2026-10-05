@@ -28,13 +28,13 @@ export interface Profile {
   premium_until: string | null;
   mst: string | null;
   website: string | null;
-  scale: string | null;
   address: string | null;
   map_embed_url: string | null;
   reliability_score: number | null;
   is_verified: boolean | null;
-  cv_url: string | null;
   single_event_credits: number | null;
+  gender: string | null;
+  birth_year: number | null;
 }
 
 interface AuthContextValue {
@@ -53,7 +53,7 @@ async function fetchProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "id, role, email, full_name, avatar_url, phone, university, bio, skills, slug, cv_completion_percent, is_premium, premium_until, mst, website, scale, address, map_embed_url, is_verified, cv_url, reliability_score, single_event_credits",
+      "id, role, email, full_name, avatar_url, phone, university, bio, skills, slug, cv_completion_percent, is_premium, premium_until, mst, website, address, map_embed_url, is_verified, reliability_score, single_event_credits",
     )
     .eq("id", userId)
     .maybeSingle();
@@ -76,7 +76,6 @@ async function ensureProfile(user: User): Promise<Profile | null> {
       user.email?.split("@")[0] ||
       "Thành viên mới";
   const desiredBio = meta.description || meta.bio || null;
-  const desiredScale = meta.scale || meta.company_field || null;
 
   if (!p) {
     const fallbackRole = meta.role || "student";
@@ -90,7 +89,6 @@ async function ensureProfile(user: User): Promise<Profile | null> {
       role: fallbackRole,
       avatar_url: fallbackAvatar,
       bio: desiredBio,
-      scale: desiredScale,
     };
 
     await supabase.from("profiles").upsert(newProfile, { onConflict: "id" });
@@ -102,9 +100,6 @@ async function ensureProfile(user: User): Promise<Profile | null> {
     }
     if (desiredBio && !p.bio) {
       patch.bio = desiredBio;
-    }
-    if (desiredScale && !p.scale) {
-      patch.scale = desiredScale;
     }
     if (Object.keys(patch).length > 0) {
       await supabase.from("profiles").update(patch).eq("id", user.id);

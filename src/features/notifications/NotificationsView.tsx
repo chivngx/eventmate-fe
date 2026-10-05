@@ -19,9 +19,16 @@ import {
   MessageSquare,
   Search,
   ArrowRight,
+  Filter,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { getNotificationDestination, getDestinationLabel } from "@/lib/notification-routes"
+
+function stripEmojis(text: string) {
+  if (!text) return text
+  // Remove emojis and trim extra spaces
+  return text.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, '').replace(/\s+/g, ' ').trim()
+}
 
 function formatNotificationTime(dateStr: string) {
   try {
@@ -206,8 +213,8 @@ export default function NotificationsView({ embedded = false }: { embedded?: boo
     if (embedded) {
       return (
         <div className="flex h-[400px] w-full items-center justify-center">
-          <div className="size-6 border-2 border-slate-900 border-t-transparent rounded-full animate-spin mr-3" />
-          <span className="text-sm text-slate-500">Đang tải thông báo...</span>
+          <div className="size-6 border-2 border-zinc-900 border-t-transparent rounded-full animate-spin mr-3" />
+          <span className="text-sm text-zinc-500">Đang tải thông báo...</span>
         </div>
       )
     }
@@ -215,14 +222,14 @@ export default function NotificationsView({ embedded = false }: { embedded?: boo
   }
 
   const notifContent = (
-    <div className="max-w-[960px] w-full mx-auto space-y-6">
+    <div className="w-full space-y-8 font-['Inter',sans-serif] pb-12">
       {/* 1. Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-3xl font-bold text-zinc-900 dark:text-zinc-100 tracking-tight">
             Thông báo
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2 max-w-xl leading-relaxed">
             Quản lý và theo dõi toàn bộ thông báo về sự kiện, đơn ứng tuyển và hệ thống.
           </p>
         </div>
@@ -231,28 +238,27 @@ export default function NotificationsView({ embedded = false }: { embedded?: boo
           <button
             type="button"
             onClick={markAllAsRead}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 bg-white hover:bg-slate-100 border border-slate-200/80 rounded-xl transition-all shadow-2xs cursor-pointer shrink-0 self-start sm:self-auto"
+            className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-semibold text-zinc-700 dark:text-zinc-300 bg-white dark:bg-zinc-900 hover:bg-zinc-50 dark:hover:bg-zinc-800 border border-zinc-200/80 dark:border-zinc-800 rounded-xl transition-all shadow-sm cursor-pointer shrink-0"
           >
-            <CheckCheck className="size-4 text-slate-500" />
+            <CheckCheck className="size-4 text-zinc-500" />
             <span>Đánh dấu tất cả đã đọc</span>
           </button>
         )}
       </div>
 
-      {/* 2. Filter Toolbar */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-3 sm:p-4 shadow-2xs space-y-3">
-        {/* Row 1: Status Tabs & Search Input */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-          {/* Status Tabs */}
-          <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl w-fit">
+      {/* 2. Free-standing Filter Toolbar */}
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+          {/* Segmented Control */}
+          <div className="flex items-center p-1 bg-zinc-200/50 dark:bg-zinc-800/50 rounded-xl w-fit">
             <button
               type="button"
               onClick={() => setFilter("all")}
               className={cn(
-                "px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer",
+                "px-5 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer",
                 filter === "all"
-                  ? "bg-white text-slate-900 shadow-2xs font-semibold"
-                  : "text-slate-600 hover:text-slate-900"
+                  ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm"
+                  : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
               )}
             >
               Tất cả ({notifications.length})
@@ -261,15 +267,20 @@ export default function NotificationsView({ embedded = false }: { embedded?: boo
               type="button"
               onClick={() => setFilter("unread")}
               className={cn(
-                "px-3.5 py-1.5 rounded-lg text-sm font-medium transition-all cursor-pointer flex items-center gap-1.5",
+                "px-5 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer flex items-center gap-2",
                 filter === "unread"
-                  ? "bg-white text-slate-900 shadow-2xs font-semibold"
-                  : "text-slate-600 hover:text-slate-900"
+                  ? "bg-white dark:bg-zinc-700 text-zinc-900 dark:text-zinc-100 shadow-sm"
+                  : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200"
               )}
             >
               <span>Chưa đọc</span>
               {unreadCount > 0 && (
-                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-slate-200 text-slate-800">
+                <span className={cn(
+                  "px-2 py-0.5 rounded-full text-xs font-bold",
+                  filter === "unread" 
+                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400"
+                    : "bg-zinc-200 text-zinc-600 dark:bg-zinc-700 dark:text-zinc-300"
+                )}>
                   {unreadCount}
                 </span>
               )}
@@ -277,28 +288,33 @@ export default function NotificationsView({ embedded = false }: { embedded?: boo
           </div>
 
           {/* Search Input */}
-          <div className="relative w-full sm:w-72">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
+          <div className="relative w-full sm:w-80">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 size-4.5 text-zinc-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Tìm kiếm thông báo..."
-              className="w-full h-10 pl-10 pr-3.5 text-sm bg-slate-50 border border-slate-200/80 rounded-xl focus:outline-none focus:bg-white focus:border-slate-400 transition-all placeholder:text-slate-400"
+              className="w-full h-11 pl-11 pr-4 text-sm bg-white dark:bg-zinc-900 border border-zinc-200/80 dark:border-zinc-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:focus:ring-zinc-100/10 focus:border-zinc-400 dark:focus:border-zinc-500 transition-all placeholder:text-zinc-400 shadow-sm"
             />
           </div>
         </div>
 
-        {/* Row 2: Category Filter Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pt-2 border-t border-slate-100">
+        {/* Category Filter Pills */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 border-r border-zinc-300 dark:border-zinc-700 mr-2 shrink-0 text-zinc-400">
+            <Filter className="size-4" />
+            <span className="text-xs font-medium uppercase tracking-wider">Lọc:</span>
+          </div>
+          
           <button
             type="button"
             onClick={() => setCategoryFilter("all")}
             className={cn(
-              "px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer",
+              "px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap cursor-pointer shrink-0 border",
               categoryFilter === "all"
-                ? "bg-slate-900 text-white"
-                : "text-slate-600 hover:bg-slate-100"
+                ? "bg-zinc-900 border-zinc-900 text-white dark:bg-zinc-100 dark:border-zinc-100 dark:text-zinc-900 shadow-sm"
+                : "bg-white border-zinc-200/80 text-zinc-600 hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800"
             )}
           >
             Tất cả danh mục
@@ -307,10 +323,10 @@ export default function NotificationsView({ embedded = false }: { embedded?: boo
             type="button"
             onClick={() => setCategoryFilter("application")}
             className={cn(
-              "px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5",
+              "px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap cursor-pointer flex items-center gap-2 shrink-0 border",
               categoryFilter === "application"
-                ? "bg-slate-900 text-white"
-                : "text-slate-600 hover:bg-slate-100"
+                ? "bg-zinc-900 border-zinc-900 text-white dark:bg-zinc-100 dark:border-zinc-100 dark:text-zinc-900 shadow-sm"
+                : "bg-white border-zinc-200/80 text-zinc-600 hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800"
             )}
           >
             <Briefcase className="size-4" />
@@ -320,10 +336,10 @@ export default function NotificationsView({ embedded = false }: { embedded?: boo
             type="button"
             onClick={() => setCategoryFilter("event")}
             className={cn(
-              "px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5",
+              "px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap cursor-pointer flex items-center gap-2 shrink-0 border",
               categoryFilter === "event"
-                ? "bg-slate-900 text-white"
-                : "text-slate-600 hover:bg-slate-100"
+                ? "bg-zinc-900 border-zinc-900 text-white dark:bg-zinc-100 dark:border-zinc-100 dark:text-zinc-900 shadow-sm"
+                : "bg-white border-zinc-200/80 text-zinc-600 hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800"
             )}
           >
             <CalendarDays className="size-4" />
@@ -333,10 +349,10 @@ export default function NotificationsView({ embedded = false }: { embedded?: boo
             type="button"
             onClick={() => setCategoryFilter("system")}
             className={cn(
-              "px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all whitespace-nowrap cursor-pointer flex items-center gap-1.5",
+              "px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap cursor-pointer flex items-center gap-2 shrink-0 border",
               categoryFilter === "system"
-                ? "bg-slate-900 text-white"
-                : "text-slate-600 hover:bg-slate-100"
+                ? "bg-zinc-900 border-zinc-900 text-white dark:bg-zinc-100 dark:border-zinc-100 dark:text-zinc-900 shadow-sm"
+                : "bg-white border-zinc-200/80 text-zinc-600 hover:bg-zinc-50 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800"
             )}
           >
             <Bell className="size-4" />
@@ -346,24 +362,24 @@ export default function NotificationsView({ embedded = false }: { embedded?: boo
       </div>
 
       {/* 3. Notifications List */}
-      <div className="space-y-3">
+      <div className="space-y-4">
         {filteredList.length === 0 ? (
-          <div className="border border-dashed border-slate-200 rounded-2xl bg-white/60 p-12 text-center flex flex-col items-center justify-center">
-            <div className="size-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
-              <BellOff className="size-6" />
+          <div className="border border-dashed border-zinc-200 dark:border-zinc-800 rounded-3xl bg-white/40 dark:bg-zinc-900/40 p-16 text-center flex flex-col items-center justify-center">
+            <div className="size-16 rounded-2xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 flex items-center justify-center mb-4">
+              <BellOff className="size-8" />
             </div>
-            <h3 className="text-base font-semibold text-slate-800">
+            <h3 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">
               {searchQuery.trim() || categoryFilter !== "all"
                 ? "Không tìm thấy thông báo phù hợp"
                 : filter === "unread"
                   ? "Không có thông báo chưa đọc"
                   : "Chưa có thông báo nào"}
             </h3>
-            <p className="text-sm text-slate-500 mt-1 max-w-[360px] leading-relaxed">
+            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2 max-w-[400px] leading-relaxed">
               {searchQuery.trim() || categoryFilter !== "all"
                 ? "Hãy thử tìm với từ khóa khác hoặc chuyển danh mục hiển thị."
                 : filter === "unread"
-                  ? "Bạn đã đọc hết tất cả thông báo gần đây."
+                  ? "Bạn đã đọc hết tất cả thông báo gần đây. Thật tuyệt vời!"
                   : isOrganizer
                     ? "Khi có ứng viên mới, cập nhật sự kiện hoặc báo cáo tuyển dụng, thông báo sẽ hiển thị tại đây."
                     : "Khi có kết quả duyệt hồ sơ, lời mời sự kiện hoặc lịch trình mới, thông báo sẽ hiển thị tại đây."}
@@ -377,15 +393,27 @@ export default function NotificationsView({ embedded = false }: { embedded?: boo
             const destLabel = getDestinationLabel(dest)
             const hasNavDestination = dest && dest !== "/notifications"
 
-            // Category Icon
+            // Icon Component and Colors by Category
             let IconComponent = Bell
+            let iconBgColor = "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300"
+            let dotColor = "bg-zinc-900 dark:bg-zinc-100"
+
             if (category === "application") {
               IconComponent = isOrganizer ? UserCheck : Briefcase
+              iconBgColor = "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400"
+              dotColor = "bg-blue-500"
             } else if (category === "event") {
               IconComponent = CalendarDays
+              iconBgColor = "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400"
+              dotColor = "bg-emerald-500"
             } else if (category === "message") {
               IconComponent = MessageSquare
+              iconBgColor = "bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400"
+              dotColor = "bg-purple-500"
             }
+
+            const cleanTitle = stripEmojis(notif.title || "Thông báo từ EventMate")
+            const cleanMessage = stripEmojis(notif.message || "")
 
             const handleCardClick = async () => {
               if (isUnread) {
@@ -409,82 +437,93 @@ export default function NotificationsView({ embedded = false }: { embedded?: boo
                   }
                 }}
                 className={cn(
-                  "p-4 sm:p-5 rounded-2xl border transition-all cursor-pointer flex items-start justify-between gap-4 group select-none",
+                  "relative p-5 sm:p-6 rounded-2xl border transition-all duration-200 cursor-pointer flex flex-col sm:flex-row items-start gap-5 sm:gap-6 group select-none overflow-hidden",
                   isUnread
-                    ? "bg-slate-50/70 border-slate-200/90 hover:border-slate-300 hover:bg-slate-100/70 shadow-2xs"
-                    : "bg-white border-slate-200/80 hover:border-slate-300 hover:shadow-2xs"
+                    ? "bg-white dark:bg-zinc-900 border-zinc-200/90 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 hover:shadow-md shadow-sm"
+                    : "bg-white dark:bg-zinc-900 border-zinc-200/60 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700 hover:shadow-sm"
                 )}
               >
-                {/* Left: Icon & Content */}
-                <div className="flex items-start gap-4 flex-1 min-w-0">
-                  <div
-                    className={cn(
-                      "size-11 rounded-xl flex items-center justify-center shrink-0 mt-0.5 border transition-colors",
-                      isUnread
-                        ? "bg-white border-slate-200 text-slate-900 shadow-2xs"
-                        : "bg-slate-100 border-transparent text-slate-500"
-                    )}
-                  >
-                    <IconComponent className="size-5" />
-                  </div>
+                {/* Unread Accent Bar on the very left edge */}
+                {isUnread && (
+                  <div className={cn("absolute left-0 top-0 bottom-0 w-1", dotColor)} />
+                )}
 
-                  <div className="space-y-1.5 flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h4 className="text-[15px] font-semibold text-slate-900 group-hover:text-zinc-950 transition-colors leading-snug truncate">
-                        {notif.title || "Thông báo từ EventMate"}
-                      </h4>
-                      {isUnread && (
-                        <span className="size-2 rounded-full bg-zinc-950 shrink-0" />
-                      )}
-                    </div>
-
-                    <p className="text-sm text-slate-600 leading-relaxed break-words">
-                      {notif.message}
-                    </p>
-
-                    <div className="flex items-center gap-3 pt-1">
-                      <span className="text-xs text-slate-400 font-normal">
-                        {formatNotificationTime(notif.created_at)}
-                      </span>
-
-                      {/* Target Destination Hint */}
-                      {hasNavDestination && (
-                        <span className="inline-flex items-center gap-1 text-xs sm:text-sm font-medium text-slate-500 group-hover:text-zinc-950 transition-colors">
-                          <span>{destLabel}</span>
-                          <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
-                        </span>
-                      )}
-                    </div>
-                  </div>
+                {/* Left: Big Icon Container */}
+                <div
+                  className={cn(
+                    "size-12 sm:size-14 rounded-2xl flex items-center justify-center shrink-0 border border-transparent transition-colors",
+                    isUnread
+                      ? "shadow-sm bg-white dark:bg-zinc-800 ring-1 ring-zinc-200/60 dark:ring-zinc-700" 
+                      : iconBgColor,
+                    isUnread ? iconBgColor.split(" ")[2] : "" // Reuse the text color if unread
+                  )}
+                >
+                  <IconComponent className="size-6 sm:size-7 stroke-[1.5]" />
                 </div>
 
-                {/* Right: Actions */}
-                <div className="shrink-0 flex items-center gap-1.5">
-                  {isUnread && (
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        markAsRead(notif.id)
-                      }}
-                      title="Đánh dấu đã đọc"
-                      className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer"
-                    >
-                      <Check className="size-4" />
-                    </button>
-                  )}
+                {/* Center: Main Content */}
+                <div className="flex-1 min-w-0 flex flex-col sm:flex-row gap-4 w-full">
+                  <div className="flex-1 min-w-0 space-y-2">
+                    <div className="flex items-center gap-2.5">
+                      <h4 className="text-base sm:text-[17px] font-bold text-zinc-900 dark:text-zinc-100 group-hover:text-black dark:group-hover:text-white transition-colors truncate">
+                        {cleanTitle}
+                      </h4>
+                      {isUnread && (
+                        <span className={cn("size-2.5 rounded-full shrink-0 shadow-sm", dotColor)} />
+                      )}
+                    </div>
 
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      deleteNotification(notif.id)
-                    }}
-                    title="Xóa thông báo"
-                    className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                  >
-                    <Trash2 className="size-4" />
-                  </button>
+                    <p className="text-[14px] sm:text-[15px] text-zinc-500 dark:text-zinc-400 leading-relaxed break-words line-clamp-2">
+                      {cleanMessage}
+                    </p>
+
+                    {/* Target Destination Hint as a Button */}
+                    {hasNavDestination && (
+                      <div className="pt-2">
+                        <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-sm font-semibold text-zinc-700 dark:text-zinc-300 group-hover:bg-zinc-200 dark:group-hover:bg-zinc-700 transition-colors">
+                          <span>{destLabel}</span>
+                          <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right: Time & Actions */}
+                  <div className="shrink-0 flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-start w-full sm:w-auto mt-2 sm:mt-0 gap-3">
+                    {/* Time */}
+                    <span className="text-[13px] sm:text-sm text-zinc-400 dark:text-zinc-500 font-medium whitespace-nowrap">
+                      {formatNotificationTime(notif.created_at)}
+                    </span>
+
+                    {/* Actions container (Visible on hover for desktop, always visible on mobile) */}
+                    <div className="flex items-center gap-1.5 sm:opacity-0 group-hover:opacity-100 transition-opacity">
+                      {isUnread && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            markAsRead(notif.id)
+                          }}
+                          title="Đánh dấu đã đọc"
+                          className="p-2 sm:p-2.5 rounded-xl text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+                        >
+                          <Check className="size-4.5" />
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          deleteNotification(notif.id)
+                        }}
+                        title="Xóa thông báo"
+                        className="p-2 sm:p-2.5 rounded-xl text-zinc-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="size-4.5" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             )

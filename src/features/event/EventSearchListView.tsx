@@ -115,7 +115,6 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
             slots_needed,
             benefits,
             is_urgent,
-            is_featured,
             bumped_at,
             plan_tier,
             profiles (
@@ -130,7 +129,6 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
             )
           `)
           .is("deleted_at", null)
-          .order("is_featured", { ascending: false, nullsFirst: false })
           .order("is_urgent", { ascending: false, nullsFirst: false })
           .order("bumped_at", { ascending: false, nullsFirst: false })
           .order("created_at", { ascending: false })

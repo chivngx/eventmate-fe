@@ -23,13 +23,14 @@ export function useAccountSettings() {
   const [fullName, setFullName] = useState<string>("")
   const [email, setEmail] = useState<string>("")
   const [phone, setPhone] = useState<string>("")
+  const [gender, setGender] = useState<string>("Khác")
+  const [birthYear, setBirthYear] = useState<string>("")
   const [university, setUniversity] = useState<string>("")
   const [bio, setBio] = useState<string>("")
   const [skills, setSkills] = useState<string>("")
   const [avatarUrl, setAvatarUrl] = useState<string>("")
   const [mst, setMst] = useState<string>("")
   const [website, setWebsite] = useState<string>("")
-  const [scale, setScale] = useState<string>("")
   const [address, setAddress] = useState<string>("")
   const [mapEmbedUrl, setMapEmbedUrl] = useState<string>("")
   const [reliabilityScore, setReliabilityScore] = useState<number>(100)
@@ -88,11 +89,12 @@ export function useAccountSettings() {
       setAvatarUrl(p.avatar_url || "")
       setMst(p.mst || "")
       setWebsite(p.website || "")
-      setScale(p.scale || "")
       setAddress(p.address || "")
       setMapEmbedUrl(p.map_embed_url || "")
       setReliabilityScore(p.reliability_score ?? 100)
       setIsVerified(Boolean(p.is_verified))
+      setGender(p.gender || "Khác")
+      setBirthYear(p.birth_year ? String(p.birth_year) : "")
     }
 
     // Load student preferences (prefer user_metadata, fallback to localStorage)
@@ -182,9 +184,12 @@ export function useAccountSettings() {
       updatePayload.university = fullName.trim() // Keep synchronized with organization name
       updatePayload.mst = mst.trim()
       updatePayload.website = website.trim()
-      updatePayload.scale = scale.trim()
       updatePayload.address = address.trim()
       updatePayload.map_embed_url = mapEmbedUrl.trim()
+    } else {
+      const byear = birthYear.trim() ? parseInt(birthYear.trim(), 10) : null
+      updatePayload.gender = gender
+      updatePayload.birth_year = isNaN(byear as number) ? null : byear
     }
 
     const { error } = await supabase
@@ -380,6 +385,10 @@ export function useAccountSettings() {
     email,
     phone,
     setPhone,
+    gender,
+    setGender,
+    birthYear,
+    setBirthYear,
     university,
     setUniversity,
     bio,
@@ -391,8 +400,6 @@ export function useAccountSettings() {
     setMst,
     website,
     setWebsite,
-    scale,
-    setScale,
     address,
     setAddress,
     mapEmbedUrl,

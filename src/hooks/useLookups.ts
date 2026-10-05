@@ -76,7 +76,7 @@ export function useEventCategories() {
         queryFn: async () => {
             const { data, error } = await supabase
                 .from("event_categories")
-                .select("name, slug, icon, color")
+                .select("name, slug")
                 .order("name", { ascending: true })
             if (error) throw error
             return data ?? []

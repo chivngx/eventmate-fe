@@ -29,14 +29,13 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     cv_completion_percent INT DEFAULT 0,
     mst TEXT,
     website TEXT,
-    scale TEXT,
     address TEXT,
     is_premium BOOLEAN NOT NULL DEFAULT FALSE,
     premium_until TIMESTAMPTZ,
     single_event_credits INT DEFAULT 0,
     reliability_score NUMERIC DEFAULT 100,
     is_verified BOOLEAN DEFAULT FALSE,
-    cv_url TEXT,
+    id_card_hash TEXT UNIQUE,
     experiences JSONB DEFAULT '[]'::jsonb,
     social_link TEXT,
     gender TEXT,
@@ -51,8 +50,6 @@ CREATE INDEX IF NOT EXISTS idx_profiles_slug ON public.profiles(slug);
 CREATE TABLE IF NOT EXISTS public.event_categories (
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL UNIQUE,
-    icon TEXT,
-    color TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
     slug TEXT UNIQUE
 );
@@ -89,7 +86,6 @@ CREATE TABLE IF NOT EXISTS public.events (
     slots_needed INT DEFAULT 1,
     slug TEXT UNIQUE,
     is_urgent BOOLEAN DEFAULT FALSE,
-    is_featured BOOLEAN DEFAULT FALSE,
     bumped_at TIMESTAMPTZ DEFAULT NULL,
     qr_checkin_code TEXT DEFAULT NULL,
     plan_tier TEXT DEFAULT 'free',
@@ -100,7 +96,7 @@ CREATE INDEX IF NOT EXISTS idx_events_organizer_id ON public.events(organizer_id
 CREATE INDEX IF NOT EXISTS idx_events_ward_id ON public.events(ward_id);
 CREATE INDEX IF NOT EXISTS idx_events_status ON public.events(status);
 CREATE INDEX IF NOT EXISTS idx_events_slug ON public.events(slug);
-CREATE INDEX IF NOT EXISTS idx_events_ranking ON public.events (is_featured DESC NULLS LAST, is_urgent DESC NULLS LAST, bumped_at DESC NULLS LAST, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_events_ranking ON public.events (is_urgent DESC NULLS LAST, bumped_at DESC NULLS LAST, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_events_qr_code ON public.events (qr_checkin_code) WHERE qr_checkin_code IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_events_deleted_at ON public.events (deleted_at) WHERE deleted_at IS NULL;
 
@@ -198,31 +194,7 @@ CREATE TABLE IF NOT EXISTS public.reviews (
 
 CREATE INDEX IF NOT EXISTS idx_reviews_reviewee ON public.reviews(reviewee_id);
 
--- 13. Bảng PROFILE_VIEWS (Lượt xem hồ sơ ứng viên)
-CREATE TABLE IF NOT EXISTS public.profile_views (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    student_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-    viewer_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-    viewed_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
-);
-
-CREATE INDEX IF NOT EXISTS idx_profile_views_student_id ON public.profile_views(student_id);
-CREATE INDEX IF NOT EXISTS idx_profile_views_viewer_id ON public.profile_views(viewer_id);
-CREATE INDEX IF NOT EXISTS idx_profile_views_viewed_at ON public.profile_views(viewed_at DESC);
-
--- 14. Bảng PROFILE_LIKES (Lưu / Thích hồ sơ ứng viên)
-CREATE TABLE IF NOT EXISTS public.profile_likes (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    student_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-    organizer_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-    created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
-    CONSTRAINT unique_organizer_student_like UNIQUE (organizer_id, student_id)
-);
-
-CREATE INDEX IF NOT EXISTS idx_profile_likes_student_id ON public.profile_likes(student_id);
-CREATE INDEX IF NOT EXISTS idx_profile_likes_organizer_id ON public.profile_likes(organizer_id);
-
--- 15. Bảng TRANSACTIONS (Lịch sử giao dịch & cổng thanh toán PayOS)
+-- 13. Bảng TRANSACTIONS (Lịch sử giao dịch & cổng thanh toán PayOS)
 CREATE TABLE IF NOT EXISTS public.transactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,

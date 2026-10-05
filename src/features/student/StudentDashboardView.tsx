@@ -28,8 +28,6 @@ export default function JobSeekerDashboard() {
   })
   const [upcomingShifts, setUpcomingShifts] = useState<any[]>([])
   const [recentChats, setRecentChats] = useState<any[]>([])
-  const [profileViewsCount, setProfileViewsCount] = useState(0)
-  const [profileLikesCount, setProfileLikesCount] = useState(0)
 
   // Calculate real profile completion (Thống nhất 100% với Profile Page)
   const cvPercent = useMemo(() => {
@@ -139,25 +137,6 @@ export default function JobSeekerDashboard() {
         setRecentChats(chatsData)
       }
 
-      // 4. Fetch Real Profile Views & Profile Likes count
-      const [viewsRes, likesRes] = await Promise.all([
-        supabase
-          .from("profile_views")
-          .select("id", { count: "exact", head: true })
-          .eq("student_id", user.id),
-        supabase
-          .from("profile_likes")
-          .select("id", { count: "exact", head: true })
-          .eq("student_id", user.id),
-      ])
-
-      if (viewsRes.count !== null && viewsRes.count !== undefined) {
-        setProfileViewsCount(viewsRes.count)
-      }
-      if (likesRes.count !== null && likesRes.count !== undefined) {
-        setProfileLikesCount(likesRes.count)
-      }
-
       setLoading(false)
     }
 
@@ -185,8 +164,6 @@ export default function JobSeekerDashboard() {
             fullName={fullName}
             avatarUrl={avatarUrl}
             cvPercent={cvPercent}
-            profileViewsCount={profileViewsCount}
-            profileLikesCount={profileLikesCount}
           />
 
           <StudentUpcomingShifts shifts={upcomingShifts} />

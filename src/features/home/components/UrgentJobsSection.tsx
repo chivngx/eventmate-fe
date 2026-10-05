@@ -51,7 +51,6 @@ export default function UrgentJobsSection({
             slots_needed,
             benefits,
             is_urgent,
-            is_featured,
             bumped_at,
             plan_tier,
             profiles (
@@ -97,7 +96,6 @@ export default function UrgentJobsSection({
                 slots_needed,
                 benefits,
                 is_urgent,
-                is_featured,
                 bumped_at,
                 plan_tier,
                 profiles (

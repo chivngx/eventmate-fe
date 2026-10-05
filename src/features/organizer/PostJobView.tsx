@@ -42,7 +42,6 @@ export default function PostJobView() {
   const [paymentMethod, setPaymentMethod] = useState("cash_after_event")
   const [applicationDeadline, setApplicationDeadline] = useState("")
   const [isUrgent, setIsUrgent] = useState(false)
-  const [isFeatured, setIsFeatured] = useState(false)
   const [existingQrCode, setExistingQrCode] = useState<string | null>(null)
   const [eventsThisMonth, setEventsThisMonth] = useState<number>(0)
 
@@ -217,7 +216,6 @@ export default function PostJobView() {
         const canKeepUrgent = isPremium || isSingleEvent
         const canKeepQr = isPremium || isSingleEvent
         setIsUrgent(canKeepUrgent ? Boolean(data.is_urgent) : false)
-        setIsFeatured(isPremium ? Boolean(data.is_featured) : false)
         setExistingQrCode(canKeepQr ? data.qr_checkin_code || null : null)
 
         // Fetch positions for this event
@@ -318,7 +316,6 @@ export default function PostJobView() {
     const willBeSingleEvent = !isPremium && (singleEventCredits || 0) > 0
     const canUseUrgent = isPremium || willBeSingleEvent
     const canUseQR = isPremium || willBeSingleEvent
-    const canUseFeatured = isPremium
 
     const qrCode = canUseQR
       ? existingQrCode || Math.random().toString(36).substring(2, 8).toUpperCase()
@@ -355,7 +352,6 @@ export default function PostJobView() {
       payment_method: paymentMethod,
       application_deadline: applicationDeadline ? new Date(applicationDeadline).toISOString() : null,
       is_urgent: canUseUrgent ? isUrgent : false,
-      is_featured: canUseFeatured ? isFeatured : false,
       plan_tier: assignedTier,
       qr_checkin_code: qrCode,
     }
@@ -502,8 +498,6 @@ export default function PostJobView() {
         setDesc={setDesc}
         isUrgent={isUrgent}
         setIsUrgent={setIsUrgent}
-        isFeatured={isFeatured}
-        setIsFeatured={setIsFeatured}
         isPremium={isPremium}
         singleEventCredits={singleEventCredits || 0}
         eventsThisMonthCount={eventsThisMonth}

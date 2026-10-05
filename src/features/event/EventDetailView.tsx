@@ -65,7 +65,7 @@ export default function EventDetail() {
             const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id || "")
             let eventQuery = supabase
                 .from("events")
-                .select("*, profiles(id, full_name, avatar_url, slug, scale, address, is_verified, bio), danang_wards(name)")
+                .select("*, profiles(id, full_name, avatar_url, slug, address, is_verified, bio), danang_wards(name)")
 
             if (isUuid) {
                 eventQuery = eventQuery.eq("id", id)
@@ -177,6 +177,17 @@ export default function EventDetail() {
 
     const openApplyModal = (preferredPositionId?: string) => {
         if (!requireAuth("Vui lòng đăng nhập để ứng tuyển sự kiện này.")) return
+        
+        if (role === "student" && !profile?.is_verified) {
+            showToast({
+                title: "Yêu cầu xác thực tài khoản",
+                message: "Bạn cần hoàn tất xác thực CCCD (eKYC) trong Cài đặt tài khoản trước khi ứng tuyển sự kiện.",
+                type: "error",
+            })
+            navigate("/account")
+            return
+        }
+
         if (preferredPositionId) {
             setSelectedPositionId(preferredPositionId)
         } else if (event?.event_positions && event.event_positions.length > 0) {
@@ -667,7 +678,7 @@ export default function EventDetail() {
                                     </div>
                                     <div className="flex flex-col min-w-0">
                                         <span className="font-bold text-slate-900 text-[16px] truncate">{event.profiles?.full_name}</span>
-                                        <span className="text-[14px] text-slate-500 truncate mt-0.5">{event.profiles?.scale || "Tổ chức sự kiện"}</span>
+                                        <span className="text-[14px] text-slate-500 truncate mt-0.5">Tổ chức sự kiện</span>
                                     </div>
                                 </div>
 

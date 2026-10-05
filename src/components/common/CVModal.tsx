@@ -1,6 +1,5 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import {
   X,
   Phone,
@@ -8,7 +7,6 @@ import {
   Sparkles,
   ShieldCheck,
   ExternalLink,
-  Heart,
   Calendar,
   User,
   Globe,
@@ -17,8 +15,6 @@ import {
   Mail,
 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useUser } from "@/components/providers/AuthProvider"
-import { supabase } from "@/lib/supabase"
 
 export interface CVExperienceItem {
   id?: string
@@ -43,7 +39,6 @@ export interface CVProfileData {
   gender?: string | null
   birth_year?: string | number | null
   social_link?: string | null
-  cv_url?: string | null
   experiences?: CVExperienceItem[] | string | null
 }
 
@@ -61,56 +56,6 @@ export default function CVModal({
   onClose,
 }: CVModalProps) {
   const data = profile || viewingCV
-  const { user } = useUser()
-  const [isLiked, setIsLiked] = useState(false)
-  const [isLiking, setIsLiking] = useState(false)
-
-  const studentId = data?.id || data?.student_id
-
-  // 1. Tự động ghi nhận lượt xem & kiểm tra trạng thái Like (khi là Organizer xem hồ sơ ứng viên)
-  useEffect(() => {
-    if (!studentId || !user || user.id === studentId) return
-
-    // Ghi nhận view
-    supabase.rpc("record_profile_view", { p_student_id: studentId }).then()
-
-    // Kiểm tra trạng thái đã Like
-    const checkLike = async () => {
-      const { data: likeData } = await supabase
-        .from("profile_likes")
-        .select("id")
-        .eq("student_id", studentId)
-        .eq("organizer_id", user.id)
-        .maybeSingle()
-      setIsLiked(Boolean(likeData))
-    }
-    checkLike()
-  }, [studentId, user])
-
-  // 2. Thao tác Like / Bookmark ứng viên
-  const handleToggleLike = async () => {
-    if (!user || !studentId || user.id === studentId || isLiking) return
-    setIsLiking(true)
-    try {
-      if (isLiked) {
-        await supabase
-          .from("profile_likes")
-          .delete()
-          .eq("student_id", studentId)
-          .eq("organizer_id", user.id)
-        setIsLiked(false)
-      } else {
-        await supabase
-          .from("profile_likes")
-          .insert({ student_id: studentId, organizer_id: user.id })
-        setIsLiked(true)
-      }
-    } catch (err) {
-      console.error("Lỗi khi thích hồ sơ:", err)
-    } finally {
-      setIsLiking(false)
-    }
-  }
 
   if (!isOpen || !data) return null
 
@@ -134,8 +79,6 @@ export default function CVModal({
     : typeof data.skills === "string"
       ? data.skills.split(",").map((s) => s.trim()).filter(Boolean)
       : []
-
-  const isExternalViewer = user && studentId && user.id !== studentId
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 overflow-y-auto print:p-0 print:bg-white print:static animate-in fade-in duration-200">
@@ -317,24 +260,7 @@ export default function CVModal({
         </div>
 
         {/* Footer */}
-        <div className="p-4 bg-[#fafafa] border-t border-slate-200 flex items-center justify-between gap-3 shrink-0 print:hidden">
-          {isExternalViewer ? (
-            <button
-              type="button"
-              onClick={handleToggleLike}
-              disabled={isLiking}
-              className={`h-9 px-4 rounded-lg border inline-flex items-center gap-2 text-[13px] font-medium transition-colors cursor-pointer ${isLiked
-                  ? "border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100"
-                  : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
-                }`}
-            >
-              <Heart className={`size-4 ${isLiked ? "fill-rose-500 text-rose-500" : "text-slate-400"}`} />
-              <span>{isLiked ? "Đã thích hồ sơ" : "Thích hồ sơ"}</span>
-            </button>
-          ) : (
-            <div />
-          )}
-
+        <div className="p-4 bg-[#fafafa] border-t border-slate-200 flex items-center justify-end gap-3 shrink-0 print:hidden">
           <button
             type="button"
             onClick={onClose}

@@ -27,7 +27,6 @@ export interface JobItem {
   slug?: string | null
   banner_url?: string | null
   is_urgent?: boolean | null
-  is_featured?: boolean | null
   bumped_at?: string | null
   plan_tier?: string | null
   profiles?: {

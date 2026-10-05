@@ -37,8 +37,7 @@ BEGIN
     full_name, 
     role, 
     avatar_url,
-    bio,
-    scale
+    bio
   )
   VALUES (
     NEW.id,
@@ -61,18 +60,13 @@ BEGIN
     COALESCE(
       NEW.raw_user_meta_data->>'bio',
       NEW.raw_user_meta_data->>'description'
-    ),
-    COALESCE(
-      NEW.raw_user_meta_data->>'scale',
-      NEW.raw_user_meta_data->>'company_field'
     )
   )
   ON CONFLICT (id) DO UPDATE SET
     email = EXCLUDED.email,
     full_name = COALESCE(public.profiles.full_name, EXCLUDED.full_name),
     avatar_url = COALESCE(public.profiles.avatar_url, EXCLUDED.avatar_url),
-    bio = COALESCE(public.profiles.bio, EXCLUDED.bio),
-    scale = COALESCE(public.profiles.scale, EXCLUDED.scale);
+    bio = COALESCE(public.profiles.bio, EXCLUDED.bio);
 
   RETURN NEW;
 END;
@@ -92,7 +86,7 @@ BEGIN
     IF NEW.university IS NOT NULL AND NEW.university != '' THEN _score := _score + 15; END IF;
     IF NEW.experiences IS NOT NULL AND jsonb_array_length(NEW.experiences) > 0 THEN _score := _score + 15; END IF;
     IF NEW.skills IS NOT NULL AND NEW.skills != '' THEN _score := _score + 5; END IF;
-    IF (NEW.bio IS NOT NULL AND NEW.bio != '') OR (NEW.cv_url IS NOT NULL AND NEW.cv_url != '') THEN _score := _score + 5; END IF;
+    IF NEW.bio IS NOT NULL AND NEW.bio != '' THEN _score := _score + 5; END IF;
     
     NEW.cv_completion_percent := LEAST(_score, 100);
     RETURN NEW;
@@ -241,38 +235,7 @@ BEGIN
 END;
 $$;
 
--- 10. Helper RPC ghi nhận lượt xem hồ sơ sinh viên (tránh spam trong ngày)
-CREATE OR REPLACE FUNCTION public.record_profile_view(p_student_id UUID)
-RETURNS BOOLEAN
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-DECLARE
-    v_viewer_id UUID;
-BEGIN
-    v_viewer_id := auth.uid();
-    IF v_viewer_id IS NULL OR v_viewer_id = p_student_id THEN
-        RETURN FALSE;
-    END IF;
-
-    IF EXISTS (
-        SELECT 1 FROM public.profile_views
-        WHERE student_id = p_student_id
-          AND viewer_id = v_viewer_id
-          AND viewed_at >= NOW() - INTERVAL '24 hours'
-    ) THEN
-        RETURN FALSE;
-    END IF;
-
-    INSERT INTO public.profile_views (student_id, viewer_id)
-    VALUES (p_student_id, v_viewer_id);
-
-    RETURN TRUE;
-END;
-$$;
-
--- 11. Bắn thông báo khi điểm danh có mặt / vắng mặt
+-- 10. Bắn thông báo khi điểm danh có mặt / vắng mặt
 CREATE OR REPLACE FUNCTION public.notify_student_on_attendance_change()
 RETURNS TRIGGER
 LANGUAGE plpgsql
