@@ -70,10 +70,10 @@ const defaultLegalLinks = [
 ];
 
 export default function Footer({
-  logo = <EventMateLogoIcon size={32} idPrefix="footer" />,
+  logo = <EventMateLogoIcon size={30} variant="orange" />,
   brandName = (
-    <span className="text-xl font-bold tracking-tight text-foreground">
-      Event<span className="text-zinc-950 font-black">Mate</span>
+    <span className="font-extrabold text-xl tracking-tight text-gray-900">
+      EventMate
     </span>
   ),
   description = "Nền tảng kết nối Ban tổ chức sự kiện chuyên nghiệp với lực lượng nhân sự trẻ, năng động hàng đầu tại Đà Nẵng.",
@@ -90,16 +90,20 @@ export default function Footer({
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-8">
           {/* Brand & Bio */}
           <div className="flex flex-col items-start lg:col-span-4">
-            <div className="mb-3 flex items-center gap-3">
+            <Link
+              href="/"
+              className="mb-3 inline-flex items-center gap-2 focus:outline-none transition-transform hover:opacity-90 active:scale-95"
+              aria-label="EventMate Home"
+            >
               {logo && <div className="shrink-0">{logo}</div>}
               {brandName && (
                 typeof brandName === "string" ? (
-                  <span className="text-xl font-bold tracking-tight">{brandName}</span>
+                  <span className="font-extrabold text-xl tracking-tight text-gray-900">{brandName}</span>
                 ) : (
                   brandName
                 )
               )}
-            </div>
+            </Link>
             {description && (
               <p className="text-muted-foreground mb-4 max-w-sm text-sm leading-relaxed">
                 {description}
