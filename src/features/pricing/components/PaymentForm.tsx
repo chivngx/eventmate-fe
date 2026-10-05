@@ -141,21 +141,21 @@ export default function PaymentForm({
   const vietQrImageUrl = `https://img.vietqr.io/image/${payLinkData?.bin || "970422"}-${accountNumber}-compact2.png?amount=${amountNumber}&addInfo=${encodeURIComponent(transferMemo)}&accountName=${encodeURIComponent(accountName)}`
 
   return (
-    <div className="flex-1 w-full max-w-[480px]">
+    <div className="flex-1 w-full max-w-[520px]">
       {loading && (
-        <div className="bg-white rounded-[16px] border border-slate-200 p-16 flex flex-col items-center justify-center gap-3">
+        <div className="bg-white rounded-2xl ring-1 ring-zinc-200/80 p-16 flex flex-col items-center justify-center gap-3">
           <Loader2 className="w-8 h-8 text-zinc-900 animate-spin" />
           <p className="text-[14px] text-slate-500 font-medium">Đang tạo mã VietQR...</p>
         </div>
       )}
 
       {!loading && error && (
-        <div className="bg-white rounded-[16px] border border-rose-200 p-8 text-center space-y-3">
+        <div className="bg-white rounded-2xl ring-1 ring-rose-200 p-8 text-center space-y-3">
           <p className="text-[14px] text-rose-600 font-medium">{error}</p>
           <button
             type="button"
             onClick={fetchPaymentLink}
-            className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium rounded-lg transition-colors cursor-pointer"
+            className="px-4 py-2 bg-zinc-900 hover:bg-zinc-800 text-white text-[13px] font-medium rounded-lg transition-colors cursor-pointer"
           >
             Thử lại
           </button>
@@ -163,62 +163,66 @@ export default function PaymentForm({
       )}
 
       {!loading && !error && payLinkData && (
-        <div className="bg-white rounded-[16px] border border-slate-200 p-6 sm:p-7 space-y-5">
+        <div className="bg-white rounded-2xl ring-1 ring-zinc-200/80 shadow-sm p-8 sm:p-10 space-y-8">
           <div>
-            <h2 className="text-[20px] font-semibold text-[#222222] tracking-tight">
+            <h2 className="text-2xl font-semibold text-zinc-900 tracking-tight">
               Thanh toán VietQR
             </h2>
-            <p className="text-[13px] text-[#757575] mt-0.5">
-              Mở app ngân hàng bất kỳ để quét mã VietQR bên dưới.
+            <p className="text-[15px] text-zinc-500 mt-2 leading-relaxed">
+              Mở app ngân hàng bất kỳ để quét mã VietQR. Hệ thống sẽ tự động duyệt trong 3-5 giây.
             </p>
           </div>
 
           {/* Khung ảnh VietQR chuẩn */}
-          <div className="flex flex-col items-center justify-center p-4 bg-slate-50 rounded-xl border border-slate-200/80">
-            <img
-              src={vietQrImageUrl}
-              alt="Mã VietQR thanh toán"
-              className="w-[280px] h-auto object-contain rounded-lg shadow-xs bg-white"
-            />
+          <div className="flex flex-col items-center justify-center p-6 bg-zinc-50 rounded-2xl ring-1 ring-zinc-200/50">
+            <div className="relative p-2 bg-white rounded-xl shadow-sm ring-1 ring-zinc-200/50">
+              <img
+                src={vietQrImageUrl}
+                alt="Mã VietQR thanh toán"
+                className="w-[260px] h-[260px] object-contain rounded-lg bg-white"
+              />
+            </div>
 
-            <div className="flex items-center gap-2 mt-3 text-[13px] text-slate-500">
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-zinc-900" />
-              <span>Chờ nhận tiền...</span>
+            <div className="flex items-center gap-2 mt-5 text-[14px] text-emerald-700 bg-emerald-50 px-4 py-1.5 rounded-full ring-1 ring-emerald-200/50">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span className="font-medium">Đang chờ nhận tiền...</span>
             </div>
           </div>
 
           {/* Thông tin chuyển khoản thủ công */}
-          <div className="space-y-2.5 text-[13px]">
-            <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
-              <span className="text-[#757575]">Ngân hàng</span>
-              <span className="font-medium text-[#222222]">MBBank (Quân Đội)</span>
+          <div className="space-y-5 pt-2">
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[13px] text-zinc-500 font-medium">Ngân hàng hưởng thụ</span>
+              <span className="font-semibold text-zinc-900 text-[15px]">MBBank (Ngân hàng Quân Đội)</span>
             </div>
 
-            <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
-              <span className="text-[#757575]">Chủ tài khoản</span>
-              <span className="font-medium text-[#222222]">{accountName}</span>
+            <div className="flex flex-col gap-1.5">
+              <span className="text-[13px] text-zinc-500 font-medium">Tên tài khoản</span>
+              <span className="font-semibold text-zinc-900 text-[15px]">{accountName}</span>
             </div>
 
-            <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
-              <span className="text-[#757575]">Số tài khoản</span>
-              <div className="flex items-center gap-2">
-                <span className="font-mono font-medium text-[#222222]">{accountNumber}</span>
-                <CopyBtn text={accountNumber} label="Số tài khoản" />
+            <div className="grid grid-cols-2 gap-6">
+              <div className="flex flex-col gap-2 items-start">
+                <span className="text-[13px] text-zinc-500 font-medium">Số tài khoản</span>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-mono font-semibold text-zinc-900 text-[16px] tracking-wide">{accountNumber}</span>
+                  <CopyBtn text={accountNumber} label="Số tài khoản" />
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-2 items-start">
+                <span className="text-[13px] text-zinc-500 font-medium">Số tiền</span>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-mono font-bold text-zinc-900 text-[16px] tracking-wide">{amountNumber.toLocaleString("vi-VN")}đ</span>
+                  <CopyBtn text={String(amountNumber)} label="Số tiền" />
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
-              <span className="text-[#757575]">Số tiền</span>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-zinc-950">{formattedAmount}</span>
-                <CopyBtn text={String(amountNumber)} label="Số tiền" />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between py-1.5">
-              <span className="text-[#757575]">Nội dung</span>
-              <div className="flex items-center gap-2">
-                <span className="font-mono font-medium text-[#222222] bg-slate-100 px-2 py-0.5 rounded text-[12px] select-all">
+            <div className="flex flex-col gap-2 items-start pt-2">
+              <span className="text-[13px] text-zinc-500 font-medium">Nội dung chuyển khoản (Bắt buộc)</span>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-mono font-semibold text-zinc-900 bg-zinc-100 px-3 py-1.5 rounded-md text-[15px] tracking-wider select-all ring-1 ring-zinc-200/50">
                   {transferMemo}
                 </span>
                 <CopyBtn text={transferMemo} label="Nội dung" />

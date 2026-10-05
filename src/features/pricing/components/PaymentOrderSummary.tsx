@@ -7,6 +7,13 @@ interface PaymentOrderSummaryProps {
   billingCycle?: "monthly" | "yearly"
 }
 
+// Thẻ Checkmark tối giản
+const MinimalCheck = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" className={className} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12"></polyline>
+  </svg>
+)
+
 const PLAN_DETAILS: Record<
   string,
   {
@@ -103,56 +110,57 @@ export default function PaymentOrderSummary({
   const totalAmount = plan.monthlyRaw
 
   return (
-    <div className="w-full lg:w-[400px] shrink-0 border border-[#CBCBCB] rounded-[16px] p-6 sm:p-8 bg-white shadow-xs space-y-6">
+    <div className="w-full lg:w-[420px] shrink-0 rounded-2xl p-8 sm:p-10 bg-zinc-950 text-white shadow-2xl relative overflow-hidden ring-1 ring-white/10 mt-8 lg:mt-0">
+      {/* Ambient background glow inside the dark card */}
+      <div className="absolute -top-24 -right-24 w-64 h-64 bg-emerald-500/15 blur-[80px] pointer-events-none rounded-full" />
+      
       {/* Header Info */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <h3 className="text-[28px] sm:text-[32px] font-semibold text-[#222222] tracking-tight">
+      <div className="space-y-4 relative z-10">
+        <div className="flex items-start justify-between gap-4">
+          <h3 className="text-3xl font-semibold tracking-tight text-white">
             {plan.name}
           </h3>
-          <span className="text-[12px] font-medium px-2.5 py-1 rounded-full bg-slate-100 text-slate-700">
-            {planId === "single_event" ? "Gói theo sự kiện" : "Gói theo tháng"}
+          <span className="text-[11px] font-bold px-3 py-1 rounded-full bg-white text-zinc-950 uppercase tracking-wider shrink-0 shadow-sm mt-1">
+            {planId === "single_event" ? "Theo Sự Kiện" : "Gói Tháng"}
           </span>
         </div>
-        <p className="text-[12px] sm:text-[13px] text-[#757575] font-normal leading-relaxed">
+        <p className="text-[14px] text-zinc-400 font-normal leading-relaxed pr-6">
           {plan.description}
         </p>
       </div>
 
       {/* Pricing Display */}
-      <div className="flex items-baseline gap-1.5 pt-2">
-        <span className="text-3xl sm:text-4xl font-bold text-[#222222]">
+      <div className="flex items-baseline gap-1.5 pt-8 pb-8 relative z-10">
+        <span className="text-4xl font-semibold tracking-tight text-white">
           {priceDisplay}
         </span>
-        <span className="text-[14px] font-normal text-[#757575]">
+        <span className="text-[15px] font-normal text-zinc-400">
           {planId === "single_event" ? "/ sự kiện" : "/ tháng"}
         </span>
       </div>
 
       {/* Divider */}
-      <hr className="border-[#CBCBCB]/60" />
+      <div className="w-full h-px bg-zinc-800 mb-8 relative z-10" />
 
-      {/* Feature List (Figma node 6349:42310) */}
-      <div className="space-y-3.5">
-        <p className="text-[13px] font-semibold text-[#222222] uppercase tracking-wider">
-          Quyền lợi bao gồm:
+      {/* Feature List */}
+      <div className="space-y-6 relative z-10">
+        <p className="text-[12px] font-semibold text-zinc-400 uppercase tracking-[0.15em]">
+          Quyền lợi bao gồm
         </p>
-        <ul className="space-y-3.5 text-[13px] sm:text-[14px] text-[#222222]">
+        <ul className="flex flex-col gap-4">
           {plan.features.map((feature, idx) => (
             <li key={idx} className="flex items-start gap-3">
-              <div className="w-5 h-5 rounded-full bg-[#282828] flex items-center justify-center shrink-0 mt-0.5">
-                <Check className="w-3.5 h-3.5 text-white stroke-[2.5]" />
-              </div>
-              <span className="leading-snug">{feature}</span>
+              <MinimalCheck className="w-[18px] h-[18px] text-emerald-400 shrink-0 mt-0.5" />
+              <span className="text-[14.5px] text-zinc-300 leading-snug">{feature}</span>
             </li>
           ))}
         </ul>
       </div>
 
       {/* Summary Footer */}
-      <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-[14px]">
-        <span className="text-[#757575]">Tổng thanh toán:</span>
-        <span className="font-extrabold text-[20px] text-zinc-950">
+      <div className="pt-8 mt-8 border-t border-zinc-800 flex items-center justify-between relative z-10">
+        <span className="text-zinc-400 text-[15px]">Tổng thanh toán</span>
+        <span className="font-mono font-semibold text-[26px] text-white tracking-tight">
           {(totalAmount).toLocaleString("vi-VN")}đ
         </span>
       </div>

@@ -42,8 +42,8 @@ interface PricingFaqAccordionProps {
 }
 
 export default function PricingFaqAccordion({
-  title = "Câu Hỏi Thường Gặp Về Bảng Giá",
-  caption = "Giải đáp các câu hỏi thường gặp về gói dịch vụ, chính sách thanh toán và quyền lợi.",
+  title = "Câu Hỏi Thường Gặp",
+  caption = "Tất cả những gì bạn cần biết về gói dịch vụ, chính sách và thanh toán.",
 }: PricingFaqAccordionProps) {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
 
@@ -52,53 +52,54 @@ export default function PricingFaqAccordion({
   }
 
   return (
-    <section className="max-w-[1024px] mx-auto w-full flex flex-col gap-[32px] items-center">
-      {/* Titr home (Figma node 5875:28777) */}
-      <div className="flex flex-col items-center justify-center gap-[8px] text-center w-full">
-        <h2 className="font-['Inter'] font-semibold text-[32px] sm:text-[36px] text-[#353535] leading-normal tracking-tight">
+    <section className="max-w-[1000px] mx-auto w-full grid grid-cols-1 lg:grid-cols-[1fr_2fr] gap-12 lg:gap-20 items-start pt-16">
+      
+      {/* Cột trái: Tiêu đề Sticky */}
+      <div className="flex flex-col gap-4 lg:sticky lg:top-24">
+        <h2 className="font-semibold text-3xl sm:text-4xl text-zinc-900 tracking-tight leading-tight">
           {title}
         </h2>
-        <p className="font-['Inter'] font-normal text-[15px] sm:text-[16px] text-[#757575] leading-[1.6] max-w-[500px]">
+        <p className="text-[16px] text-zinc-500 leading-relaxed max-w-[320px]">
           {caption}
         </p>
       </div>
 
-      {/* FAQ Container (Figma node 5875:28778) */}
-      <div className="flex flex-col gap-[16px] w-full">
+      {/* Cột phải: Accordion list, không viền */}
+      <div className="flex flex-col w-full divide-y divide-zinc-200 border-t border-zinc-200">
         {FAQ_ITEMS.map((item, idx) => {
           const isOpen = openIndex === idx
 
           return (
-            <div
-              key={item.id}
-              className="bg-white border border-[#EDEDED] rounded-[8px] p-[24px] transition-all overflow-hidden"
-            >
+            <div key={item.id} className="py-6 group">
               <button
                 type="button"
                 onClick={() => toggleIndex(idx)}
-                className="w-full text-left flex items-center justify-between gap-[16px] cursor-pointer"
+                className="w-full text-left flex items-start justify-between gap-6 cursor-pointer"
               >
-                <div className="flex items-center gap-[12px] flex-1 min-w-0">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#282828] shrink-0 inline-block" />
-                  <span className="font-['Inter'] font-semibold text-[17px] sm:text-[18px] text-[#282828] leading-normal">
-                    {item.question}
-                  </span>
-                </div>
+                <span className="font-medium text-[16px] sm:text-[17px] text-zinc-900 leading-snug group-hover:text-zinc-600 transition-colors">
+                  {item.question}
+                </span>
 
-                <div className="size-[32px] rounded-[8px] flex items-center justify-center shrink-0">
+                <span className="flex items-center justify-center shrink-0 mt-0.5">
                   <ChevronDown
-                    className={`w-[20px] h-[20px] text-[#282828] transition-transform duration-200 ${
+                    className={`w-5 h-5 text-zinc-400 transition-transform duration-300 ${
                       isOpen ? "rotate-180" : ""
                     }`}
                   />
-                </div>
+                </span>
               </button>
 
-              {isOpen && (
-                <div className="pt-[16px] pl-[18px] text-[15px] text-[#757575] leading-[1.6] animate-in fade-in duration-200">
-                  <p>{item.answer}</p>
+              <div 
+                className={`grid transition-all duration-300 ease-in-out ${
+                  isOpen ? "grid-rows-[1fr] opacity-100 mt-4" : "grid-rows-[0fr] opacity-0"
+                }`}
+              >
+                <div className="overflow-hidden">
+                  <p className="text-[15px] text-zinc-500 leading-relaxed pr-8">
+                    {item.answer}
+                  </p>
                 </div>
-              )}
+              </div>
             </div>
           )
         })}

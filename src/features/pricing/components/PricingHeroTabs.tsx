@@ -8,20 +8,19 @@ interface PricingHeroTabsProps {
 }
 
 export default function PricingHeroTabs({
-  title = "Bảng Giá Tuyển Dụng Nhân Sự Sự Kiện",
-  caption = "Tối ưu chi phí theo từng show diễn hoặc giải pháp tuyển dụng trọn gói tại Đà Nẵng.",
+  title = "Tuyển dụng tinh gọn.\nHiệu quả tối đa.",
+  caption = "Giải pháp nhân sự sự kiện chuyên nghiệp tại Đà Nẵng. Linh hoạt theo từng show diễn hoặc trọn gói cho Agency.",
 }: PricingHeroTabsProps) {
   return (
-    <div className="flex flex-col items-center gap-4 w-full max-w-[1232px] mx-auto text-center">
-      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-zinc-100 text-zinc-800 text-xs font-medium border border-zinc-200">
-        <Sparkles className="w-3.5 h-3.5 text-zinc-900" />
-        Linh hoạt theo sự kiện & gói tháng cho Agency
+    <div className="flex flex-col items-center gap-6 w-full max-w-[800px] mx-auto text-center">
+      <div className="font-mono text-[11px] sm:text-[12px] uppercase tracking-[0.2em] text-zinc-500 font-medium">
+        Lựa chọn gói dịch vụ
       </div>
-      <div className="flex flex-col items-center justify-center gap-2">
-        <h1 className="font-['Inter'] font-semibold text-[32px] sm:text-[36px] text-zinc-950 leading-normal tracking-tight">
+      <div className="flex flex-col items-center justify-center gap-6">
+        <h1 className="font-semibold text-5xl sm:text-6xl md:text-7xl text-zinc-950 leading-[1.1] tracking-tighter whitespace-pre-line">
           {title}
         </h1>
-        <p className="font-['Inter'] font-normal text-[15px] sm:text-[16px] text-zinc-500 leading-[1.6] max-w-[540px]">
+        <p className="text-[16px] sm:text-[18px] text-zinc-500 leading-relaxed max-w-[540px]">
           {caption}
         </p>
       </div>

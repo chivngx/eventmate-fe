@@ -85,13 +85,19 @@ export default function CheckoutView() {
   }, [searchParams])
 
   return (
-    <MainLayout fullWidth={true} className="bg-white">
-      <div className="w-full bg-white pt-4 sm:pt-6 pb-16 sm:pb-24 animate-in fade-in duration-300">
-        <div className="max-w-[1024px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col">
+    <MainLayout fullWidth={true} className="bg-zinc-50 relative overflow-hidden">
+      {/* Background ambient gradient */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute -top-[10%] -left-[10%] w-[50%] h-[50%] rounded-full bg-emerald-100/40 blur-[120px]" />
+        <div className="absolute top-[20%] -right-[10%] w-[40%] h-[40%] rounded-full bg-zinc-200/50 blur-[100px]" />
+      </div>
+
+      <div className="w-full min-h-screen pt-4 sm:pt-8 pb-16 sm:pb-24 relative z-10 animate-in fade-in duration-300">
+        <div className="max-w-[1100px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col">
           
           {/* Top: Breadcrumb */}
           {!isSuccess && (
-            <div className="w-full mb-4">
+            <div className="w-full mb-6">
               <Breadcrumb
                 items={[
                   { label: "Bảng giá", href: "/pricing" },
@@ -101,14 +107,14 @@ export default function CheckoutView() {
             </div>
           )}
 
-          {/* Titr home: Checkout Title & Subtitle (Figma node 6240:25184) */}
+          {/* Checkout Title & Subtitle */}
           {!isSuccess && (
-            <div className="flex flex-col items-center justify-center gap-[8px] text-center w-full mt-2 sm:mt-4 mb-8 sm:mb-12">
-              <h1 className="font-['Inter'] font-semibold text-[32px] sm:text-[36px] text-[#222222] leading-normal tracking-tight">
+            <div className="flex flex-col gap-4 w-full mb-12 lg:mb-16 text-center lg:text-left">
+              <h1 className="font-semibold text-4xl sm:text-5xl text-zinc-950 leading-tight tracking-tight">
                 Thanh Toán
               </h1>
-              <p className="font-['Inter'] font-normal text-[15px] sm:text-[16px] text-[#757575] leading-[1.6] max-w-[500px]">
-                Xem lại thông tin đơn hàng và hoàn tất thanh toán để kích hoạt gói dịch vụ của bạn.
+              <p className="text-[16px] text-zinc-500 leading-relaxed max-w-[500px] mx-auto lg:mx-0">
+                Xem lại thông tin đơn hàng và quét mã VietQR để hoàn tất giao dịch tự động.
               </p>
             </div>
           )}
@@ -125,8 +131,8 @@ export default function CheckoutView() {
               />
             </div>
           ) : (
-            /* 2-Column Checkout Layout (Figma node 6240:25186) */
-            <div className="flex flex-col lg:flex-row gap-10 lg:gap-[120px] items-start justify-between w-full">
+            /* 2-Column Checkout Layout */
+            <div className="flex flex-col lg:flex-row gap-10 lg:gap-16 items-start justify-between w-full">
               
               {/* Left Column: Payment Details Form */}
               <PaymentForm

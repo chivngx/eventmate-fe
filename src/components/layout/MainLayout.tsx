@@ -18,11 +18,13 @@ export default function MainLayout({
     role,
     fullWidth = false,
     className,
+    footerClassName,
 }: {
     children: React.ReactNode | ((props: { navbar: React.ReactNode }) => React.ReactNode)
     role?: string
     fullWidth?: boolean
     className?: string
+    footerClassName?: string
 }) {
     const router = useRouter()
     const pathname = usePathname()
@@ -238,7 +240,7 @@ export default function MainLayout({
                     : children}
             </main>
 
-            <Footer className={isHomePage ? "pt-6" : undefined} />
+            <Footer className={cn(isHomePage ? "pt-6" : undefined, footerClassName)} />
 
             <FloatingChat user={user} role={userRole} />
         </div>

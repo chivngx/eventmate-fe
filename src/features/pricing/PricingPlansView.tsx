@@ -50,9 +50,15 @@ export default function PricingPlansView() {
   }
 
   return (
-    <MainLayout fullWidth={true} className="bg-[#FAFAFA]">
-      <div className="w-full bg-[#FAFAFA] min-h-screen pt-6 sm:pt-10 pb-20 animate-in fade-in duration-300">
-        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-14 sm:gap-20">
+    <MainLayout fullWidth={true} className="bg-[#FAFAFA] relative overflow-hidden">
+      {/* Background ambient gradient */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-emerald-100/40 blur-[120px]" />
+        <div className="absolute top-[20%] right-[-10%] w-[40%] h-[40%] rounded-full bg-zinc-200/50 blur-[100px]" />
+      </div>
+
+      <div className="w-full min-h-screen pt-12 sm:pt-20 pb-24 relative z-10 animate-in fade-in duration-300">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-16 sm:gap-24">
 
           {/* Section 1: Hero Header */}
           <PricingHeroTabs />

@@ -157,20 +157,20 @@ export default function CompanyDetailView() {
 
   if (!company) {
     return (
-      <MainLayout role="guest" fullWidth={true} className="bg-[#f3f5f7]">
-        <div className="w-full max-w-[1232px] mx-auto px-4 py-24 text-center">
-          <div className="size-16 bg-[#f4f4f4] rounded-[16px] flex items-center justify-center mx-auto text-[#757575] mb-4">
+      <MainLayout role="guest" fullWidth={true} className="bg-[#f2f6fc]">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
+          <div className="size-16 bg-white rounded-2xl flex items-center justify-center mx-auto text-zinc-400 mb-6 shadow-sm ring-1 ring-zinc-200/50">
             <Building2 className="size-8 stroke-[1.5]" />
           </div>
-          <h2 className="text-[24px] font-bold text-[#222222]">
+          <h2 className="text-2xl font-bold text-zinc-900 tracking-tight">
             Không tìm thấy đơn vị tổ chức
           </h2>
-          <p className="text-[14px] text-[#757575] mt-2 max-w-md mx-auto">
+          <p className="text-[15px] text-zinc-500 mt-2 max-w-md mx-auto leading-relaxed">
             Hồ sơ đơn vị này có thể đã được cập nhật hoặc không tồn tại trên hệ thống EventMate.
           </p>
           <button
             onClick={() => navigate("/")}
-            className="mt-6 h-[40px] px-5 rounded-[8px] bg-[#222222] text-white font-medium text-[14px] hover:bg-[#353535] transition cursor-pointer"
+            className="mt-8 h-10 px-6 rounded-lg bg-zinc-900 text-white font-medium text-[14px] hover:bg-zinc-800 transition-colors cursor-pointer shadow-sm"
           >
             Về trang chủ
           </button>
@@ -185,341 +185,350 @@ export default function CompanyDetailView() {
     (!company.premium_until || new Date(company.premium_until) > new Date())
   )
 
-  const tabItemClass = (isActive: boolean) =>
-    `h-[44px] text-[15px] transition-all cursor-pointer flex items-center gap-1.5 border-b-2 ${isActive
-      ? "text-[#222222] font-bold border-[#222222]"
-      : "text-[#757575] hover:text-[#222222] font-medium border-transparent"
-    }`
-
   return (
-    <MainLayout role={role || "guest"} fullWidth={true} className="bg-[#f3f5f7]">
-      <div className="bg-[#f3f5f7] min-h-screen pb-20 pt-6">
-        <div className="w-full max-w-[1232px] mx-auto px-4 sm:px-6 lg:px-0 flex flex-col gap-6">
+    <MainLayout role={role || "guest"} fullWidth={true} className="bg-[#f2f6fc]" footerClassName="mt-6 md:mt-6">
+      <div className="bg-[#f2f6fc] pb-0 pt-6">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          <div className="mb-6">
+            <Breadcrumb items={[{ label: displayName }]} />
+          </div>
 
-          {/* 1. BREADCRUMB */}
-          <Breadcrumb
-            items={[
-              { label: displayName },
-            ]}
-          />
+          <div className="flex flex-col lg:flex-row gap-8 items-start">
+            
+            {/* LEFT COLUMN: STICKY SIDEBAR (Profile + Navigation + Map) */}
+            <aside className="w-full lg:w-[360px] shrink-0 flex flex-col gap-6 lg:sticky lg:top-24">
+              
+              {/* Profile Card */}
+              <div className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm ring-1 ring-zinc-200/50 flex flex-col items-center text-center">
+                <Avatar className="size-[120px] rounded-full shadow-sm ring-4 ring-white mb-5">
+                  <AvatarImage src={company.avatar_url || ""} className="object-cover" />
+                  <AvatarFallback className="bg-zinc-100 text-zinc-800 text-4xl font-bold">
+                    {displayName.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
 
-          {/* 2. HEADER PROFILE HERO CARD */}
-          <section className="bg-white rounded-[16px] shadow-xs overflow-hidden">
-            <div className="p-6 sm:p-8 pb-3 sm:pb-4">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                {/* Left Column: Avatar + Basic Info */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 min-w-0 flex-1">
-                  {/* Logo Avatar */}
-                  <Avatar className="size-[88px] sm:size-[104px] rounded-full shrink-0">
-                    <AvatarImage src={company.avatar_url || ""} className="object-cover rounded-full" />
-                    <AvatarFallback className="bg-slate-100 text-[#222222] text-3xl font-bold rounded-full">
-                      {displayName.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
+                <h1 className="font-['Inter'] font-bold text-2xl text-zinc-950 leading-tight tracking-tight mb-2">
+                  {displayName}
+                </h1>
+                
+                <div className="flex flex-wrap items-center justify-center gap-2 mb-6">
+                  {company.is_verified && (
+                    <VerifiedBadge variant="pill" text="Đã xác thực" />
+                  )}
+                  {isCompanyVip && (
+                    <span className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 ring-1 ring-amber-200/60 shadow-sm">
+                      <Sparkles className="size-3.5 text-amber-500 fill-amber-500" />
+                      Doanh Nghiệp VIP
+                    </span>
+                  )}
+                </div>
 
-                  {/* Text Meta Info */}
-                  <div className="space-y-2.5 min-w-0 flex-1">
-                    <div className="flex items-center gap-2.5 flex-wrap">
-                      <h1 className="font-['Inter'] font-bold text-[22px] sm:text-[26px] text-[#222222] leading-snug tracking-tight">
-                        {displayName}
-                      </h1>
-                      {company.is_verified && (
-                        <VerifiedBadge variant="pill" text="Đã xác thực" />
-                      )}
-                      {isCompanyVip && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
-                          <Sparkles className="size-3 text-amber-500 fill-amber-500" />
-                          Doanh Nghiệp VIP
-                        </span>
-                      )}
+                {/* Trust & Meta Metrics */}
+                <div className="w-full grid grid-cols-2 gap-4 p-4 rounded-xl bg-zinc-50 ring-1 ring-zinc-200/50 mb-6">
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Đánh giá</span>
+                    <div className="flex items-center gap-1.5">
+                      <Star className="size-4 text-amber-500 fill-amber-500" />
+                      <span className="font-bold text-[15px] text-zinc-900">{reviewStats.average}</span>
                     </div>
-
-                    {/* Trust metrics bar: Link | Rating | Followers */}
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-[13px] text-[#515151]">
-                      {/* Link */}
-                      {company.website && (
-                        <>
-                          <a
-                            href={company.website.startsWith("http") ? company.website : `https://${company.website}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1.5 text-[#515151] hover:text-[#222222] transition"
-                          >
-                            <Globe className="size-3.5 text-[#757575] shrink-0" />
-                            <span className="hover:underline underline-offset-2 truncate max-w-[220px] sm:max-w-xs">
-                              {company.website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
-                            </span>
-                          </a>
-                          <span className="text-[#d1d5db] select-none">|</span>
-                        </>
-                      )}
-
-                      {/* Rating badge */}
-                      <div className="inline-flex items-center gap-1 font-medium">
-                        <Star className="size-4 text-amber-500 fill-amber-500" />
-                        <span className="font-semibold text-[#222222]">
-                          {reviewStats.average}
-                        </span>
-                        <span className="text-[#757575]">
-                          ({reviewStats.count} đánh giá)
-                        </span>
-                      </div>
-                    </div>
+                  </div>
+                  <div className="flex flex-col items-center gap-1 border-l border-zinc-200/80">
+                    <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider">Sự kiện</span>
+                    <span className="font-bold text-[15px] text-zinc-900">{companyEvents.length}</span>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            {/* TAB STRIP DOCKED AT BOTTOM EDGE */}
-            <div className="px-6 sm:px-8 flex items-center gap-8">
-              <button
-                type="button"
-                onClick={() => setActiveTab("about")}
-                className={tabItemClass(activeTab === "about")}
-              >
-                <span>Tổng quan</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setActiveTab("events")}
-                className={tabItemClass(activeTab === "events")}
-              >
-                <span>Sự kiện ({companyEvents.length})</span>
-              </button>
-            </div>
-          </section>
-
-          {/* 4. TAB CONTENTS */}
-          {activeTab === "about" ? (
-            /* TAB 1: GIỚI THIỆU & ĐÁNH GIÁ */
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-              {/* LEFT 2/3 COLUMN: Bio, Activity Photos, Real Reviews */}
-              <div className="lg:col-span-2 space-y-6">
-
-                {/* Section 1: Giới thiệu chung */}
-                <section className="bg-white rounded-[16px] p-6 sm:p-7 shadow-xs space-y-3.5">
-                  <h2 className="font-['Inter'] font-bold text-[18px] text-[#222222]">
-                    Giới thiệu về đơn vị tổ chức
-                  </h2>
-                  <div className="text-[14px] text-[#515151] leading-relaxed whitespace-pre-wrap">
-                    {company.bio ||
-                      `${displayName} là đơn vị tổ chức và điều phối sự kiện uy tín tại Đà Nẵng, chuyên phụ trách các chương trình văn hóa, hội nghị quốc tế, lễ hội âm nhạc và các chiến dịch kích hoạt thương hiệu (activation). Chúng tôi xây dựng môi trường làm việc chuyên nghiệp, minh bạch và tạo điều kiện tối đa để lực lượng nhân sự trẻ, sinh viên phát triển kỹ năng thực chiến.`}
-                  </div>
-                </section>
-
-                {/* Section 2: Đánh giá & Nhận xét từ nhân sự sự kiện (DỮ LIỆU TỪ BẢNG REVIEWS) */}
-                <section className="bg-white rounded-[16px] p-6 sm:p-7 shadow-xs space-y-6">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#ededed]">
-                    <div>
-                      <h2 className="font-['Inter'] font-bold text-[18px] text-[#222222]">
-                        Đánh giá từ nhân sự & cộng tác viên
-                      </h2>
-                      <p className="text-[13px] text-[#757575] mt-0.5">
-                        Nhận xét từ các bạn sinh viên đã hoàn thành ca trực tại các sự kiện của đơn vị
-                      </p>
-                    </div>
-
-                    {/* Summary badge */}
-                    <div className="flex items-center gap-3 bg-[#f3f5f7] px-4 py-2.5 rounded-[12px] self-start sm:self-auto">
-                      <span className="font-bold text-[24px] text-[#222222] leading-none">
-                        {reviewStats.average}
-                      </span>
-                      <div className="space-y-0.5">
-                        <div className="flex items-center gap-0.5">
-                          {[1, 2, 3, 4, 5].map((star) => (
-                            <Star
-                              key={star}
-                              className={`size-3.5 ${star <= Math.round(reviewStats.average)
-                                  ? "text-amber-500 fill-amber-500"
-                                  : "text-slate-200 fill-slate-200"
-                                }`}
-                            />
-                          ))}
-                        </div>
-                        <p className="text-[11px] text-[#757575]">
-                          Dựa trên {reviewStats.count} lượt đánh giá
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Reviews List */}
-                  {reviews.length === 0 ? (
-                    <div className="py-10 text-center space-y-2">
-                      <div className="size-12 bg-[#f4f4f4] rounded-[12px] flex items-center justify-center mx-auto text-[#757575]">
-                        <Star className="size-6 stroke-[1.5]" />
-                      </div>
-                      <h3 className="font-semibold text-[15px] text-[#222222]">
-                        Chưa có đánh giá nào
-                      </h3>
-                      <p className="text-[13px] text-[#757575] max-w-sm mx-auto">
-                        Đánh giá sẽ hiển thị tại đây sau khi các sự kiện kết thúc và nhân sự hoàn thành ca trực gửi phản hồi.
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="space-y-4">
-                      {reviews.map((rev) => {
-                        const reviewerName = rev.reviewer?.full_name || "Nhân sự ẩn danh"
-                        const reviewerAvatar = rev.reviewer?.avatar_url || ""
-                        const eventName = rev.events?.title
-
-                        return (
-                          <div
-                            key={rev.id}
-                            className="p-4 rounded-[12px] bg-[#f3f5f7] space-y-2.5"
-                          >
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="flex items-center gap-3">
-                                <Avatar className="size-[40px] rounded-full">
-                                  <AvatarImage src={reviewerAvatar} className="object-cover" />
-                                  <AvatarFallback className="bg-slate-200 text-[#222222] font-semibold text-sm">
-                                    {reviewerName.charAt(0).toUpperCase()}
-                                  </AvatarFallback>
-                                </Avatar>
-
-                                <div>
-                                  <h4 className="font-semibold text-[14px] text-[#222222]">
-                                    {reviewerName}
-                                  </h4>
-                                  <div className="flex items-center gap-2 text-[12px] text-[#757575]">
-                                    <div className="flex items-center gap-0.5">
-                                      {[1, 2, 3, 4, 5].map((s) => (
-                                        <Star
-                                          key={s}
-                                          className={`size-3 ${s <= rev.rating
-                                              ? "text-amber-500 fill-amber-500"
-                                              : "text-slate-300"
-                                            }`}
-                                        />
-                                      ))}
-                                    </div>
-                                    <span>•</span>
-                                    <span>
-                                      {new Date(rev.created_at).toLocaleDateString("vi-VN")}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {eventName && (
-                                <span className="text-[11px] bg-white text-[#515151] px-2.5 py-1 rounded-[6px] truncate max-w-[200px]">
-                                  {eventName}
-                                </span>
-                              )}
-                            </div>
-
-                            {rev.comment && (
-                              <p className="text-[13px] text-[#353535] leading-relaxed pt-1">
-                                {rev.comment}
-                              </p>
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
-                </section>
+                {company.website && (
+                  <a
+                    href={company.website.startsWith("http") ? company.website : `https://${company.website}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-zinc-200 text-[14px] font-medium text-zinc-700 hover:bg-zinc-50 hover:text-zinc-900 transition-colors shadow-sm"
+                  >
+                    <Globe className="size-4 text-zinc-400" />
+                    <span className="truncate max-w-[200px]">
+                      {company.website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '')}
+                    </span>
+                  </a>
+                )}
               </div>
 
-              {/* RIGHT 1/3 COLUMN: Location Map */}
-              <aside className="space-y-6">
-                {/* Location Map Card */}
+              {/* Location Map Card */}
+              <div className="bg-white rounded-2xl shadow-sm ring-1 ring-zinc-200/50 overflow-hidden hidden lg:block">
                 <LocationMapCard
-                  title="Địa chỉ"
+                  title="Trụ sở làm việc"
                   address={company.address}
                   searchQuery={company.address || displayName}
                   mapEmbedUrl={company.map_embed_url}
+                  className="p-6"
                 />
-              </aside>
-            </div>
-          ) : (
-            /* TAB 2: SỰ KIỆN ĐANG TUYỂN */
-            <section className="bg-white rounded-[16px] p-6 sm:p-7 shadow-xs space-y-6">
-              {/* Header & Search Control Bar */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pb-4 border-b border-[#ededed]">
-                <div>
-                  <h2 className="font-['Inter'] font-bold text-[18px] text-[#222222]">
-                    Chiến dịch sự kiện ({filteredJobs.length})
-                  </h2>
-                  <p className="text-[13px] text-[#757575] mt-0.5">
-                    Các vị trí tuyển dụng nhân sự, CTV và tình nguyện viên do {displayName} tổ chức
-                  </p>
-                </div>
+              </div>
+            </aside>
 
-                {/* Filters */}
-                <div className="flex flex-col sm:flex-row items-center gap-3">
-                  {/* Search bar */}
-                  <div className="relative w-full sm:w-[260px]">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-[#757575]" />
-                    <input
-                      type="text"
-                      placeholder="Tìm vị trí, tên sự kiện..."
-                      value={jobSearchTerm}
-                      onChange={(e) => setJobSearchTerm(e.target.value)}
-                      className="w-full h-[38px] pl-9 pr-3 bg-white border border-[#cbcbcb] rounded-[8px] text-[13px] text-[#222222] focus:outline-none focus:border-[#222222]"
-                    />
-                  </div>
+            {/* RIGHT COLUMN: CONTENT */}
+            <main className="flex-1 min-w-0 flex flex-col gap-6">
+              
+              {/* Show Map on Mobile only, before content */}
+              <div className="bg-white rounded-2xl shadow-sm ring-1 ring-zinc-200/50 overflow-hidden lg:hidden">
+                <LocationMapCard
+                  title="Trụ sở làm việc"
+                  address={company.address}
+                  searchQuery={company.address || displayName}
+                  mapEmbedUrl={company.map_embed_url}
+                  className="p-6"
+                />
+              </div>
 
-                  {/* Ward Filter */}
-                  {locationsList.length > 0 && (
-                    <div className="w-full sm:w-[200px] shrink-0">
-                      <CustomSelect
-                        value={selectedLocation}
-                        onChange={(val) => setSelectedLocation(val)}
-                        options={[
-                          { value: "", label: "Tất cả khu vực" },
-                          ...locationsList.map((loc) => ({
-                            value: loc,
-                            label: `P. ${loc}`,
-                          })),
-                        ]}
-                        placeholder="Tất cả khu vực"
-                        buttonClassName="h-[38px] rounded-[8px] text-[13px] border-[#cbcbcb]"
-                      />
-                    </div>
-                  )}
+              {/* Segmented Control Tabs */}
+              <div className="flex items-center">
+                <div className="inline-flex p-1.5 bg-zinc-200/60 rounded-xl shadow-inner">
+                  <button
+                    onClick={() => setActiveTab("about")}
+                    className={`flex items-center justify-center h-10 px-6 sm:px-8 rounded-lg text-[14px] font-semibold transition-all duration-200 ${
+                      activeTab === "about"
+                        ? "bg-white text-zinc-950 shadow-sm ring-1 ring-zinc-200/80"
+                        : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-300/50"
+                    }`}
+                  >
+                    Tổng quan
+                  </button>
+                  <button
+                    onClick={() => setActiveTab("events")}
+                    className={`flex items-center justify-center gap-2 h-10 px-6 sm:px-8 rounded-lg text-[14px] font-semibold transition-all duration-200 ${
+                      activeTab === "events"
+                        ? "bg-white text-zinc-950 shadow-sm ring-1 ring-zinc-200/80"
+                        : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-300/50"
+                    }`}
+                  >
+                    Chiến dịch sự kiện
+                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                      activeTab === "events" ? "bg-zinc-100 text-zinc-900" : "bg-zinc-300/60 text-zinc-600"
+                    }`}>
+                      {companyEvents.length}
+                    </span>
+                  </button>
                 </div>
               </div>
 
-              {/* Event Cards Grid / List */}
-              {filteredJobs.length === 0 ? (
-                <div className="py-16 text-center space-y-3">
-                  <div className="size-12 bg-[#f4f4f4] rounded-[12px] flex items-center justify-center mx-auto text-[#757575]">
-                    <Calendar className="size-6 stroke-[1.5]" />
-                  </div>
-                  <h3 className="font-semibold text-[16px] text-[#222222]">
-                    Không tìm thấy sự kiện phù hợp
-                  </h3>
-                  <p className="text-[13px] text-[#757575] max-w-md mx-auto">
-                    {jobSearchTerm || selectedLocation
-                      ? "Thử thay đổi từ khóa hoặc bộ lọc khu vực để tìm thấy sự kiện."
-                      : "Hiện tại đơn vị này chưa có chiến dịch sự kiện mới. Bạn hãy bấm nút Theo dõi để nhận thông báo sớm nhất!"}
-                  </p>
+              {activeTab === "about" ? (
+                /* TAB 1: GIỚI THIỆU & ĐÁNH GIÁ */
+                <div className="space-y-6">
+                  {/* Section 1: Giới thiệu chung */}
+                  <section className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm ring-1 ring-zinc-200/50">
+                    <h2 className="font-['Inter'] font-bold text-xl text-zinc-950 tracking-tight mb-5">
+                      Giới thiệu đơn vị
+                    </h2>
+                    <div className="text-[15.5px] text-zinc-700 leading-loose whitespace-pre-wrap">
+                      {company.bio ||
+                        `${displayName} là đơn vị tổ chức và điều phối sự kiện uy tín, chuyên phụ trách các chương trình văn hóa, hội nghị quốc tế, lễ hội âm nhạc và các chiến dịch kích hoạt thương hiệu (activation).\n\nChúng tôi xây dựng môi trường làm việc chuyên nghiệp, minh bạch và tạo điều kiện tối đa để lực lượng nhân sự trẻ, sinh viên phát triển kỹ năng thực chiến.`}
+                    </div>
+                  </section>
+
+                  {/* Section 2: Đánh giá */}
+                  <section className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm ring-1 ring-zinc-200/50">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 mb-8">
+                      <div className="space-y-1.5">
+                        <h2 className="font-['Inter'] font-bold text-xl text-zinc-950 tracking-tight">
+                          Đánh giá từ nhân sự
+                        </h2>
+                        <p className="text-[14px] text-zinc-500 leading-relaxed max-w-[400px]">
+                          Nhận xét thực tế từ các bạn sinh viên đã hoàn thành ca trực tại các sự kiện do đơn vị tổ chức.
+                        </p>
+                      </div>
+
+                      {/* Summary Bento box */}
+                      <div className="flex items-center gap-4 bg-zinc-50 px-5 py-4 rounded-xl ring-1 ring-zinc-200/50 self-start">
+                        <span className="font-bold text-4xl text-zinc-900 tracking-tighter">
+                          {reviewStats.average}
+                        </span>
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <Star
+                                key={star}
+                                className={`size-4 ${star <= Math.round(reviewStats.average)
+                                    ? "text-amber-500 fill-amber-500"
+                                    : "text-zinc-200 fill-zinc-200"
+                                  }`}
+                              />
+                            ))}
+                          </div>
+                          <p className="text-[12px] font-medium text-zinc-500">
+                            {reviewStats.count} lượt đánh giá
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Reviews List */}
+                    {reviews.length === 0 ? (
+                      <div className="py-12 flex flex-col items-center text-center space-y-4 bg-zinc-50/50 rounded-xl border border-dashed border-zinc-200">
+                        <div className="size-14 bg-white rounded-full shadow-sm flex items-center justify-center text-amber-500 ring-1 ring-zinc-200/50">
+                          <Star className="size-6 stroke-[1.5]" />
+                        </div>
+                        <div>
+                          <h3 className="font-semibold text-[16px] text-zinc-900">
+                            Chưa có đánh giá nào
+                          </h3>
+                          <p className="text-[14px] text-zinc-500 max-w-sm mx-auto mt-1.5 leading-relaxed">
+                            Đánh giá sẽ hiển thị tại đây sau khi nhân sự hoàn thành ca trực và gửi phản hồi.
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {reviews.map((rev) => {
+                          const reviewerName = rev.reviewer?.full_name || "Nhân sự ẩn danh"
+                          const reviewerAvatar = rev.reviewer?.avatar_url || ""
+                          const eventName = rev.events?.title
+
+                          return (
+                            <div
+                              key={rev.id}
+                              className="p-5 rounded-xl bg-zinc-50 space-y-3 ring-1 ring-zinc-200/50"
+                            >
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="flex items-center gap-3.5">
+                                  <Avatar className="size-[42px] rounded-full ring-2 ring-white shadow-sm">
+                                    <AvatarImage src={reviewerAvatar} className="object-cover" />
+                                    <AvatarFallback className="bg-zinc-200 text-zinc-700 font-semibold text-sm">
+                                      {reviewerName.charAt(0).toUpperCase()}
+                                    </AvatarFallback>
+                                  </Avatar>
+
+                                  <div>
+                                    <h4 className="font-semibold text-[14.5px] text-zinc-950">
+                                      {reviewerName}
+                                    </h4>
+                                    <div className="flex items-center gap-2 text-[12px] text-zinc-500 font-medium mt-0.5">
+                                      <div className="flex items-center gap-0.5">
+                                        {[1, 2, 3, 4, 5].map((s) => (
+                                          <Star
+                                            key={s}
+                                            className={`size-3 ${s <= rev.rating
+                                                ? "text-amber-500 fill-amber-500"
+                                                : "text-zinc-300"
+                                              }`}
+                                          />
+                                        ))}
+                                      </div>
+                                      <span className="text-zinc-300">•</span>
+                                      <span>
+                                        {new Date(rev.created_at).toLocaleDateString("vi-VN")}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {eventName && (
+                                  <span className="text-[11.5px] font-medium bg-white text-zinc-600 px-2.5 py-1 rounded-md truncate max-w-[180px] shadow-sm ring-1 ring-zinc-200/50">
+                                    {eventName}
+                                  </span>
+                                )}
+                              </div>
+
+                              {rev.comment && (
+                                <p className="text-[14px] text-zinc-700 leading-relaxed pt-1.5">
+                                  {rev.comment}
+                                </p>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </section>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredJobs.map((job) => (
-                    <EventCard
-                      key={job.id}
-                      job={{
-                        ...job,
-                        profiles: job.profiles || {
-                          id: company.id,
-                          full_name: displayName,
-                          avatar_url: company.avatar_url,
-                          slug: company.slug,
-                        },
-                      }}
-                      className="border-0 shadow-xs hover:shadow-md"
-                    />
-                  ))}
-                </div>
-              )}
-            </section>
-          )}
+                /* TAB 2: SỰ KIỆN ĐANG TUYỂN */
+                <section className="bg-white rounded-2xl p-6 sm:p-8 shadow-sm ring-1 ring-zinc-200/50">
+                  {/* Header & Search Control Bar */}
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-zinc-50/80 p-4 sm:p-5 rounded-xl ring-1 ring-zinc-200/50 mb-8">
+                    <div className="space-y-1">
+                      <h2 className="font-['Inter'] font-bold text-lg text-zinc-950 tracking-tight">
+                        Chiến dịch sự kiện
+                      </h2>
+                      <p className="text-[13.5px] text-zinc-500 leading-relaxed">
+                        Khám phá các vị trí tuyển dụng nhân sự, CTV do {displayName} tổ chức
+                      </p>
+                    </div>
 
+                    {/* Filters Toolbar */}
+                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+                      {/* Search bar */}
+                      <div className="relative w-full sm:w-[280px]">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4.5 text-zinc-400" />
+                        <input
+                          type="text"
+                          placeholder="Tìm vị trí, tên sự kiện..."
+                          value={jobSearchTerm}
+                          onChange={(e) => setJobSearchTerm(e.target.value)}
+                          className="w-full h-10 pl-9 pr-4 bg-white border-none ring-1 ring-zinc-200/80 rounded-lg text-[14px] text-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900 transition-shadow placeholder:text-zinc-400 shadow-sm"
+                        />
+                      </div>
+
+                      {/* Ward Filter */}
+                      {locationsList.length > 0 && (
+                        <div className="w-full sm:w-[200px] shrink-0">
+                          <CustomSelect
+                            value={selectedLocation}
+                            onChange={(val) => setSelectedLocation(val)}
+                            options={[
+                              { value: "", label: "Tất cả khu vực" },
+                              ...locationsList.map((loc) => ({
+                                value: loc,
+                                label: `Phường ${loc}`,
+                              })),
+                            ]}
+                            placeholder="Tất cả khu vực"
+                            buttonClassName="h-10 rounded-lg text-[14px] border-none ring-1 ring-zinc-200/80 shadow-sm bg-white"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Event Cards Grid / List */}
+                  {filteredJobs.length === 0 ? (
+                    <div className="py-20 text-center space-y-4 border border-dashed border-zinc-200 rounded-xl bg-zinc-50/50">
+                      <div className="size-16 bg-white rounded-2xl flex items-center justify-center mx-auto text-zinc-400 shadow-sm ring-1 ring-zinc-200/50">
+                        <Calendar className="size-8 stroke-[1.5]" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-lg text-zinc-900 tracking-tight">
+                          Không tìm thấy sự kiện phù hợp
+                        </h3>
+                        <p className="text-[14.5px] text-zinc-500 max-w-md mx-auto mt-2 leading-relaxed">
+                          {jobSearchTerm || selectedLocation
+                            ? "Thử thay đổi từ khóa hoặc bộ lọc khu vực để tìm thấy sự kiện."
+                            : "Hiện tại đơn vị này chưa có chiến dịch sự kiện mới. Hãy quay lại sau nhé!"}
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      {filteredJobs.map((job) => (
+                        <EventCard
+                          key={job.id}
+                          job={{
+                            ...job,
+                            profiles: job.profiles || {
+                              id: company.id,
+                              full_name: displayName,
+                              avatar_url: company.avatar_url,
+                              slug: company.slug,
+                            },
+                          }}
+                          className="border border-zinc-200/80 shadow-sm hover:shadow-md transition-shadow rounded-xl overflow-hidden"
+                        />
+                      ))}
+                    </div>
+                  )}
+                </section>
+              )}
+            </main>
+          </div>
         </div>
       </div>
     </MainLayout>
