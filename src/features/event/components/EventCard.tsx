@@ -126,13 +126,9 @@ export default function EventCard({
   const isVerified = Boolean(
     job.verified ?? job.profiles?.is_verified
   )
-  const isPartner = Boolean(
-    job.isPartner ?? (job.plan_tier === "pro" || job.is_featured)
-  )
   const isUrgent = Boolean(
     job.is_urgent === true || (job.is_urgent === undefined && job.id.startsWith("urgent"))
   )
-  const isPriority = Boolean(job.priority ?? job.is_featured)
 
   const handleCardClick = () => {
     if (onNavigate) {
@@ -173,20 +169,13 @@ export default function EventCard({
       <div className="flex-1 min-w-0 flex flex-col justify-between h-full gap-1">
         {/* Title & Badges */}
         <div className="w-full">
-          {(isUrgent || isPartner) && (
+          {isUrgent && (
             <div className="flex flex-wrap items-center gap-1.5 mb-1">
-              {isUrgent && (
-                <img
-                  src="/images/urgent/badge-tuyen-gap.svg"
-                  alt="Tuyển gấp"
-                  className="h-[18px] w-[77px] shrink-0"
-                />
-              )}
-              {isPartner && (
-                <span className="bg-[#FF8800] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-[4px] shrink-0">
-                  Đối Tác
-                </span>
-              )}
+              <img
+                src="/images/urgent/badge-tuyen-gap.svg"
+                alt="Tuyển gấp"
+                className="h-[18px] w-[77px] shrink-0"
+              />
             </div>
           )}
           <h3
@@ -226,17 +215,9 @@ export default function EventCard({
           <span className="truncate">{locationText}</span>
         </div>
 
-        {/* Footer: Priority + Time */}
+        {/* Footer: Time */}
         <div className="flex items-center pt-1 border-t border-gray-50 text-[12px] text-[#8c8c8c]">
-          <div className="flex items-center gap-1.5 overflow-hidden">
-            {isPriority && (
-              <>
-                <span className="whitespace-nowrap">Tin ưu tiên</span>
-                <span className="size-[3px] rounded-full bg-[#9b9b9b] shrink-0" />
-              </>
-            )}
-            <span className="whitespace-nowrap">{timeAgoText}</span>
-          </div>
+          <span className="whitespace-nowrap">{timeAgoText}</span>
         </div>
       </div>
     </article>

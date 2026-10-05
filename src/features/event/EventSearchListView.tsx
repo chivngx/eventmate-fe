@@ -5,31 +5,17 @@ import { supabase } from "@/lib/supabase"
 import { useUser } from "@/components/providers/AuthProvider"
 import { useActiveWards, useEventCategories, useJobPositions } from "@/hooks/useLookups"
 import MainLayout from "@/components/layout/MainLayout"
-import JobSearchBar from "./components/EventSearchBar"
+import HeroSearchBanner from "@/features/home/components/HeroSearchBanner"
 import EventCard, { JobItem } from "./components/EventCard"
 import JobFilterSidebar, { JobFilterState } from "./components/EventFilterSidebar"
 import Pagination from "@/components/common/Pagination"
 import { Briefcase } from "lucide-react"
 import { ResultCountHeader, EmptyState, ErrorState } from "@/components/common/States"
 import { useSearchParams } from "@/lib/router"
-import { useToast } from "@/components/providers/ToastProvider"
 import Breadcrumb from "@/components/common/Breadcrumb"
 
 const ITEMS_PER_PAGE = 8
 
-const POSITION_SLUG_MAP: Record<string, string> = {
-  "mc": "MC sự kiện",
-  "check-in": "Check-in",
-  "hau-can": "Hậu cần",
-  "le-tan": "Lễ tân",
-  "dieu-phoi": "Điều phối",
-  "pg-pb": "PG / PB",
-  "media": "Media / Quay phim",
-  "am-thanh-anh-sang": "Âm thanh ánh sáng",
-  "tinh-nguyen-vien": "Tình nguyện viên",
-  "an-ninh": "An ninh",
-  "leader": "Trưởng nhóm"
-}
 
 interface EventSearchListProps {
   initialPosition?: string
@@ -37,7 +23,6 @@ interface EventSearchListProps {
 
 export default function EventSearchList({ initialPosition }: EventSearchListProps = {}) {
   const { user, role } = useUser()
-  const { showToast } = useToast()
   const userRole = user ? role || "student" : "guest"
   const [searchParams] = useSearchParams()
 
@@ -48,85 +33,25 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
   const [jobs, setJobs] = useState<JobItem[]>([])
   const [loading, setLoading] = useState(true)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
-  const [bookmarkedEvents, setBookmarkedEvents] = useState<Record<string, boolean>>({})
-
-  // Fetch bookmarks
-  useEffect(() => {
-    if (!user) {
-      setBookmarkedEvents({})
-      return
-    }
-
-    let isMounted = true
-    const fetchBookmarks = async () => {
-      const { data, error } = await supabase
-        .from("event_bookmarks")
-        .select("event_id")
-        .eq("student_id", user.id)
-
-      if (data && !error && isMounted) {
-        const map: Record<string, boolean> = {}
-        data.forEach((b: { event_id: string }) => {
-          map[b.event_id] = true
-        })
-        setBookmarkedEvents(map)
-      }
-    }
-
-    fetchBookmarks()
-
-    return () => {
-      isMounted = false
-    }
-  }, [user])
-
-  const handleToggleBookmark = useCallback(async (eventId: string) => {
-    if (!user) {
-      showToast({
-        title: "Yêu cầu đăng nhập",
-        message: "Vui lòng đăng nhập để lưu sự kiện này!",
-        type: "info",
-      })
-      return
-    }
-
-    const isCurrentlyBookmarked = !!bookmarkedEvents[eventId]
-    setBookmarkedEvents((prev) => ({
-      ...prev,
-      [eventId]: !isCurrentlyBookmarked,
-    }))
-
-    if (isCurrentlyBookmarked) {
-      const { error } = await supabase
-        .from("event_bookmarks")
-        .delete()
-        .eq("student_id", user.id)
-        .eq("event_id", eventId)
-
-      if (error) {
-        setBookmarkedEvents((prev) => ({ ...prev, [eventId]: true }))
-        showToast({ title: "Lỗi", message: "Không thể bỏ lưu sự kiện.", type: "error" })
-      } else {
-        showToast({ title: "Đã bỏ lưu", message: "Đã xóa sự kiện khỏi danh sách đã lưu.", type: "info" })
-      }
-    } else {
-      const { error } = await supabase
-        .from("event_bookmarks")
-        .insert([{ student_id: user.id, event_id: eventId }])
-
-      if (error) {
-        setBookmarkedEvents((prev) => ({ ...prev, [eventId]: false }))
-        showToast({ title: "Lỗi", message: "Không thể lưu sự kiện.", type: "error" })
-      } else {
-        showToast({ title: "Đã lưu", message: "Đã lưu sự kiện thành công!", type: "success" })
-      }
-    }
-  }, [user, bookmarkedEvents, showToast])
 
   // Lookups: Only wards that have active/valid events + categories + positions
   const { data: wards = [] } = useActiveWards()
   const { data: categories = [] } = useEventCategories()
   const { data: positions = [] } = useJobPositions()
+
+  // Dynamically resolve position slug/name from DB job_positions
+  const getPositionName = useCallback(
+    (slugOrName: string) => {
+      if (!slugOrName) return ""
+      const query = slugOrName.toLowerCase().trim()
+      const matched = positions.find(
+        (p) => p.slug?.toLowerCase() === query || p.name?.toLowerCase() === query
+      )
+      if (matched) return matched.name
+      return slugOrName.replace(/-/g, " ")
+    },
+    [positions]
+  )
 
   // Search & Filter state initialized from URL
   const [searchTerm, setSearchTerm] = useState(
@@ -264,7 +189,7 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
     // Position filter (URL slug / initialPosition)
     if (selectedPosition.trim()) {
       const posQuery = selectedPosition.toLowerCase().trim().replace(/-/g, " ")
-      const mappedFriendly = POSITION_SLUG_MAP[selectedPosition.toLowerCase()]?.toLowerCase()
+      const mappedFriendly = getPositionName(selectedPosition).toLowerCase()
       result = result.filter(
         (job) =>
           job.position_type?.toLowerCase().includes(posQuery) ||
@@ -393,147 +318,155 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
     (sidebarFilters.dateRange && sidebarFilters.dateRange !== "all") ||
     sidebarFilters.wards.length > 0
 
+  const handleHeroSearch = (term?: string, ward?: string, category?: string) => {
+    if (typeof term === "string") setSearchTerm(term)
+    if (typeof ward === "string") setSelectedLocation(ward)
+    if (category) {
+      setSidebarFilters((prev) => ({
+        ...prev,
+        positions: prev.positions.includes(category)
+          ? prev.positions
+          : [...prev.positions, category],
+      }))
+    }
+  }
+
   return (
-    <MainLayout role={userRole} fullWidth className="bg-[#f3f5f7]">
-      <div className="w-full bg-[#f3f5f7] min-h-[calc(100vh-80px)] py-8 sm:py-12">
+    <MainLayout role={userRole} fullWidth className="bg-[#F2F6FC]">
+      {/* Hero Banner with events-specific title */}
+      <HeroSearchBanner
+        title={
+          selectedPosition ? (
+            <>
+              Tuyển Dụng Vị Trí{" "}
+              <span className="underline decoration-white/70 underline-offset-6">
+                {getPositionName(selectedPosition)}
+              </span>
+            </>
+          ) : (
+            "Khám Phá Việc Làm Sự Kiện Hàng Đầu"
+          )
+        }
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        wardIdTerm={selectedLocation}
+        setWardIdTerm={setSelectedLocation}
+        activeWards={wards}
+        onSearch={handleHeroSearch}
+      />
+
+      <div className="w-full min-h-[calc(100vh-80px)] pt-10 sm:pt-12 pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 animate-in fade-in duration-300">
           {selectedPosition && (
-          <div className="mb-6">
-            <Breadcrumb
-              items={[
-                { label: "Việc làm", href: "/events" },
-                {
-                  label:
-                    POSITION_SLUG_MAP[selectedPosition.toLowerCase()] ||
-                    selectedPosition.replace(/-/g, " "),
-                },
-              ]}
-            />
-          </div>
-        )}
+            <div className="mb-6">
+              <Breadcrumb
+                items={[
+                  { label: "Việc làm", href: "/events" },
+                  {
+                    label: getPositionName(selectedPosition),
+                  },
+                ]}
+              />
+            </div>
+          )}
 
-        {/* HERO SECTION — Figma Discover the Best Job (node 6295:27415) */}
-        <section className="text-center mb-10 sm:mb-14 space-y-4">
-          <h1 className="text-2xl sm:text-[32px] font-semibold text-[#222222] tracking-tight">
-            {selectedPosition ? (
-              <>Tuyển Dụng Vị Trí <span className="text-zinc-950 font-bold underline decoration-zinc-300 underline-offset-4">{POSITION_SLUG_MAP[selectedPosition.toLowerCase()] || selectedPosition.replace(/-/g, " ").toUpperCase()}</span></>
-            ) : (
-              "Khám phá Việc Làm Sự Kiện Hàng Đầu"
-            )}
-          </h1>
-          <p className="text-sm sm:text-base text-[#515151] max-w-2xl mx-auto leading-relaxed">
-            Hàng trăm vị trí tuyển dụng nhân sự sự kiện, lễ hội, hội nghị và giải trí hấp dẫn với mức thù lao minh bạch tại Đà Nẵng.
-          </p>
-
-          {/* Search bar */}
-          <div className="pt-2">
-            <JobSearchBar
-              searchTerm={searchTerm}
-              onSearchChange={setSearchTerm}
-              selectedLocation={selectedLocation}
-              onLocationChange={setSelectedLocation}
-              wards={wards}
-            />
-          </div>
-        </section>
-
-        {/* MAIN BODY: SIDEBAR + RESULTS (Figma node 6295:27388) */}
-        <div className="flex flex-col lg:flex-row items-start gap-8">
-          {/* Left Sidebar Filter (Figma node 6295:27389) */}
-          <JobFilterSidebar
-            filters={sidebarFilters}
-            onFilterChange={setSidebarFilters}
-            onResetFilters={handleResetFilters}
-            availableWards={wards}
-            availableCategories={categories}
-            availablePositions={positions}
-          />
-
-          {/* Right Cards Grid (Figma node 6295:27390) */}
-          <main className="flex-1 w-full min-w-0 max-w-[920px]">
-            {/* Active Position Filter Chip */}
-            {selectedPosition && (
-              <div className="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-semibold text-zinc-900">
-                <span>Vị trí tuyển dụng: <strong>{POSITION_SLUG_MAP[selectedPosition.toLowerCase()] || selectedPosition.replace(/-/g, " ")}</strong></span>
-                <button
-                  type="button"
-                  onClick={() => setSelectedPosition("")}
-                  className="size-4 rounded-full bg-zinc-200 hover:bg-zinc-300 text-zinc-800 flex items-center justify-center text-[11px] font-bold cursor-pointer"
-                  title="Xóa lọc vị trí"
-                >
-                  ✕
-                </button>
-              </div>
-            )}
-
-            {/* Header info / count */}
-            <ResultCountHeader
-              totalItems={totalItems}
-              entityName="vị trí việc làm"
-              hasActiveFilters={hasActiveFilters}
+          {/* MAIN BODY: SIDEBAR + RESULTS (Figma node 6295:27388) */}
+          <div className="flex flex-col lg:flex-row items-start gap-8">
+            {/* Left Sidebar Filter (Figma node 6295:27389) */}
+            <JobFilterSidebar
+              filters={sidebarFilters}
+              onFilterChange={setSidebarFilters}
               onResetFilters={handleResetFilters}
+              availableWards={wards}
+              availableCategories={categories}
+              availablePositions={positions}
+              events={jobs}
+              isLoading={loading}
             />
 
-            {/* Content states */}
-            {loading ? (
-              /* Loading Skeletons */
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[...Array(6)].map((_, i) => (
-                  <div
-                    key={`skeleton-${i}`}
-                    className="w-full min-h-[192px] p-4 bg-white rounded-[16px] border border-[#e8e8e8] animate-pulse flex gap-3 items-start"
+            {/* Right Cards Grid (Figma node 6295:27390) */}
+            <main className="flex-1 w-full min-w-0 max-w-[920px]">
+              {/* Active Position Filter Chip */}
+              {selectedPosition && (
+                <div className="mb-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-100 border border-zinc-200 text-xs font-semibold text-zinc-900">
+                  <span>Vị trí tuyển dụng: <strong>{getPositionName(selectedPosition)}</strong></span>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedPosition("")}
+                    className="size-4 rounded-full bg-zinc-200 hover:bg-zinc-300 text-zinc-800 flex items-center justify-center text-[11px] font-bold cursor-pointer"
+                    title="Xóa lọc vị trí"
                   >
-                    <div className="size-[56px] min-w-[56px] rounded-[6px] bg-gray-100 shrink-0" />
-                    <div className="flex-1 space-y-2.5">
-                      <div className="h-4 bg-gray-100 rounded w-20" />
-                      <div className="h-4 bg-gray-100 rounded w-4/5" />
-                      <div className="h-3 bg-gray-100 rounded w-1/2" />
-                      <div className="h-4 bg-gray-100 rounded w-1/3" />
-                      <div className="h-3 bg-gray-100 rounded w-2/3" />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : errorMsg ? (
-              /* Error State */
-              <ErrorState
-                icon={<Briefcase className="w-12 h-12 text-red-400 mx-auto mb-3" />}
-                message={errorMsg}
-                onRetry={() => window.location.reload()}
+                    ✕
+                  </button>
+                </div>
+              )}
+
+              {/* Header info / count */}
+              <ResultCountHeader
+                totalItems={totalItems}
+                entityName="vị trí việc làm"
+                hasActiveFilters={hasActiveFilters}
+                onResetFilters={handleResetFilters}
               />
-            ) : filteredJobs.length === 0 ? (
-              /* Empty State */
-              <EmptyState
-                title="Không tìm thấy việc làm phù hợp"
-                description="Không có vị trí tuyển dụng nào khớp với tiêu chí tìm kiếm hoặc bộ lọc hiện tại của bạn."
-                onAction={handleResetFilters}
-              />
-            ) : (
-              /* 2-Column Real Jobs Grid (Figma node 6295:27392) */
-              <div className="space-y-6">
+
+              {/* Content states */}
+              {loading ? (
+                /* Loading Skeletons */
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {paginatedJobs.map((job) => (
-                    <EventCard
-                      key={job.id}
-                      job={job}
-                      isBookmarked={!!bookmarkedEvents[job.id]}
-                      onToggleBookmark={handleToggleBookmark}
-                    />
+                  {[...Array(6)].map((_, i) => (
+                    <div
+                      key={`skeleton-${i}`}
+                      className="w-full min-h-[192px] p-4 bg-white rounded-[16px] border border-[#e8e8e8] animate-pulse flex gap-3 items-start"
+                    >
+                      <div className="size-[56px] min-w-[56px] rounded-[6px] bg-gray-100 shrink-0" />
+                      <div className="flex-1 space-y-2.5">
+                        <div className="h-4 bg-gray-100 rounded w-20" />
+                        <div className="h-4 bg-gray-100 rounded w-4/5" />
+                        <div className="h-3 bg-gray-100 rounded w-1/2" />
+                        <div className="h-4 bg-gray-100 rounded w-1/3" />
+                        <div className="h-3 bg-gray-100 rounded w-2/3" />
+                      </div>
+                    </div>
                   ))}
                 </div>
-
-                {/* Pagination (Figma node 6295:27413) */}
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={setCurrentPage}
-                  totalItems={totalItems}
-                  itemsPerPage={ITEMS_PER_PAGE}
+              ) : errorMsg ? (
+                /* Error State */
+                <ErrorState
+                  icon={<Briefcase className="w-12 h-12 text-red-400 mx-auto mb-3" />}
+                  message={errorMsg}
+                  onRetry={() => window.location.reload()}
                 />
-              </div>
-            )}
-          </main>
-        </div>
+              ) : filteredJobs.length === 0 ? (
+                /* Empty State */
+                <EmptyState
+                  title="Không tìm thấy việc làm phù hợp"
+                  description="Không có vị trí tuyển dụng nào khớp với tiêu chí tìm kiếm hoặc bộ lọc hiện tại của bạn."
+                  onAction={handleResetFilters}
+                />
+              ) : (
+                /* 2-Column Real Jobs Grid (Figma node 6295:27392) */
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {paginatedJobs.map((job) => (
+                      <EventCard
+                        key={job.id}
+                        job={job}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Pagination (Figma node 6295:27413) */}
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                    totalItems={totalItems}
+                    itemsPerPage={ITEMS_PER_PAGE}
+                  />
+                </div>
+              )}
+            </main>
+          </div>
         </div>
       </div>
     </MainLayout>

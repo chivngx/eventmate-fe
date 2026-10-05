@@ -383,7 +383,7 @@ export default function AccountSettingsView({ embedded = false }: { embedded?: b
                         Chia sẻ số điện thoại / Zalo khi trúng tuyển
                       </label>
                       <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                        Sau khi hồ sơ được duyệt, Ban tổ chức có thể kết nối Zalo để thêm bạn vào nhóm điều phối sự kiện.
+                        Sau khi hồ sơ được duyệt, Ban tổ chức có thể liên hệ trực tiếp để trao đổi công việc sự kiện.
                       </p>
                     </div>
                     <ToggleSwitch

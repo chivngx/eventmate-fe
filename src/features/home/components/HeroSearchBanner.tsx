@@ -4,12 +4,14 @@ import { useState } from "react"
 import { Search, MapPin, Briefcase } from "lucide-react"
 
 interface HeroSearchBannerProps {
-  searchTerm: string
-  setSearchTerm: (term: string) => void
-  wardIdTerm: string
-  setWardIdTerm: (ward: string) => void
-  activeWards: Array<{ id: string | number; name: string }>
-  onSearch: (term?: string, ward?: string, category?: string) => void
+  searchTerm?: string
+  setSearchTerm?: (term: string) => void
+  wardIdTerm?: string
+  setWardIdTerm?: (ward: string) => void
+  activeWards?: Array<{ id: string | number; name: string }>
+  onSearch?: (term?: string, ward?: string, category?: string) => void
+  title?: React.ReactNode
+  children?: React.ReactNode
 }
 
 const EVENT_ROLES = [
@@ -27,18 +29,20 @@ const EVENT_ROLES = [
 
 
 export default function HeroSearchBanner({
-  searchTerm,
+  searchTerm = "",
   setSearchTerm,
-  wardIdTerm,
+  wardIdTerm = "",
   setWardIdTerm,
-  activeWards,
+  activeWards = [],
   onSearch,
+  title = "Sự kiện tới tay, đi làm ngay!",
+  children,
 }: HeroSearchBannerProps) {
   const [selectedRole, setSelectedRole] = useState("")
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSearch(searchTerm, wardIdTerm, selectedRole)
+    onSearch?.(searchTerm, wardIdTerm, selectedRole)
   }
 
 
@@ -150,71 +154,74 @@ export default function HeroSearchBanner({
 
       {/* --- CENTER CONTENT (Slogan & Search Bar with Plenty of Breathing Room) --- */}
       <div className="max-w-4xl mx-auto relative z-10 text-center pt-8 pb-0 md:pt-10 md:pb-0 px-4">
-        {/* Punchy Vieclamtot-style Slogan */}
         <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-6 md:mb-8">
-          Sự kiện tới tay, đi làm ngay!
+          {title}
         </h1>
 
-        {/* Vieclamtot-style Single Capsule Search Bar */}
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white rounded-2xl md:rounded-full shadow-lg p-2 md:p-2.5 flex flex-col md:flex-row items-center gap-2 max-w-4xl mx-auto border border-gray-100 text-gray-800"
-        >
-          {/* Field 1: Keyword Search */}
-          <div className="flex items-center gap-2.5 px-3 py-2 w-full md:w-5/12 border-b md:border-b-0 md:border-r border-gray-200">
-            <Search className="w-5 h-5 text-gray-400 shrink-0" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Tìm việc làm, vị trí sự kiện..."
-              className="w-full bg-transparent text-sm font-medium text-gray-900 placeholder-gray-400 focus:outline-none"
-            />
-          </div>
-
-          {/* Field 2: District Filter */}
-          <div className="flex items-center gap-2 px-3 py-2 w-full md:w-3/12 border-b md:border-b-0 md:border-r border-gray-200">
-            <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
-            <select
-              value={wardIdTerm}
-              onChange={(e) => setWardIdTerm(e.target.value)}
-              className="w-full bg-transparent text-sm font-medium text-gray-700 focus:outline-none cursor-pointer"
-            >
-              <option value="">Chọn khu vực</option>
-              {activeWards.map((w) => (
-                <option key={w.id} value={w.id} className="text-gray-900">
-                  {w.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Field 3: Role / Category Filter */}
-          <div className="flex items-center gap-2 px-3 py-2 w-full md:w-3/12">
-            <Briefcase className="w-4 h-4 text-gray-400 shrink-0" />
-            <select
-              value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value)}
-              className="w-full bg-transparent text-sm font-medium text-gray-700 focus:outline-none cursor-pointer"
-            >
-              <option value="">Ngành nghề</option>
-              {EVENT_ROLES.map((role) => (
-                <option key={role} value={role} className="text-gray-900">
-                  {role}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            className="w-full md:w-auto bg-[#FB7328] hover:bg-[#e65f15] active:bg-[#d44f0b] text-white font-bold px-7 py-3 rounded-xl md:rounded-full transition-colors flex items-center justify-center gap-2 text-sm shrink-0 shadow-md"
+        {children ? (
+          children
+        ) : (
+          /* Vieclamtot-style Single Capsule Search Bar */
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white rounded-2xl md:rounded-full shadow-lg p-2 md:p-2.5 flex flex-col md:flex-row items-center gap-2 max-w-4xl mx-auto border border-gray-100 text-gray-800"
           >
-            <Search className="w-4 h-4" />
-            <span>Tìm việc</span>
-          </button>
-        </form>
+            {/* Field 1: Keyword Search */}
+            <div className="flex items-center gap-2.5 px-3 py-2 w-full md:w-5/12 border-b md:border-b-0 md:border-r border-gray-200">
+              <Search className="w-5 h-5 text-gray-400 shrink-0" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm?.(e.target.value)}
+                placeholder="Tìm việc làm, vị trí sự kiện..."
+                className="w-full bg-transparent text-sm font-medium text-gray-900 placeholder-gray-400 focus:outline-none"
+              />
+            </div>
+
+            {/* Field 2: District Filter */}
+            <div className="flex items-center gap-2 px-3 py-2 w-full md:w-3/12 border-b md:border-b-0 md:border-r border-gray-200">
+              <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
+              <select
+                value={wardIdTerm}
+                onChange={(e) => setWardIdTerm?.(e.target.value)}
+                className="w-full bg-transparent text-sm font-medium text-gray-700 focus:outline-none cursor-pointer"
+              >
+                <option value="">Chọn khu vực</option>
+                {activeWards.map((w) => (
+                  <option key={w.id} value={w.id} className="text-gray-900">
+                    {w.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Field 3: Role / Category Filter */}
+            <div className="flex items-center gap-2 px-3 py-2 w-full md:w-3/12">
+              <Briefcase className="w-4 h-4 text-gray-400 shrink-0" />
+              <select
+                value={selectedRole}
+                onChange={(e) => setSelectedRole(e.target.value)}
+                className="w-full bg-transparent text-sm font-medium text-gray-700 focus:outline-none cursor-pointer"
+              >
+                <option value="">Ngành nghề</option>
+                {EVENT_ROLES.map((role) => (
+                  <option key={role} value={role} className="text-gray-900">
+                    {role}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Submit Button */}
+            <button
+              type="submit"
+              className="w-full md:w-auto bg-[#FB7328] hover:bg-[#e65f15] active:bg-[#d44f0b] text-white font-bold px-7 py-3 rounded-xl md:rounded-full transition-colors flex items-center justify-center gap-2 text-sm shrink-0 shadow-md cursor-pointer"
+            >
+              <Search className="w-4 h-4" />
+              <span>Tìm việc</span>
+            </button>
+          </form>
+        )}
       </div>
     </div>
   )

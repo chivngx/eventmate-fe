@@ -8,7 +8,7 @@ const FAQ_ITEMS = [
     id: "faq-1",
     question: "Gói Sự Kiện Nhanh (99.000đ) có thời hạn và quyền lợi gì?",
     answer:
-      "Gói Sự Kiện Nhanh áp dụng cho 1 sự kiện cụ thể với thời gian ghim tin HOT & Tuyển Gấp trong 7 ngày. Bạn sẽ được kích hoạt toàn bộ công cụ: Điểm danh & Chấm công sự kiện cho nhân sự ngày chạy event, tự động gửi link nhóm Zalo, bộ lọc ứng viên có Điểm uy tín cao chống bùng ca và công cụ cấp Chứng nhận E-Certificate cho nhân sự hoàn thành.",
+      "Gói Sự Kiện Nhanh áp dụng cho 1 sự kiện cụ thể với thời gian ghim tin HOT & Tuyển Gấp trong 7 ngày. Bạn sẽ được kích hoạt toàn bộ công cụ: Điểm danh & Chấm công sự kiện cho nhân sự ngày chạy event, thông báo kết quả duyệt đơn tức thì, bộ lọc ứng viên có Điểm uy tín cao chống bùng ca và công cụ cấp Chứng nhận E-Certificate cho nhân sự hoàn thành.",
   },
   {
     id: "faq-2",

@@ -4,7 +4,6 @@ import Link from "next/link"
 import {
   ChevronDown,
   CheckCircle2,
-  Send,
   Award,
   Star,
   Calendar,
@@ -250,7 +249,7 @@ export default function ApplicationCard({
                       <span className="text-zinc-400 dark:text-zinc-500">{timeAgo}</span>
                     </div>
                     <p className="text-xs text-zinc-600 dark:text-zinc-400">
-                      Đơn ứng tuyển đã được duyệt. Vui lòng tham gia nhóm Zalo điều phối của Ban tổ chức để nhận ca và phân công chi tiết.
+                      Đơn ứng tuyển đã được duyệt. Bạn hãy theo dõi thông báo và tin nhắn từ Ban tổ chức để nhận ca và phân công chi tiết.
                     </p>
                   </div>
                 </>
@@ -298,19 +297,8 @@ export default function ApplicationCard({
           </div>
 
           {/* Action Links & Buttons */}
-          {(event.zalo_group_link || app.attendance_status === "completed") && (
+          {app.attendance_status === "completed" && (
             <div className="pt-3 flex flex-wrap items-center gap-2.5 border-t border-zinc-200 dark:border-zinc-800">
-              {status === "approved" && event.zalo_group_link && (
-                <a
-                  href={event.zalo_group_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="h-8 px-3.5 rounded-lg bg-zinc-900 hover:bg-black dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white text-white text-xs font-medium flex items-center gap-1.5 transition-colors shadow-xs"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>Vào nhóm Zalo điều phối</span>
-                </a>
-              )}
 
               {app.attendance_status === "completed" && (
                 <button

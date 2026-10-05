@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     address TEXT,
     is_premium BOOLEAN NOT NULL DEFAULT FALSE,
     premium_until TIMESTAMPTZ,
+    single_event_credits INT DEFAULT 0,
     reliability_score NUMERIC DEFAULT 100,
     is_verified BOOLEAN DEFAULT FALSE,
     cv_url TEXT,
@@ -79,7 +80,6 @@ CREATE TABLE IF NOT EXISTS public.events (
     salary_amount NUMERIC DEFAULT 0,
     salary_type TEXT DEFAULT 'per_shift', -- per_shift, per_hour, per_event, volunteer
     payment_method TEXT DEFAULT 'cash_after_event', -- cash_after_event, bank_transfer
-    zalo_group_link TEXT,
     status TEXT DEFAULT 'upcoming'::text, -- upcoming, ongoing, completed
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
     application_deadline TIMESTAMP WITH TIME ZONE,
@@ -87,48 +87,54 @@ CREATE TABLE IF NOT EXISTS public.events (
     benefits TEXT DEFAULT 'Cấp chứng nhận'::text,
     category TEXT DEFAULT 'Lễ hội Âm nhạc'::text,
     slots_needed INT DEFAULT 1,
-    slug TEXT UNIQUE
+    slug TEXT UNIQUE,
+    is_urgent BOOLEAN DEFAULT FALSE,
+    is_featured BOOLEAN DEFAULT FALSE,
+    bumped_at TIMESTAMPTZ DEFAULT NULL,
+    qr_checkin_code TEXT DEFAULT NULL,
+    plan_tier TEXT DEFAULT 'free',
+    deleted_at TIMESTAMPTZ DEFAULT NULL
 );
 
 CREATE INDEX IF NOT EXISTS idx_events_organizer_id ON public.events(organizer_id);
 CREATE INDEX IF NOT EXISTS idx_events_ward_id ON public.events(ward_id);
 CREATE INDEX IF NOT EXISTS idx_events_status ON public.events(status);
 CREATE INDEX IF NOT EXISTS idx_events_slug ON public.events(slug);
+CREATE INDEX IF NOT EXISTS idx_events_ranking ON public.events (is_featured DESC NULLS LAST, is_urgent DESC NULLS LAST, bumped_at DESC NULLS LAST, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_events_qr_code ON public.events (qr_checkin_code) WHERE qr_checkin_code IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_events_deleted_at ON public.events (deleted_at) WHERE deleted_at IS NULL;
 
--- 6. Bảng APPLICATIONS (Đơn ứng tuyển sự kiện)
+-- 6. Bảng EVENT_POSITIONS (Các vị trí tuyển dụng chi tiết trong sự kiện)
+CREATE TABLE IF NOT EXISTS public.event_positions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    event_id UUID NOT NULL REFERENCES public.events(id) ON DELETE CASCADE,
+    title TEXT NOT NULL,
+    slots_needed INTEGER NOT NULL DEFAULT 1,
+    salary_amount NUMERIC NOT NULL DEFAULT 0,
+    salary_type TEXT NOT NULL DEFAULT 'per_shift',
+    description TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT timezone('utc'::text, now())
+);
+
+CREATE INDEX IF NOT EXISTS idx_event_positions_event_id ON public.event_positions(event_id);
+
+-- 7. Bảng APPLICATIONS (Đơn ứng tuyển sự kiện)
 CREATE TABLE IF NOT EXISTS public.applications (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     event_id UUID REFERENCES public.events(id) ON DELETE CASCADE NOT NULL,
     student_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    position_id UUID REFERENCES public.event_positions(id) ON DELETE SET NULL,
     status TEXT DEFAULT 'pending'::text, -- pending, approved, rejected
     applied_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
     attendance_status TEXT DEFAULT 'pending_event'::text, -- pending_event, checked_in, completed, no_show
     student_note TEXT,
-    CONSTRAINT unique_event_student UNIQUE (event_id, student_id)
+    CONSTRAINT unique_event_student_position UNIQUE (event_id, student_id, position_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_applications_event ON public.applications(event_id);
 CREATE INDEX IF NOT EXISTS idx_applications_student ON public.applications(student_id);
 CREATE INDEX IF NOT EXISTS idx_applications_status ON public.applications(status);
-
--- 7. Bảng INTERVIEWS (Lịch hẹn phỏng vấn / casting)
-CREATE TABLE IF NOT EXISTS public.interviews (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    event_id UUID NOT NULL REFERENCES public.events(id) ON DELETE CASCADE,
-    student_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-    organizer_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-    title TEXT NOT NULL,
-    scheduled_at TIMESTAMPTZ NOT NULL,
-    meeting_link TEXT,
-    status TEXT NOT NULL DEFAULT 'pending'
-        CHECK (status IN ('pending', 'accepted', 'rejected', 'completed', 'cancelled')),
-    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-    CONSTRAINT interviews_event_id_student_id_scheduled_at_key UNIQUE (event_id, student_id, scheduled_at)
-);
-
-CREATE INDEX IF NOT EXISTS idx_interviews_student_status ON public.interviews(student_id, status);
-CREATE INDEX IF NOT EXISTS idx_interviews_organizer_status ON public.interviews(organizer_id, status);
-CREATE INDEX IF NOT EXISTS idx_interviews_event ON public.interviews(event_id);
+CREATE INDEX IF NOT EXISTS idx_applications_position_id ON public.applications(position_id);
 
 -- 8. Bảng CHATS (Cuộc trò chuyện)
 CREATE TABLE IF NOT EXISTS public.chats (
@@ -149,6 +155,7 @@ CREATE TABLE IF NOT EXISTS public.messages (
     chat_id UUID REFERENCES public.chats(id) ON DELETE CASCADE,
     sender_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT false,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW())
 );
 
@@ -215,19 +222,7 @@ CREATE TABLE IF NOT EXISTS public.profile_likes (
 CREATE INDEX IF NOT EXISTS idx_profile_likes_student_id ON public.profile_likes(student_id);
 CREATE INDEX IF NOT EXISTS idx_profile_likes_organizer_id ON public.profile_likes(organizer_id);
 
--- 15. Bảng COMPANY_FOLLOWS (Theo dõi công ty / nhà tổ chức sự kiện)
-CREATE TABLE IF NOT EXISTS public.company_follows (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-    organizer_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-    created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
-    CONSTRAINT unique_user_organizer_follow UNIQUE (user_id, organizer_id)
-);
-
-CREATE INDEX IF NOT EXISTS idx_company_follows_user ON public.company_follows(user_id);
-CREATE INDEX IF NOT EXISTS idx_company_follows_organizer ON public.company_follows(organizer_id);
-
--- 16. Bảng TRANSACTIONS (Lịch sử giao dịch & cổng thanh toán PayOS)
+-- 15. Bảng TRANSACTIONS (Lịch sử giao dịch & cổng thanh toán PayOS)
 CREATE TABLE IF NOT EXISTS public.transactions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,

@@ -40,7 +40,6 @@ export default function PostJobView() {
   const [startTime, setStartTime] = useState("")
   const [endTime, setEndTime] = useState("")
   const [paymentMethod, setPaymentMethod] = useState("cash_after_event")
-  const [zaloGroupLink, setZaloGroupLink] = useState("")
   const [applicationDeadline, setApplicationDeadline] = useState("")
   const [isUrgent, setIsUrgent] = useState(false)
   const [isFeatured, setIsFeatured] = useState(false)
@@ -146,13 +145,6 @@ export default function PostJobView() {
       }
     }
 
-    // 10. Link nhóm Zalo
-    if (zaloGroupLink.trim()) {
-      const isUrl = /^https?:\/\/.+/i.test(zaloGroupLink.trim())
-      if (!isUrl) {
-        errs.zaloGroupLink = "Link nhóm phải là URL hợp lệ (VD: https://zalo.me/g/...)"
-      }
-    }
 
     // 11. Mô tả chi tiết
     if (!desc.trim()) {
@@ -220,7 +212,6 @@ export default function PostJobView() {
         setStartTime(data.start_time || "07:30")
         setEndTime(data.end_time || "17:00")
         setPaymentMethod(data.payment_method || "cash_after_event")
-        setZaloGroupLink(data.zalo_group_link || "")
         setApplicationDeadline(data.application_deadline ? data.application_deadline.split("T")[0] : "")
         const isSingleEvent = data.plan_tier === "single_event"
         const canKeepUrgent = isPremium || isSingleEvent
@@ -362,7 +353,6 @@ export default function PostJobView() {
       salary_amount: minSalary,
       salary_type: primarySalaryType,
       payment_method: paymentMethod,
-      zalo_group_link: zaloGroupLink ? zaloGroupLink.trim() : null,
       application_deadline: applicationDeadline ? new Date(applicationDeadline).toISOString() : null,
       is_urgent: canUseUrgent ? isUrgent : false,
       is_featured: canUseFeatured ? isFeatured : false,
@@ -502,8 +492,6 @@ export default function PostJobView() {
         setPositions={setPositions}
         paymentMethod={paymentMethod}
         setPaymentMethod={setPaymentMethod}
-        zaloGroupLink={zaloGroupLink}
-        setZaloGroupLink={setZaloGroupLink}
         applicationDeadline={applicationDeadline}
         setApplicationDeadline={setApplicationDeadline}
         category={category}

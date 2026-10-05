@@ -11,7 +11,6 @@ import {
   Check,
   CheckCircle2,
   Circle,
-  MessageCircle,
   Users,
   Eye,
   ChevronDown,
@@ -67,8 +66,6 @@ export interface PostJobFormProps {
   setSalaryType?: (val: string) => void
   paymentMethod?: string
   setPaymentMethod?: (val: string) => void
-  zaloGroupLink?: string
-  setZaloGroupLink?: (val: string) => void
   applicationDeadline: string
   setApplicationDeadline: (val: string) => void
   positionType?: string
@@ -123,8 +120,6 @@ export default function PostJobForm({
   setSalaryType,
   paymentMethod = "cash_after_event",
   setPaymentMethod,
-  zaloGroupLink = "",
-  setZaloGroupLink,
   applicationDeadline,
   setApplicationDeadline,
   positionType = "",
@@ -1020,49 +1015,15 @@ export default function PostJobForm({
                 </div>
                 <div>
                   <h2 className="text-[15px] font-semibold text-zinc-900 dark:text-zinc-100 leading-tight">
-                    5. Mô tả chi tiết & Kênh tiếp nhận
+                    5. Mô tả chi tiết & Yêu cầu
                   </h2>
                   <p className="text-[12px] text-zinc-500 dark:text-zinc-400">
-                    Nội dung nhiệm vụ, trang phục, lưu ý và link nhóm liên hệ
+                    Nội dung nhiệm vụ, trang phục và các lưu ý khác
                   </p>
                 </div>
               </div>
 
               <div className="space-y-5">
-                {/* Link Zalo nhóm tiếp nhận */}
-                <div>
-                  <label htmlFor="event-zaloGroupLink" className="block text-[13px] font-medium text-zinc-700 dark:text-zinc-300 mb-1.5">
-                    Link nhóm Zalo tiếp nhận ứng viên <span className="text-zinc-400 text-xs font-normal">(tùy chọn)</span>
-                  </label>
-                  <div className="relative">
-                    <input
-                      id="event-zaloGroupLink"
-                      name="zaloGroupLink"
-                      type="url"
-                      placeholder="https://zalo.me/g/..."
-                      value={zaloGroupLink}
-                      onChange={(e) => {
-                        if (setZaloGroupLink) setZaloGroupLink(e.target.value)
-                        clearError("zaloGroupLink")
-                      }}
-                      className={cn(
-                        "w-full h-10.5 pl-9 pr-3.5 rounded-lg border bg-white dark:bg-zinc-800/50 text-[14px] text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none transition",
-                        errors.zaloGroupLink
-                          ? "border-rose-500 ring-1 ring-rose-500/20"
-                          : "border-zinc-300 dark:border-zinc-700 focus:border-zinc-900 dark:focus:border-zinc-100 focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-100"
-                      )}
-                    />
-                    <MessageCircle className="w-4 h-4 text-zinc-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
-                  </div>
-                  {errors.zaloGroupLink && (
-                    <p className="text-[12px] text-rose-500 dark:text-rose-400 mt-1 font-medium flex items-center gap-1">
-                      {errors.zaloGroupLink}
-                    </p>
-                  )}
-                  <span className="text-[11.5px] text-zinc-500 mt-1 block">
-                    Link này sẽ tự động hiển thị cho ứng viên sau khi được bạn phê duyệt.
-                  </span>
-                </div>
 
                 {/* Mô tả chi tiết */}
                 <div>

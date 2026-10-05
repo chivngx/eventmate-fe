@@ -2,10 +2,11 @@
 -- MIGRATION 0004: CHÍNH SÁCH BẢO MẬT HÀNG (ROW LEVEL SECURITY & POLICIES)
 -- =========================================================================
 
--- Bật Row Level Security (RLS) cho tất cả 16 bảng dữ liệu
+-- Bật Row Level Security (RLS) cho tất cả các bảng dữ liệu
 ALTER TABLE public.danang_wards ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.event_positions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_bookmarks ENABLE ROW LEVEL SECURITY;
@@ -14,10 +15,8 @@ ALTER TABLE public.messages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.job_positions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.interviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profile_views ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profile_likes ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.company_follows ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
 
 -- -------------------------------------------------------------------------
@@ -57,12 +56,57 @@ DROP POLICY IF EXISTS "BTC tự sửa sự kiện" ON public.events;
 CREATE POLICY "BTC tự sửa sự kiện" 
   ON public.events FOR UPDATE USING (auth.uid() = organizer_id);
 
-DROP POLICY IF EXISTS "BTC được xóa sự kiện" ON public.events;
-CREATE POLICY "BTC được xóa sự kiện" 
-  ON public.events FOR DELETE USING (auth.uid() = organizer_id);
+-- Lưu ý: Không có policy DELETE cho events để thực thi soft delete (chống trục lợi hạn mức tin)
 
 -- -------------------------------------------------------------------------
--- 4. Bảng APPLICATIONS
+-- 4. Bảng EVENT_POSITIONS
+-- -------------------------------------------------------------------------
+DROP POLICY IF EXISTS "Allow public read on event_positions" ON public.event_positions;
+CREATE POLICY "Allow public read on event_positions"
+  ON public.event_positions FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Allow organizers to insert positions" ON public.event_positions;
+CREATE POLICY "Allow organizers to insert positions"
+  ON public.event_positions FOR INSERT
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.events
+      WHERE events.id = event_positions.event_id
+      AND events.organizer_id = auth.uid()
+    )
+  );
+
+DROP POLICY IF EXISTS "Allow organizers to update positions" ON public.event_positions;
+CREATE POLICY "Allow organizers to update positions"
+  ON public.event_positions FOR UPDATE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.events
+      WHERE events.id = event_positions.event_id
+      AND events.organizer_id = auth.uid()
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.events
+      WHERE events.id = event_positions.event_id
+      AND events.organizer_id = auth.uid()
+    )
+  );
+
+DROP POLICY IF EXISTS "Allow organizers to delete positions" ON public.event_positions;
+CREATE POLICY "Allow organizers to delete positions"
+  ON public.event_positions FOR DELETE
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.events
+      WHERE events.id = event_positions.event_id
+      AND events.organizer_id = auth.uid()
+    )
+  );
+
+-- -------------------------------------------------------------------------
+-- 5. Bảng APPLICATIONS
 -- -------------------------------------------------------------------------
 DROP POLICY IF EXISTS "Allow public read on applications" ON public.applications;
 CREATE POLICY "Allow public read on applications" 
@@ -82,8 +126,14 @@ CREATE POLICY "applications_update_organizer_only"
   USING (auth.uid() IN (SELECT events.organizer_id FROM public.events WHERE events.id = applications.event_id))
   WITH CHECK (auth.uid() IN (SELECT events.organizer_id FROM public.events WHERE events.id = applications.event_id));
 
+DROP POLICY IF EXISTS "Allow student checkin" ON public.applications;
+CREATE POLICY "Allow student checkin"
+  ON public.applications FOR UPDATE TO authenticated
+  USING (auth.uid() = student_id AND status = 'approved')
+  WITH CHECK (auth.uid() = student_id AND status = 'approved');
+
 -- -------------------------------------------------------------------------
--- 5. Bảng CHATS
+-- 6. Bảng CHATS
 -- -------------------------------------------------------------------------
 DROP POLICY IF EXISTS "Allow select for chat participants" ON public.chats;
 CREATE POLICY "Allow select for chat participants" 
@@ -94,7 +144,7 @@ CREATE POLICY "Allow insert for chat participants"
   ON public.chats FOR INSERT WITH CHECK ((auth.uid() = student_id) OR (auth.uid() = organizer_id));
 
 -- -------------------------------------------------------------------------
--- 6. Bảng MESSAGES
+-- 7. Bảng MESSAGES
 -- -------------------------------------------------------------------------
 DROP POLICY IF EXISTS "Allow select for message participants" ON public.messages;
 CREATE POLICY "Allow select for message participants" 
@@ -114,8 +164,19 @@ CREATE POLICY "Allow delete for message participants"
     (auth.uid() IN (SELECT chats.organizer_id FROM public.chats WHERE chats.id = messages.chat_id))
   );
 
+DROP POLICY IF EXISTS "Allow update for message participants" ON public.messages;
+CREATE POLICY "Allow update for message participants" 
+  ON public.messages FOR UPDATE USING (
+    (auth.uid() IN (SELECT chats.student_id FROM public.chats WHERE chats.id = messages.chat_id)) OR 
+    (auth.uid() IN (SELECT chats.organizer_id FROM public.chats WHERE chats.id = messages.chat_id))
+  )
+  WITH CHECK (
+    (auth.uid() IN (SELECT chats.student_id FROM public.chats WHERE chats.id = messages.chat_id)) OR 
+    (auth.uid() IN (SELECT chats.organizer_id FROM public.chats WHERE chats.id = messages.chat_id))
+  );
+
 -- -------------------------------------------------------------------------
--- 7. Bảng NOTIFICATIONS
+-- 8. Bảng NOTIFICATIONS
 -- -------------------------------------------------------------------------
 DROP POLICY IF EXISTS "Xem thông báo cá nhân" ON public.notifications;
 CREATE POLICY "Xem thông báo cá nhân" 
@@ -136,7 +197,7 @@ CREATE POLICY "notifications_delete_self"
   USING (auth.uid() = user_id);
 
 -- -------------------------------------------------------------------------
--- 8. Bảng EVENT_BOOKMARKS
+-- 9. Bảng EVENT_BOOKMARKS
 -- -------------------------------------------------------------------------
 DROP POLICY IF EXISTS "Allow users to select their own bookmarks" ON public.event_bookmarks;
 CREATE POLICY "Allow users to select their own bookmarks" 
@@ -151,7 +212,7 @@ CREATE POLICY "Allow users to delete their own bookmarks"
   ON public.event_bookmarks FOR DELETE TO authenticated USING (auth.uid() = student_id);
 
 -- -------------------------------------------------------------------------
--- 9. Bảng REVIEWS
+-- 10. Bảng REVIEWS
 -- -------------------------------------------------------------------------
 DROP POLICY IF EXISTS "Allow select for reviews" ON public.reviews;
 CREATE POLICY "Allow select for reviews" 
@@ -162,7 +223,7 @@ CREATE POLICY "Allow insert for reviews"
   ON public.reviews FOR INSERT WITH CHECK (auth.uid() = reviewer_id);
 
 -- -------------------------------------------------------------------------
--- 10. Bảng EVENT_CATEGORIES & JOB_POSITIONS
+-- 11. Bảng EVENT_CATEGORIES & JOB_POSITIONS
 -- -------------------------------------------------------------------------
 DROP POLICY IF EXISTS "Cho phép mọi người xem danh mục" ON public.event_categories;
 CREATE POLICY "Cho phép mọi người xem danh mục" 
@@ -171,33 +232,6 @@ CREATE POLICY "Cho phép mọi người xem danh mục"
 DROP POLICY IF EXISTS "Cho phép mọi người xem vị trí công việc" ON public.job_positions;
 CREATE POLICY "Cho phép mọi người xem vị trí công việc" 
   ON public.job_positions FOR SELECT USING (true);
-
--- -------------------------------------------------------------------------
--- 11. Bảng INTERVIEWS
--- -------------------------------------------------------------------------
-DROP POLICY IF EXISTS "interviews_select_participants" ON public.interviews;
-CREATE POLICY "interviews_select_participants" 
-  ON public.interviews FOR SELECT TO authenticated
-  USING (auth.uid() = student_id OR auth.uid() = organizer_id);
-
-DROP POLICY IF EXISTS "interviews_insert_organizer" ON public.interviews;
-CREATE POLICY "interviews_insert_organizer" 
-  ON public.interviews FOR INSERT TO authenticated
-  WITH CHECK (
-    auth.uid() = organizer_id
-    AND auth.uid() IN (SELECT organizer_id FROM public.events WHERE id = event_id)
-  );
-
-DROP POLICY IF EXISTS "interviews_update_participants" ON public.interviews;
-CREATE POLICY "interviews_update_participants" 
-  ON public.interviews FOR UPDATE TO authenticated
-  USING (auth.uid() = student_id OR auth.uid() = organizer_id)
-  WITH CHECK (auth.uid() = student_id OR auth.uid() = organizer_id);
-
-DROP POLICY IF EXISTS "interviews_delete_organizer" ON public.interviews;
-CREATE POLICY "interviews_delete_organizer" 
-  ON public.interviews FOR DELETE TO authenticated
-  USING (auth.uid() = organizer_id);
 
 -- -------------------------------------------------------------------------
 -- 12. Bảng PROFILE_VIEWS
@@ -231,25 +265,7 @@ CREATE POLICY "Organizers can unlike a profile"
   USING (auth.uid() = organizer_id);
 
 -- -------------------------------------------------------------------------
--- 14. Bảng COMPANY_FOLLOWS
--- -------------------------------------------------------------------------
-DROP POLICY IF EXISTS "Anyone can view company follows" ON public.company_follows;
-CREATE POLICY "Anyone can view company follows"
-  ON public.company_follows FOR SELECT
-  USING (true);
-
-DROP POLICY IF EXISTS "Users can follow companies" ON public.company_follows;
-CREATE POLICY "Users can follow companies"
-  ON public.company_follows FOR INSERT
-  WITH CHECK (auth.uid() = user_id);
-
-DROP POLICY IF EXISTS "Users can unfollow companies" ON public.company_follows;
-CREATE POLICY "Users can unfollow companies"
-  ON public.company_follows FOR DELETE
-  USING (auth.uid() = user_id);
-
--- -------------------------------------------------------------------------
--- 15. Bảng TRANSACTIONS
+-- 14. Bảng TRANSACTIONS
 -- -------------------------------------------------------------------------
 DROP POLICY IF EXISTS "Users can view their own transactions or admin can view all" ON public.transactions;
 CREATE POLICY "Users can view their own transactions or admin can view all"

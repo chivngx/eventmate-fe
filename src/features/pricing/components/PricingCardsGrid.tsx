@@ -155,7 +155,7 @@ export default function PricingCardsGrid({
             <li className="flex items-center gap-[8px]">
               <Check className="w-[20px] h-[20px] text-emerald-600 shrink-0 stroke-[2]" />
               <span className="text-[14px] font-medium text-[#222222] leading-[1.6]">
-                Tự động cấp link nhóm Zalo khi duyệt
+                Thông báo kết quả duyệt đơn tức thì
               </span>
             </li>
             <li className="flex items-center gap-[8px]">

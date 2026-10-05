@@ -202,14 +202,17 @@ export default function MainLayout({
     ) : undefined
 
     const isHomePage = pathname === "/"
-    const hasHeroHeader = isHomePage
+    const isEventsPage = pathname === "/events"
+    const isBlogPage = pathname === "/blog"
+    const hasHeroNavbar = isHomePage || isEventsPage || isBlogPage
+    const hasHeroHeader = isHomePage || isEventsPage || isBlogPage
     const isRenderProp = typeof children === "function"
 
     const navbarElement = (
         <NotchNavbar
             role={effectiveUser ? userRole : "guest"}
             isEmployer={isEmployerContext}
-            isHeroNavbar={isHomePage}
+            isHeroNavbar={hasHeroNavbar}
             notifications={notifications}
             unreadCount={unreadCount}
             markAsRead={markAsRead}
@@ -222,7 +225,7 @@ export default function MainLayout({
     )
 
     return (
-        <div className={cn("min-h-screen flex flex-col bg-background text-foreground", isHomePage && "bg-[#F2F6FC]", className)}>
+        <div className={cn("min-h-screen flex flex-col bg-background text-foreground", (isHomePage || isEventsPage || isBlogPage) && "bg-[#F2F6FC]", className)}>
             {navbarElement}
             <main
                 className={cn(

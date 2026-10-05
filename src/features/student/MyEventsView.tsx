@@ -111,7 +111,7 @@ export default function MyEvents({
           ),
           events (
             id, title, location, status, position_type, category, benefits, event_date, end_date,
-            start_time, end_time, salary_amount, salary_type, payment_method, zalo_group_link,
+            start_time, end_time, salary_amount, salary_type, payment_method,
             application_deadline, ward_id, slug, organizer_id,
             danang_wards (name),
             profiles:organizer_id (id, full_name, avatar_url, university)
@@ -133,7 +133,7 @@ export default function MyEvents({
             position_id,
             events (
               id, title, location, status, position_type, category, benefits, event_date, end_date,
-              start_time, end_time, salary_amount, salary_type, payment_method, zalo_group_link,
+              start_time, end_time, salary_amount, salary_type, payment_method,
               application_deadline, ward_id, slug, organizer_id,
               danang_wards (name),
               profiles:organizer_id (id, full_name, avatar_url, university)

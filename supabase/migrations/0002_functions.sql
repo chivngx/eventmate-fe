@@ -139,7 +139,7 @@ BEGIN
         
         IF NEW.status = 'approved' THEN
             _notif_title := '🎉 Chúc mừng bạn trúng tuyển!';
-            _notif_message := 'Đơn ứng tuyển của bạn vào chiến dịch "' || _event_title || '" đã được Ban tổ chức phê duyệt thành công.';
+            _notif_message := 'Đơn ứng tuyển của bạn vào sự kiện "' || _event_title || '" đã được Ban tổ chức phê duyệt thành công.';
         ELSIF NEW.status = 'rejected' THEN
             _notif_title := '✉️ Thư cảm ơn hồ sơ';
             _notif_message := 'Cảm ơn bạn đã quan tâm đến "' || _event_title || '". Rất tiếc vị trí này đã nhận đủ số lượng, hẹn gặp bạn ở sự kiện sau nhé.';
@@ -250,37 +250,34 @@ SET search_path = public
 AS $$
 DECLARE
     v_viewer_id UUID;
-    v_already_viewed_today BOOLEAN;
 BEGIN
     v_viewer_id := auth.uid();
-    
     IF v_viewer_id IS NULL OR v_viewer_id = p_student_id THEN
         RETURN FALSE;
     END IF;
 
-    SELECT EXISTS (
+    IF EXISTS (
         SELECT 1 FROM public.profile_views
         WHERE student_id = p_student_id
           AND viewer_id = v_viewer_id
-          AND viewed_at >= CURRENT_DATE
-    ) INTO v_already_viewed_today;
-
-    IF NOT v_already_viewed_today THEN
-        INSERT INTO public.profile_views (student_id, viewer_id, viewed_at)
-        VALUES (p_student_id, v_viewer_id, NOW());
-        RETURN TRUE;
+          AND viewed_at >= NOW() - INTERVAL '24 hours'
+    ) THEN
+        RETURN FALSE;
     END IF;
 
-    RETURN FALSE;
+    INSERT INTO public.profile_views (student_id, viewer_id)
+    VALUES (p_student_id, v_viewer_id);
+
+    RETURN TRUE;
 END;
 $$;
 
--- 11. Thông báo tự động khi thay đổi trạng thái điểm danh (attendance_status)
+-- 11. Bắn thông báo khi điểm danh có mặt / vắng mặt
 CREATE OR REPLACE FUNCTION public.notify_student_on_attendance_change()
-RETURNS TRIGGER 
-LANGUAGE plpgsql 
+RETURNS TRIGGER
+LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path TO 'public'
+SET search_path = public
 AS $$
 DECLARE
     _event_title TEXT;
@@ -289,13 +286,13 @@ DECLARE
 BEGIN
     IF OLD.attendance_status IS DISTINCT FROM NEW.attendance_status THEN
         SELECT title INTO _event_title FROM public.events WHERE id = NEW.event_id;
-        
+
         IF NEW.attendance_status = 'checked_in' THEN
-            _notif_title := '✅ Điểm danh thành công!';
-            _notif_message := 'Bạn đã được xác nhận điểm danh có mặt tại sự kiện "' || COALESCE(_event_title, 'sự kiện') || '". Chúc bạn có một ngày làm việc hiệu quả!';
+            _notif_title := '📍 Điểm danh thành công!';
+            _notif_message := 'Bạn đã được ghi nhận có mặt tại sự kiện "' || COALESCE(_event_title, 'sự kiện') || '". Chúc bạn có một ca làm việc hiệu quả!';
         ELSIF NEW.attendance_status = 'completed' THEN
-            _notif_title := '🎉 Hoàn thành sự kiện xuất sắc!';
-            _notif_message := 'Chúc mừng bạn đã hoàn thành nhiệm vụ tại "' || COALESCE(_event_title, 'sự kiện') || '". Bạn có thể xem chứng nhận và gửi đánh giá cho Ban tổ chức ngay bây giờ!';
+            _notif_title := '🎖️ Hoàn thành nhiệm vụ!';
+            _notif_message := 'Ban tổ chức đã xác nhận bạn hoàn thành ca làm tại "' || COALESCE(_event_title, 'sự kiện') || '". Điểm uy tín của bạn đã được cộng thưởng.';
         ELSIF NEW.attendance_status = 'no_show' THEN
             _notif_title := '⚠️ Thông báo vắng mặt';
             _notif_message := 'Hệ thống ghi nhận bạn đã không có mặt tại sự kiện "' || COALESCE(_event_title, 'sự kiện') || '". Hãy liên hệ Ban tổ chức nếu có nhầm lẫn.';
@@ -310,12 +307,12 @@ BEGIN
 END;
 $$;
 
--- 12. RPC kích hoạt VIP và ghi nhận giao dịch trực tiếp
-CREATE OR REPLACE FUNCTION public.complete_checkout_transaction(
+-- 12. RPC kích hoạt gói dịch vụ hoặc lượt đăng sự kiện
+CREATE OR REPLACE FUNCTION public.activate_premium_or_credits(
     p_plan_id TEXT,
     p_billing_cycle TEXT,
-    p_payment_method TEXT,
-    p_amount NUMERIC
+    p_amount BIGINT,
+    p_payment_method TEXT
 )
 RETURNS JSONB
 LANGUAGE plpgsql
@@ -333,12 +330,8 @@ BEGIN
         RAISE EXCEPTION 'Bạn cần đăng nhập để thực hiện thanh toán.';
     END IF;
 
-    IF p_billing_cycle = 'yearly' THEN
-        v_duration := INTERVAL '365 days';
-    ELSE
-        v_duration := INTERVAL '30 days';
-    END IF;
-
+    -- Subscriptions strictly monthly (30 days)
+    v_duration := INTERVAL '30 days';
     v_until := NOW() + v_duration;
 
     PERFORM set_config('eventmate.checkout_in_progress', 'true', true);
@@ -351,7 +344,7 @@ BEGIN
     PERFORM set_config('eventmate.checkout_in_progress', 'false', true);
 
     INSERT INTO public.transactions (user_id, plan_id, billing_cycle, amount, payment_method, status)
-    VALUES (v_user_id, p_plan_id, p_billing_cycle, p_amount, p_payment_method, 'completed')
+    VALUES (v_user_id, p_plan_id, 'monthly', p_amount, p_payment_method, 'completed')
     RETURNING id INTO v_tx_id;
 
     RETURN jsonb_build_object(
@@ -402,7 +395,7 @@ BEGIN
     PERFORM set_config('eventmate.checkout_in_progress', 'true', true);
 
     IF v_is_single_event THEN
-        -- Gói Sự Kiện Nhanh (99k / 1 tin): Cộng 1 lượt đăng Sự Kiện Nhanh, không kích hoạt gói Doanh Nghiệp VIP tháng
+        -- Gói Sự Kiện Nhanh (99k / 1 tin): Cộng 1 lượt đăng Sự Kiện Nhanh
         UPDATE public.profiles
         SET single_event_credits = COALESCE(single_event_credits, 0) + 1
         WHERE id = v_tx.user_id;
@@ -415,13 +408,8 @@ BEGIN
             FALSE
         );
     ELSE
-        -- Gói Doanh Nghiệp VIP (499k/tháng hoặc năm)
-        IF v_tx.billing_cycle = 'yearly' THEN
-            v_duration := INTERVAL '365 days';
-        ELSE
-            v_duration := INTERVAL '30 days';
-        END IF;
-
+        -- Gói Doanh Nghiệp (499k / tháng)
+        v_duration := INTERVAL '30 days';
         v_until := NOW() + v_duration;
 
         UPDATE public.profiles
@@ -434,7 +422,7 @@ BEGIN
         VALUES (
             v_tx.user_id,
             'Nâng cấp VIP thành công!',
-            'Gói dịch vụ ' || v_plan_title || ' (' || (CASE WHEN v_tx.billing_cycle = 'yearly' THEN 'Theo năm' ELSE 'Theo tháng' END) || ') đã được kích hoạt thành công qua payOS. Hạn dùng đến: ' || TO_CHAR(v_until, 'DD/MM/YYYY') || '.',
+            'Gói dịch vụ ' || v_plan_title || ' (Theo tháng) đã được kích hoạt thành công qua payOS. Hạn dùng đến: ' || TO_CHAR(v_until, 'DD/MM/YYYY') || '.',
             FALSE
         );
     END IF;
@@ -450,8 +438,7 @@ BEGIN
         'transaction_id', v_tx.id,
         'user_id', v_tx.user_id,
         'plan_id', v_tx.plan_id,
-        'is_single_event', v_is_single_event,
-        'premium_until', v_until
+        'is_single_event', v_is_single_event
     );
 END;
 $$;
