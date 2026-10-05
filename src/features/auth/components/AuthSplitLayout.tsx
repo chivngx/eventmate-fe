@@ -33,14 +33,14 @@ export function AuthSplitLayout({
             {/* Optional Top Indicator (e.g. ProgressBar) */}
             {topElement}
 
-            {/* Logo & Optional Back Button */}
-            <div className="flex justify-center items-center relative pt-1">
+            {/* Logo, Back Button, Header: Title & Subtitle */}
+            <div className="flex flex-col items-start text-left gap-1.5 pt-1 relative">
                 {showBackButton && (
                     onBack ? (
                         <button
                             type="button"
                             onClick={onBack}
-                            className="absolute left-0 p-1.5 text-zinc-400 hover:text-zinc-800 rounded-lg hover:bg-zinc-100 transition-colors cursor-pointer"
+                            className="mb-2 p-1.5 -ml-1.5 text-zinc-400 hover:text-zinc-800 rounded-lg hover:bg-zinc-100 transition-colors cursor-pointer"
                             aria-label="Quay lại bước trước"
                         >
                             <ArrowLeft className="w-4 h-4" />
@@ -48,19 +48,17 @@ export function AuthSplitLayout({
                     ) : backLink ? (
                         <Link
                             to={backLink}
-                            className="absolute left-0 p-1.5 text-zinc-400 hover:text-zinc-800 rounded-lg hover:bg-zinc-100 transition-colors cursor-pointer"
+                            className="mb-2 p-1.5 -ml-1.5 text-zinc-400 hover:text-zinc-800 rounded-lg hover:bg-zinc-100 transition-colors cursor-pointer"
                             aria-label="Quay lại"
                         >
                             <ArrowLeft className="w-4 h-4" />
                         </Link>
                     ) : null
                 )}
-                <EventMateLogo />
-            </div>
-
-            {/* Header: Title & Subtitle */}
-            <div className="flex flex-col items-center text-center gap-1.5">
-                <h1 className="text-[21px] sm:text-[23px] font-bold text-zinc-900 tracking-[-0.02em] leading-tight">
+                <div className="mb-1">
+                    <EventMateLogo />
+                </div>
+                <h1 className="text-[21px] sm:text-[23px] font-bold text-zinc-900 tracking-[-0.02em] leading-tight mt-1">
                     {title}
                 </h1>
                 <p className="text-[13px] sm:text-[13.5px] font-normal leading-relaxed text-zinc-500 max-w-[340px]">

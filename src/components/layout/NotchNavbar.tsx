@@ -107,14 +107,14 @@ export function NotchNavbar({
 
   const getNavLinkClass = (isActive: boolean) =>
     cn(
-      "font-bold text-[15.5px] transition-colors whitespace-nowrap",
+      "text-[15.5px] transition-colors whitespace-nowrap",
       isHeroUnscrolled
         ? isActive
-          ? "text-white font-extrabold"
-          : "text-white/80 hover:text-white"
+          ? "text-white font-semibold"
+          : "text-white/80 font-medium hover:text-white"
         : isActive
-          ? "text-[#FB7328] font-extrabold"
-          : "text-gray-700 hover:text-gray-900"
+          ? "text-gray-900 font-semibold"
+          : "text-gray-600 font-medium hover:text-gray-900"
     )
 
   const handleSavedClick = () => {
@@ -139,7 +139,7 @@ export function NotchNavbar({
         className={cn(
           "sticky top-0 z-50 w-full h-[68px] transition-colors duration-200 select-none",
           isHeroUnscrolled
-            ? "bg-[#FB7328] border-b border-transparent text-white"
+            ? "bg-[#FB7328] text-white"
             : "bg-white/95 backdrop-blur-md border-b border-gray-200/80 shadow-xs text-gray-900",
           className
         )}
@@ -154,7 +154,7 @@ export function NotchNavbar({
               className={cn(
                 "size-11 rounded-full flex lg:hidden items-center justify-center transition-all cursor-pointer",
                 isHeroUnscrolled
-                  ? "bg-white text-gray-700 shadow-xs hover:bg-gray-100"
+                  ? "bg-white/15 text-white hover:bg-white/25"
                   : "text-gray-700 hover:bg-gray-100"
               )}
               aria-label="Menu"
@@ -167,14 +167,14 @@ export function NotchNavbar({
             {logo ? (
               logo
             ) : isHeroUnscrolled ? (
-              /* When unscrolled: Logo inside white pill capsule */
+              /* When unscrolled: Logo directly on orange background */
               <Link
                 href={isAdmin ? "/admin" : "/"}
-                className="bg-white rounded-full h-11 px-4 flex items-center justify-center gap-2 shadow-xs hover:opacity-95 transition-opacity"
+                className="flex items-center gap-2 h-11 px-1 focus:outline-none transition-transform hover:opacity-90 active:scale-95"
                 aria-label="EventMate Home"
               >
-                <EventMateLogoIcon size={28} variant="orange" />
-                <span className="font-extrabold text-[17px] tracking-tight text-gray-900">
+                <EventMateLogoIcon size={30} variant="white" />
+                <span className="font-extrabold text-xl tracking-tight text-white hidden sm:inline">
                   EventMate
                 </span>
               </Link>
@@ -259,8 +259,8 @@ export function NotchNavbar({
                 className={cn(
                   "size-11 rounded-full flex items-center justify-center transition-all cursor-pointer",
                   isHeroUnscrolled
-                    ? "bg-white text-gray-700 shadow-xs hover:bg-gray-100"
-                    : "text-gray-700 hover:bg-gray-100"
+                    ? "bg-white/15 text-white hover:bg-white/25"
+                    : "text-gray-600 hover:bg-gray-100"
                 )}
                 title="Tin đã lưu"
                 aria-label="Tin đã lưu"
@@ -277,8 +277,8 @@ export function NotchNavbar({
                 markAsRead={markAsRead}
                 triggerClassName={
                   isHeroUnscrolled
-                    ? "size-11 bg-white text-gray-700 shadow-xs hover:bg-gray-100"
-                    : "size-11 text-gray-700 hover:bg-gray-100"
+                    ? "size-11 rounded-full bg-white/15 text-white hover:bg-white/25 flex items-center justify-center transition-all cursor-pointer"
+                    : "size-11 rounded-full text-gray-600 hover:bg-gray-100 flex items-center justify-center transition-all cursor-pointer"
                 }
               />
             )}
@@ -291,8 +291,8 @@ export function NotchNavbar({
                 className={cn(
                   "h-11 px-5 rounded-full flex items-center justify-center font-semibold text-[15px] transition-all whitespace-nowrap cursor-pointer",
                   isHeroUnscrolled
-                    ? "bg-white text-gray-800 shadow-xs hover:bg-gray-100"
-                    : "border border-gray-200 text-gray-800 hover:bg-gray-50 shadow-xs"
+                    ? "bg-white/15 text-white hover:bg-white/25 backdrop-blur-sm"
+                    : "border border-gray-200 text-gray-800 hover:bg-gray-50"
                 )}
               >
                 Đăng nhập
@@ -303,8 +303,8 @@ export function NotchNavbar({
                 className={cn(
                   "hidden sm:flex h-11 px-5 rounded-full items-center justify-center font-semibold text-[15px] transition-all whitespace-nowrap cursor-pointer",
                   isHeroUnscrolled
-                    ? "bg-white text-gray-800 shadow-xs hover:bg-gray-100"
-                    : "border border-gray-200 text-gray-800 hover:bg-gray-50 shadow-xs"
+                    ? "bg-white/15 text-white hover:bg-white/25 backdrop-blur-sm"
+                    : "border border-gray-200 text-gray-800 hover:bg-gray-50"
                 )}
               >
                 Quản lý tin
@@ -320,8 +320,8 @@ export function NotchNavbar({
                   className={cn(
                     "h-11 px-5.5 rounded-full flex items-center justify-center font-bold text-[15px] transition-all shadow-xs active:scale-95 whitespace-nowrap cursor-pointer",
                     isHeroUnscrolled
-                      ? "bg-[#222222] hover:bg-black text-white"
-                      : "bg-[#FB7328] hover:bg-[#ea5d15] text-white"
+                      ? "bg-white hover:bg-gray-50 text-[#FB7328]"
+                      : "bg-[#222222] hover:bg-black text-white"
                   )}
                 >
                   Đăng tuyển
@@ -332,8 +332,8 @@ export function NotchNavbar({
                   className={cn(
                     "h-11 px-5.5 rounded-full flex items-center justify-center font-bold text-[15px] transition-all shadow-xs active:scale-95 whitespace-nowrap cursor-pointer",
                     isHeroUnscrolled
-                      ? "bg-[#222222] hover:bg-black text-white"
-                      : "bg-[#FB7328] hover:bg-[#ea5d15] text-white"
+                      ? "bg-white hover:bg-gray-50 text-[#FB7328]"
+                      : "bg-[#222222] hover:bg-black text-white"
                   )}
                 >
                   Đăng tuyển

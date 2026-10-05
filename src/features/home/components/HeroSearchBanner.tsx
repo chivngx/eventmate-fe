@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Search, MapPin, Briefcase } from "lucide-react"
+import { useState, useRef, useEffect, useMemo } from "react"
+import { Search, MapPin, Briefcase, ChevronDown, Check, Users, BadgeCheck, Wrench, Headset, Mic, Camera, Utensils, GlassWater, Smile, HeartHandshake, X } from "lucide-react"
 
 interface HeroSearchBannerProps {
   searchTerm?: string
@@ -15,16 +15,16 @@ interface HeroSearchBannerProps {
 }
 
 const EVENT_ROLES = [
-  "PG & PB Sự kiện",
-  "Lễ tân & Check-in",
-  "Hậu cần & Sân khấu",
-  "Điều phối sự kiện",
-  "MC & Hoạt náo",
-  "Quay phim & Chụp ảnh",
-  "Phục vụ tiệc (Banquet)",
-  "Pha chế sự kiện",
-  "Mascot & Biểu diễn",
-  "Tình nguyện viên",
+  { id: "PG & PB Sự kiện", icon: Users },
+  { id: "Lễ tân & Check-in", icon: BadgeCheck },
+  { id: "Hậu cần & Sân khấu", icon: Wrench },
+  { id: "Điều phối sự kiện", icon: Headset },
+  { id: "MC & Hoạt náo", icon: Mic },
+  { id: "Quay phim & Chụp ảnh", icon: Camera },
+  { id: "Phục vụ tiệc (Banquet)", icon: Utensils },
+  { id: "Pha chế sự kiện", icon: GlassWater },
+  { id: "Mascot & Biểu diễn", icon: Smile },
+  { id: "Tình nguyện viên", icon: HeartHandshake },
 ]
 
 
@@ -39,9 +39,36 @@ export default function HeroSearchBanner({
   children,
 }: HeroSearchBannerProps) {
   const [selectedRole, setSelectedRole] = useState("")
+  const [isWardOpen, setIsWardOpen] = useState(false)
+  const [isRoleOpen, setIsRoleOpen] = useState(false)
+  const [wardSearch, setWardSearch] = useState("")
+
+  const wardDropdownRef = useRef<HTMLDivElement>(null)
+  const roleDropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (wardDropdownRef.current && !wardDropdownRef.current.contains(event.target as Node)) {
+        setIsWardOpen(false)
+      }
+      if (roleDropdownRef.current && !roleDropdownRef.current.contains(event.target as Node)) {
+        setIsRoleOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  const filteredWards = useMemo(() => {
+    if (!wardSearch.trim()) return activeWards
+    const query = wardSearch.toLowerCase()
+    return activeWards.filter((w) => w.name.toLowerCase().includes(query))
+  }, [activeWards, wardSearch])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    setIsWardOpen(false)
+    setIsRoleOpen(false)
     onSearch?.(searchTerm, wardIdTerm, selectedRole)
   }
 
@@ -161,64 +188,192 @@ export default function HeroSearchBanner({
         {children ? (
           children
         ) : (
-          /* Vieclamtot-style Single Capsule Search Bar */
+          /* Premium Custom Floating Search Bar */
           <form
             onSubmit={handleSubmit}
-            className="bg-white rounded-2xl md:rounded-full shadow-lg p-2 md:p-2.5 flex flex-col md:flex-row items-center gap-2 max-w-4xl mx-auto border border-gray-100 text-gray-800"
+            className="bg-white rounded-2xl md:rounded-full shadow-[0_8px_30px_rgb(0,0,0,0.08)] p-2 flex flex-col md:flex-row items-center w-full max-w-[960px] mx-auto border border-gray-200/80"
           >
             {/* Field 1: Keyword Search */}
-            <div className="flex items-center gap-2.5 px-3 py-2 w-full md:w-5/12 border-b md:border-b-0 md:border-r border-gray-200">
-              <Search className="w-5 h-5 text-gray-400 shrink-0" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm?.(e.target.value)}
-                placeholder="Tìm việc làm, vị trí sự kiện..."
-                className="w-full bg-transparent text-sm font-medium text-gray-900 placeholder-gray-400 focus:outline-none"
-              />
+            <div className="flex items-center gap-3 px-6 py-2.5 w-full md:w-[40%] hover:bg-gray-100/60 focus-within:bg-gray-100/60 transition-colors md:rounded-full cursor-text relative group">
+              <Search className="w-5 h-5 text-gray-400 shrink-0 group-focus-within:text-gray-900 transition-colors" />
+              <div className="flex flex-col items-start w-full">
+                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-0.5 cursor-text">
+                  Việc làm
+                </label>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm?.(e.target.value)}
+                  placeholder="Tìm tên sự kiện, vị trí..."
+                  className="w-full bg-transparent text-[15px] font-semibold text-gray-900 placeholder-gray-400 focus:outline-none"
+                />
+              </div>
+              {searchTerm && (
+                <button
+                  type="button"
+                  onClick={() => setSearchTerm?.("")}
+                  className="p-1 hover:bg-gray-200 rounded-full text-gray-400 hover:text-gray-600 transition-colors cursor-pointer shrink-0 absolute right-4"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
             </div>
+
+            <div className="hidden md:block w-[1px] h-10 bg-gray-200 shrink-0" />
 
             {/* Field 2: District Filter */}
-            <div className="flex items-center gap-2 px-3 py-2 w-full md:w-3/12 border-b md:border-b-0 md:border-r border-gray-200">
-              <MapPin className="w-4 h-4 text-gray-400 shrink-0" />
-              <select
-                value={wardIdTerm}
-                onChange={(e) => setWardIdTerm?.(e.target.value)}
-                className="w-full bg-transparent text-sm font-medium text-gray-700 focus:outline-none cursor-pointer"
-              >
-                <option value="">Chọn khu vực</option>
-                {activeWards.map((w) => (
-                  <option key={w.id} value={w.id} className="text-gray-900">
-                    {w.name}
-                  </option>
-                ))}
-              </select>
+            <div 
+              ref={wardDropdownRef}
+              className="relative flex items-center px-6 py-2.5 w-full md:w-[25%] hover:bg-gray-100/60 transition-colors md:rounded-full cursor-pointer group"
+              onClick={() => {
+                setIsWardOpen(!isWardOpen)
+                setIsRoleOpen(false)
+              }}
+            >
+              <div className="w-full flex items-center justify-between">
+                <div className="flex flex-col items-start overflow-hidden">
+                  <span className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-0.5">Khu vực</span>
+                  <span className={`text-[15px] truncate ${wardIdTerm ? "text-gray-900 font-semibold" : "text-gray-400 font-medium"}`}>
+                    {wardIdTerm ? activeWards.find((w) => w.id.toString() === wardIdTerm)?.name || "Đã chọn" : "Tất cả"}
+                  </span>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${isWardOpen ? "rotate-180 text-gray-900" : ""}`} />
+              </div>
+
+              {/* Popover */}
+              {isWardOpen && (
+                <div className="absolute top-[calc(100%+16px)] left-0 w-full md:w-[300px] bg-white border border-gray-100 rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                  <div className="p-3 border-b border-gray-50 bg-gray-50/50">
+                    <div className="flex items-center bg-white border border-gray-200 rounded-xl px-3 py-2.5 focus-within:border-gray-400 focus-within:ring-2 focus-within:ring-gray-100 transition-all">
+                      <Search className="w-4 h-4 text-gray-400 mr-2.5 shrink-0" />
+                      <input
+                        type="text"
+                        value={wardSearch}
+                        onChange={(e) => setWardSearch(e.target.value)}
+                        placeholder="Tìm quận, phường..."
+                        className="w-full bg-transparent text-[14px] font-medium text-gray-900 focus:outline-none"
+                        autoFocus
+                      />
+                    </div>
+                  </div>
+                  <div className="max-h-[260px] overflow-y-auto p-2 scrollbar-thin [scrollbar-width:thin] text-left">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setWardIdTerm?.("")
+                        setIsWardOpen(false)
+                      }}
+                      className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[14px] transition-colors cursor-pointer ${
+                        !wardIdTerm ? "bg-gray-100 text-gray-900 font-bold" : "text-gray-600 font-medium hover:bg-gray-50 hover:text-gray-900"
+                      }`}
+                    >
+                      <span>Tất cả khu vực</span>
+                      {!wardIdTerm && <Check className="w-4.5 h-4.5 text-gray-900" />}
+                    </button>
+                    {filteredWards.length === 0 ? (
+                      <div className="py-6 text-center text-sm text-gray-400">Không tìm thấy khu vực</div>
+                    ) : (
+                      filteredWards.map((w) => (
+                        <button
+                          key={w.id}
+                          type="button"
+                          onClick={() => {
+                            setWardIdTerm?.(w.id.toString())
+                            setIsWardOpen(false)
+                          }}
+                          className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-[14px] transition-colors cursor-pointer mt-1 ${
+                            wardIdTerm === w.id.toString() ? "bg-gray-100 text-gray-900 font-bold" : "text-gray-600 font-medium hover:bg-gray-50 hover:text-gray-900"
+                          }`}
+                        >
+                          <span className="truncate pr-2 text-left">{w.name}</span>
+                          {wardIdTerm === w.id.toString() && <Check className="w-4.5 h-4.5 text-gray-900 shrink-0" />}
+                        </button>
+                      ))
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
 
+            <div className="hidden md:block w-[1px] h-10 bg-gray-200 shrink-0" />
+
             {/* Field 3: Role / Category Filter */}
-            <div className="flex items-center gap-2 px-3 py-2 w-full md:w-3/12">
-              <Briefcase className="w-4 h-4 text-gray-400 shrink-0" />
-              <select
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value)}
-                className="w-full bg-transparent text-sm font-medium text-gray-700 focus:outline-none cursor-pointer"
-              >
-                <option value="">Ngành nghề</option>
-                {EVENT_ROLES.map((role) => (
-                  <option key={role} value={role} className="text-gray-900">
-                    {role}
-                  </option>
-                ))}
-              </select>
+            <div 
+              ref={roleDropdownRef}
+              className="relative flex items-center px-6 py-2.5 w-full md:w-[35%] hover:bg-gray-100/60 transition-colors md:rounded-full cursor-pointer group"
+              onClick={() => {
+                setIsRoleOpen(!isRoleOpen)
+                setIsWardOpen(false)
+              }}
+            >
+              <div className="w-full flex items-center justify-between pr-2 md:pr-4">
+                <div className="flex flex-col items-start overflow-hidden">
+                  <span className="text-[11px] font-bold text-gray-500 uppercase tracking-widest mb-0.5">Ngành nghề</span>
+                  <span className={`text-[15px] truncate ${selectedRole ? "text-gray-900 font-semibold" : "text-gray-400 font-medium"}`}>
+                    {selectedRole || "Tất cả ngành nghề"}
+                  </span>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-gray-400 shrink-0 transition-transform duration-200 ${isRoleOpen ? "rotate-180 text-gray-900" : ""}`} />
+              </div>
+
+              {/* Popover */}
+              {isRoleOpen && (
+                <div className="absolute top-[calc(100%+16px)] right-0 md:left-0 md:right-auto w-full md:w-[320px] bg-white border border-gray-100 rounded-2xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.15)] z-50 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                  <div className="max-h-[360px] overflow-y-auto p-2 scrollbar-thin [scrollbar-width:thin] text-left">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedRole("")
+                        setIsRoleOpen(false)
+                      }}
+                      className={`w-full flex items-center justify-between px-3.5 py-3 rounded-xl text-[14px] transition-colors cursor-pointer ${
+                        !selectedRole ? "bg-gray-100 text-gray-900 font-bold" : "text-gray-600 font-medium hover:bg-gray-50 hover:text-gray-900"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Briefcase className={`w-4.5 h-4.5 ${!selectedRole ? "text-gray-900" : "text-gray-400"}`} />
+                        <span>Tất cả ngành nghề</span>
+                      </div>
+                      {!selectedRole && <Check className="w-4.5 h-4.5 text-gray-900" />}
+                    </button>
+
+                    <div className="h-px bg-gray-100 my-2 mx-3" />
+
+                    {EVENT_ROLES.map((role) => {
+                      const Icon = role.icon
+                      const isSelected = selectedRole === role.id
+                      return (
+                        <button
+                          key={role.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedRole(role.id)
+                            setIsRoleOpen(false)
+                          }}
+                          className={`w-full flex items-center justify-between px-3.5 py-3 mt-1 rounded-xl text-[14px] transition-colors cursor-pointer ${
+                            isSelected ? "bg-gray-100 text-gray-900 font-bold" : "text-gray-600 font-medium hover:bg-gray-50 hover:text-gray-900"
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <Icon className={`w-4.5 h-4.5 ${isSelected ? "text-gray-900" : "text-gray-400"}`} strokeWidth={1.5} />
+                            <span>{role.id}</span>
+                          </div>
+                          {isSelected && <Check className="w-4.5 h-4.5 text-gray-900 shrink-0" />}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full md:w-auto bg-[#FB7328] hover:bg-[#e65f15] active:bg-[#d44f0b] text-white font-bold px-7 py-3 rounded-xl md:rounded-full transition-colors flex items-center justify-center gap-2 text-sm shrink-0 shadow-md cursor-pointer"
+              className="w-full md:w-auto bg-[#222222] hover:bg-black active:scale-95 text-white font-bold px-8 py-3.5 rounded-xl md:rounded-full transition-all flex items-center justify-center gap-2.5 text-[15px] shrink-0 shadow-lg cursor-pointer md:ml-auto md:mr-1"
             >
-              <Search className="w-4 h-4" />
-              <span>Tìm việc</span>
+              <Search className="w-4.5 h-4.5" />
+              <span>Tìm kiếm</span>
             </button>
           </form>
         )}

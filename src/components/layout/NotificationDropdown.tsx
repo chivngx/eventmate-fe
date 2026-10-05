@@ -4,7 +4,19 @@ import React, { useState } from "react"
 import { useRouter } from "next/navigation"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { BellIcon } from "@/components/icons"
-import { BellOff, CheckCheck, ArrowRight, ChevronRight } from "lucide-react"
+import { 
+    BellOff, 
+    CheckCheck, 
+    ArrowRight, 
+    ChevronRight,
+    CheckCircle2,
+    Calendar,
+    XCircle,
+    UserPlus,
+    MessageSquare,
+    Bell,
+    Briefcase
+} from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useUser } from "@/components/providers/AuthProvider"
 import { supabase } from "@/lib/supabase"
@@ -35,6 +47,34 @@ function formatNotificationTime(dateStr: string) {
     } catch {
         return ""
     }
+}
+
+function stripEmojis(text: string) {
+    if (!text) return text
+    return text.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "").trim()
+}
+
+function getNotificationVisuals(notif: any, isOrganizer: boolean) {
+    const fullText = `${notif.title || ""} ${notif.message || ""}`.toLowerCase()
+    const type = (notif.type || "").toLowerCase()
+
+    if (fullText.includes("trúng tuyển") || fullText.includes("điểm danh") || fullText.includes("hoàn thành") || fullText.includes("xuất sắc") || type.includes("success") || fullText.includes("chấp nhận")) {
+        return { icon: CheckCircle2, color: "text-[#10B981]" }
+    }
+    if (fullText.includes("từ chối") || fullText.includes("hủy") || type.includes("reject")) {
+        return { icon: XCircle, color: "text-[#EF4444]" }
+    }
+    if (type.includes("apply") || type.includes("candidate") || fullText.includes("ứng tuyển") || fullText.includes("hồ sơ") || fullText.includes("tuyển dụng")) {
+        return { icon: isOrganizer ? UserPlus : Briefcase, color: "text-slate-600" }
+    }
+    if (type.includes("chat") || fullText.includes("tin nhắn")) {
+        return { icon: MessageSquare, color: "text-slate-600" }
+    }
+    if (type.includes("event") || type.includes("job") || fullText.includes("sự kiện") || fullText.includes("ca làm")) {
+        return { icon: Calendar, color: "text-slate-600" }
+    }
+
+    return { icon: Bell, color: "text-slate-600" }
 }
 
 export default function NotificationDropdown({
@@ -73,20 +113,21 @@ export default function NotificationDropdown({
             >
                 <BellIcon className="size-[20px]" />
                 {unreadCount > 0 && (
-                    <span className="absolute top-2 right-2 size-2 bg-red-500 rounded-full ring-2 ring-white" />
+                    <span className="absolute top-[8px] right-[8px] size-[9px] bg-[#FF5722] rounded-full ring-2 ring-white" />
                 )}
             </DropdownMenuTrigger>
             <DropdownMenuContent
                 align="end"
                 sideOffset={10}
-                className="w-[360px] bg-white/95 backdrop-blur-xl border border-slate-200/80 rounded-2xl shadow-[0_12px_36px_rgba(0,0,0,0.08),0_2px_8px_rgba(0,0,0,0.04)] p-1.5 z-50 text-slate-900 overflow-hidden"
+                style={{ maxHeight: 'var(--radix-dropdown-menu-content-available-height, 85vh)' }}
+                className="w-[380px] bg-white border border-slate-200/80 rounded-2xl shadow-xl p-0 z-50 flex flex-col overflow-hidden"
             >
                 {/* Header */}
-                <div className="px-3.5 py-2.5 flex items-center justify-between border-b border-slate-100">
+                <div className="px-4 py-3 flex items-center justify-between border-b border-slate-100 shrink-0 bg-white z-10">
                     <div className="flex items-center gap-2">
-                        <span className="font-semibold text-base text-slate-900">Thông báo</span>
+                        <span className="font-semibold text-[15px] text-slate-900">Thông báo</span>
                         {unreadCount > 0 && (
-                            <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-slate-100 text-slate-700 border border-slate-200/60">
+                            <span className="px-1.5 py-0.5 text-[11px] font-semibold rounded bg-[#FF5722] text-white">
                                 {unreadCount} mới
                             </span>
                         )}
@@ -98,26 +139,26 @@ export default function NotificationDropdown({
                                 e.preventDefault()
                                 markAsRead()
                             }}
-                            className="flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
+                            className="flex items-center gap-1.5 text-[13px] font-medium text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
                         >
                             <CheckCheck className="size-4" />
-                            <span>Đã đọc tất cả</span>
+                            <span>Đã đọc hết</span>
                         </button>
                     )}
                 </div>
 
                 {/* Notification List / Empty State */}
-                <div className="max-h-[380px] overflow-y-auto p-1 flex flex-col gap-1">
+                <div className="overflow-y-auto flex-1 min-h-[300px] max-h-[460px] p-2 flex flex-col gap-0.5 custom-scrollbar bg-slate-50/30">
                     {notifications.length === 0 ? (
-                        <div className="py-10 px-4 text-center flex flex-col items-center justify-center">
-                            <div className="size-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mb-3">
+                        <div className="py-16 px-4 text-center flex flex-col items-center justify-center h-full">
+                            <div className="size-14 rounded-full border border-slate-200 bg-white text-slate-300 flex items-center justify-center mb-4 shadow-sm">
                                 <BellOff className="size-6" />
                             </div>
-                            <p className="font-medium text-sm text-slate-800">
+                            <p className="font-semibold text-[15px] text-slate-900">
                                 Chưa có thông báo nào
                             </p>
-                            <p className="text-xs text-slate-500 mt-1 max-w-[260px] leading-relaxed">
-                                Khi có cập nhật về sự kiện, đơn ứng tuyển hoặc tin nhắn, thông báo sẽ hiển thị tại đây.
+                            <p className="text-[13px] text-slate-500 mt-1.5 max-w-[240px] leading-relaxed">
+                                Khi có cập nhật mới, thông báo sẽ được hiển thị tại đây.
                             </p>
                         </div>
                     ) : (
@@ -125,6 +166,10 @@ export default function NotificationDropdown({
                             const isUnread = !n.is_read
                             const dest = getNotificationDestination(n, isOrganizer)
                             const destLabel = getDestinationLabel(dest)
+
+                            const titleClean = stripEmojis(n.title)
+                            const messageClean = stripEmojis(n.message)
+                            const { icon: Icon, color } = getNotificationVisuals(n, isOrganizer)
 
                             return (
                                 <div
@@ -139,33 +184,50 @@ export default function NotificationDropdown({
                                         }
                                     }}
                                     className={cn(
-                                        "p-3 rounded-xl transition-all cursor-pointer text-left group/item select-none",
+                                        "group flex items-start gap-3.5 p-3 rounded-xl transition-all cursor-pointer text-left select-none relative bg-white",
                                         isUnread
-                                            ? "bg-slate-50/90 hover:bg-slate-100/90 border border-slate-200/60"
-                                            : "hover:bg-slate-50/80 border border-transparent"
+                                            ? "hover:bg-slate-50 shadow-sm ring-1 ring-slate-100"
+                                            : "opacity-80 hover:opacity-100 hover:bg-slate-50 border border-transparent"
                                     )}
                                 >
-                                    <div className="flex items-start justify-between gap-2">
-                                        <h5 className="text-[14px] font-semibold text-slate-900 leading-snug group-hover/item:text-zinc-950 transition-colors">
-                                            {n.title}
-                                        </h5>
-                                        {isUnread && (
-                                            <span className="size-2 rounded-full bg-zinc-950 shrink-0 mt-1.5" />
-                                        )}
+                                    {/* Left Icon Container */}
+                                    <div className="pt-0.5 shrink-0">
+                                        <div className={cn("size-9 rounded-full flex items-center justify-center border border-slate-200 bg-white shadow-sm", color)}>
+                                            <Icon className="size-4" strokeWidth={2} />
+                                        </div>
                                     </div>
-                                    {n.message && (
-                                        <p className="text-[13px] text-slate-600 mt-1 leading-relaxed line-clamp-2">
-                                            {n.message}
-                                        </p>
-                                    )}
-                                    <div className="flex items-center justify-between mt-2.5 pt-1.5 border-t border-slate-100/80">
-                                        <span className="text-xs text-slate-400 font-normal">
-                                            {formatNotificationTime(n.created_at)}
-                                        </span>
-                                        <span className="text-xs font-medium text-slate-500 group-hover/item:text-zinc-950 flex items-center gap-1 transition-colors">
-                                            <span>{destLabel}</span>
-                                            <ChevronRight className="size-3.5 group-hover/item:translate-x-0.5 transition-transform" />
-                                        </span>
+
+                                    {/* Content Container */}
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-start justify-between gap-2">
+                                            <h5 className={cn(
+                                                "text-[14px] leading-tight line-clamp-2 transition-colors pr-2",
+                                                isUnread ? "font-semibold text-slate-900" : "font-medium text-slate-700 group-hover:text-slate-900"
+                                            )}>
+                                                {titleClean}
+                                            </h5>
+                                            {isUnread && (
+                                                <span className="size-2 rounded-full bg-[#FF5722] shrink-0 mt-1" />
+                                            )}
+                                        </div>
+                                        
+                                        {messageClean && (
+                                            <p className="text-[13px] text-slate-500 mt-1 leading-snug line-clamp-2">
+                                                {messageClean}
+                                            </p>
+                                        )}
+
+                                        <div className="flex items-center justify-between mt-2">
+                                            <span className="text-[12px] font-medium text-slate-400">
+                                                {formatNotificationTime(n.created_at)}
+                                            </span>
+                                            
+                                            {/* Micro-interaction for "Xem chi tiết" */}
+                                            <div className="flex items-center gap-1 text-[12px] font-medium text-slate-500 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                                                <span>{destLabel}</span>
+                                                <ChevronRight className="size-3" />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             )
@@ -174,21 +236,22 @@ export default function NotificationDropdown({
                 </div>
 
                 {/* Footer: Link to all notifications */}
-                <div className="p-1.5 border-t border-slate-100 bg-slate-50/50">
+                <div className="p-2 border-t border-slate-100 bg-white shrink-0 z-10">
                     <button
                         type="button"
                         onClick={() => {
                             setOpen(false)
                             router.push("/notifications")
                         }}
-                        className="w-full py-2.5 px-3 text-center text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-white rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer border border-transparent hover:border-slate-200/60 hover:shadow-2xs"
+                        className="w-full py-2 px-3 text-center text-[13px] font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-50 rounded-lg transition-all flex items-center justify-center gap-1.5 cursor-pointer"
                     >
                         <span>Xem tất cả thông báo</span>
-                        <ArrowRight className="size-4 text-slate-500" />
+                        <ArrowRight className="size-3.5" />
                     </button>
                 </div>
             </DropdownMenuContent>
         </DropdownMenu>
     )
 }
+
 

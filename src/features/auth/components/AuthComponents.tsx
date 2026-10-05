@@ -15,7 +15,7 @@ export function EventMateLogo({ className = "" }: { className?: string }) {
         <GlobalEventMateLogo
             isLink
             href="/"
-            iconSize={38}
+            iconSize={32}
             idPrefix="auth"
             className={className}
         />
@@ -38,7 +38,7 @@ export function RoleSwitcherTabs({
     const organizerUrl = mode === "login" ? "/?auth=login&role=organizer" : "/?auth=register&role=organizer"
 
     return (
-        <div className="w-full grid grid-cols-2 p-1 bg-zinc-100/90 rounded-xl text-[13px] font-medium border border-zinc-200/60 mb-2 select-none">
+        <div className="w-full grid grid-cols-2 p-1 bg-zinc-100/50 rounded-xl text-[13px] font-medium border border-zinc-200/40 mb-2 select-none">
             {onRoleChange ? (
                 <>
                     <button
@@ -113,7 +113,7 @@ export function AuthSubmitButton({
         <button
             type="submit"
             disabled={loading || disabled}
-            className={`w-full h-[46px] rounded-xl bg-zinc-900 hover:bg-zinc-800 active:bg-black text-white text-[15px] font-medium transition-all shadow-[0_1px_2px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.05)] active:scale-[0.99] flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
+            className={`w-full h-[44px] rounded-xl bg-zinc-900 hover:bg-zinc-800 active:bg-black text-white text-[15px] font-medium transition-all shadow-[0_1px_2px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.05)] active:scale-[0.99] flex items-center justify-center cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${className}`}
             {...props}
         >
             {loading ? (
@@ -150,7 +150,7 @@ export function GoogleAuthButton({
             type="button"
             onClick={onClick}
             disabled={loading || disabled}
-            className={`w-full h-[46px] rounded-xl border border-zinc-200/90 hover:border-zinc-300 bg-white hover:bg-zinc-50/80 active:bg-zinc-100 text-zinc-700 text-[14px] font-medium transition-all flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-xs ${className}`}
+            className={`w-full h-[44px] rounded-xl border border-zinc-200/90 hover:border-zinc-300 bg-white hover:bg-zinc-50/80 active:bg-zinc-100 text-zinc-700 text-[14px] font-medium transition-all flex items-center justify-center gap-2.5 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shadow-xs ${className}`}
             {...props}
         >
             {loading ? (
@@ -312,10 +312,10 @@ export const FloatingBadgeInput = forwardRef<HTMLInputElement, FloatingBadgeInpu
 
                 {/* Input Container */}
                 <div
-                    className={`relative h-[46px] w-full rounded-xl border transition-all bg-zinc-50/50 hover:bg-white focus-within:bg-white flex items-center px-3.5 gap-2 ${
+                    className={`relative h-[44px] w-full rounded-xl border transition-all bg-zinc-50/30 hover:bg-white focus-within:bg-white flex items-center px-3.5 gap-2 ${
                         error
-                            ? "border-rose-500 ring-3 ring-rose-500/10"
-                            : "border-zinc-200 hover:border-zinc-300 focus-within:border-zinc-900 focus-within:ring-4 focus-within:ring-zinc-900/5"
+                            ? "border-rose-500 ring-1 ring-rose-500"
+                            : "border-zinc-200/80 hover:border-zinc-300 focus-within:border-zinc-900 focus-within:ring-1 focus-within:ring-zinc-900"
                     } ${className}`}
                 >
                     <input

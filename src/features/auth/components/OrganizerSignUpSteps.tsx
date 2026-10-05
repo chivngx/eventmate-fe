@@ -48,24 +48,26 @@ export function Step1OrganizerInfo({
 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-3.5 sm:gap-4" noValidate>
-            {/* 1. Họ và tên người đại diện */}
-            <FloatingBadgeInput
-                label="Họ và tên người đại diện"
-                placeholder="Ví dụ: Nguyễn Văn An"
-                required
-                autoComplete="name"
-                error={errors.fullName?.message}
-                {...register("fullName")}
-            />
+            <div className="grid grid-cols-2 gap-3.5 sm:gap-4">
+                {/* 1. Họ và tên người đại diện */}
+                <FloatingBadgeInput
+                    label="Họ và tên"
+                    placeholder="Nguyễn Văn An"
+                    required
+                    autoComplete="name"
+                    error={errors.fullName?.message}
+                    {...register("fullName")}
+                />
 
-            {/* 2. Chức vụ / Vị trí trong ban tổ chức */}
-            <FloatingBadgeInput
-                label="Chức vụ"
-                placeholder="Ví dụ: Trưởng ban nhân sự / Giám đốc sự kiện"
-                required
-                error={errors.role?.message}
-                {...register("role")}
-            />
+                {/* 2. Chức vụ */}
+                <FloatingBadgeInput
+                    label="Chức vụ"
+                    placeholder="Quản lý sự kiện"
+                    required
+                    error={errors.role?.message}
+                    {...register("role")}
+                />
+            </div>
 
             {/* 3. Email doanh nghiệp / tổ chức */}
             <FloatingBadgeInput
@@ -78,27 +80,29 @@ export function Step1OrganizerInfo({
                 {...register("email")}
             />
 
-            {/* 4. Mật khẩu */}
-            <FloatingBadgeInput
-                label="Mật khẩu"
-                placeholder="Tối thiểu 6 ký tự"
-                required
-                isPassword
-                autoComplete="new-password"
-                error={errors.password?.message}
-                {...register("password")}
-            />
+            <div className="grid grid-cols-2 gap-3.5 sm:gap-4">
+                {/* 4. Mật khẩu */}
+                <FloatingBadgeInput
+                    label="Mật khẩu"
+                    placeholder="Tối thiểu 6 ký tự"
+                    required
+                    isPassword
+                    autoComplete="new-password"
+                    error={errors.password?.message}
+                    {...register("password")}
+                />
 
-            {/* 5. Xác nhận mật khẩu */}
-            <FloatingBadgeInput
-                label="Xác nhận mật khẩu"
-                placeholder="Nhập lại mật khẩu vừa tạo"
-                required
-                isPassword
-                autoComplete="new-password"
-                error={errors.confirmPassword?.message}
-                {...register("confirmPassword")}
-            />
+                {/* 5. Xác nhận mật khẩu */}
+                <FloatingBadgeInput
+                    label="Xác nhận mật khẩu"
+                    placeholder="Nhập lại mật khẩu"
+                    required
+                    isPassword
+                    autoComplete="new-password"
+                    error={errors.confirmPassword?.message}
+                    {...register("confirmPassword")}
+                />
+            </div>
 
             {/* Actions */}
             <div className="flex flex-col gap-3 sm:gap-3.5 mt-1">

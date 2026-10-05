@@ -3,6 +3,7 @@
 import { X, Award, Printer, ShieldCheck } from "lucide-react"
 import { escapeHtml } from "@/lib/error"
 import { Button } from "@/components/ui/button"
+import { EventMateLogoIcon } from "@/components/common/EventMateLogo"
 
 export interface CertificateModalProps {
     isOpen: boolean
@@ -49,6 +50,9 @@ export default function CertificateModal({
         const safeOrganizer = escapeHtml(organizerName)
         const safeDate = escapeHtml(formattedDate)
         const safeId = escapeHtml(credentialId)
+        const logoUrl = typeof window !== "undefined"
+            ? `${window.location.origin}/images/logo/eventmate-logo-square-512.png`
+            : "/images/logo/eventmate-logo-square-512.png"
 
         const printWindow = window.open("", "_blank")
         if (printWindow) {
@@ -125,8 +129,12 @@ export default function CertificateModal({
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            opacity: 0.035;
+            width: 105mm;
+            height: 105mm;
+            opacity: 0.045;
             pointer-events: none;
+            filter: grayscale(100%) sepia(80%) contrast(120%);
+            object-fit: contain;
         }
 
         .header {
@@ -298,10 +306,7 @@ export default function CertificateModal({
 </head>
 <body>
     <div class="cert-canvas">
-        <svg class="watermark" width="130mm" height="120mm" viewBox="0 0 2000 1903" fill="#a67c37">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M527.187 1325.8L1334.14 859.901V656.135L1159.2 555.156L352.271 1021.03V677.651L587.75 541.698L824.562 404.958L1175.29 202.479L911.958 50.4688L824.562 0L737.213 50.4688L412.984 237.63L88.7759 424.828L0.0415039 476.068V1426.38L88.7759 1477.61L412.984 1664.8L737.213 1851.98L824.562 1902.42L911.958 1851.98L1560.37 1477.61L1649.11 1426.38V1021.43L1647.6 1022.32L1296.88 1224.76L1061.42 1360.74L824.562 1497.48L587.75 1360.74L527.187 1325.8Z"/>
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M1647.6 475.182V1022.32L1649.11 1021.43L1999.83 818.958V273.583L1911.1 222.354L1586.89 35.1458L1526.01 0L1175.29 202.479L1412.15 339.219L1472.67 374.167L1647.6 475.182Z"/>
-        </svg>
+        <img class="watermark" src="${logoUrl}" alt="" />
 
         <div class="cert-outer-border">
             <div class="cert-inner-border">
@@ -332,16 +337,7 @@ export default function CertificateModal({
 
                 <div class="header">
                     <div class="brand-row">
-                        <svg width="22" height="21" viewBox="0 0 2000 1903" fill="none">
-                            <defs>
-                                <linearGradient id="em-gold-print" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" stop-color="#C5A059"/>
-                                    <stop offset="100%" stop-color="#7B5618"/>
-                                </linearGradient>
-                            </defs>
-                            <path fill-rule="evenodd" clipRule="evenodd" d="M527.187 1325.8L1334.14 859.901V656.135L1159.2 555.156L352.271 1021.03V677.651L587.75 541.698L824.562 404.958L1175.29 202.479L911.958 50.4688L824.562 0L737.213 50.4688L412.984 237.63L88.7759 424.828L0.0415039 476.068V1426.38L88.7759 1477.61L412.984 1664.8L737.213 1851.98L824.562 1902.42L911.958 1851.98L1560.37 1477.61L1649.11 1426.38V1021.43L1647.6 1022.32L1296.88 1224.76L1061.42 1360.74L824.562 1497.48L587.75 1360.74L527.187 1325.8Z" fill="url(#em-gold-print)"/>
-                            <path fill-rule="evenodd" clipRule="evenodd" d="M1647.6 475.182V1022.32L1649.11 1021.43L1999.83 818.958V273.583L1911.1 222.354L1586.89 35.1458L1526.01 0L1175.29 202.479L1412.15 339.219L1472.67 374.167L1647.6 475.182Z" fill="#DDB76E"/>
-                        </svg>
+                        <img src="${logoUrl}" alt="EventMate" width="22" height="22" style="border-radius: 4px; object-fit: contain; vertical-align: middle;" />
                         <span class="brand-text">HỆ THỐNG QUẢN LÝ SỰ KIỆN EVENTMATE</span>
                     </div>
                     <h1 class="title-vn">Giấy Chứng Nhận</h1>
@@ -470,14 +466,12 @@ export default function CertificateModal({
                         }}
                     >
                         {/* Background Crest Watermark */}
-                        <svg
-                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 sm:w-60 h-44 sm:h-56 opacity-[0.035] pointer-events-none"
-                            viewBox="0 0 2000 1903"
-                            fill="#a67c37"
-                        >
-                            <path fillRule="evenodd" clipRule="evenodd" d="M527.187 1325.8L1334.14 859.901V656.135L1159.2 555.156L352.271 1021.03V677.651L587.75 541.698L824.562 404.958L1175.29 202.479L911.958 50.4688L824.562 0L737.213 50.4688L412.984 237.63L88.7759 424.828L0.0415039 476.068V1426.38L88.7759 1477.61L412.984 1664.8L737.213 1851.98L824.562 1902.42L911.958 1851.98L1560.37 1477.61L1649.11 1426.38V1021.43L1647.6 1022.32L1296.88 1224.76L1061.42 1360.74L824.562 1497.48L587.75 1360.74L527.187 1325.8Z"/>
-                            <path fillRule="evenodd" clipRule="evenodd" d="M1647.6 475.182V1022.32L1649.11 1021.43L1999.83 818.958V273.583L1911.1 222.354L1586.89 35.1458L1526.01 0L1175.29 202.479L1412.15 339.219L1472.67 374.167L1647.6 475.182Z"/>
-                        </svg>
+                        <img
+                            src="/images/logo/eventmate-logo-square-512.png"
+                            alt=""
+                            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 sm:w-60 h-48 sm:h-60 opacity-[0.045] pointer-events-none select-none object-contain grayscale sepia contrast-125"
+                            draggable={false}
+                        />
 
                         {/* Outer & Inner Royal Gold Border */}
                         <div className="border-[2px] border-[#926315] h-full p-1 sm:p-1.5 relative">
@@ -511,16 +505,7 @@ export default function CertificateModal({
                                 {/* Certificate Header */}
                                 <div className="text-center relative z-10 pt-0.5">
                                     <div className="inline-flex items-center gap-2 mb-1">
-                                        <svg width="20" height="19" viewBox="0 0 2000 1903" fill="none">
-                                            <defs>
-                                                <linearGradient id="em-gold-modal" x1="0%" y1="0%" x2="100%" y2="100%">
-                                                    <stop offset="0%" stopColor="#C5A059"/>
-                                                    <stop offset="100%" stopColor="#7B5618"/>
-                                                </linearGradient>
-                                            </defs>
-                                            <path fillRule="evenodd" clipRule="evenodd" d="M527.187 1325.8L1334.14 859.901V656.135L1159.2 555.156L352.271 1021.03V677.651L587.75 541.698L824.562 404.958L1175.29 202.479L911.958 50.4688L824.562 0L737.213 50.4688L412.984 237.63L88.7759 424.828L0.0415039 476.068V1426.38L88.7759 1477.61L412.984 1664.8L737.213 1851.98L824.562 1902.42L911.958 1851.98L1560.37 1477.61L1649.11 1426.38V1021.43L1647.6 1022.32L1296.88 1224.76L1061.42 1360.74L824.562 1497.48L587.75 1360.74L527.187 1325.8Z" fill="url(#em-gold-modal)"/>
-                                            <path fillRule="evenodd" clipRule="evenodd" d="M1647.6 475.182V1022.32L1649.11 1021.43L1999.83 818.958V273.583L1911.1 222.354L1586.89 35.1458L1526.01 0L1175.29 202.479L1412.15 339.219L1472.67 374.167L1647.6 475.182Z" fill="#DDB76E"/>
-                                        </svg>
+                                        <EventMateLogoIcon size={22} variant="orange" className="rounded-xs" />
                                         <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.2em] text-[#85581A] uppercase">
                                             HỆ THỐNG QUẢN LÝ SỰ KIỆN EVENTMATE
                                         </span>

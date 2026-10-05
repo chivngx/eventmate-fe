@@ -157,24 +157,26 @@ export default function StudentSignUpView({
                             error={errors.email?.message}
                             {...register("email")}
                         />
-                        <FloatingBadgeInput
-                            label="Mật khẩu"
-                            placeholder="Tối thiểu 6 ký tự"
-                            required
-                            isPassword
-                            autoComplete="new-password"
-                            error={errors.password?.message}
-                            {...register("password")}
-                        />
-                        <FloatingBadgeInput
-                            label="Xác nhận mật khẩu"
-                            placeholder="Nhập lại mật khẩu vừa tạo"
-                            required
-                            isPassword
-                            autoComplete="new-password"
-                            error={errors.confirmPassword?.message}
-                            {...register("confirmPassword")}
-                        />
+                        <div className="grid grid-cols-2 gap-3.5 sm:gap-4">
+                            <FloatingBadgeInput
+                                label="Mật khẩu"
+                                placeholder="Tối thiểu 6 ký tự"
+                                required
+                                isPassword
+                                autoComplete="new-password"
+                                error={errors.password?.message}
+                                {...register("password")}
+                            />
+                            <FloatingBadgeInput
+                                label="Xác nhận mật khẩu"
+                                placeholder="Nhập lại mật khẩu"
+                                required
+                                isPassword
+                                autoComplete="new-password"
+                                error={errors.confirmPassword?.message}
+                                {...register("confirmPassword")}
+                            />
+                        </div>
 
                         <div className="flex flex-col gap-3 sm:gap-3.5 mt-1">
                             <AuthSubmitButton loading={loading} loadingText="Đang tạo tài khoản...">
