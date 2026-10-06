@@ -58,6 +58,11 @@ export function Modal({
     const generatedTitleId = useId()
     const effectiveTitleId = titleId ?? generatedTitleId
 
+    const onCloseRef = useRef(onClose)
+    useEffect(() => {
+        onCloseRef.current = onClose
+    }, [onClose])
+
     // Body scroll lock + restore focus + Escape handler
     useEffect(() => {
         if (!isOpen) return
@@ -81,7 +86,7 @@ export function Modal({
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.key === "Escape") {
                 e.preventDefault()
-                onClose()
+                onCloseRef.current()
                 return
             }
             if (e.key !== "Tab") return
@@ -111,7 +116,7 @@ export function Modal({
             document.body.style.overflow = originalOverflow
             previouslyFocused.current?.focus()
         }
-    }, [isOpen, onClose])
+    }, [isOpen])
 
     if (!isOpen) return null
 
