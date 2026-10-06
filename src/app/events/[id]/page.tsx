@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   let query = supabase
     .from("events")
-    .select("title, description, position_type, category, profiles:organizer_id(full_name)")
+    .select("title, description, position_type, category, profiles:organizer_id(full_name, avatar_url)")
 
   if (isUuid) {
     query = query.eq("id", id)
@@ -23,11 +23,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { data } = await query.maybeSingle()
 
   if (data) {
-    const orgName = (data.profiles as any)?.full_name
+    const org = data.profiles as any
+    const orgName = org?.full_name
+    const orgAvatar = org?.avatar_url
     const title = `${data.title}${orgName ? ` - ${orgName}` : ""} | EventMate`
     const description = data.description
       ? data.description.slice(0, 160).replace(/\n+/g, " ")
       : `Tuyển dụng ${data.position_type || "nhân sự sự kiện"} cho ${data.title} tại Đà Nẵng trên EventMate.`
+    const imageUrl = orgAvatar || "/images/logo/eventmate-logo-square-512.png"
 
     return {
       title,
@@ -35,6 +38,18 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       openGraph: {
         title,
         description,
+        images: [
+          {
+            url: imageUrl,
+            alt: orgName ? `Logo ${orgName}` : "EventMate",
+          },
+        ],
+      },
+      twitter: {
+        card: "summary",
+        title,
+        description,
+        images: [imageUrl],
       },
     }
   }
@@ -42,6 +57,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: "Chi tiết sự kiện | EventMate",
     description: "Thông tin chi tiết về sự kiện, vị trí tuyển dụng và yêu cầu tham gia trên EventMate.",
+    openGraph: {
+      title: "Chi tiết sự kiện | EventMate",
+      description: "Thông tin chi tiết về sự kiện, vị trí tuyển dụng và yêu cầu tham gia trên EventMate.",
+      images: [{ url: "/images/logo/eventmate-logo-square-512.png" }],
+    },
+    twitter: {
+      card: "summary",
+      images: ["/images/logo/eventmate-logo-square-512.png"],
+    },
   }
 }
 

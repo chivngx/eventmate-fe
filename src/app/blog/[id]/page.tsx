@@ -16,9 +16,27 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!post) {
     return { title: "Không tìm thấy bài viết — EventMate" }
   }
+  const imageUrl = post.imageUrl || "/images/logo/eventmate-logo-square-512.png"
+  const title = `${post.title} — EventMate Blog`
   return {
-    title: `${post.title} — EventMate Blog`,
+    title,
     description: post.excerpt,
+    openGraph: {
+      title,
+      description: post.excerpt,
+      images: [
+        {
+          url: imageUrl,
+          alt: post.title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: post.excerpt,
+      images: [imageUrl],
+    },
   }
 }
 
