@@ -37,51 +37,77 @@ export async function GET(request: NextRequest) {
         // Ensure user profile is initialized
         const { data: { user } } = await supabase.auth.getUser()
         if (user) {
-            const userRole = roleParam === 'organizer' ? 'organizer' : (user.user_metadata?.role || 'student')
             const avatarUrl = user.user_metadata?.avatar_url || user.user_metadata?.picture || null
-            const isOrg = userRole === 'organizer' || user.user_metadata?.role === 'organizer'
+
+            // 1. Kiểm tra profile hiện có trong DB
+            const { data: existingProfile } = await supabase
+                .from('profiles')
+                .select('id, role, full_name, bio, avatar_url')
+                .eq('id', user.id)
+                .maybeSingle()
+
+            // 2. Xác định vai trò: NẾU ĐÃ CÓ PROFILE THÌ GIỮ NGUYÊN 100%, KHÔNG BAO GIỜ GHI ĐÈ
+            const effectiveRole = existingProfile?.role || (roleParam === 'organizer' ? 'organizer' : (user.user_metadata?.role || 'student'))
+            const isOrg = effectiveRole === 'organizer'
             const finalFullName = (isOrg && user.user_metadata?.company_name)
                 ? user.user_metadata.company_name
                 : (user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || 'Thành viên mới')
             const bio = user.user_metadata?.description || user.user_metadata?.bio || null
 
-            const { data: existingProfile } = await supabase
-                .from('profiles')
-                .select('id, role, full_name, bio')
-                .eq('id', user.id)
-                .maybeSingle()
-
-            const profilePayload: Record<string, any> = {
-                email: user.email || "",
-                role: userRole,
-                full_name: finalFullName,
-                avatar_url: avatarUrl,
-            }
-            if (bio) profilePayload.bio = bio
-
             if (!existingProfile) {
+                // Người dùng mới tạo tài khoản lần đầu qua Google OAuth
                 await supabase.from('profiles').insert({
                     id: user.id,
-                    ...profilePayload,
+                    email: user.email || "",
+                    role: effectiveRole,
+                    full_name: finalFullName,
+                    avatar_url: avatarUrl,
+                    ...(bio ? { bio } : {}),
                 })
             } else {
-                // Update profile if trigger created it with incomplete or default data
+                // Tài khoản đã tồn tại -> KHÔNG ĐƯỢC THAY ĐỔI ROLE CỦA HỌ
                 const updatePayload: Record<string, any> = {}
-                if (finalFullName && existingProfile.full_name !== finalFullName) {
-                    updatePayload.full_name = finalFullName
+
+                // Chỉ gán role nếu profile cũ trong DB bị null/undefined
+                if (!existingProfile.role && effectiveRole) {
+                    updatePayload.role = effectiveRole
                 }
-                if (bio && !existingProfile.bio) {
+
+                // Chỉ cập nhật full_name nếu profile chưa có tên hoặc đang là placeholder mặc định
+                if (!existingProfile.full_name || existingProfile.full_name === 'Thành viên mới') {
+                    if (finalFullName) {
+                        updatePayload.full_name = finalFullName
+                    }
+                }
+
+                // Chỉ bổ sung avatar nếu profile chưa có
+                if (!existingProfile.avatar_url && avatarUrl) {
+                    updatePayload.avatar_url = avatarUrl
+                }
+
+                // Chỉ bổ sung bio nếu profile chưa có
+                if (!existingProfile.bio && bio) {
                     updatePayload.bio = bio
                 }
-                if (userRole && existingProfile.role !== userRole) {
-                    updatePayload.role = userRole
-                }
+
                 if (Object.keys(updatePayload).length > 0) {
                     await supabase.from('profiles').update(updatePayload).eq('id', user.id)
                 }
             }
 
-            // Role handling complete, next retains redirectParam or defaults to '/'
+            // 3. Đồng bộ user_metadata.role với role thực tế trong DB để middleware luôn nhận diện đúng
+            if (user.user_metadata?.role !== effectiveRole) {
+                await supabase.auth.updateUser({
+                    data: { role: effectiveRole },
+                })
+            }
+
+            // 4. Tránh redirect nhầm vào route dành riêng cho role khác
+            if (effectiveRole === 'organizer' && (next.startsWith('/my-events') || next.startsWith('/cv') || next.startsWith('/profile'))) {
+                next = '/dashboard'
+            } else if (effectiveRole === 'student' && (next.startsWith('/manage-events') || next.startsWith('/post-job'))) {
+                next = '/dashboard'
+            }
         }
 
         const response = NextResponse.redirect(`${origin}${next}`)
