@@ -17,7 +17,18 @@ import {
   Shield,
   ShieldAlert,
   CheckCircle2,
-  Trash2
+  Trash2,
+  MessageSquare,
+  Star,
+  Sparkles,
+  Bug,
+  Layout,
+  AlertCircle,
+  Clock,
+  Check,
+  Edit3,
+  Search,
+  Filter,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -40,12 +51,21 @@ export default function AdminDashboard() {
     totalRevenue: 0,
     totalApplications: 0,
     totalPremium: 0,
+    totalFeedbacks: 0,
+    pendingFeedbacks: 0,
+    avgRating: 5.0,
   })
 
   const [organizers, setOrganizers] = useState<any[]>([])
   const [students, setStudents] = useState<any[]>([])
   const [events, setEvents] = useState<any[]>([])
   const [transactions, setTransactions] = useState<any[]>([])
+  const [feedbacks, setFeedbacks] = useState<any[]>([])
+  const [feedbackStatusFilter, setFeedbackStatusFilter] = useState("all")
+  const [feedbackCategoryFilter, setFeedbackCategoryFilter] = useState("all")
+  const [feedbackSearch, setFeedbackSearch] = useState("")
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null)
+  const [noteText, setNoteText] = useState("")
   const [loading, setLoading] = useState(true)
 
 
@@ -82,9 +102,21 @@ export default function AdminDashboard() {
       .order("created_at", { ascending: false })
     if (txs) setTransactions(txs)
 
+    const { data: fbs } = await supabase
+      .from("feedbacks")
+      .select("*, profiles:user_id(id, full_name, email, avatar_url, role)")
+      .order("created_at", { ascending: false })
+    if (fbs) setFeedbacks(fbs)
+
     const premiumOrgs = (orgs || []).filter((o: any) => o.is_premium && (!o.premium_until || new Date(o.premium_until) > new Date()))
 
     const realRevenue = (txs || []).reduce((acc: number, curr: any) => acc + (Number(curr.amount) || 0), 0)
+
+    const pendingFbs = (fbs || []).filter((f: any) => f.status === "pending").length
+    const ratedFbs = (fbs || []).filter((f: any) => typeof f.rating === "number" && f.rating > 0)
+    const avgScore = ratedFbs.length > 0
+      ? ratedFbs.reduce((acc: number, f: any) => acc + f.rating, 0) / ratedFbs.length
+      : 5.0
 
     setStats({
       totalStudents: studs?.length || 0,
@@ -93,6 +125,9 @@ export default function AdminDashboard() {
       totalRevenue: realRevenue > 0 ? realRevenue : premiumOrgs.length * 699000,
       totalApplications: appCount || 0,
       totalPremium: premiumOrgs.length,
+      totalFeedbacks: fbs?.length || 0,
+      pendingFeedbacks: pendingFbs,
+      avgRating: Number(avgScore.toFixed(1)),
     })
 
     setLoading(false)
@@ -142,12 +177,102 @@ export default function AdminDashboard() {
     }
   }
 
+  const handleUpdateFeedbackStatus = async (feedbackId: string, nextStatus: string) => {
+    const { error } = await supabase
+      .from("feedbacks")
+      .update({ status: nextStatus })
+      .eq("id", feedbackId)
+
+    if (error) {
+      showToast({
+        title: "Lỗi cập nhật",
+        message: getUserFacingMessage(error, "Không thể cập nhật trạng thái phản hồi."),
+        type: "error"
+      })
+    } else {
+      setFeedbacks((prev) =>
+        prev.map((f) => (f.id === feedbackId ? { ...f, status: nextStatus } : f))
+      )
+      setStats((prev) => ({
+        ...prev,
+        pendingFeedbacks: feedbacks.filter((f) => (f.id === feedbackId ? nextStatus === "pending" : f.status === "pending")).length,
+      }))
+      showToast({
+        title: "Thành công",
+        message: `Đã cập nhật trạng thái sang "${
+          nextStatus === "resolved" ? "Đã xử lý" : nextStatus === "reviewed" ? "Đã xem" : "Chờ xử lý"
+        }".`,
+        type: "success"
+      })
+    }
+  }
+
+  const handleSaveAdminNote = async (feedbackId: string) => {
+    const { error } = await supabase
+      .from("feedbacks")
+      .update({ admin_note: noteText.trim() || null })
+      .eq("id", feedbackId)
+
+    if (error) {
+      showToast({
+        title: "Lỗi lưu ghi chú",
+        message: getUserFacingMessage(error, "Không thể lưu ghi chú."),
+        type: "error"
+      })
+    } else {
+      setFeedbacks((prev) =>
+        prev.map((f) => (f.id === feedbackId ? { ...f, admin_note: noteText.trim() || null } : f))
+      )
+      setEditingNoteId(null)
+      setNoteText("")
+      showToast({
+        title: "Thành công",
+        message: "Đã lưu ghi chú quản trị viên.",
+        type: "success"
+      })
+    }
+  }
+
+  const handleDeleteFeedback = async (feedbackId: string) => {
+    if (!window.confirm("Bạn có chắc chắn muốn xóa phản hồi này khỏi hệ thống?")) return
+
+    const { error } = await supabase
+      .from("feedbacks")
+      .delete()
+      .eq("id", feedbackId)
+
+    if (error) {
+      showToast({
+        title: "Lỗi xóa phản hồi",
+        message: getUserFacingMessage(error, "Không thể xóa phản hồi."),
+        type: "error"
+      })
+    } else {
+      setFeedbacks((prev) => prev.filter((f) => f.id !== feedbackId))
+      setStats((prev) => ({
+        ...prev,
+        totalFeedbacks: Math.max(0, prev.totalFeedbacks - 1),
+      }))
+      showToast({
+        title: "Đã xóa",
+        message: "Đã xóa phản hồi thành công.",
+        type: "success"
+      })
+    }
+  }
+
   const menuItems = [
     { id: "overview", name: "Tổng quan", icon: LayoutDashboard },
     { id: "organizers", name: "Nhà tuyển nhân sự", icon: Building2 },
     { id: "students", name: "Sinh viên", icon: Users },
     { id: "events", name: "Quản lý bài tuyển", icon: FileText },
-    { id: "transactions", name: "Doanh thu & Giao dịch", icon: CreditCard }
+    { id: "transactions", name: "Doanh thu & Giao dịch", icon: CreditCard },
+    {
+      id: "feedbacks",
+      name: "Ý kiến phản hồi",
+      icon: MessageSquare,
+      badge: stats.pendingFeedbacks > 0 ? stats.pendingFeedbacks : undefined
+    }
   ]
 
   const activeMenuItem = menuItems.find(i => i.id === activeTab)
@@ -247,7 +372,12 @@ export default function AdminDashboard() {
                     }`}
                 >
                   <Icon className="h-5 w-5 shrink-0" />
-                  <span>{item.name}</span>
+                  <span className="flex-1 text-left">{item.name}</span>
+                  {item.badge ? (
+                    <span className="rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-bold text-white leading-none">
+                      {item.badge}
+                    </span>
+                  ) : null}
                 </button>
               )
             })}
@@ -345,6 +475,52 @@ export default function AdminDashboard() {
                             ))}
                           </tbody>
                         </table>
+                      </div>
+                    </div>
+
+                    {/* Recent Feedbacks Card */}
+                    <div className="rounded-xl border border-border bg-card shadow-sm">
+                      <div className="border-b border-border p-4 sm:p-5 flex items-center justify-between">
+                        <div>
+                          <h3 className="text-base font-semibold text-foreground">Ý kiến đóng góp mới nhất</h3>
+                          <p className="mt-0.5 text-xs text-muted-foreground">Phản hồi và báo lỗi từ người dùng gần đây</p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setActiveTab("feedbacks")}
+                          className="text-xs text-primary cursor-pointer hover:bg-primary/10"
+                        >
+                          Xem tất cả ({stats.totalFeedbacks}) →
+                        </Button>
+                      </div>
+                      <div className="p-4 sm:p-5">
+                        {feedbacks.length === 0 ? (
+                          <p className="text-center text-xs text-muted-foreground py-6">Chưa có ý kiến phản hồi nào.</p>
+                        ) : (
+                          <div className="divide-y divide-border/60">
+                            {feedbacks.slice(0, 3).map((fb) => (
+                              <div key={fb.id} className="py-3 first:pt-0 last:pb-0 flex items-start justify-between gap-4">
+                                <div className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs font-semibold text-foreground">{fb.full_name || fb.profiles?.full_name || "Khách"}</span>
+                                    <Badge className="text-[10px] bg-slate-100 text-slate-700">
+                                      {fb.category === "bug" ? "🐛 Báo lỗi" : fb.category === "feature" ? "💡 Tính năng" : fb.category === "ux" ? "🎨 Giao diện" : "💬 Góp ý"}
+                                    </Badge>
+                                    {typeof fb.rating === "number" && (
+                                      <span className="text-xs text-amber-500 font-medium">★ {fb.rating}</span>
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-muted-foreground line-clamp-1">{fb.content}</p>
+                                </div>
+                                <Badge className={fb.status === "resolved" ? "bg-emerald-100 text-emerald-700 text-[10px]" : "bg-amber-100 text-amber-700 text-[10px]"}>
+                                  {fb.status === "resolved" ? "Đã giải quyết" : fb.status === "reviewed" ? "Đã xem" : "Chờ xử lý"}
+                                </Badge>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -566,6 +742,363 @@ export default function AdminDashboard() {
                           ))}
                         </tbody>
                       </table>
+                    </div>
+                  </div>
+                )}
+
+                {/* 6. FEEDBACKS / Ý KIẾN PHẢN HỒI */}
+                {activeTab === "feedbacks" && (
+                  <div className="space-y-6 animate-in fade-in">
+                    {/* Stat cards for Feedbacks */}
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                      <StatCard
+                        icon={<MessageSquare className="h-5 w-5 text-indigo-600" />}
+                        label="Tổng lượt góp ý"
+                        value={stats.totalFeedbacks.toString()}
+                      />
+                      <StatCard
+                        icon={<AlertCircle className="h-5 w-5 text-rose-600" />}
+                        label="Chờ phản hồi / xử lý"
+                        value={stats.pendingFeedbacks.toString()}
+                      />
+                      <StatCard
+                        icon={<Star className="h-5 w-5 text-amber-500 fill-amber-500" />}
+                        label="Điểm hài lòng TB"
+                        value={`${stats.avgRating} / 5.0`}
+                      />
+                      <StatCard
+                        icon={<CheckCircle2 className="h-5 w-5 text-emerald-600" />}
+                        label="Đã tiếp nhận & Xử lý"
+                        value={feedbacks.filter((f) => f.status === "resolved").length.toString()}
+                      />
+                    </div>
+
+                    {/* Filter and Search Bar */}
+                    <div className="rounded-xl border border-border bg-card p-4 shadow-sm space-y-3 sm:space-y-0 sm:flex sm:items-center sm:justify-between sm:gap-4">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {/* Status filter pills */}
+                        {[
+                          { id: "all", label: "Tất cả" },
+                          { id: "pending", label: "Chờ xử lý" },
+                          { id: "reviewed", label: "Đã xem" },
+                          { id: "resolved", label: "Đã giải quyết" },
+                        ].map((tab) => (
+                          <button
+                            key={tab.id}
+                            type="button"
+                            onClick={() => setFeedbackStatusFilter(tab.id)}
+                            className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-colors cursor-pointer ${
+                              feedbackStatusFilter === tab.id
+                                ? "bg-primary text-white"
+                                : "bg-muted text-muted-foreground hover:bg-muted/80"
+                            }`}
+                          >
+                            {tab.label}
+                            {tab.id === "pending" && stats.pendingFeedbacks > 0 && (
+                              <span className="ml-1.5 rounded-full bg-rose-500 px-1.5 py-0.2 text-[10px] font-bold text-white">
+                                {stats.pendingFeedbacks}
+                              </span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {/* Category filter */}
+                        <select
+                          value={feedbackCategoryFilter}
+                          onChange={(e) => setFeedbackCategoryFilter(e.target.value)}
+                          aria-label="Lọc theo thể loại góp ý"
+                          className="h-9 rounded-lg border border-border bg-background px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+                        >
+                          <option value="all">Mọi thể loại</option>
+                          <option value="feature">💡 Ý tưởng / Tính năng</option>
+                          <option value="bug">🐛 Báo lỗi sự cố</option>
+                          <option value="ux">🎨 Giao diện & Trải nghiệm</option>
+                          <option value="general">💬 Góp ý chung</option>
+                        </select>
+
+                        {/* Search input */}
+                        <div className="relative w-full sm:w-56">
+                          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                          <input
+                            type="text"
+                            placeholder="Tìm phản hồi..."
+                            value={feedbackSearch}
+                            onChange={(e) => setFeedbackSearch(e.target.value)}
+                            className="h-9 w-full rounded-lg border border-border bg-background pl-8 pr-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Feedbacks list */}
+                    <div className="space-y-4">
+                      {(() => {
+                        const filtered = feedbacks.filter((fb) => {
+                          if (feedbackStatusFilter !== "all" && fb.status !== feedbackStatusFilter) return false
+                          if (feedbackCategoryFilter !== "all" && fb.category !== feedbackCategoryFilter) return false
+                          if (feedbackSearch.trim()) {
+                            const q = feedbackSearch.toLowerCase()
+                            const c = fb.content?.toLowerCase() || ""
+                            const t = fb.title?.toLowerCase() || ""
+                            const n = (fb.full_name || fb.profiles?.full_name || "").toLowerCase()
+                            const em = (fb.email || fb.profiles?.email || "").toLowerCase()
+                            if (!c.includes(q) && !t.includes(q) && !n.includes(q) && !em.includes(q)) return false
+                          }
+                          return true
+                        })
+
+                        if (filtered.length === 0) {
+                          return (
+                            <div className="rounded-xl border border-border bg-card p-12 text-center text-sm text-muted-foreground">
+                              Không tìm thấy ý kiến phản hồi nào phù hợp với bộ lọc.
+                            </div>
+                          )
+                        }
+
+                        return filtered.map((fb) => {
+                          const userProfile = fb.profiles
+                          const senderName = fb.full_name || userProfile?.full_name || "Khách ẩn danh"
+                          const senderEmail = fb.email || userProfile?.email || "Không cung cấp email"
+                          const senderRole = userProfile?.role || fb.role || "guest"
+                          const isEditing = editingNoteId === fb.id
+
+                          return (
+                            <div
+                              key={fb.id}
+                              className={`rounded-xl border bg-card p-5 shadow-xs transition-all ${
+                                fb.status === "pending"
+                                  ? "border-amber-300/80 bg-amber-50/20"
+                                  : fb.status === "resolved"
+                                  ? "border-border opacity-90"
+                                  : "border-border"
+                              }`}
+                            >
+                              {/* Top row: Sender info & badges */}
+                              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 border-b border-border/60 pb-3">
+                                <div className="flex items-center gap-3">
+                                  <Avatar className="h-10 w-10 border border-slate-200">
+                                    <AvatarImage src={userProfile?.avatar_url || ""} />
+                                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                                      {senderName.slice(0, 2).toUpperCase()}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-semibold text-sm text-foreground">{senderName}</span>
+                                      <Badge
+                                        className={
+                                          senderRole === "organizer"
+                                            ? "bg-purple-100 text-purple-700 text-[10px]"
+                                            : senderRole === "student"
+                                            ? "bg-blue-100 text-blue-700 text-[10px]"
+                                            : "bg-slate-100 text-slate-600 text-[10px]"
+                                        }
+                                      >
+                                        {senderRole === "organizer" ? "Nhà tuyển dụng" : senderRole === "student" ? "Sinh viên" : "Khách vãng lai"}
+                                      </Badge>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">{senderEmail}</p>
+                                  </div>
+                                </div>
+
+                                <div className="flex flex-wrap items-center gap-2">
+                                  {/* Category Badge */}
+                                  <Badge
+                                    className={
+                                      fb.category === "bug"
+                                        ? "bg-rose-100 text-rose-700 border-rose-200"
+                                        : fb.category === "feature"
+                                        ? "bg-purple-100 text-purple-700 border-purple-200"
+                                        : fb.category === "ux"
+                                        ? "bg-blue-100 text-blue-700 border-blue-200"
+                                        : "bg-slate-100 text-slate-700 border-slate-200"
+                                    }
+                                  >
+                                    {fb.category === "bug"
+                                      ? "🐛 Báo lỗi"
+                                      : fb.category === "feature"
+                                      ? "💡 Tính năng"
+                                      : fb.category === "ux"
+                                      ? "🎨 Giao diện"
+                                      : "💬 Góp ý chung"}
+                                  </Badge>
+
+                                  {/* Rating stars */}
+                                  {typeof fb.rating === "number" && fb.rating > 0 && (
+                                    <div className="flex items-center gap-0.5 rounded-md bg-amber-50 px-2 py-1 border border-amber-100">
+                                      {[1, 2, 3, 4, 5].map((s) => (
+                                        <Star
+                                          key={s}
+                                          className={`w-3.5 h-3.5 ${
+                                            s <= fb.rating
+                                              ? "fill-amber-400 text-amber-400"
+                                              : "text-slate-200"
+                                          }`}
+                                        />
+                                      ))}
+                                    </div>
+                                  )}
+
+                                  {/* Status badge */}
+                                  <Badge
+                                    className={
+                                      fb.status === "resolved"
+                                        ? "bg-emerald-100 text-emerald-700 border-emerald-200"
+                                        : fb.status === "reviewed"
+                                        ? "bg-blue-100 text-blue-700 border-blue-200"
+                                        : "bg-amber-100 text-amber-700 border-amber-200"
+                                    }
+                                  >
+                                    {fb.status === "resolved"
+                                      ? "Đã giải quyết"
+                                      : fb.status === "reviewed"
+                                      ? "Đã xem"
+                                      : "Chờ xử lý"}
+                                  </Badge>
+
+                                  <span className="text-xs text-muted-foreground ml-1">
+                                    {new Date(fb.created_at).toLocaleString("vi-VN", {
+                                      dateStyle: "short",
+                                      timeStyle: "short"
+                                    })}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Content body */}
+                              <div className="pt-3 space-y-2">
+                                {fb.title && (
+                                  <h4 className="text-sm font-bold text-foreground">
+                                    {fb.title}
+                                  </h4>
+                                )}
+                                <div className="rounded-lg bg-muted/40 p-3 text-xs sm:text-sm text-foreground whitespace-pre-wrap leading-relaxed border border-border/40">
+                                  {fb.content}
+                                </div>
+                              </div>
+
+                              {/* Admin internal note */}
+                              <div className="pt-3">
+                                {isEditing ? (
+                                  <div className="rounded-lg bg-amber-50/70 border border-amber-200 p-3 space-y-2">
+                                    <label className="text-xs font-semibold text-amber-800 block">
+                                      Ghi chú nội bộ của Quản trị viên:
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={noteText}
+                                      onChange={(e) => setNoteText(e.target.value)}
+                                      placeholder="VD: Đã note lại cho dev fix ở bản cập nhật tới..."
+                                      className="w-full h-8 px-2.5 rounded-md border border-amber-300 bg-white text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                                    />
+                                    <div className="flex items-center justify-end gap-2">
+                                      <Button
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => setEditingNoteId(null)}
+                                        className="h-7 text-xs rounded-md"
+                                      >
+                                        Hủy
+                                      </Button>
+                                      <Button
+                                        type="button"
+                                        size="sm"
+                                        onClick={() => handleSaveAdminNote(fb.id)}
+                                        className="h-7 text-xs rounded-md bg-amber-600 hover:bg-amber-700 text-white"
+                                      >
+                                        Lưu ghi chú
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : fb.admin_note ? (
+                                  <div className="flex items-center justify-between rounded-lg bg-amber-50/70 border border-amber-200 px-3 py-2 text-xs text-amber-800">
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-semibold text-amber-900">Ghi chú Admin:</span>
+                                      <span>{fb.admin_note}</span>
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setEditingNoteId(fb.id)
+                                        setNoteText(fb.admin_note || "")
+                                      }}
+                                      className="text-amber-700 hover:text-amber-900 font-medium ml-2 cursor-pointer underline text-[11px]"
+                                    >
+                                      Sửa
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setEditingNoteId(fb.id)
+                                      setNoteText("")
+                                    }}
+                                    className="text-muted-foreground hover:text-foreground text-[11px] font-medium flex items-center gap-1 cursor-pointer"
+                                  >
+                                    <Edit3 className="w-3 h-3" />
+                                    <span>Thêm ghi chú nội bộ</span>
+                                  </button>
+                                )}
+                              </div>
+
+                              {/* Footer Actions */}
+                              <div className="mt-4 pt-3 border-t border-border/50 flex flex-wrap items-center justify-between gap-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs text-muted-foreground">Chuyển trạng thái:</span>
+                                  {fb.status !== "reviewed" && (
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleUpdateFeedbackStatus(fb.id, "reviewed")}
+                                      className="h-7 text-xs rounded-md cursor-pointer hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200"
+                                    >
+                                      Đánh dấu đã xem
+                                    </Button>
+                                  )}
+                                  {fb.status !== "resolved" && (
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleUpdateFeedbackStatus(fb.id, "resolved")}
+                                      className="h-7 text-xs rounded-md cursor-pointer hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200"
+                                    >
+                                      Đã giải quyết
+                                    </Button>
+                                  )}
+                                  {fb.status !== "pending" && (
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleUpdateFeedbackStatus(fb.id, "pending")}
+                                      className="h-7 text-xs rounded-md cursor-pointer hover:bg-amber-50 hover:text-amber-700 hover:border-amber-200"
+                                    >
+                                      Đặt lại chờ xử lý
+                                    </Button>
+                                  )}
+                                </div>
+
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleDeleteFeedback(fb.id)}
+                                  className="h-7 text-xs text-rose-600 hover:bg-rose-50 hover:text-rose-700 rounded-md cursor-pointer flex items-center gap-1"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                  <span>Xóa</span>
+                                </Button>
+                              </div>
+                            </div>
+                          )
+                        })
+                      })()}
                     </div>
                   </div>
                 )}

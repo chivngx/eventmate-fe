@@ -16,6 +16,7 @@ REVOKE ALL ON public.reviews FROM anon;
 REVOKE ALL ON public.event_categories FROM anon;
 REVOKE ALL ON public.job_positions FROM anon;
 REVOKE ALL ON public.transactions FROM anon;
+REVOKE ALL ON public.feedbacks FROM anon;
 
 -- 2. Cấp quyền SELECT cho anon trên các bảng public-read
 GRANT SELECT ON public.danang_wards TO anon;
@@ -26,6 +27,7 @@ GRANT SELECT ON public.applications TO anon;
 GRANT SELECT ON public.reviews TO anon;
 GRANT SELECT ON public.event_categories TO anon;
 GRANT SELECT ON public.job_positions TO anon;
+GRANT INSERT ON public.feedbacks TO anon, authenticated;
 
 -- 3. Cấp quyền đầy đủ cho authenticated, service_role, postgres (RLS thực thi bảo mật)
 GRANT ALL ON TABLE public.danang_wards TO authenticated, service_role, postgres;
@@ -41,6 +43,7 @@ GRANT ALL ON TABLE public.reviews TO authenticated, service_role, postgres;
 GRANT ALL ON TABLE public.event_categories TO authenticated, service_role, postgres;
 GRANT ALL ON TABLE public.job_positions TO authenticated, service_role, postgres;
 GRANT ALL ON TABLE public.transactions TO authenticated, service_role, postgres;
+GRANT ALL ON TABLE public.feedbacks TO authenticated, service_role, postgres;
 
 -- 4. Cấp quyền thực thi các hàm RPC
 GRANT EXECUTE ON FUNCTION public.activate_premium_or_credits(TEXT, TEXT, BIGINT, TEXT) TO authenticated, service_role, postgres;

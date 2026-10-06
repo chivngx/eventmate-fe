@@ -6,6 +6,7 @@ import MenuDashboard from "@/components/layout/MenuDashboard"
 import { Menu } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
+import FloatingFeedbackButton from "@/features/feedback/components/FloatingFeedbackButton"
 
 export interface DashboardLayoutProps {
   children: React.ReactNode
@@ -113,6 +114,7 @@ export default function DashboardLayout({
           <main className="w-full pb-6">{children}</main>
         </div>
       </div>
+      <FloatingFeedbackButton />
     </div>
   )
 }

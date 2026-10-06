@@ -211,3 +211,24 @@ CREATE TABLE IF NOT EXISTS public.transactions (
 CREATE INDEX IF NOT EXISTS idx_transactions_user ON public.transactions(user_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_created_at ON public.transactions(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_transactions_order_code ON public.transactions(order_code);
+
+-- 14. Bảng FEEDBACKS (Góp ý & phản hồi người dùng)
+CREATE TABLE IF NOT EXISTS public.feedbacks (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES public.profiles(id) ON DELETE SET NULL,
+    email TEXT,
+    full_name TEXT,
+    role TEXT DEFAULT 'guest',
+    category TEXT NOT NULL DEFAULT 'general',
+    rating INT CHECK (rating >= 1 AND rating <= 5),
+    title TEXT,
+    content TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending',
+    admin_note TEXT,
+    created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_feedbacks_user ON public.feedbacks(user_id);
+CREATE INDEX IF NOT EXISTS idx_feedbacks_created_at ON public.feedbacks(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_feedbacks_status ON public.feedbacks(status);
+

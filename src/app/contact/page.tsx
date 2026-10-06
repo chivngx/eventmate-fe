@@ -4,9 +4,12 @@ import React, { useState } from "react"
 import MainLayout from "@/components/layout/MainLayout"
 import { Mail, Phone, MapPin, Send, CheckCircle2 } from "lucide-react"
 import { useToast } from "@/components/providers/ToastProvider"
+import { useUser } from "@/components/providers/AuthProvider"
+import { supabase } from "@/lib/supabase"
 
 export default function ContactPage() {
   const { showToast } = useToast()
+  const { user } = useUser()
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
@@ -17,19 +20,41 @@ export default function ContactPage() {
     message: "",
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
-    setTimeout(() => {
-      setLoading(false)
+    try {
+      const { error } = await supabase.from("feedbacks").insert({
+        user_id: user?.id || null,
+        full_name: formData.fullName.trim() || null,
+        email: formData.email.trim() || null,
+        role: user ? (user.user_metadata?.role || "student") : "guest",
+        category: "general",
+        rating: 5,
+        title: formData.subject ? `[Liên hệ] ${formData.subject}` : "[Liên hệ từ trang Contact]",
+        content: `Số điện thoại: ${formData.phone || "Không cung cấp"}\n\nNội dung: ${formData.message}`,
+        status: "pending",
+      })
+
+      if (error) throw error
+
       setSubmitted(true)
       showToast({
         title: "Đã gửi thông tin",
         message: "Cảm ơn bạn! Đội ngũ EventMate sẽ liên hệ lại trong vòng 24 giờ.",
         type: "success",
       })
-    }, 1000)
+    } catch (err: any) {
+      console.error("[ContactPage] submit error:", err)
+      showToast({
+        title: "Lỗi gửi thông tin",
+        message: err?.message || "Không thể gửi tin nhắn. Vui lòng thử lại sau.",
+        type: "error",
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (

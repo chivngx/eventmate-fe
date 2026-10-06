@@ -9,6 +9,7 @@ import { useToast } from "@/components/providers/ToastProvider"
 import NotificationDropdown from "./NotificationDropdown"
 import JobseekerProfileDropdown from "./JobseekerProfileDropdown"
 import FloatingChat from "@/features/chat/components/FloatingChat"
+import FloatingFeedbackButton from "@/features/feedback/components/FloatingFeedbackButton"
 import Footer from "./Footer"
 import { cn, isOrganizerRole } from "@/lib/utils"
 import { Plus, ShieldCheck, MessageSquare } from "lucide-react"
@@ -243,6 +244,7 @@ export default function MainLayout({
             <Footer className={cn(isHomePage ? "pt-6" : undefined, footerClassName)} />
 
             <FloatingChat user={user} role={userRole} />
+            <FloatingFeedbackButton />
         </div>
     )
 }

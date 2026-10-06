@@ -49,6 +49,7 @@ const defaultLinkGroups: FooterLinkGroup[] = [
       { label: "Cẩm nang sự kiện", href: "/blog" },
       { label: "Về chúng tôi", href: "/about" },
       { label: "Liên hệ hợp tác", href: "/contact" },
+      { label: "Đóng góp ý kiến", href: "#feedback" },
       { label: "Trung tâm trợ giúp", href: "/help" },
     ],
   },
@@ -144,9 +145,18 @@ export default function Footer({
                   <ul className="flex flex-col gap-2">
                     {group.links.map((link, linkIndex) => {
                       const isInternal = link.href.startsWith("/");
+                      const isFeedback = link.href === "#feedback";
                       return (
                         <li key={linkIndex}>
-                          {isInternal ? (
+                          {isFeedback ? (
+                            <button
+                              type="button"
+                              onClick={() => window.dispatchEvent(new CustomEvent("open-feedback-modal"))}
+                              className="text-muted-foreground hover:text-primary text-sm transition-colors cursor-pointer text-left"
+                            >
+                              {link.label}
+                            </button>
+                          ) : isInternal ? (
                             <Link
                               href={link.href}
                               className="text-muted-foreground hover:text-foreground text-sm transition-colors"

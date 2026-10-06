@@ -333,6 +333,59 @@ export type Database = {
           },
         ]
       }
+      feedbacks: {
+        Row: {
+          admin_note: string | null
+          category: string
+          content: string
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          rating: number | null
+          role: string | null
+          status: string
+          title: string | null
+          user_id: string | null
+        }
+        Insert: {
+          admin_note?: string | null
+          category?: string
+          content: string
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          rating?: number | null
+          role?: string | null
+          status?: string
+          title?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          admin_note?: string | null
+          category?: string
+          content?: string
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          rating?: number | null
+          role?: string | null
+          status?: string
+          title?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedbacks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_positions: {
         Row: {
           created_at: string

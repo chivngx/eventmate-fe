@@ -16,6 +16,7 @@ ALTER TABLE public.reviews ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.job_positions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.feedbacks ENABLE ROW LEVEL SECURITY;
 
 -- -------------------------------------------------------------------------
 -- 1. Bảng DANANG_WARDS
@@ -256,3 +257,44 @@ DROP POLICY IF EXISTS "Users can insert transactions" ON public.transactions;
 CREATE POLICY "Users can insert transactions"
   ON public.transactions FOR INSERT
   WITH CHECK (auth.uid() = user_id);
+
+-- -------------------------------------------------------------------------
+-- 14. Bảng FEEDBACKS
+-- -------------------------------------------------------------------------
+DROP POLICY IF EXISTS "Anyone can submit feedback" ON public.feedbacks;
+CREATE POLICY "Anyone can submit feedback"
+  ON public.feedbacks FOR INSERT
+  TO anon, authenticated
+  WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Users view own feedbacks or admin view all" ON public.feedbacks;
+CREATE POLICY "Users view own feedbacks or admin view all"
+  ON public.feedbacks FOR SELECT
+  USING (
+    (auth.uid() IS NOT NULL AND auth.uid() = user_id)
+    OR EXISTS (
+        SELECT 1 FROM public.profiles 
+        WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
+DROP POLICY IF EXISTS "Admin can update feedback" ON public.feedbacks;
+CREATE POLICY "Admin can update feedback"
+  ON public.feedbacks FOR UPDATE
+  USING (
+    EXISTS (
+        SELECT 1 FROM public.profiles 
+        WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
+DROP POLICY IF EXISTS "Admin can delete feedback" ON public.feedbacks;
+CREATE POLICY "Admin can delete feedback"
+  ON public.feedbacks FOR DELETE
+  USING (
+    EXISTS (
+        SELECT 1 FROM public.profiles 
+        WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
