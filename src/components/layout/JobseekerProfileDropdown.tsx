@@ -254,13 +254,11 @@ export default function JobseekerProfileDropdown({
               ) : (
                 <>
                   <MenuGroup title="Tiện ích">
-                    <MenuItem icon={CategoryIcon} label="Bảng điều khiển" onClick={() => navigate("/dashboard")} />
-                    <MenuItem icon={UserIcon} label="Hồ sơ năng lực (CV)" onClick={() => navigate("/profile")} />
-                    <MenuItem icon={CalendarDays} label="Sự kiện đã tham gia" onClick={() => navigate("/my-events")} />
+                    <MenuItem icon={UserIcon} label="Quản lý hồ sơ & Tài khoản" onClick={() => navigate("/account")} />
+                    <MenuItem icon={CalendarDays} label="Sự kiện của tôi" onClick={() => navigate("/my-events")} />
                     <MenuItem icon={MessageIcon} label="Tin nhắn" onClick={() => navigate("/chat")} />
                   </MenuGroup>
-                  <MenuGroup title="Tài khoản">
-                    <MenuItem icon={SettingIcon} label="Cài đặt tài khoản" onClick={() => navigate("/account")} />
+                  <MenuGroup title="Hệ thống">
                     <MenuItem icon={LogoutIcon} label="Đăng xuất" onClick={handleLogout} danger={true} />
                   </MenuGroup>
                 </>

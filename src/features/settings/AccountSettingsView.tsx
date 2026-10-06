@@ -28,6 +28,7 @@ import {
   Sparkles,
   KeyRound,
   FileText,
+  Clock,
   Settings
 } from "lucide-react"
 
@@ -92,7 +93,8 @@ export default function AccountSettingsView({ embedded = false }: { embedded?: b
     setMapEmbedUrl,
     reliabilityScore,
     isVerified,
-    cvPercent,
+    kycStatus,
+    kycData,
     isSeekingJob,
     emailNotifications,
     showPhoneToOrganizer,
@@ -149,9 +151,10 @@ export default function AccountSettingsView({ embedded = false }: { embedded?: b
       </div>
 
       {/* Main Grid Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className={cn("grid gap-8 items-start", isOrg ? "grid-cols-1 lg:grid-cols-12" : "grid-cols-1 max-w-3xl mx-auto w-full")}>
         {/* LEFT COLUMN (Sticky Sidebar) */}
-        <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-6">
+        {isOrg && (
+          <div className="lg:col-span-4 space-y-6 lg:sticky lg:top-6">
           {/* Profile Summary Card */}
           <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 p-6 shadow-sm flex flex-col items-center text-center relative overflow-hidden">
             {/* Background Pattern / Tint (Subtle) */}
@@ -206,26 +209,42 @@ export default function AccountSettingsView({ embedded = false }: { embedded?: b
 
             {/* Badges */}
             <div className="mt-4 flex flex-wrap items-center justify-center gap-2 z-10">
-              {isVerified ? (
+              {isVerified || kycStatus === "approved" ? (
                 <span className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 px-2.5 py-1 rounded-full">
                   <CheckCircle2 className="size-3.5 text-emerald-600 dark:text-emerald-400" />
                   <span>Đã xác thực CCCD</span>
                 </span>
+              ) : kycStatus === "pending" ? (
+                <button
+                  type="button"
+                  onClick={() => setIsEkycModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 px-3 py-1 rounded-full hover:bg-amber-100 dark:hover:bg-amber-900/60 transition-colors cursor-pointer"
+                >
+                  <Clock className="size-3.5 text-amber-600 animate-spin" />
+                  <span>Chờ Admin duyệt eKYC</span>
+                </button>
+              ) : kycStatus === "rejected" ? (
+                <button
+                  type="button"
+                  onClick={() => setIsEkycModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/50 px-3 py-1 rounded-full hover:bg-red-100 dark:hover:bg-red-900/60 transition-colors cursor-pointer"
+                >
+                  <AlertCircle className="size-3.5 text-red-600" />
+                  <span>eKYC bị từ chối (Làm lại)</span>
+                </button>
+              ) : !isOrg ? (
+                <button 
+                  type="button"
+                  onClick={() => setIsEkycModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/50 px-3 py-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors active:scale-95 cursor-pointer"
+                >
+                  <ShieldCheck className="size-3.5" />
+                  <span>Xác thực ngay (eKYC)</span>
+                </button>
               ) : (
-                !isOrg ? (
-                  <button 
-                    type="button"
-                    onClick={() => setIsEkycModalOpen(true)}
-                    className="inline-flex items-center gap-1.5 text-xs font-medium text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/50 px-3 py-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors active:scale-95"
-                  >
-                    <ShieldCheck className="size-3.5" />
-                    <span>Xác thực ngay (eKYC)</span>
-                  </button>
-                ) : (
-                  <span className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 px-2.5 py-1 rounded-full">
-                    Chưa xác minh
-                  </span>
-                )
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 px-2.5 py-1 rounded-full">
+                  Chưa xác minh
+                </span>
               )}
               
               {!isOrg && (
@@ -236,28 +255,7 @@ export default function AccountSettingsView({ embedded = false }: { embedded?: b
               )}
             </div>
 
-            {/* Extra Progress/Quota specific to role */}
-            {!isOrg && (
-              <div className="w-full mt-6 pt-5 border-t border-zinc-100 dark:border-zinc-800 text-left">
-                <div className="flex items-center justify-between text-xs mb-2">
-                  <span className="font-medium text-zinc-700 dark:text-zinc-300">Tiến độ hồ sơ CV</span>
-                  <span className="font-semibold text-zinc-900 dark:text-zinc-100">{cvPercent}%</span>
-                </div>
-                <div className="w-full bg-zinc-100 dark:bg-zinc-800 h-1.5 rounded-full overflow-hidden mb-4">
-                  <div
-                    className="bg-zinc-900 dark:bg-zinc-100 h-full rounded-full transition-all duration-500"
-                    style={{ width: `${cvPercent}%` }}
-                  />
-                </div>
-                <Link
-                  href="/profile"
-                  className="w-full h-9 rounded-xl bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-zinc-900 dark:text-zinc-100 text-xs font-semibold transition-colors flex items-center justify-center gap-2"
-                >
-                  <FileText className="size-4" />
-                  <span>Cập nhật CV ngay</span>
-                </Link>
-              </div>
-            )}
+
           </div>
 
           {/* Navigation Menu */}
@@ -318,9 +316,10 @@ export default function AccountSettingsView({ embedded = false }: { embedded?: b
             </div>
           )}
         </div>
+        )}
 
         {/* RIGHT COLUMN (Content Area) */}
-        <div className="lg:col-span-8 space-y-6">
+        <div className={cn("space-y-6", isOrg ? "lg:col-span-8" : "w-full")}>
           {/* Status Alert Banner */}
           {message && (
             <div
@@ -341,7 +340,7 @@ export default function AccountSettingsView({ embedded = false }: { embedded?: b
             </div>
           )}
 
-          {activeTab === "info" && (
+          {(activeTab === "info" || !isOrg) && (
             <form onSubmit={handleUpdateProfile} className="space-y-6">
               
               {/* ORGANIZER FORM BLOCKS */}
@@ -508,55 +507,32 @@ export default function AccountSettingsView({ embedded = false }: { embedded?: b
                   </div>
                 </>
               ) : (
-                /* STUDENT FORM BLOCKS */
+                /* STUDENT SYSTEM BLOCKS */
                 <>
-                  {/* Basic Info Box */}
+                  {/* Account Security Box */}
                   <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 p-6 sm:p-8 shadow-sm space-y-6">
                     <div className="flex items-center gap-2 pb-4 border-b border-zinc-100 dark:border-zinc-800">
                       <div className="size-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
-                        <User className="size-4 text-zinc-600 dark:text-zinc-400" />
+                        <ShieldCheck className="size-4 text-zinc-600 dark:text-zinc-400" />
                       </div>
                       <div>
                         <h3 className="font-semibold text-base text-zinc-900 dark:text-zinc-100">
-                          Thông tin Cơ bản
+                          Trạng thái & Định danh
                         </h3>
                         <p className="text-[13px] text-zinc-500 dark:text-zinc-400">
-                          Quản lý định danh và thông tin cá nhân.
+                          Tài khoản đăng nhập và xác thực danh tính.
                         </p>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                       <div>
-                        <label htmlFor="stu-name" className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-200 mb-1.5">
-                          Họ và tên
-                          {isVerified && <span title="Đã khóa bằng eKYC"><ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /></span>}
-                        </label>
-                        <input
-                          id="stu-name"
-                          type="text"
-                          required
-                          value={fullName}
-                          onChange={(e) => setFullName(e.target.value)}
-                          disabled={isVerified}
-                          title={isVerified ? "Họ tên đã được khóa sau khi xác thực eKYC" : ""}
-                          placeholder="Nhập họ tên đầy đủ..."
-                          className={cn(
-                            "h-11 w-full px-4 text-sm rounded-xl border border-zinc-200 dark:border-zinc-800 transition-all",
-                            isVerified 
-                              ? "bg-zinc-50 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 cursor-not-allowed" 
-                              : "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900 dark:focus:border-zinc-100 focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-100"
-                          )}
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="stu-email" className="block text-sm font-semibold text-zinc-900 dark:text-zinc-200 mb-1.5">
-                          Email (chỉ đọc)
+                        <label className="block text-sm font-semibold text-zinc-900 dark:text-zinc-200 mb-1.5">
+                          Email đăng nhập (Chỉ đọc)
                         </label>
                         <div className="relative">
                           <Mail className="size-4.5 text-zinc-400 absolute left-3.5 top-3.5" />
                           <input
-                            id="stu-email"
                             type="email"
                             disabled
                             value={email}
@@ -564,70 +540,46 @@ export default function AccountSettingsView({ embedded = false }: { embedded?: b
                           />
                         </div>
                       </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                      <div>
-                        <label htmlFor="stu-phone" className="block text-sm font-semibold text-zinc-900 dark:text-zinc-200 mb-1.5">
-                          Số điện thoại liên hệ
-                        </label>
-                        <div className="relative">
-                          <Phone className="size-4.5 text-zinc-400 absolute left-3.5 top-3.5" />
-                          <input
-                            id="stu-phone"
-                            type="tel"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            placeholder="0905 xxx xxx"
-                            className="h-11 w-full pl-10 pr-4 text-sm rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900 dark:focus:border-zinc-100 focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-100 transition-all"
-                          />
-                        </div>
-                      </div>
                       
                       <div>
-                        <label htmlFor="stu-gender" className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-200 mb-1.5">
-                          Giới tính
-                          {isVerified && <span title="Đã khóa bằng eKYC"><ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /></span>}
+                        <label className="block text-sm font-semibold text-zinc-900 dark:text-zinc-200 mb-1.5">
+                          Trạng thái xác thực (eKYC)
                         </label>
-                        <select
-                          id="stu-gender"
-                          value={gender}
-                          onChange={(e) => setGender(e.target.value)}
-                          disabled={isVerified}
-                          title={isVerified ? "Giới tính đã được khóa sau khi xác thực eKYC" : ""}
-                          className={cn(
-                            "h-11 w-full px-4 text-sm rounded-xl border border-zinc-200 dark:border-zinc-800 transition-all",
-                            isVerified 
-                              ? "bg-zinc-50 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 cursor-not-allowed opacity-100" 
-                              : "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 focus:outline-none focus:border-zinc-900 dark:focus:border-zinc-100 focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-100"
+                        <div className="h-11 flex items-center">
+                          {isVerified || kycStatus === "approved" ? (
+                            <span className="inline-flex items-center gap-1.5 text-sm font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/50 px-3 py-1.5 rounded-full">
+                              <CheckCircle2 className="size-4 text-emerald-600 dark:text-emerald-400" />
+                              <span>Đã xác thực CCCD</span>
+                            </span>
+                          ) : kycStatus === "pending" ? (
+                            <button
+                              type="button"
+                              onClick={() => setIsEkycModalOpen(true)}
+                              className="inline-flex items-center gap-1.5 text-sm font-medium text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/50 px-4 py-1.5 rounded-full hover:bg-amber-100 transition-colors cursor-pointer"
+                            >
+                              <Clock className="size-4 text-amber-600" />
+                              <span>Đang chờ Admin duyệt</span>
+                            </button>
+                          ) : kycStatus === "rejected" ? (
+                            <button
+                              type="button"
+                              onClick={() => setIsEkycModalOpen(true)}
+                              className="inline-flex items-center gap-1.5 text-sm font-medium text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/50 px-4 py-1.5 rounded-full hover:bg-red-100 transition-colors cursor-pointer"
+                            >
+                              <AlertCircle className="size-4 text-red-600" />
+                              <span>Bị từ chối (Nhấn để làm lại)</span>
+                            </button>
+                          ) : (
+                            <button 
+                              type="button"
+                              onClick={() => setIsEkycModalOpen(true)}
+                              className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800/50 px-4 py-1.5 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-colors active:scale-95 cursor-pointer"
+                            >
+                              <AlertCircle className="size-4" />
+                              <span>Xác thực ngay</span>
+                            </button>
                           )}
-                        >
-                          <option value="Nam">Nam</option>
-                          <option value="Nữ">Nữ</option>
-                          <option value="Khác">Khác</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label htmlFor="stu-birthyear" className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-200 mb-1.5">
-                          Năm sinh
-                          {isVerified && <span title="Đã khóa bằng eKYC"><ShieldCheck className="w-3.5 h-3.5 text-emerald-500" /></span>}
-                        </label>
-                        <input
-                          id="stu-birthyear"
-                          type="text"
-                          value={birthYear}
-                          onChange={(e) => setBirthYear(e.target.value)}
-                          disabled={isVerified}
-                          title={isVerified ? "Năm sinh đã được khóa sau khi xác thực eKYC" : ""}
-                          placeholder="VD: 2002"
-                          className={cn(
-                            "h-11 w-full px-4 text-sm rounded-xl border border-zinc-200 dark:border-zinc-800 transition-all",
-                            isVerified 
-                              ? "bg-zinc-50 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 cursor-not-allowed" 
-                              : "bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:border-zinc-900 dark:focus:border-zinc-100 focus:ring-1 focus:ring-zinc-900 dark:focus:ring-zinc-100"
-                          )}
-                        />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -709,9 +661,9 @@ export default function AccountSettingsView({ embedded = false }: { embedded?: b
             </form>
           )}
 
-          {activeTab === "password" && (
+          {(activeTab === "password" || !isOrg) && (
             <form onSubmit={handleUpdatePassword} className="space-y-6">
-              <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 p-6 sm:p-8 shadow-sm space-y-6 max-w-2xl">
+              <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 p-6 sm:p-8 shadow-sm space-y-6 w-full">
                 <div className="flex items-center gap-2 pb-4 border-b border-zinc-100 dark:border-zinc-800">
                   <div className="size-8 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center">
                     <Lock className="size-4 text-zinc-600 dark:text-zinc-400" />
@@ -824,7 +776,7 @@ export default function AccountSettingsView({ embedded = false }: { embedded?: b
           )}
         </div>
       </div>
-
+      
       {/* Student eKYC Modal */}
       {!isOrg && (
         <StudentEkycModal 
@@ -833,6 +785,8 @@ export default function AccountSettingsView({ embedded = false }: { embedded?: b
           onSuccess={() => {
             if (refreshProfile) refreshProfile()
           }}
+          currentKycStatus={kycStatus}
+          rejectionReason={kycData?.rejection_reason}
         />
       )}
     </div>

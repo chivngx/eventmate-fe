@@ -5,7 +5,6 @@ import { supabase } from "@/lib/supabase"
 import { getUserFacingMessage } from "@/lib/error"
 import { useUser } from "@/components/providers/AuthProvider"
 import { useToast } from "@/components/providers/ToastProvider"
-import { getStudentProfileCompletion } from "@/lib/profile-completion"
 
 export function useAccountSettings() {
   const { user, profile, loading: authLoading, refreshProfile, isPremium } = useUser()
@@ -35,6 +34,8 @@ export function useAccountSettings() {
   const [mapEmbedUrl, setMapEmbedUrl] = useState<string>("")
   const [reliabilityScore, setReliabilityScore] = useState<number>(100)
   const [isVerified, setIsVerified] = useState<boolean>(false)
+  const [kycStatus, setKycStatus] = useState<string>("unverified")
+  const [kycData, setKycData] = useState<any>(null)
 
   // Student Preferences & Privacy States
   const [isSeekingJob, setIsSeekingJob] = useState<boolean>(true)
@@ -49,11 +50,7 @@ export function useAccountSettings() {
   const [newPassword, setNewPassword] = useState<string>("")
   const [confirmPassword, setConfirmPassword] = useState<string>("")
 
-  // Calculate real profile completion (Thống nhất 100% với Profile Page)
-  const cvPercent = useMemo(() => {
-    if (!profile && !user) return 0
-    return getStudentProfileCompletion(user, profile).percent
-  }, [user, profile])
+
 
   // Initialize data from Supabase Auth + Profile
   const loadProfileData = useCallback(async () => {
@@ -93,6 +90,8 @@ export function useAccountSettings() {
       setMapEmbedUrl(p.map_embed_url || "")
       setReliabilityScore(p.reliability_score ?? 100)
       setIsVerified(Boolean(p.is_verified))
+      setKycStatus(p.kyc_status || (p.is_verified ? "approved" : "unverified"))
+      setKycData(p.kyc_data || null)
       setGender(p.gender || "Khác")
       setBirthYear(p.birth_year ? String(p.birth_year) : "")
     }
@@ -406,8 +405,9 @@ export function useAccountSettings() {
     setMapEmbedUrl,
     reliabilityScore,
     isVerified,
+    kycStatus,
+    kycData,
     isPremium,
-    cvPercent,
     isSeekingJob,
     setIsSeekingJob,
     emailNotifications,

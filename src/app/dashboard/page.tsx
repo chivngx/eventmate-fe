@@ -2,7 +2,6 @@
 
 import { useUser } from "@/components/providers/AuthProvider"
 import OrgDashboardView from "@/features/organizer/OrgDashboardView"
-import StudentDashboardView from "@/features/student/StudentDashboardView"
 import { SkeletonGenericPage } from "@/components/ui/skeleton"
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
@@ -14,16 +13,16 @@ export default function DashboardPage() {
   useEffect(() => {
     if (!loading && !user) {
       router.push("/?auth=login&redirect=/dashboard")
+    } else if (!loading && user && role !== "organizer" && role !== "employer" && role !== "admin") {
+      router.push("/account")
     }
-  }, [user, loading, router])
+  }, [user, loading, role, router])
 
-  if (loading) return <SkeletonGenericPage />
+  if (loading || !user) return <SkeletonGenericPage />
 
-  if (!user) return <SkeletonGenericPage />
-
-  if (role === "organizer") {
+  if (role === "organizer" || role === "employer" || role === "admin") {
     return <OrgDashboardView />
   }
 
-  return <StudentDashboardView />
+  return <SkeletonGenericPage />
 }

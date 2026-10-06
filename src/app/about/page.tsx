@@ -70,7 +70,7 @@ export default function AboutPage() {
               </p>
             </div>
             <Link
-              href="/post-job"
+              href="/dashboard/post-job"
               className="px-6 py-3 rounded-xl bg-white text-zinc-950 hover:bg-zinc-100 font-semibold text-sm sm:text-base transition-all shrink-0 flex items-center gap-2 shadow-sm"
             >
               <span>Đăng Tuyển Ngay</span>

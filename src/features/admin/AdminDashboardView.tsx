@@ -35,6 +35,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/components/providers/ToastProvider"
 import { useUser } from "@/components/providers/AuthProvider"
+import AdminKycReviewModal from "./components/AdminKycReviewModal"
 
 export default function AdminDashboard() {
   const navigate = useNavigate()
@@ -58,6 +59,7 @@ export default function AdminDashboard() {
 
   const [organizers, setOrganizers] = useState<any[]>([])
   const [students, setStudents] = useState<any[]>([])
+  const [selectedKycStudent, setSelectedKycStudent] = useState<any | null>(null)
   const [events, setEvents] = useState<any[]>([])
   const [transactions, setTransactions] = useState<any[]>([])
   const [feedbacks, setFeedbacks] = useState<any[]>([])
@@ -172,6 +174,70 @@ export default function AdminDashboard() {
         message: nextStatus
           ? "Đã phê duyệt xác thực KYC cho nhà tuyển dụng."
           : "Đã hủy phê duyệt xác thực nhà tuyển dụng.",
+        type: "success"
+      })
+    }
+  }
+
+  const handleApproveStudentKyc = async (studentId: string, updatedData: any) => {
+    const { error } = await supabase
+      .from("profiles")
+      .update(updatedData)
+      .eq("id", studentId)
+
+    if (error) {
+      showToast({
+        title: "Lỗi phê duyệt",
+        message: getUserFacingMessage(error, "Không thể duyệt hồ sơ eKYC."),
+        type: "error"
+      })
+    } else {
+      setStudents((prev) =>
+        prev.map((s) => (s.id === studentId ? { ...s, ...updatedData } : s))
+      )
+      showToast({
+        title: "Phê duyệt thành công",
+        message: "Đã phê duyệt eKYC và kích hoạt Tích xanh cho ứng viên.",
+        type: "success"
+      })
+    }
+  }
+
+  const handleRejectStudentKyc = async (studentId: string, reason: string) => {
+    const currentStudent = students.find((s) => s.id === studentId)
+    const currentKycData = currentStudent?.kyc_data || {}
+    const updatedKycData = {
+      ...currentKycData,
+      rejection_reason: reason,
+      rejected_at: new Date().toISOString(),
+    }
+
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        is_verified: false,
+        kyc_status: "rejected",
+        kyc_data: updatedKycData,
+      })
+      .eq("id", studentId)
+
+    if (error) {
+      showToast({
+        title: "Lỗi cập nhật",
+        message: getUserFacingMessage(error, "Không thể từ chối hồ sơ."),
+        type: "error"
+      })
+    } else {
+      setStudents((prev) =>
+        prev.map((s) =>
+          s.id === studentId
+            ? { ...s, is_verified: false, kyc_status: "rejected", kyc_data: updatedKycData }
+            : s
+        )
+      )
+      showToast({
+        title: "Đã từ chối eKYC",
+        message: "Hồ sơ đã được chuyển sang trạng thái Bị từ chối.",
         type: "success"
       })
     }
@@ -599,7 +665,9 @@ export default function AdminDashboard() {
                             <th className="px-4 py-3 font-medium sm:px-5">Sinh viên</th>
                             <th className="px-4 py-3 font-medium sm:px-5">Trường đại học</th>
                             <th className="px-4 py-3 font-medium sm:px-5">Email</th>
-                            <th className="px-4 py-3 font-medium sm:px-5">Độ hoàn thiện CV</th>
+                            <th className="px-4 py-3 font-medium sm:px-5">Điểm uy tín</th>
+                            <th className="px-4 py-3 font-medium sm:px-5">Trạng thái eKYC</th>
+                            <th className="px-4 py-3 font-medium text-right sm:px-5">Thao tác</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
@@ -617,9 +685,49 @@ export default function AdminDashboard() {
                               <td className="px-4 py-3 sm:px-5">{stud.university || "Chưa cập nhật"}</td>
                               <td className="px-4 py-3 text-muted-foreground sm:px-5">{stud.email}</td>
                               <td className="px-4 py-3 sm:px-5">
-                                <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
-                                  {stud.cv_completion_percent || 0}%
+                                <span className="rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60 px-2 py-0.5 text-xs font-semibold">
+                                  {stud.reliability_score ?? 100}/100
                                 </span>
+                              </td>
+                              <td className="px-4 py-3 sm:px-5">
+                                {stud.is_verified || stud.kyc_status === "approved" ? (
+                                  <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200/60 px-2 py-0.5 text-xs font-semibold">
+                                    <CheckCircle2 className="size-3" /> Đã duyệt
+                                  </span>
+                                ) : stud.kyc_status === "pending" ? (
+                                  <span className="inline-flex items-center gap-1 rounded-md bg-amber-50 text-amber-700 border border-amber-200/60 px-2 py-0.5 text-xs font-semibold animate-pulse">
+                                    <Clock className="size-3" /> Chờ duyệt
+                                  </span>
+                                ) : stud.kyc_status === "rejected" ? (
+                                  <span className="inline-flex items-center gap-1 rounded-md bg-red-50 text-red-700 border border-red-200/60 px-2 py-0.5 text-xs font-semibold">
+                                    <AlertCircle className="size-3" /> Bị từ chối
+                                  </span>
+                                ) : (
+                                  <span className="rounded-md bg-slate-100 text-slate-500 px-2 py-0.5 text-xs">
+                                    Chưa gửi
+                                  </span>
+                                )}
+                              </td>
+                              <td className="px-4 py-3 text-right sm:px-5">
+                                {stud.kyc_status === "pending" ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => setSelectedKycStudent(stud)}
+                                    className="px-2.5 py-1 text-xs font-semibold rounded-lg bg-zinc-900 text-white hover:bg-black transition-colors cursor-pointer shadow-xs"
+                                  >
+                                    Xem &amp; Duyệt
+                                  </button>
+                                ) : stud.kyc_data ? (
+                                  <button
+                                    type="button"
+                                    onClick={() => setSelectedKycStudent(stud)}
+                                    className="px-2 py-1 text-xs text-slate-600 hover:text-zinc-900 hover:bg-slate-100 rounded-md transition-colors cursor-pointer"
+                                  >
+                                    Chi tiết
+                                  </button>
+                                ) : (
+                                  <span className="text-xs text-slate-400 italic">—</span>
+                                )}
                               </td>
                             </tr>
                           ))}
@@ -1108,6 +1216,15 @@ export default function AdminDashboard() {
           </main>
         </div>
       </div>
+
+      {/* Admin eKYC Review Modal */}
+      <AdminKycReviewModal
+        isOpen={Boolean(selectedKycStudent)}
+        student={selectedKycStudent}
+        onClose={() => setSelectedKycStudent(null)}
+        onApprove={handleApproveStudentKyc}
+        onReject={handleRejectStudentKyc}
+      />
     </div>
   )
 }

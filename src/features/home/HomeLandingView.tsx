@@ -143,8 +143,8 @@ export default function HomeLandingView({ navbar }: { navbar?: React.ReactNode }
           onNavigateToJob={(id) => router.push(`/events/${id}`)}
         />
 
-        {/* For Employers & Organizers - Ẩn khi đã là Organizer */}
-        {!isOrganizer && <EmployerActionCards />}
+        {/* For Employers & Organizers - Chỉ hiện khi chưa login hoặc khi role là org */}
+        {(!user || isOrganizer) && <EmployerActionCards />}
 
         {/* Career Advice / Tư vấn việc làm - Ẩn khi đã là Organizer */}
         {!isOrganizer && <CareerAdviceSection />}

@@ -71,3 +71,20 @@ DROP POLICY IF EXISTS "Allow user delete own cvs" ON storage.objects;
 CREATE POLICY "Allow user delete own cvs"
   ON storage.objects FOR DELETE TO authenticated
   USING (bucket_id = 'cvs' AND auth.uid() = owner);
+
+-- =========================================================================
+-- 3. BUCKET 'kyc_documents' (Lưu ảnh CCCD & Chân dung eKYC kiểm duyệt)
+-- =========================================================================
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('kyc_documents', 'kyc_documents', true)
+ON CONFLICT (id) DO UPDATE SET public = true;
+
+DROP POLICY IF EXISTS "Allow authenticated uploads to kyc_documents" ON storage.objects;
+CREATE POLICY "Allow authenticated uploads to kyc_documents"
+  ON storage.objects FOR INSERT TO authenticated
+  WITH CHECK (bucket_id = 'kyc_documents');
+
+DROP POLICY IF EXISTS "Allow select on kyc_documents" ON storage.objects;
+CREATE POLICY "Allow select on kyc_documents"
+  ON storage.objects FOR SELECT
+  USING (bucket_id = 'kyc_documents');

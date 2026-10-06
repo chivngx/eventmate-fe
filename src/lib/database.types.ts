@@ -491,7 +491,6 @@ export type Database = {
           bio: string | null
           birth_year: number | null
           created_at: string
-          cv_completion_percent: number | null
           email: string
           experiences: Json | null
           full_name: string
@@ -500,6 +499,8 @@ export type Database = {
           id_card_hash: string | null
           is_premium: boolean
           is_verified: boolean | null
+          kyc_data: Json | null
+          kyc_status: string | null
           map_embed_url: string | null
           mst: string | null
           phone: string | null
@@ -519,7 +520,6 @@ export type Database = {
           bio?: string | null
           birth_year?: number | null
           created_at?: string
-          cv_completion_percent?: number | null
           email: string
           experiences?: Json | null
           full_name: string
@@ -528,6 +528,8 @@ export type Database = {
           id_card_hash?: string | null
           is_premium?: boolean
           is_verified?: boolean | null
+          kyc_data?: Json | null
+          kyc_status?: string | null
           map_embed_url?: string | null
           mst?: string | null
           phone?: string | null
@@ -547,7 +549,6 @@ export type Database = {
           bio?: string | null
           birth_year?: number | null
           created_at?: string
-          cv_completion_percent?: number | null
           email?: string
           experiences?: Json | null
           full_name?: string
@@ -556,6 +557,8 @@ export type Database = {
           id_card_hash?: string | null
           is_premium?: boolean
           is_verified?: boolean | null
+          kyc_data?: Json | null
+          kyc_status?: string | null
           map_embed_url?: string | null
           mst?: string | null
           phone?: string | null

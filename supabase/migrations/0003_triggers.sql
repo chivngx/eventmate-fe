@@ -8,13 +8,7 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
--- Trigger 2: Tự động tính % hoàn thiện hồ sơ CV
-DROP TRIGGER IF EXISTS trg_calculate_cv_completion ON public.profiles;
-CREATE TRIGGER trg_calculate_cv_completion
-  BEFORE INSERT OR UPDATE ON public.profiles
-  FOR EACH ROW EXECUTE FUNCTION public.calculate_cv_completion();
-
--- Trigger 3: Tự động tạo slug cho Profiles
+-- Trigger 2: Tự động tạo slug cho Profiles
 DROP TRIGGER IF EXISTS trg_generate_profile_slug ON public.profiles;
 CREATE TRIGGER trg_generate_profile_slug
   BEFORE INSERT OR UPDATE ON public.profiles

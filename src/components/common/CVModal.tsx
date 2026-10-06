@@ -33,9 +33,7 @@ export interface CVProfileData {
   phone?: string | null
   reliability_score?: number | null
   university?: string | null
-  bio?: string | null
   skills?: string | string[] | null
-  cv_completion_percent?: number | null
   gender?: string | null
   birth_year?: string | number | null
   social_link?: string | null
@@ -250,13 +248,7 @@ export default function CVModal({
             </div>
           </div>
 
-          {/* Bio */}
-          <div className="space-y-2">
-            <p className="text-[12px] font-medium text-slate-500 uppercase">Giới thiệu bản thân &amp; Mục tiêu</p>
-            <div className="bg-[#fafafa] border border-slate-200 rounded-xl p-3.5 text-[13px] text-slate-700 leading-relaxed">
-              {data.bio || <span className="italic text-slate-400">Chưa có thông tin giới thiệu.</span>}
-            </div>
-          </div>
+
         </div>
 
         {/* Footer */}

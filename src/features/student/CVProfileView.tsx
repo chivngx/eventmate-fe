@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 import { getUserFacingMessage } from "@/lib/error"
@@ -8,14 +8,11 @@ import { useUser } from "@/components/providers/AuthProvider"
 import { useToast } from "@/components/providers/ToastProvider"
 import CVModal from "@/components/common/CVModal"
 import ProfileUploading from "./components/ProfileUploading"
-import ResumeQualityCard from "./components/ResumeQualityCard"
-import AboutMeCard from "./components/AboutMeCard"
 import PersonalInformationCard from "./components/PersonalInformationCard"
 import ProfessionalSkillsCard from "./components/ProfessionalSkillsCard"
 import WorkExperienceCard from "./components/WorkExperienceCard"
 import { SkeletonGenericPage } from "@/components/ui/skeleton"
 import DashboardLayout from "@/components/layout/DashboardLayout"
-import { calculateProfileCompletion } from "@/lib/profile-completion"
 
 export default function CVProfile({ embedded = false }: { embedded?: boolean } = {}) {
   const router = useRouter()
@@ -39,7 +36,6 @@ export default function CVProfile({ embedded = false }: { embedded?: boolean } =
   const [reliabilityScore, setReliabilityScore] = useState(100)
 
   // 2. Resume Sections State (Thực tế từ DB / Auth metadata / Local storage)
-  const [bio, setBio] = useState("")
   const [skills, setSkills] = useState<string[]>([])
   const [experiences, setExperiences] = useState<{ id: string; title: string; company: string; year: string }[]>([])
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
@@ -76,9 +72,6 @@ export default function CVProfile({ embedded = false }: { embedded?: boolean } =
         if (data.phone) setPhone(data.phone)
         if (data.address) setCity(data.address)
         if (data.university) setUniversity(data.university)
-        if (data.bio) {
-          setBio(data.bio)
-        }
         if (data.skills) {
           const sArr = typeof data.skills === "string" ? data.skills.split(",").map((s: string) => s.trim()).filter(Boolean) : []
           setSkills(sArr)
@@ -125,18 +118,7 @@ export default function CVProfile({ embedded = false }: { embedded?: boolean } =
     fetchCV()
   }, [user, role, authLoading, router])
 
-  // Tính toán mức độ hoàn thiện hồ sơ thực tế chuẩn cho nhân sự sự kiện (100% cân đối)
-  const qualityStats = useMemo(() => {
-    return calculateProfileCompletion({
-      fullName,
-      avatarUrl,
-      phone,
-      university,
-      experiences,
-      skills,
-      bio,
-    })
-  }, [fullName, avatarUrl, phone, university, experiences, skills, bio])
+
 
   // Upload Avatar to bucket 'avatars'
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -192,16 +174,10 @@ export default function CVProfile({ embedded = false }: { embedded?: boolean } =
   const cvContent = (
     <>
       <div className="w-full">
-        {/* MAIN TWO-COLUMN CONTENT GRID (Dynamic 1fr Main Form & Right 364px Widgets matching Title width) */}
-        <div className="grid grid-cols-1 xl:grid-cols-[1fr_364px] gap-6 items-start w-full">
+        {/* SETTINGS FLOW LAYOUT */}
+        <div className="flex flex-col gap-8 w-full max-w-4xl mx-auto">
 
-            {/* =========================================================================
-                CENTER COLUMN: Main Profile Cards (Dynamic full width)
-                Đã tinh gọn chuẩn nhân sự sự kiện
-               ========================================================================= */}
-            <main className="flex flex-col gap-6 w-full min-w-0">
-
-              {/* 1. Profile Uploading Hero Card */}
+            {/* 1. Centered Hero Section */}
               <ProfileUploading
                 state={uploadingAvatar ? "Uploading" : "Uploaded"}
                 fullName={fullNameFormatted}
@@ -212,8 +188,10 @@ export default function CVProfile({ embedded = false }: { embedded?: boolean } =
                 onViewResume={() => setCvPreviewOpen(true)}
               />
 
-              {/* 2. Personal Information Card */}
-              <PersonalInformationCard
+
+
+            {/* 3. Main Content Rows */}
+            <PersonalInformationCard
                 data={{
                   fullName,
                   email,
@@ -300,35 +278,7 @@ export default function CVProfile({ embedded = false }: { embedded?: boolean } =
                 }}
               />
 
-            </main>
-
-            {/* =========================================================================
-                RIGHT COLUMN: Quality Gauge & About Me Bio (Figma: w: 364px)
-               ========================================================================= */}
-            <aside className="w-full xl:w-[364px] flex flex-col gap-6 shrink-0">
-
-              {/* 1. Chất lượng Hồ sơ */}
-              <ResumeQualityCard
-                percent={qualityStats.percent}
-                missingItems={qualityStats.missing}
-              />
-
-              {/* 2. Giới thiệu bản thân */}
-              <AboutMeCard
-                bio={bio}
-                onSaveBio={async (newBio) => {
-                  setBio(newBio)
-                  if (user) {
-                    await supabase.from("profiles").update({ bio: newBio.trim() || null }).eq("id", user.id)
-                  }
-                  showToast({ title: "Đã cập nhật", message: "Đã lưu giới thiệu bản thân.", type: "success" })
-                  if (refreshProfile) refreshProfile()
-                }}
-              />
-
-            </aside>
-
-          </div>
+        </div>
         </div>
 
         {/* CV Preview Modal */}
@@ -342,9 +292,7 @@ export default function CVProfile({ embedded = false }: { embedded?: boolean } =
             phone: phone || undefined,
             reliability_score: reliabilityScore,
             university: displayUniversity || undefined,
-            bio: bio || undefined,
             skills: skills.length > 0 ? skills.join(", ") : undefined,
-            cv_completion_percent: qualityStats.percent,
             gender: gender || undefined,
             birth_year: birthYear || undefined,
             social_link: socialLink || undefined,

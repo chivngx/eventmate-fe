@@ -72,27 +72,6 @@ BEGIN
 END;
 $$;
 
--- 3. Tự động tính toán % hoàn thiện hồ sơ CV
-CREATE OR REPLACE FUNCTION public.calculate_cv_completion()
-RETURNS TRIGGER 
-LANGUAGE plpgsql
-AS $$
-DECLARE
-    _score INT := 0;
-BEGIN
-    IF NEW.full_name IS NOT NULL AND NEW.full_name != '' THEN _score := _score + 15; END IF;
-    IF NEW.avatar_url IS NOT NULL AND NEW.avatar_url != '' THEN _score := _score + 25; END IF;
-    IF NEW.phone IS NOT NULL AND NEW.phone != '' THEN _score := _score + 20; END IF;
-    IF NEW.university IS NOT NULL AND NEW.university != '' THEN _score := _score + 15; END IF;
-    IF NEW.experiences IS NOT NULL AND jsonb_array_length(NEW.experiences) > 0 THEN _score := _score + 15; END IF;
-    IF NEW.skills IS NOT NULL AND NEW.skills != '' THEN _score := _score + 5; END IF;
-    IF NEW.bio IS NOT NULL AND NEW.bio != '' THEN _score := _score + 5; END IF;
-    
-    NEW.cv_completion_percent := LEAST(_score, 100);
-    RETURN NEW;
-END;
-$$;
-
 -- 4. Bắn thông báo cho Nhà tuyển dụng khi có đơn ứng tuyển mới
 CREATE OR REPLACE FUNCTION public.notify_organizer_on_apply()
 RETURNS TRIGGER 
@@ -404,4 +383,18 @@ BEGIN
         'is_single_event', v_is_single_event
     );
 END;
+$$;
+
+-- 11. Hàm kiểm tra quyền Admin an toàn (Security Definer)
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role = 'admin'
+  );
 $$;

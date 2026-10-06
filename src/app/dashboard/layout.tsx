@@ -2,9 +2,12 @@
 
 import React, { useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
+import Link from "next/link"
+import { ChevronRight, Home } from "lucide-react"
 import { useUser } from "@/components/providers/AuthProvider"
 import { SkeletonGenericPage } from "@/components/ui/skeleton"
 import DashboardLayout from "@/components/layout/DashboardLayout"
+import MainLayout from "@/components/layout/MainLayout"
 
 export default function AppDashboardLayout({
   children,
@@ -25,23 +28,25 @@ export default function AppDashboardLayout({
     return <SkeletonGenericPage />
   }
 
-  const isOrganizer = role === "organizer"
-  let activeTab = isOrganizer ? "feed" : "dashboard"
+  const isOrganizer = role === "organizer" || role === "employer"
+  
+  if (!isOrganizer) {
+    if (typeof window !== "undefined") router.replace("/")
+    return null
+  }
+
+  let activeTab = "feed"
 
   if (pathname?.startsWith("/dashboard")) {
-    activeTab = isOrganizer ? "feed" : "dashboard"
-  } else if (pathname?.startsWith("/profile") || pathname?.startsWith("/cv")) {
-    activeTab = "resume"
+    activeTab = "feed"
   } else if (pathname?.startsWith("/notifications")) {
-    activeTab = isOrganizer ? "notifications" : "notification"
+    activeTab = "notifications"
   } else if (pathname?.startsWith("/chat")) {
-    activeTab = isOrganizer ? "chat" : "message"
+    activeTab = "chat"
   } else if (pathname?.startsWith("/account") || pathname?.startsWith("/settings")) {
-    activeTab = isOrganizer ? "account" : "settings"
+    activeTab = "account"
   } else if (pathname?.startsWith("/manage-events")) {
     activeTab = "events"
-  } else if (pathname?.startsWith("/my-events")) {
-    activeTab = "activity"
   } else if (pathname?.startsWith("/post-job")) {
     activeTab = "post-job"
   }
@@ -51,7 +56,7 @@ export default function AppDashboardLayout({
 
   return (
     <DashboardLayout
-      role={isOrganizer ? "organizer" : "student"}
+      role="organizer"
       activeTab={activeTab}
       activeItem={activeTab}
       avatarUrl={avatarUrl}

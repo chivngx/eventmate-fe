@@ -23,7 +23,6 @@ export interface Profile {
   bio: string | null;
   skills: string | null;
   slug: string | null;
-  cv_completion_percent: number | null;
   is_premium: boolean | null;
   premium_until: string | null;
   mst: string | null;
@@ -35,6 +34,8 @@ export interface Profile {
   single_event_credits: number | null;
   gender: string | null;
   birth_year: number | null;
+  kyc_status: string | null;
+  kyc_data: any | null;
 }
 
 interface AuthContextValue {
@@ -53,7 +54,7 @@ async function fetchProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "id, role, email, full_name, avatar_url, phone, university, bio, skills, slug, cv_completion_percent, is_premium, premium_until, mst, website, address, map_embed_url, is_verified, reliability_score, single_event_credits",
+      "id, role, email, full_name, avatar_url, phone, university, bio, skills, slug, is_premium, premium_until, mst, website, address, map_embed_url, is_verified, reliability_score, single_event_credits, gender, birth_year, kyc_status, kyc_data",
     )
     .eq("id", userId)
     .maybeSingle();

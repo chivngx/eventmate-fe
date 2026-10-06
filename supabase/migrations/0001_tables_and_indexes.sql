@@ -26,7 +26,6 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     bio TEXT,
     skills TEXT,
     slug TEXT UNIQUE,
-    cv_completion_percent INT DEFAULT 0,
     mst TEXT,
     website TEXT,
     address TEXT,
@@ -40,7 +39,9 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     social_link TEXT,
     gender TEXT,
     birth_year INT,
-    map_embed_url TEXT
+    map_embed_url TEXT,
+    kyc_status TEXT DEFAULT 'unverified',
+    kyc_data JSONB
 );
 
 CREATE INDEX IF NOT EXISTS idx_profiles_role ON public.profiles(role);

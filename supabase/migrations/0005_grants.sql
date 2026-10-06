@@ -48,3 +48,4 @@ GRANT ALL ON TABLE public.feedbacks TO authenticated, service_role, postgres;
 -- 4. Cấp quyền thực thi các hàm RPC
 GRANT EXECUTE ON FUNCTION public.activate_premium_or_credits(TEXT, TEXT, BIGINT, TEXT) TO authenticated, service_role, postgres;
 GRANT EXECUTE ON FUNCTION public.confirm_payos_payment(BIGINT) TO anon, authenticated, service_role, postgres;
+GRANT EXECUTE ON FUNCTION public.is_admin() TO anon, authenticated, service_role, postgres;

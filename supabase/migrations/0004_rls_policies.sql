@@ -40,6 +40,16 @@ DROP POLICY IF EXISTS "Users can update own profile." ON public.profiles;
 CREATE POLICY "Users can update own profile." 
   ON public.profiles FOR UPDATE USING (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Admins can update all profiles." ON public.profiles;
+CREATE POLICY "Admins can update all profiles." 
+  ON public.profiles FOR UPDATE TO authenticated
+  USING (public.is_admin());
+
+DROP POLICY IF EXISTS "Admins can delete profiles." ON public.profiles;
+CREATE POLICY "Admins can delete profiles." 
+  ON public.profiles FOR DELETE TO authenticated
+  USING (public.is_admin());
+
 -- -------------------------------------------------------------------------
 -- 3. Bảng EVENTS
 -- -------------------------------------------------------------------------

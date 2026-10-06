@@ -204,7 +204,7 @@ export function NotchNavbar({
                   Bảng điều khiển
                 </Link>
                 <Link
-                  href="/manage-events"
+                  href="/dashboard/manage-events"
                   className={getNavLinkClass(Boolean(isManageEventsActive))}
                 >
                   Quản lý sự kiện
@@ -299,7 +299,7 @@ export function NotchNavbar({
               </button>
             ) : isOrg ? (
               <Link
-                href="/manage-events"
+                href="/dashboard/manage-events"
                 className={cn(
                   "hidden sm:flex h-11 px-5 rounded-full items-center justify-center font-semibold text-[15px] transition-all whitespace-nowrap cursor-pointer",
                   isHeroUnscrolled
@@ -328,7 +328,7 @@ export function NotchNavbar({
                 </button>
               ) : (
                 <Link
-                  href="/post-job"
+                  href="/dashboard/post-job"
                   className={cn(
                     "h-11 px-5.5 rounded-full flex items-center justify-center font-bold text-[15px] transition-all shadow-xs active:scale-95 whitespace-nowrap cursor-pointer",
                     isHeroUnscrolled
@@ -442,7 +442,7 @@ export function NotchNavbar({
                       <span>Bảng điều khiển</span>
                     </Link>
                     <Link
-                      href="/post-job"
+                      href="/dashboard/post-job"
                       className="flex items-center gap-3 p-3 rounded-xl font-medium text-sm text-emerald-700 bg-emerald-50/60 hover:bg-emerald-50 transition-colors"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
@@ -450,7 +450,7 @@ export function NotchNavbar({
                       <span>Đăng tin tuyển dụng mới</span>
                     </Link>
                     <Link
-                      href="/manage-events"
+                      href="/dashboard/manage-events"
                       className={cn(
                         "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
                         isManageEventsActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
@@ -575,22 +575,24 @@ export function NotchNavbar({
                 </div>
               ) : (
                 <div className="pt-2 flex flex-col gap-1">
+                  {isOrg && (
+                    <Link
+                      href="/dashboard"
+                      className="p-3 rounded-xl font-medium text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Bảng điều khiển cá nhân
+                    </Link>
+                  )}
                   <Link
-                    href="/dashboard"
-                    className="p-3 rounded-xl font-medium text-sm text-slate-700 hover:bg-slate-50 transition-colors"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Bảng điều khiển cá nhân
-                  </Link>
-                  <Link
-                    href="/chat"
+                    href={isOrg ? "/dashboard/chat" : "/chat"}
                     className="p-3 rounded-xl font-medium text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Tin nhắn trực tiếp
                   </Link>
                   <Link
-                    href="/account"
+                    href={isOrg ? "/dashboard/account" : "/account"}
                     className="p-3 rounded-xl font-medium text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >

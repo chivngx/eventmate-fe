@@ -84,7 +84,7 @@ export default function ProfileUploading({
     <div
       className={
         className ||
-        "bg-white border border-[#EDEDED] border-solid flex flex-col sm:flex-row gap-[16px] items-start p-[16px] relative rounded-[16px] w-full"
+        "flex flex-col items-center justify-center text-center gap-4 py-8 w-full"
       }
       data-state={state}
     >
@@ -98,80 +98,75 @@ export default function ProfileUploading({
         aria-label="Tải lên ảnh đại diện"
       />
 
-      {/* Khung ảnh đại diện 120x120 (Figma: Frame 2147225468) */}
-      <div className="relative shrink-0 size-[120px]">
+      {/* Khung ảnh đại diện tròn */}
+      <div className="relative shrink-0 size-[120px] mb-2">
         <div
           onClick={handleTriggerFileInput}
-          className="size-[120px] rounded-[16px] border border-[#222222] border-dashed relative overflow-hidden bg-slate-100 cursor-pointer group"
+          className="size-[120px] rounded-full border border-slate-200 relative overflow-hidden bg-slate-100 cursor-pointer group shadow-sm transition-transform hover:scale-105"
           title="Nhấn để đổi ảnh đại diện"
         >
           <img
             src={avatarUrl || fallbackAvatar}
             alt={displayName}
-            className="size-full object-cover pointer-events-none rounded-[16px]"
+            className="size-full object-cover pointer-events-none rounded-full"
           />
 
-          {/* Lớp phủ trạng thái đang tải ảnh lên kèm spinner (Figma: state="Uploading") */}
+          {/* Lớp phủ trạng thái đang tải ảnh lên kèm spinner */}
           {isUploading && (
             <div
-              className="absolute inset-0 backdrop-blur-[0.75px] bg-[rgba(0,0,0,0.65)] border border-[#515151] border-dashed rounded-[16px] flex items-center justify-center z-10"
+              className="absolute inset-0 backdrop-blur-sm bg-black/40 flex items-center justify-center z-10"
             >
-              <SpinnerLoading className="size-[48px]" />
+              <SpinnerLoading className="size-[40px]" />
             </div>
           )}
         </div>
 
-        {/* Nút chỉnh sửa góc dưới bên phải (Figma: Frame 2147225445) */}
+        {/* Nút chỉnh sửa góc dưới bên phải */}
         {!isUploading && (
           <button
             type="button"
             onClick={handleTriggerFileInput}
-            className="absolute -bottom-1 -right-1 size-[28px] bg-[#222222] hover:bg-black text-white transition-colors flex items-center justify-center rounded-full border-2 border-white cursor-pointer shadow-xs z-10"
+            className="absolute bottom-0 right-0 size-8 bg-zinc-900 hover:bg-black text-white transition-colors flex items-center justify-center rounded-full border-2 border-white cursor-pointer shadow-md z-10"
             title="Đổi ảnh đại diện"
             aria-label="Đổi ảnh đại diện"
           >
-            <EditIcon className="size-[14px]" />
+            <EditIcon className="size-4" />
           </button>
         )}
       </div>
 
-      {/* Thông tin hồ sơ và các nút thao tác (Figma: Frame 2147225379) */}
-      <div className="flex flex-1 flex-col gap-[16px] items-start p-[16px] sm:p-0 relative w-full min-w-0">
-        {/* Thông tin người dùng (Figma: Frame 2147225281) */}
-        <div className="flex flex-col items-start relative shrink-0 w-full min-w-0">
-          <div className="flex flex-col gap-[4px] items-start relative shrink-0 w-full min-w-0">
-            <h2
-              className="font-bold text-zinc-950 text-[18px] leading-normal font-['Inter'] truncate max-w-full"
-              dir="auto"
-            >
-              {displayName}
-            </h2>
-            <div
-              className="flex items-center gap-1.5 text-[#515151] text-[14px] font-normal leading-normal flex-wrap"
-            >
-              <span className="truncate max-w-[220px]">
-                {jobTitle?.trim() || "Nhân sự sự kiện"}
-              </span>
-              {university?.trim() && (
-                <>
-                  <span className="text-[#a5a5a5] select-none">•</span>
-                  <span className="truncate max-w-[260px]">{university.trim()}</span>
-                </>
-              )}
-            </div>
-          </div>
+      {/* Thông tin hồ sơ */}
+      <div className="flex flex-col items-center gap-1 w-full max-w-[400px]">
+        <h2
+          className="font-bold text-zinc-900 text-2xl truncate w-full"
+          dir="auto"
+        >
+          {displayName}
+        </h2>
+        <div
+          className="flex items-center justify-center gap-2 text-slate-500 text-sm flex-wrap w-full"
+        >
+          <span className="truncate max-w-[220px]">
+            {jobTitle?.trim() || "Nhân sự sự kiện"}
+          </span>
+          {university?.trim() && (
+            <>
+              <span className="text-slate-300 select-none">•</span>
+              <span className="truncate max-w-[260px]">{university.trim()}</span>
+            </>
+          )}
         </div>
+      </div>
 
-        {/* Các nút thao tác (Figma: Frame 2147225099) */}
-        <div className="flex gap-[12px] items-center relative shrink-0 w-full flex-wrap">
-          <button
-            type="button"
-            onClick={onViewResume}
-            className="h-[34px] px-[18px] bg-zinc-900 hover:bg-black text-white text-[14px] font-semibold rounded-[8px] flex items-center justify-center transition-colors cursor-pointer whitespace-nowrap shadow-xs"
-          >
-            Xem hồ sơ
-          </button>
-        </div>
+      {/* Các nút thao tác */}
+      <div className="mt-2">
+        <button
+          type="button"
+          onClick={onViewResume}
+          className="h-10 px-6 bg-white hover:bg-slate-50 text-zinc-900 text-sm font-medium rounded-full flex items-center justify-center transition-colors cursor-pointer border border-slate-200 shadow-sm"
+        >
+          Xem hồ sơ CV
+        </button>
       </div>
     </div>
   )
