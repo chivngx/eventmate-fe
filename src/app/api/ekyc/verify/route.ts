@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server"
 import { createServerSupabaseClient } from "@/lib/supabase-server"
 import crypto from "crypto"
 
+export const maxDuration = 60 // Tối đa 60s cho Vercel Hobby để chờ Modal GPU khởi động
+export const dynamic = "force-dynamic"
+
 // Danh mục 63 mã tỉnh/thành phố trên CCCD Việt Nam
 const VALID_PROVINCE_CODES = new Set([
   '001', '002', '004', '006', '008', '010', '011', '012', '014', '015',
