@@ -398,3 +398,140 @@ AS $$
     WHERE id = auth.uid() AND role = 'admin'
   );
 $$;
+
+-- 12. Hàm đồng bộ kết quả xác thực từ ekyc_verifications sang profiles
+CREATE OR REPLACE FUNCTION public.sync_ekyc_to_profile()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NEW.status = 'auto_approved' OR NEW.is_verified = TRUE THEN
+    UPDATE public.profiles
+    SET 
+      is_verified = TRUE,
+      kyc_status = 'verified',
+      id_card_hash = NEW.id_card_hash,
+      full_name = CASE WHEN NEW.full_name IS NOT NULL AND NEW.full_name <> '' THEN NEW.full_name ELSE full_name END,
+      gender = CASE 
+        WHEN NEW.gender ILIKE 'Nam%' THEN 'male' 
+        WHEN NEW.gender ILIKE 'Nữ%' OR NEW.gender ILIKE 'Nu%' THEN 'female' 
+        ELSE gender 
+      END,
+      address = CASE WHEN NEW.address IS NOT NULL AND NEW.address <> '' THEN NEW.address ELSE address END,
+      birth_year = CASE 
+        WHEN LENGTH(REGEXP_REPLACE(NEW.dob, '\D', '', 'g')) >= 4 THEN 
+          SUBSTRING(REGEXP_REPLACE(NEW.dob, '\D', '', 'g') FROM LENGTH(REGEXP_REPLACE(NEW.dob, '\D', '', 'g')) - 3 FOR 4)::INT
+        ELSE birth_year
+      END,
+      kyc_data = jsonb_build_object(
+        'ekyc_id', NEW.id,
+        'id_card_number', NEW.id_card_number,
+        'full_name', NEW.full_name,
+        'dob', NEW.dob,
+        'gender', NEW.gender,
+        'address', NEW.address,
+        'issue_date', NEW.issue_date,
+        'verified_at', NOW(),
+        'face_match_score', NEW.face_match_score,
+        'cosine_similarity', NEW.cosine_similarity,
+        'card_face_thumbnail_url', NEW.card_face_thumbnail_url,
+        'cccd_front_url', NEW.cccd_front_url,
+        'cccd_back_url', NEW.cccd_back_url,
+        'selfie_url', NEW.selfie_url
+      )
+    WHERE id = NEW.user_id;
+
+    -- Gửi thông báo chúc mừng cho người dùng
+    INSERT INTO public.notifications (user_id, title, message, is_read)
+    VALUES (
+      NEW.user_id,
+      'Xác thực danh tính (eKYC) thành công!',
+      'Hồ sơ của bạn đã được cấp Tích xanh sinh trắc học và mở khóa đầy đủ quyền lợi ứng tuyển.',
+      FALSE
+    );
+  ELSIF NEW.status = 'rejected' THEN
+    UPDATE public.profiles
+    SET 
+      is_verified = FALSE,
+      kyc_status = 'rejected'
+    WHERE id = NEW.user_id;
+
+    -- Gửi thông báo từ chối
+    INSERT INTO public.notifications (user_id, title, message, is_read)
+    VALUES (
+      NEW.user_id,
+      'Xác thực danh tính (eKYC) chưa thành công',
+      COALESCE('Lý do: ' || NEW.rejection_reason, 'Hồ sơ xác thực CCCD chưa đạt yêu cầu. Vui lòng thực hiện lại.'),
+      FALSE
+    );
+  ELSIF NEW.status = 'pending_admin' THEN
+    UPDATE public.profiles
+    SET kyc_status = 'pending'
+    WHERE id = NEW.user_id;
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+-- 13. Hàm thực thi quyền rút lại sự đồng thuận & xóa dữ liệu cá nhân eKYC (Điều 9 Nghị định 13/2023/NĐ-CP)
+CREATE OR REPLACE FUNCTION public.delete_my_ekyc_data()
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_user_id UUID := auth.uid();
+  v_deleted_count INT;
+BEGIN
+  IF v_user_id IS NULL THEN
+    RAISE EXCEPTION 'Yêu cầu đăng nhập để thực hiện quyền xóa dữ liệu cá nhân.';
+  END IF;
+
+  -- 1. Làm sạch hồ sơ cá nhân eKYC (xóa triệt để các trường định danh và sinh trắc học)
+  UPDATE public.ekyc_verifications
+  SET
+    id_card_number = 'DELETED',
+    id_card_hash = 'DELETED_' || id::text,
+    full_name = 'DELETED',
+    dob = 'DELETED',
+    address = 'DELETED',
+    cccd_front_url = 'DELETED',
+    cccd_back_url = NULL,
+    selfie_url = 'DELETED',
+    qr_data = NULL,
+    ocr_front_data = NULL,
+    mrz_data = NULL,
+    card_face_thumbnail_url = NULL,
+    status = 'rejected',
+    is_verified = FALSE,
+    rejection_reason = 'Dữ liệu đã xóa theo Điều 9 NĐ 13/2023/NĐ-CP'
+  WHERE user_id = v_user_id;
+
+  -- 2. Đặt lại trạng thái trong profiles
+  UPDATE public.profiles
+  SET 
+    is_verified = FALSE,
+    kyc_status = 'unverified',
+    id_card_hash = NULL,
+    kyc_data = NULL
+  WHERE id = v_user_id;
+
+  -- 3. Tạo thông báo xác nhận đã xóa dữ liệu
+  INSERT INTO public.notifications (user_id, title, message, is_read)
+  VALUES (
+    v_user_id,
+    'Đã xóa dữ liệu eKYC & Rút lại sự đồng thuận',
+    'Toàn bộ hồ sơ xác thực CCCD và dữ liệu sinh trắc học của bạn đã được xóa khỏi hệ thống theo Nghị định 13/2023/NĐ-CP.',
+    FALSE
+  );
+
+  RETURN jsonb_build_object(
+    'success', true,
+    'message', 'Đã xóa toàn bộ dữ liệu cá nhân eKYC thành công theo Điều 9 NĐ 13/2023/NĐ-CP'
+  );
+END;
+$$;

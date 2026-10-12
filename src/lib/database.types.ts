@@ -133,6 +133,113 @@ export type Database = {
         }
         Relationships: []
       }
+      ekyc_verifications: {
+        Row: {
+          address: string | null
+          ai_engine: string | null
+          card_face_thumbnail_url: string | null
+          cccd_back_url: string | null
+          cccd_front_url: string
+          consent_given: boolean
+          consent_terms_version: string | null
+          consent_timestamp: string
+          cosine_similarity: number
+          created_at: string
+          dob: string
+          face_match_score: number
+          full_name: string
+          gender: string | null
+          id: string
+          id_card_hash: string
+          id_card_number: string
+          is_tampered: boolean | null
+          is_verified: boolean | null
+          issue_date: string | null
+          mrz_data: Json | null
+          ocr_front_data: Json | null
+          qr_data: Json | null
+          rejection_reason: string | null
+          selfie_url: string
+          session_id: string
+          status: string
+          updated_at: string
+          user_id: string
+          user_ip_address: string | null
+        }
+        Insert: {
+          address?: string | null
+          ai_engine?: string | null
+          card_face_thumbnail_url?: string | null
+          cccd_back_url?: string | null
+          cccd_front_url: string
+          consent_given?: boolean
+          consent_terms_version?: string | null
+          consent_timestamp?: string
+          cosine_similarity: number
+          created_at?: string
+          dob: string
+          face_match_score: number
+          full_name: string
+          gender?: string | null
+          id?: string
+          id_card_hash: string
+          id_card_number: string
+          is_tampered?: boolean | null
+          is_verified?: boolean | null
+          issue_date?: string | null
+          mrz_data?: Json | null
+          ocr_front_data?: Json | null
+          qr_data?: Json | null
+          rejection_reason?: string | null
+          selfie_url: string
+          session_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          user_ip_address?: string | null
+        }
+        Update: {
+          address?: string | null
+          ai_engine?: string | null
+          card_face_thumbnail_url?: string | null
+          cccd_back_url?: string | null
+          cccd_front_url?: string
+          consent_given?: boolean
+          consent_terms_version?: string | null
+          consent_timestamp?: string
+          cosine_similarity?: number
+          created_at?: string
+          dob?: string
+          face_match_score?: number
+          full_name?: string
+          gender?: string | null
+          id?: string
+          id_card_hash?: string
+          id_card_number?: string
+          is_tampered?: boolean | null
+          is_verified?: boolean | null
+          issue_date?: string | null
+          mrz_data?: Json | null
+          ocr_front_data?: Json | null
+          qr_data?: Json | null
+          rejection_reason?: string | null
+          selfie_url?: string
+          session_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          user_ip_address?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ekyc_verifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_bookmarks: {
         Row: {
           created_at: string | null
@@ -697,6 +804,8 @@ export type Database = {
         Returns: Json
       }
       confirm_payos_payment: { Args: { p_order_code: number }; Returns: Json }
+      delete_my_ekyc_data: { Args: never; Returns: Json }
+      is_admin: { Args: never; Returns: boolean }
       slugify: { Args: { t: string }; Returns: string }
     }
     Enums: {

@@ -17,6 +17,7 @@ ALTER TABLE public.event_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.job_positions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.feedbacks ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.ekyc_verifications ENABLE ROW LEVEL SECURITY;
 
 -- -------------------------------------------------------------------------
 -- 1. Bảng DANANG_WARDS
@@ -307,4 +308,23 @@ CREATE POLICY "Admin can delete feedback"
         WHERE id = auth.uid() AND role = 'admin'
     )
   );
+
+-- -------------------------------------------------------------------------
+-- 15. Bảng EKYC_VERIFICATIONS
+-- -------------------------------------------------------------------------
+DROP POLICY IF EXISTS "Users can view own ekyc verifications" ON public.ekyc_verifications;
+CREATE POLICY "Users can view own ekyc verifications"
+  ON public.ekyc_verifications FOR SELECT TO authenticated
+  USING (auth.uid() = user_id OR public.is_admin());
+
+DROP POLICY IF EXISTS "Users can insert own ekyc verifications" ON public.ekyc_verifications;
+CREATE POLICY "Users can insert own ekyc verifications"
+  ON public.ekyc_verifications FOR INSERT TO authenticated
+  WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS "Admins can update ekyc verifications" ON public.ekyc_verifications;
+CREATE POLICY "Admins can update ekyc verifications"
+  ON public.ekyc_verifications FOR UPDATE TO authenticated
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
 

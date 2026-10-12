@@ -49,3 +49,9 @@ DROP TRIGGER IF EXISTS trg_notify_student_on_attendance_change ON public.applica
 CREATE TRIGGER trg_notify_student_on_attendance_change
   AFTER UPDATE OF attendance_status ON public.applications
   FOR EACH ROW EXECUTE FUNCTION public.notify_student_on_attendance_change();
+
+-- Trigger 10: Tự động đồng bộ trạng thái eKYC sang profiles
+DROP TRIGGER IF EXISTS trg_sync_ekyc_to_profile ON public.ekyc_verifications;
+CREATE TRIGGER trg_sync_ekyc_to_profile
+  AFTER INSERT OR UPDATE OF status, is_verified ON public.ekyc_verifications
+  FOR EACH ROW EXECUTE FUNCTION public.sync_ekyc_to_profile();

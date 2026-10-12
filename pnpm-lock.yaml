@@ -32,6 +32,12 @@ importers:
       '@vercel/analytics':
         specifier: ^1
         version: 1.6.1(next@16.3.5(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.9.1)(@types/node@24.13.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0))(react@19.3.0)
+      '@vladmandic/face-api':
+        specifier: ^1.7.15
+        version: 1.7.15
+      '@vladmandic/human':
+        specifier: ^3.3.6
+        version: 3.3.6
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -1007,6 +1013,14 @@ packages:
         optional: true
       vue-router:
         optional: true
+
+  '@vladmandic/face-api@1.7.15':
+    resolution: {integrity: sha512-WDMmK3CfNLo8jylWqMoQgf4nIst3M0fzx1dnac96wv/dvMTN4DxC/Pq1DGtduDk1lktCamQ3MIDXFnvrdHTXDw==}
+    engines: {node: '>=14.0.0'}
+
+  '@vladmandic/human@3.3.6':
+    resolution: {integrity: sha512-Nr5mPfq1gQ+uKeXY5uM3Fj8UxvF5CEh2s6txM5wRThqaW0mF9huooOuZSrT8hhGho0hGaXLFdAwfD/2+teCv6A==}
+    engines: {node: '>=14.0.0'}
 
   accepts@2.0.0:
     resolution: {integrity: sha512-5cvg6CtKwfgdmVqY1WIiXKc3Q1bkRqGLi+2W/6ao+6Y7gu/RCwRuAhGEzh5B4KlszSuTLgZYuqFqo5bImjNKng==}
@@ -3465,6 +3479,10 @@ snapshots:
     optionalDependencies:
       next: 16.3.5(@babel/core@7.29.7(supports-color@8.1.1))(@opentelemetry/api@1.9.1)(@types/node@24.13.4)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       react: 19.3.0
+
+  '@vladmandic/face-api@1.7.15': {}
+
+  '@vladmandic/human@3.3.6': {}
 
   accepts@2.0.0:
     dependencies:

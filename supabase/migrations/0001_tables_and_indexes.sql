@@ -233,3 +233,55 @@ CREATE INDEX IF NOT EXISTS idx_feedbacks_user ON public.feedbacks(user_id);
 CREATE INDEX IF NOT EXISTS idx_feedbacks_created_at ON public.feedbacks(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_feedbacks_status ON public.feedbacks(status);
 
+-- 15. Bảng EKYC_VERIFICATIONS (Hồ sơ xác thực sinh trắc học chuyên sâu)
+CREATE TABLE IF NOT EXISTS public.ekyc_verifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
+    session_id VARCHAR(100) NOT NULL,
+    
+    -- Dữ liệu trích xuất từ thẻ CCCD
+    id_card_number VARCHAR(12) NOT NULL,
+    id_card_hash VARCHAR(64) NOT NULL, -- SHA-256 chống đăng ký trùng CCCD
+    full_name VARCHAR(255) NOT NULL,
+    dob VARCHAR(10) NOT NULL,
+    gender VARCHAR(10),
+    address TEXT,
+    issue_date VARCHAR(10),
+    
+    -- Dữ liệu đối soát 3 chiều (Tam giác vàng: QR ⟺ OCR ⟺ MRZ)
+    qr_data JSONB,
+    ocr_front_data JSONB,
+    mrz_data JSONB,
+    is_tampered BOOLEAN DEFAULT FALSE,
+    
+    -- Bằng chứng sinh trắc học & Hình ảnh
+    face_match_score NUMERIC(5, 2) NOT NULL,
+    cosine_similarity NUMERIC(6, 4) NOT NULL,
+    card_face_thumbnail_url TEXT,
+    cccd_front_url TEXT NOT NULL,
+    cccd_back_url TEXT,
+    selfie_url TEXT NOT NULL,
+    
+    -- Trạng thái duyệt
+    status VARCHAR(30) NOT NULL DEFAULT 'pending_admin' CHECK (status IN ('auto_approved', 'pending_admin', 'rejected')),
+    is_verified BOOLEAN DEFAULT FALSE,
+    rejection_reason TEXT,
+    
+    -- Metadata hệ thống AI
+    ai_engine VARCHAR(50) DEFAULT 'insightface_gpu_arcface_512d',
+    
+    -- Tuân thủ Pháp luật & Nghị định 13/2023/NĐ-CP (Consent & Audit)
+    consent_given BOOLEAN NOT NULL DEFAULT TRUE,
+    consent_timestamp TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    consent_terms_version VARCHAR(20) DEFAULT 'ND13_2023_V1',
+    user_ip_address VARCHAR(45),
+
+    created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+    updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_ekyc_user_id ON public.ekyc_verifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_ekyc_id_hash ON public.ekyc_verifications(id_card_hash);
+CREATE INDEX IF NOT EXISTS idx_ekyc_status ON public.ekyc_verifications(status);
+CREATE INDEX IF NOT EXISTS idx_ekyc_created_at ON public.ekyc_verifications(created_at DESC);
+

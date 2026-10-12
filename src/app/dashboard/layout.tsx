@@ -2,12 +2,9 @@
 
 import React, { useEffect } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import Link from "next/link"
-import { ChevronRight, Home } from "lucide-react"
 import { useUser } from "@/components/providers/AuthProvider"
 import { SkeletonGenericPage } from "@/components/ui/skeleton"
 import DashboardLayout from "@/components/layout/DashboardLayout"
-import MainLayout from "@/components/layout/MainLayout"
 
 export default function AppDashboardLayout({
   children,
@@ -18,21 +15,23 @@ export default function AppDashboardLayout({
   const router = useRouter()
   const pathname = usePathname()
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push(`/?auth=login&redirect=${encodeURIComponent(pathname || "/")}`)
-    }
-  }, [user, loading, router, pathname])
-
-  if (loading || !user) {
-    return <SkeletonGenericPage />
-  }
-
   const isOrganizer = role === "organizer" || role === "employer"
-  
-  if (!isOrganizer) {
-    if (typeof window !== "undefined") router.replace("/")
-    return null
+
+  useEffect(() => {
+    if (loading) return
+
+    if (!user) {
+      router.push(`/?auth=login&redirect=${encodeURIComponent(pathname || "/")}`)
+      return
+    }
+
+    if (!isOrganizer) {
+      router.replace("/")
+    }
+  }, [user, loading, isOrganizer, router, pathname])
+
+  if (loading || !user || !isOrganizer) {
+    return <SkeletonGenericPage />
   }
 
   let activeTab = "feed"

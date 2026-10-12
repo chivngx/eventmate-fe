@@ -17,6 +17,7 @@ REVOKE ALL ON public.event_categories FROM anon;
 REVOKE ALL ON public.job_positions FROM anon;
 REVOKE ALL ON public.transactions FROM anon;
 REVOKE ALL ON public.feedbacks FROM anon;
+REVOKE ALL ON public.ekyc_verifications FROM anon;
 
 -- 2. Cấp quyền SELECT cho anon trên các bảng public-read
 GRANT SELECT ON public.danang_wards TO anon;
@@ -44,8 +45,10 @@ GRANT ALL ON TABLE public.event_categories TO authenticated, service_role, postg
 GRANT ALL ON TABLE public.job_positions TO authenticated, service_role, postgres;
 GRANT ALL ON TABLE public.transactions TO authenticated, service_role, postgres;
 GRANT ALL ON TABLE public.feedbacks TO authenticated, service_role, postgres;
+GRANT ALL ON TABLE public.ekyc_verifications TO authenticated, service_role, postgres;
 
 -- 4. Cấp quyền thực thi các hàm RPC
 GRANT EXECUTE ON FUNCTION public.activate_premium_or_credits(TEXT, TEXT, BIGINT, TEXT) TO authenticated, service_role, postgres;
 GRANT EXECUTE ON FUNCTION public.confirm_payos_payment(BIGINT) TO anon, authenticated, service_role, postgres;
 GRANT EXECUTE ON FUNCTION public.is_admin() TO anon, authenticated, service_role, postgres;
+GRANT EXECUTE ON FUNCTION public.delete_my_ekyc_data() TO authenticated, service_role, postgres;

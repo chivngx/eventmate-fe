@@ -1,21 +1,18 @@
 "use client"
 
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   X,
   CheckCircle2,
-  AlertCircle,
-  Clock,
   ShieldCheck,
-  User,
-  Calendar,
-  MapPin,
   ExternalLink,
   Loader2,
   IdCard,
   Camera,
+  Sparkles,
 } from "lucide-react"
+import { getKycDocumentUrl } from "@/lib/supabase"
 
 export interface AdminKycReviewModalProps {
   isOpen: boolean
@@ -44,12 +41,31 @@ export default function AdminKycReviewModal({
   const [showRejectForm, setShowRejectForm] = useState(false)
   const [rejectReason, setRejectReason] = useState(QUICK_REJECTION_REASONS[0])
   const [customReason, setCustomReason] = useState("")
+  const [resolvedCccdUrl, setResolvedCccdUrl] = useState("")
+  const [resolvedSelfieUrl, setResolvedSelfieUrl] = useState("")
+
+  const kycData = student?.kyc_data || {}
+
+  useEffect(() => {
+    if (isOpen && student) {
+      const kyc = student.kyc_data || {}
+      if (kyc.cccd_front_url) {
+        getKycDocumentUrl(kyc.cccd_front_url).then(setResolvedCccdUrl)
+      } else {
+        setResolvedCccdUrl("")
+      }
+      if (kyc.selfie_url) {
+        getKycDocumentUrl(kyc.selfie_url).then(setResolvedSelfieUrl)
+      } else {
+        setResolvedSelfieUrl("")
+      }
+    }
+  }, [isOpen, student])
 
   if (!isOpen || !student) return null
 
-  const kycData = student.kyc_data || {}
-  const cccdUrl = kycData.cccd_front_url
-  const selfieUrl = kycData.selfie_url
+  const cccdUrl = resolvedCccdUrl || kycData.cccd_front_url
+  const selfieUrl = resolvedSelfieUrl || kycData.selfie_url
 
   const handleApprove = async () => {
     setSubmitting(true)
@@ -111,23 +127,22 @@ export default function AdminKycReviewModal({
                     Đối soát hồ sơ eKYC
                   </h2>
                   <span
-                    className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-                      student.kyc_status === "approved" || student.is_verified
+                    className={`px-2 py-0.5 rounded-full text-xs font-semibold ${student.kyc_status === "approved" || student.is_verified
                         ? "bg-emerald-100 text-emerald-800"
                         : student.kyc_status === "pending"
-                        ? "bg-amber-100 text-amber-800"
-                        : student.kyc_status === "rejected"
-                        ? "bg-red-100 text-red-800"
-                        : "bg-slate-100 text-slate-600"
-                    }`}
+                          ? "bg-amber-100 text-amber-800"
+                          : student.kyc_status === "rejected"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-slate-100 text-slate-600"
+                      }`}
                   >
                     {student.kyc_status === "approved" || student.is_verified
                       ? "Đã duyệt"
                       : student.kyc_status === "pending"
-                      ? "Chờ duyệt"
-                      : student.kyc_status === "rejected"
-                      ? "Bị từ chối"
-                      : "Chưa gửi"}
+                        ? "Chờ duyệt"
+                        : student.kyc_status === "rejected"
+                          ? "Bị từ chối"
+                          : "Chưa gửi"}
                   </span>
                 </div>
                 <p className="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
@@ -148,6 +163,54 @@ export default function AdminKycReviewModal({
 
           {/* Body Content */}
           <div className="p-4 sm:p-6 overflow-y-auto flex-1 space-y-6">
+            {/* AI Verification Score Banner */}
+            {kycData.face_match_score !== undefined && (
+              <div
+                className={`p-3.5 rounded-xl border flex items-center justify-between ${kycData.face_match_score >= 70
+                    ? "bg-emerald-50/80 border-emerald-200 text-emerald-900 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-300"
+                    : kycData.face_match_score >= 45
+                      ? "bg-amber-50/80 border-amber-200 text-amber-900 dark:bg-amber-950/30 dark:border-amber-800 dark:text-amber-300"
+                      : "bg-red-50/80 border-red-200 text-red-900 dark:bg-red-950/30 dark:border-red-800 dark:text-red-300"
+                  }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  <Sparkles className="size-5 shrink-0" />
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-xs uppercase tracking-wide">
+                        Điểm đối soát Human AI:
+                      </span>
+                      <span className="font-extrabold text-sm">{kycData.face_match_score}%</span>
+                      {kycData.auto_approved && (
+                        <span className="bg-emerald-200 dark:bg-emerald-800 text-emerald-900 dark:text-emerald-100 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                          AI Tự duyệt
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-[11px] opacity-90 mt-0.5">
+                      {kycData.face_match_score >= 70
+                        ? "Độ khớp rất cao (≥70%) giữa ảnh thẻ CCCD và ảnh selfie live. Đạt chuẩn kích hoạt Tích xanh."
+                        : kycData.face_match_score >= 45
+                          ? "Độ khớp trung bình khá (45-69%). Khuyên Admin đối chiếu kỹ đường nét khuôn mặt."
+                          : "Độ khớp thấp (<45%). Nghi ngờ không phải cùng một người hoặc ảnh chụp quá mờ."}
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right shrink-0 space-y-1">
+                  <div>
+                    <span className="text-[11px] px-2.5 py-1 rounded-md bg-white/80 dark:bg-zinc-800 font-semibold border border-black/10 dark:border-white/10 shadow-2xs">
+                      {kycData.liveness_passed ? "✓ Liveness Đạt" : "Chưa qua Liveness"}
+                    </span>
+                  </div>
+                  {kycData.antispoof_score !== undefined && (
+                    <div className="text-[10px] text-emerald-700 dark:text-emerald-300 font-medium">
+                      Antispoof: {kycData.antispoof_score}%
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Visual Comparison: CCCD vs Selfie */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Cột 1: CCCD Mặt trước */}
