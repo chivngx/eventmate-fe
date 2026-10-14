@@ -1,17 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { JobItem } from "@/features/event/components/EventCard"
 import { supabase } from "@/lib/supabase"
 import JobsSliderSection from "./JobsSliderSection"
-
-export interface UrgentJobsSectionProps {
-  events?: JobItem[]
-  loading?: boolean
-  onNavigateToJob?: (jobId: string) => void
-  bookmarkedEvents?: Record<string, boolean>
-  onToggleBookmark?: (id: string) => void
-}
 
 export default function UrgentJobsSection({
   events: propEvents,
@@ -19,8 +10,8 @@ export default function UrgentJobsSection({
   onNavigateToJob,
   bookmarkedEvents = {},
   onToggleBookmark,
-}: UrgentJobsSectionProps) {
-  const [internalEvents, setInternalEvents] = useState<JobItem[]>([])
+}) {
+  const [internalEvents, setInternalEvents] = useState([])
   const [internalLoading, setInternalLoading] = useState(propEvents === undefined)
 
   useEffect(() => {
@@ -73,7 +64,7 @@ export default function UrgentJobsSection({
 
         if (!error && data && isMounted) {
           if (data.length > 0) {
-            setInternalEvents(data as unknown as JobItem[])
+            setInternalEvents(data)
           } else {
             // Fallback: nếu chưa có tin gấp nào, lấy các tin sự kiện mới nhất
             const { data: latestData } = await supabase
@@ -115,7 +106,7 @@ export default function UrgentJobsSection({
               .limit(10)
 
             if (latestData && isMounted) {
-              setInternalEvents(latestData as unknown as JobItem[])
+              setInternalEvents(latestData)
             }
           }
         }

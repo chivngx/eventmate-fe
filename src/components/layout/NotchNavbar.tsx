@@ -93,9 +93,6 @@ export function NotchNavbar({
     return () => window.removeEventListener("resize", handleResize)
   }, [])
 
-  // When on Hero page and not yet scrolled, match hero's orange color (#FB7328)
-  const isHeroUnscrolled = Boolean(isHeroNavbar && !isScrolled)
-
   // Active state checkers
   const isAdminActive = pathname?.startsWith("/admin")
   const isFindJobActive = pathname?.startsWith("/events") || pathname?.startsWith("/jobs")
@@ -107,14 +104,10 @@ export function NotchNavbar({
 
   const getNavLinkClass = (isActive: boolean) =>
     cn(
-      "text-[15.5px] transition-colors whitespace-nowrap",
-      isHeroUnscrolled
-        ? isActive
-          ? "text-white font-semibold"
-          : "text-white/80 font-medium hover:text-white"
-        : isActive
-          ? "text-gray-900 font-semibold"
-          : "text-gray-600 font-medium hover:text-gray-900"
+      "text-[14px] font-medium transition-all px-3.5 py-1.5 rounded-lg whitespace-nowrap",
+      isActive
+        ? "text-slate-950 font-semibold bg-slate-100/90 shadow-2xs"
+        : "text-slate-600 hover:text-slate-950 hover:bg-slate-50"
     )
 
   const handleSavedClick = () => {
@@ -137,56 +130,38 @@ export function NotchNavbar({
     <>
       <header
         className={cn(
-          "sticky top-0 z-50 w-full h-[68px] transition-colors duration-200 select-none",
-          isHeroUnscrolled
-            ? "bg-[#FB7328] text-white"
-            : "bg-white/95 backdrop-blur-md border-b border-gray-200/80 shadow-xs text-gray-900",
+          "sticky top-0 z-50 w-full h-[68px] select-none transition-all duration-200",
+          isScrolled
+            ? "bg-white/95 backdrop-blur-md border-b border-gray-200/80 shadow-2xs text-gray-900"
+            : "bg-white border-b border-gray-100/90 text-gray-900",
           className
         )}
       >
-        <div className="max-w-[1200px] mx-auto w-full h-full px-4 xl:px-0 flex items-center justify-between gap-4">
-          {/* Left: Hamburger (☰) + Logo + Price Badge */}
+        <div className="max-w-[1240px] mx-auto w-full h-full px-4 sm:px-6 xl:px-8 flex items-center justify-between gap-4">
+          {/* Left: Hamburger (☰) + Logo */}
           <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
             {/* Hamburger Button (Mobile / Tablet only) */}
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className={cn(
-                "size-11 rounded-full flex lg:hidden items-center justify-center transition-all cursor-pointer",
-                isHeroUnscrolled
-                  ? "bg-white/15 text-white hover:bg-white/25"
-                  : "text-gray-700 hover:bg-gray-100"
-              )}
+              className="size-9 rounded-lg flex lg:hidden items-center justify-center text-slate-700 hover:text-slate-900 hover:bg-slate-100 border border-slate-200/70 transition-colors cursor-pointer"
               aria-label="Menu"
               title="Menu"
             >
-              <Menu className="size-5.5" />
+              <Menu className="size-5" />
             </button>
 
             {/* Logo */}
             {logo ? (
               logo
-            ) : isHeroUnscrolled ? (
-              /* When unscrolled: Logo directly on orange background */
-              <Link
-                href={isAdmin ? "/admin" : "/"}
-                className="flex items-center gap-2 h-11 px-1 focus:outline-none transition-transform hover:opacity-90 active:scale-95"
-                aria-label="EventMate Home"
-              >
-                <EventMateLogoIcon size={30} variant="white" />
-                <span className="font-extrabold text-xl tracking-tight text-white hidden sm:inline">
-                  EventMate
-                </span>
-              </Link>
             ) : (
-              /* When scrolled: Logo directly on white background */
               <Link
                 href={isAdmin ? "/admin" : "/"}
-                className="flex items-center gap-2 h-11 px-1 focus:outline-none transition-transform hover:opacity-90 active:scale-95"
+                className="flex items-center gap-2.5 h-10 px-1 focus:outline-none transition-transform hover:opacity-90 active:scale-98"
                 aria-label="EventMate Home"
               >
-                <EventMateLogoIcon size={30} variant="orange" />
-                <span className="font-extrabold text-xl tracking-tight text-gray-900 hidden sm:inline">
+                <EventMateLogoIcon size={30} variant="mint" className="rounded-lg shadow-2xs" />
+                <span className="font-bold text-xl tracking-tight text-slate-900 hidden sm:inline font-heading">
                   EventMate
                 </span>
               </Link>
@@ -194,7 +169,7 @@ export function NotchNavbar({
           </div>
 
           {/* Center: Nav Links */}
-          <div className="hidden lg:flex items-center justify-center gap-6 xl:gap-8">
+          <nav className="hidden lg:flex items-center justify-center gap-1 xl:gap-2">
             {isOrg ? (
               <>
                 <Link
@@ -247,25 +222,20 @@ export function NotchNavbar({
                 </Link>
               </>
             )}
-          </div>
+          </nav>
 
-          {/* Right: Actions (Heart, Bell, Liên hệ, Quản lý tin / Đăng nhập, Đăng tuyển, Profile) */}
+          {/* Right: Actions (Heart, Bell, Quản lý tin / Đăng nhập, Đăng tuyển, Profile) */}
           <div className="flex items-center gap-2 sm:gap-2.5">
             {/* Heart / Tin đã lưu icon (Chỉ hiện khi đã đăng nhập với vai trò Student) */}
             {isStudent && (
               <button
                 type="button"
                 onClick={handleSavedClick}
-                className={cn(
-                  "size-11 rounded-full flex items-center justify-center transition-all cursor-pointer",
-                  isHeroUnscrolled
-                    ? "bg-white/15 text-white hover:bg-white/25"
-                    : "text-gray-600 hover:bg-gray-100"
-                )}
+                className="size-9 rounded-lg flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200/80 transition-colors cursor-pointer"
                 title="Tin đã lưu"
                 aria-label="Tin đã lưu"
               >
-                <Heart className="size-[22px]" />
+                <Heart className="size-4.5" />
               </button>
             )}
 
@@ -275,11 +245,7 @@ export function NotchNavbar({
                 notifications={notifications}
                 unreadCount={unreadCount}
                 markAsRead={markAsRead}
-                triggerClassName={
-                  isHeroUnscrolled
-                    ? "size-11 rounded-full bg-white/15 text-white hover:bg-white/25 flex items-center justify-center transition-all cursor-pointer"
-                    : "size-11 rounded-full text-gray-600 hover:bg-gray-100 flex items-center justify-center transition-all cursor-pointer"
-                }
+                triggerClassName="size-9 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200/80 flex items-center justify-center transition-colors cursor-pointer"
               />
             )}
 
@@ -288,24 +254,14 @@ export function NotchNavbar({
               <button
                 type="button"
                 onClick={() => openLogin({ role: isEmployer ? "organizer" : "student" })}
-                className={cn(
-                  "h-11 px-5 rounded-full flex items-center justify-center font-semibold text-[15px] transition-all whitespace-nowrap cursor-pointer",
-                  isHeroUnscrolled
-                    ? "bg-white/15 text-white hover:bg-white/25 backdrop-blur-sm"
-                    : "border border-gray-200 text-gray-800 hover:bg-gray-50"
-                )}
+                className="h-9 px-4 rounded-lg flex items-center justify-center font-medium text-[13.5px] border border-gray-200 text-slate-700 hover:text-slate-950 hover:bg-slate-50 transition-colors whitespace-nowrap cursor-pointer"
               >
                 Đăng nhập
               </button>
             ) : isOrg ? (
               <Link
                 href="/dashboard/manage-events"
-                className={cn(
-                  "hidden sm:flex h-11 px-5 rounded-full items-center justify-center font-semibold text-[15px] transition-all whitespace-nowrap cursor-pointer",
-                  isHeroUnscrolled
-                    ? "bg-white/15 text-white hover:bg-white/25 backdrop-blur-sm"
-                    : "border border-gray-200 text-gray-800 hover:bg-gray-50"
-                )}
+                className="hidden sm:flex h-9 px-4 rounded-lg items-center justify-center font-medium text-[13.5px] border border-gray-200 text-slate-700 hover:text-slate-950 hover:bg-slate-50 transition-colors whitespace-nowrap cursor-pointer"
               >
                 Quản lý tin
               </Link>
@@ -317,26 +273,18 @@ export function NotchNavbar({
                 <button
                   type="button"
                   onClick={() => openRegister({ role: "organizer" })}
-                  className={cn(
-                    "h-11 px-5.5 rounded-full flex items-center justify-center font-bold text-[15px] transition-all shadow-xs active:scale-95 whitespace-nowrap cursor-pointer",
-                    isHeroUnscrolled
-                      ? "bg-white hover:bg-gray-50 text-[#FB7328]"
-                      : "bg-[#222222] hover:bg-black text-white"
-                  )}
+                  className="h-9 px-4.5 rounded-lg flex items-center justify-center gap-1.5 font-semibold text-[13.5px] bg-gradient-to-r from-[#0D9488] to-[#14B8A6] hover:from-[#0F766E] hover:to-[#0D9488] text-white shadow-sm shadow-teal-500/20 active:scale-98 transition-all whitespace-nowrap cursor-pointer"
                 >
-                  Đăng tuyển
+                  <span>Đăng tuyển</span>
+                  <ArrowRight className="size-3.5" />
                 </button>
               ) : (
                 <Link
                   href="/dashboard/post-job"
-                  className={cn(
-                    "h-11 px-5.5 rounded-full flex items-center justify-center font-bold text-[15px] transition-all shadow-xs active:scale-95 whitespace-nowrap cursor-pointer",
-                    isHeroUnscrolled
-                      ? "bg-white hover:bg-gray-50 text-[#FB7328]"
-                      : "bg-[#222222] hover:bg-black text-white"
-                  )}
+                  className="h-9 px-4.5 rounded-lg flex items-center justify-center gap-1.5 font-semibold text-[13.5px] bg-gradient-to-r from-[#0D9488] to-[#14B8A6] hover:from-[#0F766E] hover:to-[#0D9488] text-white shadow-sm shadow-teal-500/20 active:scale-98 transition-all whitespace-nowrap cursor-pointer"
                 >
-                  Đăng tuyển
+                  <span>Đăng tuyển</span>
+                  <ArrowRight className="size-3.5" />
                 </Link>
               )
             )}
@@ -351,7 +299,7 @@ export function NotchNavbar({
                 isEmployer={isOrg}
                 navigate={(path) => router.push(path)}
                 handleLogout={handleLogout}
-                isHeroUnscrolled={isHeroUnscrolled}
+                triggerClassName="rounded-lg h-9 pl-1 pr-2 border-slate-200/80"
               />
             )}
           </div>
@@ -372,7 +320,7 @@ export function NotchNavbar({
               {/* Mobile Role Banner / Status */}
               <div className="p-3 bg-slate-50/70 border border-slate-100 rounded-xl flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <EventMateLogoIcon size={24} variant="orange" />
+                  <EventMateLogoIcon size={24} variant="mint" />
                   <span className="font-semibold text-sm text-slate-800">EventMate</span>
                 </div>
                 {isAdmin ? (
@@ -384,7 +332,7 @@ export function NotchNavbar({
                     Nhà tuyển dụng
                   </span>
                 ) : !isGuest ? (
-                  <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                  <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-teal-50 text-teal-800 border border-teal-200/60">
                     Ứng viên
                   </span>
                 ) : null}
@@ -397,7 +345,7 @@ export function NotchNavbar({
                     <Link
                       href="/admin"
                       className={cn(
-                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        "flex items-center gap-3 p-3 rounded-lg font-medium text-sm transition-colors",
                         isAdminActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
@@ -408,7 +356,7 @@ export function NotchNavbar({
                     <Link
                       href="/events"
                       className={cn(
-                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        "flex items-center gap-3 p-3 rounded-lg font-medium text-sm transition-colors",
                         isFindJobActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
@@ -419,7 +367,7 @@ export function NotchNavbar({
                     <Link
                       href="/blog"
                       className={cn(
-                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        "flex items-center gap-3 p-3 rounded-lg font-medium text-sm transition-colors",
                         isBlogActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
@@ -433,7 +381,7 @@ export function NotchNavbar({
                     <Link
                       href="/dashboard"
                       className={cn(
-                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        "flex items-center gap-3 p-3 rounded-lg font-medium text-sm transition-colors",
                         isDashboardActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
@@ -443,16 +391,16 @@ export function NotchNavbar({
                     </Link>
                     <Link
                       href="/dashboard/post-job"
-                      className="flex items-center gap-3 p-3 rounded-xl font-medium text-sm text-emerald-700 bg-emerald-50/60 hover:bg-emerald-50 transition-colors"
+                      className="flex items-center gap-3 p-3 rounded-lg font-medium text-sm text-teal-800 bg-teal-50/60 hover:bg-teal-50 transition-colors"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <Plus className="size-4 shrink-0 text-emerald-600" />
+                      <Plus className="size-4 shrink-0 text-[#0D9488]" />
                       <span>Đăng tin tuyển dụng mới</span>
                     </Link>
                     <Link
                       href="/dashboard/manage-events"
                       className={cn(
-                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        "flex items-center gap-3 p-3 rounded-lg font-medium text-sm transition-colors",
                         isManageEventsActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
@@ -463,7 +411,7 @@ export function NotchNavbar({
                     <Link
                       href="/pricing"
                       className={cn(
-                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        "flex items-center gap-3 p-3 rounded-lg font-medium text-sm transition-colors",
                         isPricingActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
@@ -477,7 +425,7 @@ export function NotchNavbar({
                     <Link
                       href="/events"
                       className={cn(
-                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        "flex items-center gap-3 p-3 rounded-lg font-medium text-sm transition-colors",
                         isFindJobActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
@@ -488,18 +436,18 @@ export function NotchNavbar({
                     <Link
                       href="/my-events"
                       className={cn(
-                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        "flex items-center gap-3 p-3 rounded-lg font-medium text-sm transition-colors",
                         isMyEventsActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <CalendarDays className="size-4 shrink-0 text-emerald-600" />
+                      <CalendarDays className="size-4 shrink-0 text-[#0D9488]" />
                       <span>Sự kiện của tôi</span>
                     </Link>
                     <Link
                       href="/blog"
                       className={cn(
-                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        "flex items-center gap-3 p-3 rounded-lg font-medium text-sm transition-colors",
                         isBlogActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
@@ -513,7 +461,7 @@ export function NotchNavbar({
                     <Link
                       href="/events"
                       className={cn(
-                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        "flex items-center gap-3 p-3 rounded-lg font-medium text-sm transition-colors",
                         isFindJobActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
@@ -524,7 +472,7 @@ export function NotchNavbar({
                     <Link
                       href="/blog"
                       className={cn(
-                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        "flex items-center gap-3 p-3 rounded-lg font-medium text-sm transition-colors",
                         isBlogActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
@@ -535,7 +483,7 @@ export function NotchNavbar({
                     <Link
                       href="/pricing"
                       className={cn(
-                        "flex items-center gap-3 p-3 rounded-xl font-medium text-sm transition-colors",
+                        "flex items-center gap-3 p-3 rounded-lg font-medium text-sm transition-colors",
                         isPricingActive ? "bg-slate-900 text-white font-semibold" : "text-slate-700 hover:bg-slate-100"
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
@@ -552,7 +500,7 @@ export function NotchNavbar({
                 <div className="pt-2 flex flex-col gap-2">
                   <button
                     type="button"
-                    className="text-white flex items-center justify-center gap-2 h-[42px] rounded-full bg-[#1877F2] hover:bg-[#1366D6] font-medium text-sm transition-all shadow-xs active:scale-[0.98] cursor-pointer"
+                    className="text-white flex items-center justify-center gap-2 h-10 rounded-lg bg-gradient-to-r from-[#0D9488] to-[#14B8A6] hover:from-[#0F766E] hover:to-[#0D9488] font-medium text-sm transition-all shadow-sm shadow-teal-500/20 active:scale-[0.98] cursor-pointer"
                     onClick={() => {
                       setIsMobileMenuOpen(false)
                       openRegister({ role: isEmployer ? "organizer" : "student" })
@@ -563,7 +511,7 @@ export function NotchNavbar({
                   </button>
                   <button
                     type="button"
-                    className="h-[42px] flex items-center justify-center gap-2 rounded-full border border-slate-200 text-slate-800 font-medium text-sm hover:bg-slate-50 transition-colors cursor-pointer"
+                    className="h-10 flex items-center justify-center gap-2 rounded-lg border border-slate-200 text-slate-800 font-medium text-sm hover:bg-slate-50 transition-colors cursor-pointer"
                     onClick={() => {
                       setIsMobileMenuOpen(false)
                       openLogin({ role: isEmployer ? "organizer" : "student" })
@@ -578,7 +526,7 @@ export function NotchNavbar({
                   {isOrg && (
                     <Link
                       href="/dashboard"
-                      className="p-3 rounded-xl font-medium text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                      className="p-3 rounded-lg font-medium text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       Bảng điều khiển cá nhân
@@ -586,21 +534,21 @@ export function NotchNavbar({
                   )}
                   <Link
                     href={isOrg ? "/dashboard/chat" : "/chat"}
-                    className="p-3 rounded-xl font-medium text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                    className="p-3 rounded-lg font-medium text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Tin nhắn trực tiếp
                   </Link>
                   <Link
                     href={isOrg ? "/dashboard/account" : "/account"}
-                    className="p-3 rounded-xl font-medium text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                    className="p-3 rounded-lg font-medium text-sm text-slate-700 hover:bg-slate-50 transition-colors"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Cài đặt tài khoản
                   </Link>
                   <button
                     type="button"
-                    className="flex items-center gap-2 p-3 rounded-xl font-medium text-sm text-left text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer w-full"
+                    className="flex items-center gap-2 p-3 rounded-lg font-medium text-sm text-left text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer w-full"
                     onClick={() => {
                       setIsMobileMenuOpen(false)
                       handleLogout()

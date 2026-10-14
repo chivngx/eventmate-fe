@@ -426,7 +426,7 @@ export default function MenuDashboard({
             )}
             title={isOrganizer ? "Bảng điều khiển Nhà tuyển dụng" : "Bảng điều khiển EventMate"}
           >
-            <EventMateLogoIcon size={isCollapsed ? 34 : 36} idPrefix="menudash" variant="orange" />
+            <EventMateLogoIcon size={isCollapsed ? 34 : 36} idPrefix="menudash" variant="mint" />
             {!isCollapsed && (
               <div className="flex flex-col justify-center">
                 <span className="font-['Inter',sans-serif] font-bold text-[18px] leading-tight text-[#222222] tracking-tight">

@@ -44,9 +44,9 @@ export default function BlogListView() {
     <MainLayout role={userRole} fullWidth className="bg-[#F2F6FC]">
       {/* 1. Hero Search Banner with Blog Title and Search Capsule */}
       <HeroSearchBanner title="Cẩm Nang & Kinh Nghiệm Nghề Sự Kiện">
-        <div className="bg-white rounded-2xl md:rounded-full shadow-lg p-2 md:p-2.5 flex items-center gap-2 max-w-2xl mx-auto border border-gray-100 text-gray-800">
+        <div className="bg-white rounded-2xl md:rounded-full shadow-lg p-2 md:p-2.5 flex items-center gap-2 max-w-2xl mx-auto border border-teal-100 text-gray-800 focus-within:border-teal-400 focus-within:ring-2 focus-within:ring-teal-400/20 transition-all">
           <div className="flex items-center gap-2.5 px-3 py-2 flex-1">
-            <Search className="w-5 h-5 text-gray-400 shrink-0" />
+            <Search className="w-5 h-5 text-teal-600 shrink-0" />
             <input
               type="text"
               value={searchTerm}
@@ -64,6 +64,13 @@ export default function BlogListView() {
               Xóa
             </button>
           )}
+          <button
+            type="button"
+            className="hidden sm:inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full bg-gradient-to-r from-[#0D9488] to-[#14B8A6] hover:from-[#0F766E] hover:to-[#0D9488] text-white text-xs font-semibold transition-all shadow-xs shadow-teal-500/20 active:scale-98 cursor-pointer"
+          >
+            <span>Tìm kiếm</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
         </div>
       </HeroSearchBanner>
 
@@ -83,8 +90,8 @@ export default function BlogListView() {
                     className={cn(
                       "px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer",
                       isActive
-                        ? "bg-[#FB7328] text-white shadow-xs"
-                        : "bg-white text-gray-700 border border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                        ? "bg-[#0D9488] text-white shadow-xs"
+                        : "bg-white text-gray-700 border border-slate-200 hover:border-teal-200 hover:bg-slate-50"
                     )}
                   >
                     {tab.label}
@@ -104,7 +111,7 @@ export default function BlogListView() {
               {filteredPosts.map((post) => (
                 <article
                   key={post.id}
-                  className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden hover:border-[#FB7328]/50 hover:shadow-lg transition-all duration-200 flex flex-col justify-between group"
+                  className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden hover:border-[#0D9488]/40 hover:shadow-lg transition-all duration-200 flex flex-col justify-between group"
                 >
                   <div>
                     {/* Thumbnail Image */}
@@ -118,7 +125,7 @@ export default function BlogListView() {
                         {post.tags.map((tag, i) => (
                           <span
                             key={i}
-                            className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white/95 backdrop-blur-xs text-zinc-900 shadow-xs"
+                            className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-white/95 backdrop-blur-xs text-teal-900 border border-teal-100 shadow-xs"
                           >
                             {tag}
                           </span>
@@ -139,7 +146,7 @@ export default function BlogListView() {
                         </span>
                       </div>
 
-                      <h2 className="text-lg font-bold text-gray-900 group-hover:text-[#FB7328] transition-colors line-clamp-2 leading-snug">
+                      <h2 className="text-lg font-bold text-gray-900 group-hover:text-[#0D9488] transition-colors line-clamp-2 leading-snug">
                         <Link href={`/blog/${post.id}`}>{post.title}</Link>
                       </h2>
 
@@ -153,7 +160,7 @@ export default function BlogListView() {
                   <div className="p-5 sm:p-6 pt-0">
                     <Link
                       href={`/blog/${post.id}`}
-                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#FB7328] group-hover:gap-2.5 transition-all"
+                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#0D9488] group-hover:gap-2.5 transition-all"
                     >
                       <span>Đọc tiếp</span>
                       <ArrowRight className="w-4 h-4" />
@@ -164,7 +171,7 @@ export default function BlogListView() {
             </div>
           ) : (
             <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center max-w-md mx-auto space-y-4">
-              <div className="size-12 rounded-full bg-orange-50 text-[#FB7328] flex items-center justify-center mx-auto">
+              <div className="size-12 rounded-full bg-teal-50 text-[#0D9488] flex items-center justify-center mx-auto">
                 <BookOpen className="w-6 h-6" />
               </div>
               <h3 className="text-base font-bold text-gray-900">
@@ -179,7 +186,7 @@ export default function BlogListView() {
                   setSearchTerm("")
                   setSelectedCategory("all")
                 }}
-                className="px-4 py-2 rounded-xl bg-[#FB7328] text-white text-xs font-semibold hover:bg-[#ea580c] transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-[#0D9488] text-white text-xs font-semibold hover:bg-[#0F766E] transition-colors cursor-pointer"
               >
                 Đặt lại bộ lọc
               </button>

@@ -155,7 +155,7 @@ export default function MainLayout({
                 <button
                     type="button"
                     onClick={() => navigate("/admin")}
-                    className="hidden sm:inline-flex items-center gap-1.5 h-[36px] px-3.5 rounded-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium text-[13px] shadow-xs active:scale-[0.97] transition-all cursor-pointer"
+                    className="hidden sm:inline-flex items-center gap-1.5 h-[36px] px-3.5 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-medium text-[13px] shadow-xs active:scale-[0.97] transition-all cursor-pointer"
                     title="Quản trị hệ thống"
                 >
                     <ShieldCheck className="size-3.5" />
@@ -165,7 +165,7 @@ export default function MainLayout({
                 <button
                     type="button"
                     onClick={() => navigate("/post-job")}
-                    className="hidden sm:inline-flex items-center gap-1.5 h-[36px] px-3.5 rounded-full bg-zinc-900 hover:bg-black text-white font-semibold text-[13px] shadow-xs hover:shadow-sm active:scale-[0.97] transition-all cursor-pointer"
+                    className="hidden sm:inline-flex items-center gap-1.5 h-[36px] px-3.5 rounded-lg bg-gradient-to-r from-[#0D9488] to-[#14B8A6] hover:from-[#0F766E] hover:to-[#0D9488] text-white font-medium text-[13px] shadow-sm shadow-teal-500/20 active:scale-[0.97] transition-all cursor-pointer"
                     title="Đăng tin tuyển dụng mới"
                 >
                     <Plus className="size-3.5" />
@@ -177,11 +177,11 @@ export default function MainLayout({
             <button
                 type="button"
                 onClick={() => navigate("/chat")}
-                className="relative size-[38px] rounded-full flex items-center justify-center text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                className="relative size-9 rounded-lg border border-slate-200/80 flex items-center justify-center text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
                 title="Tin nhắn"
                 aria-label="Tin nhắn"
             >
-                <MessageSquare className="size-[19px]" />
+                <MessageSquare className="size-4" />
             </button>
 
             {/* Notification Dropdown */}
@@ -189,6 +189,7 @@ export default function MainLayout({
                 notifications={notifications}
                 unreadCount={unreadCount}
                 markAsRead={markAsRead}
+                triggerClassName="size-9 rounded-lg border border-slate-200/80 hover:bg-slate-100 text-slate-700"
             />
 
             {/* Profile Dropdown */}
@@ -200,6 +201,7 @@ export default function MainLayout({
                 isEmployer={isEmployerContext}
                 navigate={navigate}
                 handleLogout={handleLogout}
+                triggerClassName="h-9 rounded-lg border border-slate-200/80"
             />
         </div>
     ) : undefined
@@ -228,7 +230,7 @@ export default function MainLayout({
     )
 
     return (
-        <div className={cn("min-h-screen flex flex-col bg-background text-foreground", (isHomePage || isEventsPage || isBlogPage) && "bg-[#F2F6FC]", className)}>
+        <div className={cn("min-h-screen flex flex-col bg-background text-foreground", isHomePage ? "bg-white" : (isEventsPage || isBlogPage) && "bg-[#F2F6FC]", className)}>
             {navbarElement}
             <main
                 className={cn(
