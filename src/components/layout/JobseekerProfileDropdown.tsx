@@ -215,7 +215,7 @@ export default function JobseekerProfileDropdown({
                   </div>
                   <button
                     onClick={() => { setIsOpen(false); navigate("/post-job"); }}
-                    className="w-full py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-semibold text-sm transition-colors shadow-sm"
+                    className="w-full py-2.5 bg-[#0D9488] hover:bg-[#0F766E] text-white rounded-xl font-semibold text-sm transition-all shadow-sm shadow-teal-500/20 active:scale-[0.98] cursor-pointer"
                   >
                     Đăng tin ngay
                   </button>

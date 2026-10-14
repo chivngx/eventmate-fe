@@ -1,15 +1,6 @@
 "use client"
 
-import { JobItem } from "@/features/event/components/EventCard"
 import JobsSliderSection from "./JobsSliderSection"
-
-export interface LatestJobsFeedProps {
-  events?: JobItem[]
-  loading?: boolean
-  bookmarkedEvents?: Record<string, boolean>
-  onToggleBookmark?: (id: string) => void
-  onNavigateToJob?: (id: string) => void
-}
 
 export default function LatestJobsFeed({
   events = [],
@@ -17,7 +8,7 @@ export default function LatestJobsFeed({
   bookmarkedEvents = {},
   onToggleBookmark,
   onNavigateToJob,
-}: LatestJobsFeedProps) {
+}) {
   return (
     <JobsSliderSection
       title="Sự kiện mới nhất"
@@ -33,4 +24,3 @@ export default function LatestJobsFeed({
     />
   )
 }
-

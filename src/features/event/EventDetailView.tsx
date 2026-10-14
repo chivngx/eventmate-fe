@@ -368,7 +368,7 @@ export default function EventDetail() {
 
     return (
         <MainLayout role={role || "guest"} fullWidth={true} className="bg-slate-50">
-            <div className="bg-slate-50 min-h-screen pb-24 pt-6 lg:pt-10 selection:bg-orange-100 selection:text-orange-900">
+            <div className="bg-slate-50 min-h-screen pb-24 pt-6 lg:pt-10 selection:bg-teal-100 selection:text-teal-900">
                 <div className="w-full max-w-[1120px] mx-auto px-5 lg:px-8 flex flex-col gap-8 lg:gap-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 ease-[cubic-bezier(0.32,0.72,0,1)]">
                     
                     {/* BREADCRUMB */}
@@ -409,7 +409,7 @@ export default function EventDetail() {
                                     <div className="flex items-center gap-3 flex-wrap">
                                         <span className={cn(
                                             "px-3 py-1 text-[11px] uppercase tracking-wider font-bold rounded-full",
-                                            event.status === "upcoming" ? "bg-orange-100 text-orange-700" : "bg-slate-200 text-slate-600"
+                                            event.status === "upcoming" ? "bg-teal-100 text-teal-800" : "bg-slate-200 text-slate-600"
                                         )}>
                                             {event.status === "upcoming" ? "Đang mở đơn" : "Đã đóng đơn"}
                                         </span>
@@ -429,7 +429,7 @@ export default function EventDetail() {
                                             title={isBookmarked ? "Bỏ lưu sự kiện" : "Lưu sự kiện"}
                                             className={cn(
                                                 "shrink-0 size-11 md:size-12 rounded-full border flex items-center justify-center transition-all duration-300 active:scale-95 shadow-sm mt-1",
-                                                isBookmarked ? "bg-orange-50 border-orange-200 text-orange-600" : "bg-white border-slate-200 text-slate-400 hover:text-slate-900 hover:border-slate-300"
+                                                isBookmarked ? "bg-teal-50 border-teal-200 text-teal-600" : "bg-white border-slate-200 text-slate-400 hover:text-slate-900 hover:border-slate-300"
                                             )}
                                         >
                                             <BookmarkIcon active={isBookmarked} />
@@ -479,7 +479,7 @@ export default function EventDetail() {
 
                         {/* 2. Total Slots */}
                         <div className="bg-white p-5 rounded-3xl border border-slate-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.02)] flex flex-col gap-4">
-                            <div className="size-12 rounded-full bg-orange-50/80 flex items-center justify-center text-orange-600 shrink-0">
+                            <div className="size-12 rounded-full bg-teal-50/80 flex items-center justify-center text-teal-600 shrink-0">
                                 <StatCalendarIcon />
                             </div>
                             <div className="flex flex-col gap-0.5 min-w-0">
@@ -599,7 +599,7 @@ export default function EventDetail() {
                                                                 type="button"
                                                                 onClick={() => openApplyModal(pos.id)}
                                                                 disabled={disabledApply || isPastDeadline}
-                                                                className="text-[14px] font-semibold text-orange-600 hover:text-orange-700 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 transition-colors"
+                                                                className="text-[14px] font-semibold text-[#0D9488] hover:text-[#0F766E] cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 transition-colors"
                                                             >
                                                                 <span>Ứng tuyển vị trí này</span>
                                                                 <ChevronRight className="size-4" />
@@ -624,8 +624,8 @@ export default function EventDetail() {
                                             <ul className="flex flex-col gap-4">
                                                 {descriptionLines.map((line: string, index: number) => (
                                                     <li key={index} className="flex items-start gap-4 text-slate-600 text-[17px] leading-[1.7]">
-                                                        <div className="mt-1 shrink-0 size-6 rounded-full bg-orange-50 flex items-center justify-center">
-                                                            <Check className="size-3.5 text-orange-500 stroke-[3]" />
+                                                        <div className="mt-1 shrink-0 size-6 rounded-full bg-teal-50 flex items-center justify-center">
+                                                            <Check className="size-3.5 text-teal-600 stroke-[3]" />
                                                         </div>
                                                         <span className="pt-0.5">{line.replace(/^[-*•]\s*/, "")}</span>
                                                     </li>

@@ -2,12 +2,13 @@ import React from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 
-export type LogoColorVariant = "orange" | "white" | "monochrome" | "blue-teal" | "ocean" | "solid"
+export type LogoColorVariant = "mint" | "orange" | "white" | "monochrome" | "blue-teal" | "ocean" | "solid"
 
 const LOGO_SRC_MAP: Record<LogoColorVariant, string> = {
-  orange: "/images/logo/eventmate-logo-square-512.png",
-  "blue-teal": "/images/logo/eventmate-logo-square-512.png",
-  ocean: "/images/logo/eventmate-logo-square-512.png",
+  mint: "/images/logo/eventmate-logo-square-mint.png",
+  "blue-teal": "/images/logo/eventmate-logo-square-mint.png",
+  ocean: "/images/logo/eventmate-logo-square-mint.png",
+  orange: "/images/logo/eventmate-logo-square-mint.png",
   white: "/images/logo/eventmate-logo-square-white.png",
   monochrome: "/images/logo/eventmate-logo-square-charcoal.png",
   solid: "/images/logo/eventmate-logo-square-charcoal.png",
@@ -23,12 +24,12 @@ export interface EventMateLogoIconProps
 export function EventMateLogoIcon({
   size = 28,
   className,
-  variant = "orange",
+  variant = "mint",
   idPrefix: _idPrefix,
   style,
   ...props
 }: EventMateLogoIconProps) {
-  const src = LOGO_SRC_MAP[variant] || LOGO_SRC_MAP.orange
+  const src = LOGO_SRC_MAP[variant] || LOGO_SRC_MAP.mint
   const dimension = typeof size === "number" ? `${size}px` : size
 
   return (
@@ -65,7 +66,7 @@ export function EventMateLogo({
   iconSize = 32,
   isLink = false,
   href = "/",
-  variant = "monochrome",
+  variant = "mint",
   idPrefix = "nav",
 }: EventMateLogoProps) {
   const content = (

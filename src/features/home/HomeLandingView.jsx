@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import HeroSearchBanner from "./components/HeroSearchBanner"
+import HomeBentoGrid from "./components/HomeBentoGrid"
 import PopularCategories from "./components/PopularCategories"
 import UrgentJobsSection from "./components/UrgentJobsSection"
 import TopEmployers from "./components/TopEmployers"
@@ -14,16 +15,16 @@ import { useActiveWards } from "@/hooks/useLookups"
 import { supabase } from "@/lib/supabase"
 import { useUser } from "@/components/providers/AuthProvider"
 
-export default function HomeLandingView({ navbar }: { navbar?: React.ReactNode }) {
+export default function HomeLandingView({ navbar }) {
   const router = useRouter()
   const { user, role } = useUser()
   const isOrganizer = role === "organizer" || role === "employer"
   const { data: wards = [] } = useActiveWards()
   const [searchTerm, setSearchTerm] = useState("")
   const [wardIdTerm, setWardIdTerm] = useState("")
-  const [featuredEvents, setFeaturedEvents] = useState<any[]>([])
+  const [featuredEvents, setFeaturedEvents] = useState([])
   const [loadingEvents, setLoadingEvents] = useState(true)
-  const [bookmarkedEvents, setBookmarkedEvents] = useState<Record<string, boolean>>({})
+  const [bookmarkedEvents, setBookmarkedEvents] = useState({})
 
   useEffect(() => {
     const fetchLatestEvents = async () => {
@@ -45,7 +46,7 @@ export default function HomeLandingView({ navbar }: { navbar?: React.ReactNode }
             .eq("student_id", user.id)
 
           if (bData) {
-            const bMap: Record<string, boolean> = {}
+            const bMap = {}
             bData.forEach((b) => {
               bMap[b.event_id] = true
             })
@@ -62,19 +63,18 @@ export default function HomeLandingView({ navbar }: { navbar?: React.ReactNode }
     fetchLatestEvents()
   }, [user])
 
-  const handleSearch = (term?: string, ward?: string, category?: string) => {
+  const handleSearch = (term, ward) => {
     const activeSearch = (typeof term === "string" ? term : searchTerm).trim()
     const activeWard = typeof ward === "string" ? ward : wardIdTerm
     const params = new URLSearchParams()
     if (activeSearch) params.set("search", activeSearch)
     if (activeWard) params.set("ward", activeWard)
-    if (category) params.set("category", category)
 
     const queryString = params.toString()
     router.push(queryString ? `/events?${queryString}` : "/events")
   }
 
-  const toggleBookmark = async (id: string) => {
+  const toggleBookmark = async (id) => {
     if (!user) {
       window.dispatchEvent(
         new CustomEvent("open-auth-modal", { detail: { mode: "login" } })
@@ -99,15 +99,15 @@ export default function HomeLandingView({ navbar }: { navbar?: React.ReactNode }
   }
 
   return (
-    <div className="w-full bg-[#F2F6FC] text-gray-900">
-      {/* 1. Sticky / Top Navbar Container */}
+    <div className="w-full bg-white text-slate-900 min-h-screen">
+      {/* 1. Top Navbar Container (Clean, Simple, Professional) */}
       {navbar && (
         <div className="w-full bg-white border-b border-gray-200 sticky top-0 z-50">
           <div className="max-w-[1200px] mx-auto px-4 xl:px-0">{navbar}</div>
         </div>
       )}
 
-      {/* 2. Vieclamtot-style Blue Search Banner with Single Capsule */}
+      {/* 2. 2-Column Hero Section (Directly matching the Brim reference image) */}
       <HeroSearchBanner
         searchTerm={searchTerm}
         setSearchTerm={setSearchTerm}
@@ -117,12 +117,15 @@ export default function HomeLandingView({ navbar }: { navbar?: React.ReactNode }
         onSearch={handleSearch}
       />
 
-      {/* 3. Main Content Container - Dense, scannable, white cards on soft gray */}
-      <div className="w-full max-w-[1200px] mx-auto px-4 xl:px-0 pt-6 pb-0 flex flex-col gap-6">
-        {/* Popular Categories (8 Photo Tiles) */}
+      {/* 3. Main Content Container (Clean white, structured B2B layout) */}
+      <div className="w-full max-w-[1200px] mx-auto px-4 sm:px-6 xl:px-0 py-8 md:py-12 flex flex-col gap-10 md:gap-14">
+        {/* Bento Grid: Quy chuẩn nhân sự ("Build the Perfect Card" style) */}
+        <HomeBentoGrid />
+
+        {/* Popular Categories */}
         <PopularCategories />
 
-        {/* Urgent Hiring Jobs (Phản hồi 24h & Bold Red Salaries) - Chỉ hiện cho Student & Khách */}
+        {/* Urgent Hiring Jobs */}
         {!isOrganizer && (
           <UrgentJobsSection
             bookmarkedEvents={bookmarkedEvents}
@@ -131,10 +134,10 @@ export default function HomeLandingView({ navbar }: { navbar?: React.ReactNode }
           />
         )}
 
-        {/* Top Employers / Event Venues in Da Nang */}
+        {/* Top Verified Employers / Event Venues */}
         <TopEmployers />
 
-        {/* Latest Jobs Feed (Chợ Tốt Style Cards) */}
+        {/* Latest Jobs Feed */}
         <LatestJobsFeed
           events={featuredEvents}
           loading={loadingEvents}
@@ -143,13 +146,13 @@ export default function HomeLandingView({ navbar }: { navbar?: React.ReactNode }
           onNavigateToJob={(id) => router.push(`/events/${id}`)}
         />
 
-        {/* For Employers & Organizers - Chỉ hiện khi chưa login hoặc khi role là org */}
+        {/* For Employers & Organizers */}
         {(!user || isOrganizer) && <EmployerActionCards />}
 
-        {/* Career Advice / Tư vấn việc làm - Ẩn khi đã là Organizer */}
+        {/* Career Advice / Articles */}
         {!isOrganizer && <CareerAdviceSection />}
 
-        {/* About / Introduction */}
+        {/* About EventMate Platform */}
         <AboutSection />
       </div>
     </div>

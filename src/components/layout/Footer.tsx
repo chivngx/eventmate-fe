@@ -71,7 +71,7 @@ const defaultLegalLinks = [
 ];
 
 export default function Footer({
-  logo = <EventMateLogoIcon size={30} variant="orange" />,
+  logo = <EventMateLogoIcon size={30} variant="mint" />,
   brandName = (
     <span className="font-extrabold text-xl tracking-tight text-gray-900">
       EventMate

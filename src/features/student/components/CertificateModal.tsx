@@ -505,7 +505,7 @@ export default function CertificateModal({
                                 {/* Certificate Header */}
                                 <div className="text-center relative z-10 pt-0.5">
                                     <div className="inline-flex items-center gap-2 mb-1">
-                                        <EventMateLogoIcon size={22} variant="orange" className="rounded-xs" />
+                                        <EventMateLogoIcon size={22} variant="mint" className="rounded-xs" />
                                         <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.2em] text-[#85581A] uppercase">
                                             HỆ THỐNG QUẢN LÝ SỰ KIỆN EVENTMATE
                                         </span>

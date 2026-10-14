@@ -113,7 +113,7 @@ export default function NotificationDropdown({
             >
                 <BellIcon className="size-[20px]" />
                 {unreadCount > 0 && (
-                    <span className="absolute top-[8px] right-[8px] size-[9px] bg-[#FF5722] rounded-full ring-2 ring-white" />
+                    <span className="absolute top-[8px] right-[8px] size-[9px] bg-[#0D9488] rounded-full ring-2 ring-white" />
                 )}
             </DropdownMenuTrigger>
             <DropdownMenuContent
@@ -127,7 +127,7 @@ export default function NotificationDropdown({
                     <div className="flex items-center gap-2">
                         <span className="font-semibold text-[15px] text-slate-900">Thông báo</span>
                         {unreadCount > 0 && (
-                            <span className="px-1.5 py-0.5 text-[11px] font-semibold rounded bg-[#FF5722] text-white">
+                            <span className="px-1.5 py-0.5 text-[11px] font-semibold rounded bg-[#0D9488] text-white">
                                 {unreadCount} mới
                             </span>
                         )}
@@ -207,7 +207,7 @@ export default function NotificationDropdown({
                                                 {titleClean}
                                             </h5>
                                             {isUnread && (
-                                                <span className="size-2 rounded-full bg-[#FF5722] shrink-0 mt-1" />
+                                                <span className="size-2 rounded-full bg-[#0D9488] shrink-0 mt-1" />
                                             )}
                                         </div>
                                         
