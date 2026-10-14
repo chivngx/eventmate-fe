@@ -158,10 +158,23 @@ export default function EventFilterSidebar({
       })
     }
 
-    events?.forEach((j) => {
-      if (j.position_type) {
-        const parts = j.position_type.split(",").map((s) => s.trim()).filter(Boolean)
-        parts.forEach((part) => {
+    events?.forEach((j: any) => {
+      const hasPositionsTable = Array.isArray(j.event_positions) && j.event_positions.length > 0
+
+      if (hasPositionsTable) {
+        // Chỉ lấy các vị trí thực tế còn chỉ tiêu tuyển (slots_needed > 0)
+        j.event_positions?.forEach((p: any) => {
+          if (p.title && Number(p.slots_needed) > 0) {
+            const trimmed = p.title.trim()
+            const key = trimmed.toLowerCase()
+            if (!map.has(key)) {
+              map.set(key, trimmed)
+            }
+          }
+        })
+      } else if (Number(j.slots_needed || 0) > 0 && j.position_type) {
+        const parts = j.position_type.split(",").map((s: string) => s.trim()).filter(Boolean)
+        parts.forEach((part: string) => {
           const key = part.toLowerCase()
           if (!map.has(key)) {
             map.set(key, part)
@@ -179,10 +192,16 @@ export default function EventFilterSidebar({
     return candidatePositions.filter((opt) => {
       if (filters.positions.includes(opt.id)) return true
       const optLower = opt.id.toLowerCase()
-      return events.some((j) => {
-        if (!j.position_type) return false
-        const jPosLower = j.position_type.toLowerCase()
-        return jPosLower.includes(optLower) || optLower.includes(jPosLower)
+      return events.some((j: any) => {
+        const hasPositionsTable = Array.isArray(j.event_positions) && j.event_positions.length > 0
+        const jPosText = hasPositionsTable
+          ? j.event_positions
+              .filter((p: any) => Number(p.slots_needed) > 0)
+              .map((p: any) => p.title)
+              .join(" ")
+              .toLowerCase()
+          : (Number(j.slots_needed || 0) > 0 ? (j.position_type || "").toLowerCase() : "")
+        return jPosText.includes(optLower) || optLower.includes(jPosText)
       })
     })
   }, [candidatePositions, events, filters.positions])

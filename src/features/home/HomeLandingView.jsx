@@ -11,7 +11,7 @@ import LatestJobsFeed from "./components/LatestJobsFeed"
 import EmployerActionCards from "./components/EmployerActionCards"
 import CareerAdviceSection from "./components/CareerAdviceSection"
 import AboutSection from "./components/AboutSection"
-import { useActiveWards } from "@/hooks/useLookups"
+import { useWards } from "@/hooks/useLookups"
 import { supabase } from "@/lib/supabase"
 import { useUser } from "@/components/providers/AuthProvider"
 
@@ -19,7 +19,7 @@ export default function HomeLandingView({ navbar }) {
   const router = useRouter()
   const { user, role } = useUser()
   const isOrganizer = role === "organizer" || role === "employer"
-  const { data: wards = [] } = useActiveWards()
+  const { data: wards = [] } = useWards()
   const [searchTerm, setSearchTerm] = useState("")
   const [wardIdTerm, setWardIdTerm] = useState("")
   const [featuredEvents, setFeaturedEvents] = useState([])

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react"
 import { supabase } from "@/lib/supabase"
 import { useUser } from "@/components/providers/AuthProvider"
-import { useActiveWards, useEventCategories, useJobPositions } from "@/hooks/useLookups"
+import { useWards, useEventCategories, useJobPositions } from "@/hooks/useLookups"
 import MainLayout from "@/components/layout/MainLayout"
 import HeroSearchBanner from "@/features/home/components/HeroSearchBanner"
 import EventCard, { JobItem } from "./components/EventCard"
@@ -34,8 +34,8 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
   const [loading, setLoading] = useState(true)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
 
-  // Lookups: Only wards that have active/valid events + categories + positions
-  const { data: wards = [] } = useActiveWards()
+  // Lookups: All Đà Nẵng wards + categories + positions
+  const { data: wards = [] } = useWards()
   const { data: categories = [] } = useEventCategories()
   const { data: positions = [] } = useJobPositions()
 
@@ -126,6 +126,13 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
             danang_wards (
               id,
               name
+            ),
+            event_positions (
+              id,
+              title,
+              slots_needed,
+              salary_amount,
+              salary_type
             )
           `)
           .is("deleted_at", null)
@@ -188,26 +195,99 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
     if (selectedPosition.trim()) {
       const posQuery = selectedPosition.toLowerCase().trim().replace(/-/g, " ")
       const mappedFriendly = getPositionName(selectedPosition).toLowerCase()
-      result = result.filter(
-        (job) =>
-          job.position_type?.toLowerCase().includes(posQuery) ||
-          job.title?.toLowerCase().includes(posQuery) ||
-          (mappedFriendly &&
-            (job.position_type?.toLowerCase().includes(mappedFriendly) ||
-              job.title?.toLowerCase().includes(mappedFriendly)))
-      )
+      result = result.filter((job) => {
+        const hasPositionsTable =
+          Array.isArray(job.event_positions) && job.event_positions.length > 0
+        const activePositions = hasPositionsTable
+          ? (job.event_positions || [])
+              .filter((p: any) => Number(p.slots_needed) > 0)
+              .map((p: any) => p.title)
+              .join(" ")
+          : (Number(job.slots_needed || 0) > 0 ? (job.position_type || "") : "")
+
+        const posText = [
+          activePositions,
+          job.title,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase()
+
+        return (
+          posText.includes(posQuery) ||
+          (mappedFriendly && posText.includes(mappedFriendly))
+        )
+      })
     }
 
-    // Search filter (keyword in title, category, position_type, organizer name)
+    // Search filter (keyword in title, category, position_type, organizer name, event_positions)
     if (searchTerm.trim()) {
-      const query = searchTerm.toLowerCase().trim()
-      result = result.filter(
-        (job) =>
-          job.title?.toLowerCase().includes(query) ||
-          job.category?.toLowerCase().includes(query) ||
-          job.position_type?.toLowerCase().includes(query) ||
-          job.profiles?.full_name?.toLowerCase().includes(query)
-      )
+      const rawQuery = searchTerm.toLowerCase().trim()
+
+      // Split compound terms (e.g., "Lễ tân & Check-in", "PG & PB", "Hậu cần / Sân khấu")
+      const subQueries =
+        rawQuery.includes("&") || rawQuery.includes("/") || rawQuery.includes(",")
+          ? rawQuery
+              .split(/[&/,]/)
+              .map((s) => s.trim())
+              .filter((s) => s.length > 0)
+          : [rawQuery]
+
+      result = result.filter((job) => {
+        const hasPositionsTable =
+          Array.isArray(job.event_positions) && job.event_positions.length > 0
+        const activePositions = hasPositionsTable
+          ? (job.event_positions || [])
+              .filter((p: any) => Number(p.slots_needed) > 0)
+              .map((p: any) => p.title)
+              .join(" ")
+          : (Number(job.slots_needed || 0) > 0 ? (job.position_type || "") : "")
+
+        const targetText = [
+          job.title,
+          job.category,
+          activePositions,
+          job.profiles?.full_name,
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase()
+
+        // 1. Direct match: entire query is in targetText
+        if (targetText.includes(rawQuery)) return true
+
+        // 2. Compound query match: ANY sub-term matches targetText
+        if (subQueries.length > 1) {
+          const hasSubMatch = subQueries.some((sub) => {
+            if (sub.length <= 1 || sub === "sự kiện") return false
+            return targetText.includes(sub)
+          })
+          if (hasSubMatch) return true
+        }
+
+        // 3. Multi-word match: all individual words appear in targetText
+        const words = rawQuery.split(/\s+/).filter((w) => w.length > 1 && w !== "sự" && w !== "kiện")
+        if (words.length > 0 && words.every((w) => targetText.includes(w))) {
+          return true
+        }
+
+        // 4. Special match for "Khác" query: match "khác" in targetText or any unlisted position
+        if (rawQuery === "khác" || rawQuery === "vị trí khác") {
+          if (targetText.includes("khác")) return true
+          const standardKeywords = [
+            "pg", "pb", "lễ tân", "check-in", "check in", "hậu cần", "sân khấu",
+            "điều phối", "mc", "hoạt náo", "quay phim", "chụp ảnh", "phục vụ",
+            "tiệc", "banquet", "pha chế", "mascot", "biểu diễn", "tình nguyện",
+            "âm thanh", "ánh sáng", "an ninh", "bảo vệ", "thu ngân", "bán vé",
+            "mẫu ảnh", "lookbook", "biên đạo", "vũ đoàn", "hướng dẫn viên"
+          ]
+          const posLower = activePositions.toLowerCase()
+          const isStandard = standardKeywords.some((s) => posLower.includes(s))
+          if (!isStandard && posLower.trim().length > 0) return true
+        }
+
+        return false
+      })
     }
 
     // Location dropdown filter
@@ -230,14 +310,25 @@ export default function EventSearchList({ initialPosition }: EventSearchListProp
       )
     }
 
-    // Sidebar Positions filter (job_positions)
+    // Sidebar Positions filter (job_positions & event_positions)
     if (sidebarFilters.positions.length > 0) {
-      result = result.filter((job) =>
-        job.position_type && sidebarFilters.positions.some((p) =>
-          job.position_type?.toLowerCase().includes(p.toLowerCase()) ||
-          p.toLowerCase().includes(job.position_type?.toLowerCase() || "")
-        )
-      )
+      result = result.filter((job) => {
+        const hasPositionsTable =
+          Array.isArray(job.event_positions) && job.event_positions.length > 0
+        const activePositions = hasPositionsTable
+          ? (job.event_positions || [])
+              .filter((p: any) => Number(p.slots_needed) > 0)
+              .map((p: any) => p.title)
+              .join(" ")
+          : (Number(job.slots_needed || 0) > 0 ? (job.position_type || "") : "")
+
+        const posText = activePositions.toLowerCase()
+
+        return sidebarFilters.positions.some((p) => {
+          const pLower = p.toLowerCase()
+          return posText.includes(pLower) || pLower.includes(posText)
+        })
+      })
     }
 
     // Sidebar Salary Types filter (per_shift, per_hour, per_event, volunteer)

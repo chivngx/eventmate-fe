@@ -52,6 +52,13 @@ export interface JobItem {
   applicants_count?: number | null
   applications_count?: number | null
   imageUrl?: string | null
+  event_positions?: Array<{
+    id?: string
+    title?: string
+    slots_needed?: number
+    salary_amount?: number
+    salary_type?: string
+  }> | null
 }
 
 export interface EventCardProps {
