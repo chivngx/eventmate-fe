@@ -542,20 +542,20 @@ export default function AdminDashboard() {
   const menuItems = [
     {
       id: "overview",
-      name: "Tổng quan điều hành",
+      name: "Tổng quan",
       icon: LayoutDashboard,
       badge: stats.pendingKycCount > 0 ? `${stats.pendingKycCount} KYC` : undefined,
       badgeColor: "bg-emerald-500",
     },
     {
       id: "organizers",
-      name: "Nhà tuyển nhân sự",
+      name: "Nhà tuyển dụng",
       icon: Building2,
       count: stats.totalOrganizers,
     },
     {
       id: "students",
-      name: "Ứng viên & eKYC",
+      name: "Ứng viên & KYC",
       icon: Users,
       badge: stats.pendingKycCount > 0 ? stats.pendingKycCount : undefined,
       badgeColor: "bg-emerald-500",
@@ -563,18 +563,18 @@ export default function AdminDashboard() {
     },
     {
       id: "events",
-      name: "Chiến dịch tuyển dụng",
+      name: "Tin tuyển dụng",
       icon: FileText,
       count: stats.totalEvents,
     },
     {
       id: "transactions",
-      name: "Doanh thu & VIP Pass",
+      name: "Doanh thu",
       icon: CreditCard,
     },
     {
       id: "feedbacks",
-      name: "Góp ý & Báo lỗi",
+      name: "Góp ý",
       icon: MessageSquare,
       badge: stats.pendingFeedbacks > 0 ? stats.pendingFeedbacks : undefined,
       badgeColor: "bg-amber-500",
@@ -711,10 +711,7 @@ export default function AdminDashboard() {
                     AD
                   </AvatarFallback>
                 </Avatar>
-                <span className="absolute -bottom-0.5 -right-0.5 flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border-2 border-[#0B1215]"></span>
-                </span>
+                <span className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-500 border-2 border-[#0B1215]" />
               </div>
               <div className="min-w-0 flex-1">
                 <h4 className="truncate text-xs font-semibold text-white">
@@ -839,17 +836,11 @@ export default function AdminDashboard() {
                   <h1 className="truncate text-base sm:text-lg font-bold text-slate-900 font-heading">
                     {activeMenuItem?.name || "Bảng quản trị"}
                   </h1>
-                  <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700 border border-emerald-200/60">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                    Live Đà Nẵng
+                  <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-0.5 text-[11px] font-medium text-emerald-700 border border-emerald-200/60">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    Hệ thống trực tuyến
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 truncate hidden sm:block">
-                  Hệ thống giám sát, phân quyền &amp; duyệt tự động nhân sự sự kiện sinh viên.
-                </p>
               </div>
             </div>
 
@@ -859,11 +850,11 @@ export default function AdminDashboard() {
                 onClick={fetchAdminData}
                 disabled={isRefreshing}
                 title="Đồng bộ dữ liệu mới nhất"
-                className="inline-flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50/60 px-3 py-2 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 hover:border-emerald-300 transition-all cursor-pointer shadow-2xs"
+                className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-colors cursor-pointer shadow-2xs"
               >
                 <RefreshCw
                   className={`h-3.5 w-3.5 ${
-                    isRefreshing ? "animate-spin text-emerald-600" : ""
+                    isRefreshing ? "animate-spin text-emerald-600" : "text-slate-500"
                   }`}
                 />
                 <span className="hidden md:inline">
@@ -877,10 +868,13 @@ export default function AdminDashboard() {
                     setActiveTab("students")
                     setStudentKycFilter("pending")
                   }}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-3 py-2 text-xs font-bold text-white shadow-md shadow-emerald-600/20 hover:from-emerald-500 hover:to-teal-500 transition-all cursor-pointer animate-pulse"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-3 py-2 text-xs font-semibold text-white transition-colors cursor-pointer shadow-xs"
                 >
                   <ShieldCheck className="h-3.5 w-3.5" />
-                  <span>Duyệt eKYC ({stats.pendingKycCount})</span>
+                  <span>Duyệt eKYC</span>
+                  <span className="ml-0.5 rounded-full bg-emerald-700 px-1.5 py-0.5 text-[10px] font-bold">
+                    {stats.pendingKycCount}
+                  </span>
                 </button>
               )}
             </div>
@@ -890,7 +884,7 @@ export default function AdminDashboard() {
           <main className="mx-auto w-full max-w-7xl flex-1 p-4 sm:p-6 lg:p-8">
             {loading ? (
               <div className="py-24 text-center">
-                <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-emerald-100 text-emerald-600 mb-4 animate-bounce">
+                <div className="inline-flex items-center justify-center p-3 rounded-2xl bg-slate-100 text-emerald-600 mb-4">
                   <EventMateLogoIcon size={32} variant="mint" />
                 </div>
                 <h3 className="text-sm font-semibold text-slate-800">
@@ -908,293 +902,371 @@ export default function AdminDashboard() {
                 {/* ========================================================= */}
                 {activeTab === "overview" && (
                   <div className="space-y-6">
-                    {/* Action Banner: Pending KYC Callout */}
-                    {stats.pendingKycCount > 0 && (
-                      <div className="relative overflow-hidden rounded-2xl border border-emerald-300 bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-100/40 p-4 sm:p-5 shadow-sm">
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                          <div className="flex items-center gap-3.5">
-                            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-600 text-white shadow-md shadow-emerald-600/30">
-                              <ShieldCheck className="h-6 w-6" />
-                            </div>
-                            <div>
-                              <h3 className="text-sm sm:text-base font-bold text-emerald-950">
-                                Cần xử lý: Có {stats.pendingKycCount} hồ sơ eKYC sinh viên đang chờ duyệt
-                              </h3>
-                              <p className="text-xs text-emerald-800/80 mt-0.5">
-                                Sinh viên đã quét CCCD và chụp ảnh selfie đối soát khuôn mặt. Hãy kiểm tra và cấp tích xanh ngay.
-                              </p>
-                            </div>
-                          </div>
-                          <Button
-                            onClick={() => {
-                              setActiveTab("students")
-                              setStudentKycFilter("pending")
-                            }}
-                            className="rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs px-4 h-9 shrink-0 cursor-pointer shadow-xs"
-                          >
-                            Mở danh sách duyệt eKYC →
-                          </Button>
+                    {/* Attention Notice: Only shown when action is required */}
+                    {(stats.pendingKycCount > 0 || stats.pendingFeedbacks > 0) && (
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50/60 px-4 py-3 text-slate-800">
+                        <div className="flex items-center gap-2.5">
+                          <AlertCircle className="h-4 w-4 text-amber-700 shrink-0" />
+                          <span className="text-xs font-semibold text-slate-900">Cần xử lý:</span>
+                          <span className="text-xs text-slate-600">
+                            {[
+                              stats.pendingKycCount > 0 && `${stats.pendingKycCount} eKYC`,
+                              stats.pendingFeedbacks > 0 && `${stats.pendingFeedbacks} góp ý`,
+                            ]
+                              .filter(Boolean)
+                              .join(" • ")}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          {stats.pendingKycCount > 0 && (
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                setActiveTab("students")
+                                setStudentKycFilter("pending")
+                              }}
+                              className="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs px-3 h-7 cursor-pointer shadow-xs"
+                            >
+                              Duyệt eKYC ({stats.pendingKycCount})
+                            </Button>
+                          )}
+                          {stats.pendingFeedbacks > 0 && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setActiveTab("feedbacks")
+                                setFeedbackStatusFilter("pending")
+                              }}
+                              className="rounded-lg border-amber-300 bg-white hover:bg-amber-100/50 text-amber-900 font-medium text-xs px-3 h-7 cursor-pointer shadow-xs"
+                            >
+                              Xem góp ý ({stats.pendingFeedbacks})
+                            </Button>
+                          )}
                         </div>
                       </div>
                     )}
 
-                    {/* HERO KPI CARDS — Mint Themed */}
+                    {/* Primary KPI Metrics */}
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                      <HeroKpiCard
-                        title="Tổng Sinh Viên"
-                        value={stats.totalStudents.toLocaleString("vi-VN")}
-                        subtext={`${stats.totalStudents - stats.pendingKycCount} đã kích hoạt`}
-                        icon={<Users className="h-5 w-5 text-emerald-700" />}
-                        badge="Ứng viên"
-                        accentColor="emerald"
-                      />
-                      <HeroKpiCard
-                        title="Nhà Tuyển Nhân Sự"
-                        value={stats.totalOrganizers.toLocaleString("vi-VN")}
-                        subtext={`${stats.totalPremium} gói VIP Active`}
-                        icon={<Building2 className="h-5 w-5 text-teal-700" />}
-                        badge="Doanh nghiệp/BTC"
-                        accentColor="teal"
-                      />
-                      <HeroKpiCard
-                        title="Chiến Dịch Tuyển Dụng"
-                        value={stats.totalEvents.toLocaleString("vi-VN")}
-                        subtext={`${stats.totalApplications} lượt ứng tuyển`}
-                        icon={<FileText className="h-5 w-5 text-cyan-700" />}
-                        badge="Tin tuyển"
-                        accentColor="cyan"
-                      />
-                      <HeroKpiCard
-                        title="Tổng Doanh Thu VIP"
-                        value={`${(stats.totalRevenue / 1000000).toFixed(1)}Tr đ`}
-                        subtext={`${stats.totalRevenue.toLocaleString("vi-VN")} VNĐ`}
-                        icon={<CreditCard className="h-5 w-5 text-emerald-700" />}
-                        badge="Thanh toán VietQR"
-                        accentColor="emerald"
-                      />
-                    </div>
-
-                    {/* SECONDARY ROW: Quick System Matrix */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs flex items-center justify-between">
-                        <div>
-                          <p className="text-xs font-medium text-slate-500">
-                            Điểm hài lòng trung bình
-                          </p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xl font-extrabold text-slate-900 font-heading">
-                              {stats.avgRating} / 5.0
+                      <div className="rounded-xl border border-slate-200/90 bg-white p-5 shadow-xs transition-colors hover:border-slate-300">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <span className="text-xs font-medium text-slate-500">
+                              Sinh viên
                             </span>
-                            <div className="flex text-amber-400 text-xs">
-                              {"★★★★★".slice(0, Math.round(stats.avgRating))}
+                            <div className="mt-2 text-2xl font-bold tracking-tight text-slate-900 font-heading">
+                              {stats.totalStudents.toLocaleString("vi-VN")}
                             </div>
+                            <p className="mt-1 text-xs text-slate-500">
+                              {stats.totalStudents - stats.pendingKycCount} đã kích hoạt
+                            </p>
                           </div>
-                        </div>
-                        <div className="h-10 w-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-200/60">
-                          <Star className="h-5 w-5 fill-amber-400" />
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
+                            <Users className="h-5 w-5" />
+                          </div>
                         </div>
                       </div>
 
-                      <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs flex items-center justify-between">
-                        <div>
-                          <p className="text-xs font-medium text-slate-500">
-                            Ý kiến phản hồi tồn đọng
-                          </p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xl font-extrabold text-slate-900 font-heading">
-                              {stats.pendingFeedbacks}
+                      <div className="rounded-xl border border-slate-200/90 bg-white p-5 shadow-xs transition-colors hover:border-slate-300">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <span className="text-xs font-medium text-slate-500">
+                              Nhà tuyển dụng
                             </span>
-                            <span className="text-[11px] text-slate-400">
-                              / {stats.totalFeedbacks} tổng lượt
-                            </span>
+                            <div className="mt-2 text-2xl font-bold tracking-tight text-slate-900 font-heading">
+                              {stats.totalOrganizers.toLocaleString("vi-VN")}
+                            </div>
+                            <p className="mt-1 text-xs text-slate-500">
+                              {stats.totalPremium} gói VIP
+                            </p>
                           </div>
-                        </div>
-                        <div className="h-10 w-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-200/60">
-                          <MessageSquare className="h-5 w-5" />
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
+                            <Building2 className="h-5 w-5" />
+                          </div>
                         </div>
                       </div>
 
-                      <div className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs flex items-center justify-between">
-                        <div>
-                          <p className="text-xs font-medium text-slate-500">
-                            Tỷ lệ eKYC hoàn tất
-                          </p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className="text-xl font-extrabold text-emerald-600 font-heading">
-                              {stats.totalStudents > 0
-                                ? Math.round(
-                                    ((stats.totalStudents - stats.pendingKycCount) /
-                                      stats.totalStudents) *
-                                      100
-                                  )
-                                : 100}
-                              %
+                      <div className="rounded-xl border border-slate-200/90 bg-white p-5 shadow-xs transition-colors hover:border-slate-300">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <span className="text-xs font-medium text-slate-500">
+                              Tin tuyển dụng
                             </span>
-                            <span className="text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-medium">
-                              Chính danh
-                            </span>
+                            <div className="mt-2 text-2xl font-bold tracking-tight text-slate-900 font-heading">
+                              {stats.totalEvents.toLocaleString("vi-VN")}
+                            </div>
+                            <p className="mt-1 text-xs text-slate-500">
+                              {stats.totalApplications.toLocaleString("vi-VN")} hồ sơ ứng tuyển
+                            </p>
+                          </div>
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
+                            <FileText className="h-5 w-5" />
                           </div>
                         </div>
-                        <div className="h-10 w-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200/60">
-                          <ShieldCheck className="h-5 w-5" />
+                      </div>
+
+                      <div className="rounded-xl border border-slate-200/90 bg-white p-5 shadow-xs transition-colors hover:border-slate-300">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <span className="text-xs font-medium text-slate-500">
+                              Doanh thu
+                            </span>
+                            <div className="mt-2 text-2xl font-bold tracking-tight text-slate-900 font-heading">
+                              {stats.totalRevenue.toLocaleString("vi-VN")} ₫
+                            </div>
+                            <p className="mt-1 text-xs text-slate-500">
+                              VietQR tự động
+                            </p>
+                          </div>
+                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
+                            <CreditCard className="h-5 w-5" />
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* RECENT EVENTS TABLE WITH MINT HIGHLIGHTS */}
-                    <div className="rounded-2xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between border-b border-slate-100 p-4 sm:p-5 gap-2 bg-gradient-to-r from-white to-emerald-50/20">
-                        <div>
-                          <h3 className="text-sm sm:text-base font-bold text-slate-900 font-heading flex items-center gap-2">
-                            <Sparkles className="h-4 w-4 text-emerald-500" />
-                            Chiến dịch tuyển dụng mới nhất
-                          </h3>
-                          <p className="text-xs text-slate-500">
-                            5 sự kiện gần đây vừa được các Ban tổ chức khởi tạo
-                          </p>
+                    {/* Operational Health Metrics */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                      <div className="rounded-xl border border-slate-200/80 bg-white p-3.5">
+                        <p className="text-[11px] font-medium text-slate-500">Tỷ lệ eKYC</p>
+                        <div className="mt-1 flex items-baseline justify-between">
+                          <span className="text-lg font-bold text-slate-900">
+                            {stats.totalStudents > 0
+                              ? Math.round(
+                                  ((stats.totalStudents - stats.pendingKycCount) /
+                                    stats.totalStudents) *
+                                    100
+                                )
+                              : 100}
+                            %
+                          </span>
+                          <span className="text-[11px] text-emerald-600 font-medium">Chính danh</span>
                         </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setActiveTab("events")}
-                          className="text-xs font-semibold text-emerald-700 hover:bg-emerald-50 cursor-pointer"
-                        >
-                          Xem tất cả bài đăng ({stats.totalEvents}) →
-                        </Button>
                       </div>
 
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-left text-xs">
-                          <thead>
-                            <tr className="border-b border-slate-100 bg-slate-50/70 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                              <th className="px-5 py-3.5">Chiến dịch sự kiện</th>
-                              <th className="px-5 py-3.5">Đơn vị tổ chức</th>
-                              <th className="px-5 py-3.5">Vị trí nhân sự</th>
-                              <th className="px-5 py-3.5">Ngày diễn ra</th>
-                              <th className="px-5 py-3.5 text-right">Trạng thái</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-100">
-                            {events.slice(0, 5).map((ev) => (
-                              <tr
-                                key={ev.id}
-                                className="hover:bg-emerald-50/30 transition-colors"
-                              >
-                                <td className="px-5 py-3.5 font-semibold text-slate-900 max-w-xs truncate">
-                                  {ev.title}
-                                </td>
-                                <td className="px-5 py-3.5 text-slate-600">
-                                  <div className="flex items-center gap-2">
-                                    <Avatar className="h-6 w-6 rounded-md border border-slate-200">
-                                      <AvatarImage src={ev.profiles?.avatar_url} />
-                                      <AvatarFallback className="text-[10px] bg-slate-100">
-                                        {ev.profiles?.full_name?.charAt(0) || "B"}
-                                      </AvatarFallback>
-                                    </Avatar>
-                                    <span className="truncate max-w-[140px]">
-                                      {ev.profiles?.full_name || "Ban tổ chức"}
+                      <div className="rounded-xl border border-slate-200/80 bg-white p-3.5">
+                        <p className="text-[11px] font-medium text-slate-500">Đánh giá người dùng</p>
+                        <div className="mt-1 flex items-baseline justify-between">
+                          <span className="text-lg font-bold text-slate-900">
+                            {stats.avgRating.toFixed(1)} <span className="text-xs font-normal text-slate-400">/ 5.0</span>
+                          </span>
+                          <span className="text-[11px] text-amber-600 font-medium">Khảo sát</span>
+                        </div>
+                      </div>
+
+                      <div className="rounded-xl border border-slate-200/80 bg-white p-3.5">
+                        <p className="text-[11px] font-medium text-slate-500">Hồ sơ ứng tuyển</p>
+                        <div className="mt-1 flex items-baseline justify-between">
+                          <span className="text-lg font-bold text-slate-900">
+                            {stats.totalApplications.toLocaleString("vi-VN")}
+                          </span>
+                          <span className="text-[11px] text-slate-500 font-medium">Toàn hệ thống</span>
+                        </div>
+                      </div>
+
+                      <div className="rounded-xl border border-slate-200/80 bg-white p-3.5">
+                        <p className="text-[11px] font-medium text-slate-500">Phản hồi tồn đọng</p>
+                        <div className="mt-1 flex items-baseline justify-between">
+                          <span className="text-lg font-bold text-slate-900">
+                            {stats.pendingFeedbacks} <span className="text-xs font-normal text-slate-400">/ {stats.totalFeedbacks}</span>
+                          </span>
+                          <span className={`text-[11px] font-medium ${stats.pendingFeedbacks > 0 ? "text-amber-600" : "text-slate-400"}`}>
+                            {stats.pendingFeedbacks > 0 ? "Cần xử lý" : "Ổn định"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Operational Workspace: Events Table (Left 8) + Actions & Feedbacks (Right 4) */}
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                      {/* Left: Recent Events Table */}
+                      <div className="lg:col-span-8 rounded-xl border border-slate-200/90 bg-white shadow-xs overflow-hidden">
+                        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3.5">
+                          <h3 className="text-sm font-semibold text-slate-900">
+                            Tin tuyển dụng gần đây
+                          </h3>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setActiveTab("events")}
+                            className="text-xs font-medium text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 h-8 cursor-pointer"
+                          >
+                            Xem tất cả ({stats.totalEvents}) →
+                          </Button>
+                        </div>
+
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left text-xs">
+                            <thead>
+                              <tr className="border-b border-slate-100 bg-slate-50/60 text-[11px] font-semibold text-slate-500">
+                                <th className="px-5 py-3">Chiến dịch</th>
+                                <th className="px-5 py-3">Đơn vị</th>
+                                <th className="px-5 py-3">Vị trí</th>
+                                <th className="px-5 py-3">Thời gian</th>
+                                <th className="px-5 py-3 text-right">Trạng thái</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                              {events.slice(0, 5).map((ev) => (
+                                <tr key={ev.id} className="hover:bg-slate-50/60 transition-colors">
+                                  <td className="px-5 py-3 font-medium text-slate-900 max-w-[200px] truncate">
+                                    {ev.title}
+                                  </td>
+                                  <td className="px-5 py-3 text-slate-600">
+                                    <div className="flex items-center gap-2">
+                                      <Avatar className="h-5 w-5 rounded-md border border-slate-200">
+                                        <AvatarImage src={ev.profiles?.avatar_url} />
+                                        <AvatarFallback className="text-[9px] bg-slate-100">
+                                          {ev.profiles?.full_name?.charAt(0) || "B"}
+                                        </AvatarFallback>
+                                      </Avatar>
+                                      <span className="truncate max-w-[120px]">
+                                        {ev.profiles?.full_name || "Ban tổ chức"}
+                                      </span>
+                                    </div>
+                                  </td>
+                                  <td className="px-5 py-3 text-slate-600">
+                                    <span className="truncate max-w-[100px] block">
+                                      {ev.position_type || "Cộng tác viên"}
                                     </span>
-                                  </div>
-                                </td>
-                                <td className="px-5 py-3.5">
-                                  <span className="rounded-md bg-slate-100 px-2 py-1 text-[11px] font-medium text-slate-700">
-                                    {ev.position_type || "Cộng tác viên"}
+                                  </td>
+                                  <td className="px-5 py-3 text-slate-500 font-mono text-[11px]">
+                                    {ev.event_date
+                                      ? new Date(ev.event_date).toLocaleDateString("vi-VN")
+                                      : "---"}
+                                  </td>
+                                  <td className="px-5 py-3 text-right">
+                                    <span
+                                      className={`inline-block rounded-md px-2 py-0.5 text-[10px] font-medium border ${
+                                        ev.status === "upcoming"
+                                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                          : "bg-slate-50 text-slate-600 border-slate-200"
+                                      }`}
+                                    >
+                                      {ev.status === "upcoming" ? "Đang mở tuyển" : "Hoàn tất"}
+                                    </span>
+                                  </td>
+                                </tr>
+                              ))}
+                              {events.length === 0 && (
+                                <tr>
+                                  <td colSpan={5} className="px-5 py-8 text-center text-slate-400">
+                                    Chưa có chiến dịch nào được đăng tải.
+                                  </td>
+                                </tr>
+                              )}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+
+                      {/* Right: Quick shortcuts & Recent Feedbacks */}
+                      <div className="lg:col-span-4 space-y-6">
+                        {/* Quick Shortcuts */}
+                        <div className="rounded-xl border border-slate-200/90 bg-white p-4 shadow-xs">
+                          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">
+                            Thao tác quản trị
+                          </h3>
+                          <div className="grid grid-cols-2 gap-2">
+                            <button
+                              onClick={() => {
+                                setActiveTab("students")
+                                setStudentKycFilter("pending")
+                              }}
+                              className="flex flex-col items-start gap-1 p-3 rounded-lg border border-slate-200/80 bg-slate-50/50 hover:bg-emerald-50/50 hover:border-emerald-200 transition-colors text-left cursor-pointer"
+                            >
+                              <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                              <span className="text-xs font-medium text-slate-800">Duyệt eKYC</span>
+                              <span className="text-[10px] text-slate-400">
+                                {stats.pendingKycCount} hồ sơ chờ
+                              </span>
+                            </button>
+
+                            <button
+                              onClick={() => setActiveTab("organizers")}
+                              className="flex flex-col items-start gap-1 p-3 rounded-lg border border-slate-200/80 bg-slate-50/50 hover:bg-slate-100 hover:border-slate-300 transition-colors text-left cursor-pointer"
+                            >
+                              <Building2 className="h-4 w-4 text-slate-700" />
+                              <span className="text-xs font-medium text-slate-800">Đối tác</span>
+                              <span className="text-[10px] text-slate-400">
+                                {stats.totalOrganizers} doanh nghiệp
+                              </span>
+                            </button>
+
+                            <button
+                              onClick={() => setActiveTab("transactions")}
+                              className="flex flex-col items-start gap-1 p-3 rounded-lg border border-slate-200/80 bg-slate-50/50 hover:bg-slate-100 hover:border-slate-300 transition-colors text-left cursor-pointer"
+                            >
+                              <CreditCard className="h-4 w-4 text-slate-700" />
+                              <span className="text-xs font-medium text-slate-800">Giao dịch VIP</span>
+                              <span className="text-[10px] text-slate-400">VietQR tự động</span>
+                            </button>
+
+                            <button
+                              onClick={() => setActiveTab("feedbacks")}
+                              className="flex flex-col items-start gap-1 p-3 rounded-lg border border-slate-200/80 bg-slate-50/50 hover:bg-amber-50/50 hover:border-amber-200 transition-colors text-left cursor-pointer"
+                            >
+                              <MessageSquare className="h-4 w-4 text-amber-600" />
+                              <span className="text-xs font-medium text-slate-800">Góp ý & Báo lỗi</span>
+                              <span className="text-[10px] text-slate-400">
+                                {stats.pendingFeedbacks} chưa xem
+                              </span>
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Recent Feedbacks */}
+                        <div className="rounded-xl border border-slate-200/90 bg-white p-4 shadow-xs">
+                          <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                            <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                              Góp ý mới nhất
+                            </h3>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setActiveTab("feedbacks")}
+                              className="text-[11px] font-medium text-emerald-700 hover:text-emerald-800 hover:bg-emerald-50 h-7 px-2 cursor-pointer"
+                            >
+                              Hộp thư →
+                            </Button>
+                          </div>
+
+                          <div className="divide-y divide-slate-100">
+                            {feedbacks.slice(0, 3).map((fb) => (
+                              <div key={fb.id} className="py-2.5 space-y-1">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="text-xs font-medium text-slate-900 truncate">
+                                    {fb.full_name || fb.profiles?.full_name || "Thành viên"}
                                   </span>
-                                </td>
-                                <td className="px-5 py-3.5 text-slate-500 font-mono">
-                                  {ev.event_date
-                                    ? new Date(ev.event_date).toLocaleDateString("vi-VN")
-                                    : "---"}
-                                </td>
-                                <td className="px-5 py-3.5 text-right">
-                                  <Badge
-                                    className={`text-[10px] ${
-                                      ev.status === "upcoming"
-                                        ? "bg-emerald-100 text-emerald-800 border-emerald-200"
-                                        : "bg-slate-100 text-slate-600"
+                                  <span
+                                    className={`text-[10px] px-1.5 py-0.2 rounded border font-medium ${
+                                      fb.status === "resolved"
+                                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                        : fb.status === "reviewed"
+                                        ? "bg-blue-50 text-blue-700 border-blue-200"
+                                        : "bg-amber-50 text-amber-700 border-amber-200"
                                     }`}
                                   >
-                                    {ev.status === "upcoming"
-                                      ? "Đang mở tuyển"
-                                      : "Hoàn tất"}
-                                  </Badge>
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    {/* RECENT FEEDBACKS PREVIEW */}
-                    <div className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs">
-                      <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-                        <div>
-                          <h3 className="text-sm sm:text-base font-bold text-slate-900 font-heading flex items-center gap-2">
-                            <MessageSquare className="h-4 w-4 text-emerald-600" />
-                            Góp ý người dùng mới nhất
-                          </h3>
-                          <p className="text-xs text-slate-500">
-                            Phản hồi, báo lỗi sự cố từ ứng viên và ban tổ chức
-                          </p>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setActiveTab("feedbacks")}
-                          className="text-xs font-semibold text-emerald-700 hover:bg-emerald-50 cursor-pointer"
-                        >
-                          Mở hộp thư ({stats.totalFeedbacks}) →
-                        </Button>
-                      </div>
-
-                      <div className="divide-y divide-slate-100 mt-2">
-                        {feedbacks.slice(0, 3).map((fb) => (
-                          <div
-                            key={fb.id}
-                            className="py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 hover:bg-slate-50/50 rounded-xl px-2 transition-colors"
-                          >
-                            <div className="space-y-1">
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs font-bold text-slate-900">
-                                  {fb.full_name || fb.profiles?.full_name || "Thành viên ẩn danh"}
-                                </span>
-                                <Badge className="text-[10px] bg-emerald-50 text-emerald-800 border-emerald-200/60">
-                                  {fb.category === "bug"
-                                    ? "🐛 Báo lỗi"
-                                    : fb.category === "feature"
-                                    ? "💡 Tính năng"
-                                    : fb.category === "ux"
-                                    ? "🎨 Giao diện"
-                                    : "💬 Góp ý"}
-                                </Badge>
-                                {typeof fb.rating === "number" && fb.rating > 0 && (
-                                  <span className="text-xs font-semibold text-amber-500">
-                                    ★ {fb.rating}
+                                    {fb.status === "resolved"
+                                      ? "Đã xử lý"
+                                      : fb.status === "reviewed"
+                                      ? "Đã xem"
+                                      : "Chờ xử lý"}
                                   </span>
-                                )}
+                                </div>
+                                <p className="text-xs text-slate-500 line-clamp-1">
+                                  {fb.content}
+                                </p>
                               </div>
-                              <p className="text-xs text-slate-600 line-clamp-1">
-                                {fb.content}
+                            ))}
+                            {feedbacks.length === 0 && (
+                              <p className="py-4 text-center text-xs text-slate-400">
+                                Chưa có phản hồi nào.
                               </p>
-                            </div>
-                            <span
-                              className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold shrink-0 ${
-                                fb.status === "resolved"
-                                  ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                                  : fb.status === "reviewed"
-                                  ? "bg-blue-100 text-blue-800 border border-blue-200"
-                                  : "bg-amber-100 text-amber-800 border border-amber-200"
-                              }`}
-                            >
-                              {fb.status === "resolved"
-                                ? "Đã giải quyết"
-                                : fb.status === "reviewed"
-                                ? "Đã xem"
-                                : "Chờ xử lý"}
-                            </span>
+                            )}
                           </div>
-                        ))}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1206,17 +1278,12 @@ export default function AdminDashboard() {
                 {activeTab === "organizers" && (
                   <div className="rounded-2xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
                     {/* Header & Filters */}
-                    <div className="border-b border-slate-100 p-4 sm:p-6 bg-gradient-to-r from-white via-emerald-50/10 to-teal-50/10">
+                    <div className="border-b border-slate-100 p-4 sm:p-5">
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div>
-                          <h3 className="text-base sm:text-lg font-bold text-slate-900 font-heading flex items-center gap-2">
-                            <Building2 className="h-5 w-5 text-emerald-600" />
-                            Quản lý Nhà Tuyển Dụng &amp; Ban Tổ Chức
-                          </h3>
-                          <p className="text-xs text-slate-500 mt-0.5">
-                            Tổng cộng {organizers.length} đối tác doanh nghiệp và câu lạc bộ
-                          </p>
-                        </div>
+                        <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+                          <Building2 className="h-4 w-4 text-emerald-600" />
+                          Nhà tuyển dụng ({organizers.length})
+                        </h3>
 
                         {/* Search and Filter bar */}
                         <div className="flex flex-wrap items-center gap-2.5">
@@ -1267,12 +1334,12 @@ export default function AdminDashboard() {
                     <div className="overflow-x-auto">
                       <table className="w-full text-left text-xs">
                         <thead>
-                          <tr className="border-b border-slate-100 bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                            <th className="px-5 py-3.5">Đơn vị / Ban Tổ Chức</th>
-                            <th className="px-5 py-3.5">Đại diện &amp; Liên hệ</th>
-                            <th className="px-5 py-3.5">Trạng thái Gói</th>
-                            <th className="px-5 py-3.5">Xác thực KYC</th>
-                            <th className="px-5 py-3.5 text-right">Hành động</th>
+                          <tr className="border-b border-slate-100 bg-slate-50/60 text-[11px] font-semibold text-slate-500">
+                            <th className="px-5 py-3">Đơn vị</th>
+                            <th className="px-5 py-3">Đại diện</th>
+                            <th className="px-5 py-3">Gói VIP</th>
+                            <th className="px-5 py-3">Xác thực</th>
+                            <th className="px-5 py-3 text-right">Thao tác</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -1381,17 +1448,12 @@ export default function AdminDashboard() {
                 {activeTab === "students" && (
                   <div className="rounded-2xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
                     {/* Header & Filter */}
-                    <div className="border-b border-slate-100 p-4 sm:p-6 bg-gradient-to-r from-white via-emerald-50/15 to-teal-50/15">
+                    <div className="border-b border-slate-100 p-4 sm:p-5">
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div>
-                          <h3 className="text-base sm:text-lg font-bold text-slate-900 font-heading flex items-center gap-2">
-                            <Users className="h-5 w-5 text-emerald-600" />
-                            Quản lý Ứng Viên Sinh Viên &amp; eKYC Trực Tuyến
-                          </h3>
-                          <p className="text-xs text-slate-500 mt-0.5">
-                            Kiểm duyệt chứng minh nhân dân/CCCD và cấp tích xanh chính danh cho sinh viên
-                          </p>
-                        </div>
+                        <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+                          <Users className="h-4 w-4 text-emerald-600" />
+                          Ứng viên ({students.length})
+                        </h3>
 
                         {/* Search and Filters */}
                         <div className="flex flex-wrap items-center gap-2.5">
@@ -1419,7 +1481,7 @@ export default function AdminDashboard() {
                               { id: "all", label: "Tất cả" },
                               {
                                 id: "pending",
-                                label: "Chờ duyệt eKYC",
+                                label: "Chờ duyệt",
                                 count: stats.pendingKycCount,
                               },
                               { id: "approved", label: "Đã xác thực" },
@@ -1452,13 +1514,13 @@ export default function AdminDashboard() {
                     <div className="overflow-x-auto">
                       <table className="w-full text-left text-xs">
                         <thead>
-                          <tr className="border-b border-slate-100 bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                            <th className="px-5 py-3.5">Ứng viên sinh viên</th>
-                            <th className="px-5 py-3.5">Trường Đại học</th>
-                            <th className="px-5 py-3.5">Email</th>
-                            <th className="px-5 py-3.5">Điểm tín nhiệm</th>
-                            <th className="px-5 py-3.5">Trạng thái eKYC</th>
-                            <th className="px-5 py-3.5 text-right">Thao tác</th>
+                          <tr className="border-b border-slate-100 bg-slate-50/60 text-[11px] font-semibold text-slate-500">
+                            <th className="px-5 py-3">Ứng viên</th>
+                            <th className="px-5 py-3">Trường</th>
+                            <th className="px-5 py-3">Email</th>
+                            <th className="px-5 py-3">Tín nhiệm</th>
+                            <th className="px-5 py-3">eKYC</th>
+                            <th className="px-5 py-3 text-right">Thao tác</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -1531,7 +1593,7 @@ export default function AdminDashboard() {
                                       <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> Tích xanh
                                     </span>
                                   ) : stud.kyc_status === "pending" ? (
-                                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 border border-amber-300 animate-pulse">
+                                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-700 border border-amber-300">
                                       <Clock className="h-3.5 w-3.5 text-amber-600" /> Chờ xét duyệt
                                     </span>
                                   ) : stud.kyc_status === "rejected" ? (
@@ -1581,17 +1643,12 @@ export default function AdminDashboard() {
                 {/* ========================================================= */}
                 {activeTab === "events" && (
                   <div className="rounded-2xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
-                    <div className="border-b border-slate-100 p-4 sm:p-6 bg-gradient-to-r from-white via-emerald-50/10 to-teal-50/10">
+                    <div className="border-b border-slate-100 p-4 sm:p-5">
                       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                        <div>
-                          <h3 className="text-base sm:text-lg font-bold text-slate-900 font-heading flex items-center gap-2">
-                            <FileText className="h-5 w-5 text-emerald-600" />
-                            Quản lý Tin Tuyển Dụng &amp; Sự Kiện
-                          </h3>
-                          <p className="text-xs text-slate-500 mt-0.5">
-                            Kiểm duyệt nội dung bài đăng tuyển nhân sự trên toàn bộ nền tảng
-                          </p>
-                        </div>
+                        <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-emerald-600" />
+                          Tin tuyển dụng ({events.length})
+                        </h3>
 
                         {/* Search and Filter */}
                         <div className="flex flex-wrap items-center gap-2.5">
@@ -1640,13 +1697,13 @@ export default function AdminDashboard() {
                     <div className="overflow-x-auto">
                       <table className="w-full text-left text-xs">
                         <thead>
-                          <tr className="border-b border-slate-100 bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                            <th className="px-5 py-3.5">Chiến dịch tuyển dụng</th>
-                            <th className="px-5 py-3.5">Đơn vị tổ chức</th>
-                            <th className="px-5 py-3.5">Vị trí nhân sự</th>
-                            <th className="px-5 py-3.5">Thời gian diễn ra</th>
-                            <th className="px-5 py-3.5">Trạng thái</th>
-                            <th className="px-5 py-3.5 text-right">Kiểm duyệt</th>
+                          <tr className="border-b border-slate-100 bg-slate-50/60 text-[11px] font-semibold text-slate-500">
+                            <th className="px-5 py-3">Chiến dịch</th>
+                            <th className="px-5 py-3">Đơn vị</th>
+                            <th className="px-5 py-3">Vị trí</th>
+                            <th className="px-5 py-3">Thời gian</th>
+                            <th className="px-5 py-3">Trạng thái</th>
+                            <th className="px-5 py-3 text-right">Thao tác</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
@@ -1722,14 +1779,11 @@ export default function AdminDashboard() {
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
                           <span className="text-xs font-bold text-emerald-400 font-mono uppercase tracking-wider">
-                            TỔNG DOANH THU HỆ THỐNG
+                            DOANH THU HỆ THỐNG
                           </span>
                           <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-white font-heading mt-1">
                             {stats.totalRevenue.toLocaleString("vi-VN")} <span className="text-emerald-400 text-xl font-normal">VNĐ</span>
                           </h2>
-                          <p className="text-xs text-slate-400 mt-1">
-                            Tích hợp thanh toán quét mã VietQR tự động qua PayOS
-                          </p>
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="rounded-xl bg-white/10 p-3 border border-white/10 text-center">
@@ -1737,7 +1791,7 @@ export default function AdminDashboard() {
                             <span className="text-lg font-bold text-emerald-300 font-mono">{stats.totalPremium}</span>
                           </div>
                           <div className="rounded-xl bg-white/10 p-3 border border-white/10 text-center">
-                            <span className="block text-[10px] text-slate-300 font-mono">SỐ GIAO DỊCH</span>
+                            <span className="block text-[10px] text-slate-300 font-mono">GIAO DỊCH</span>
                             <span className="text-lg font-bold text-emerald-300 font-mono">{transactions.length || stats.totalPremium}</span>
                           </div>
                         </div>
@@ -1747,14 +1801,9 @@ export default function AdminDashboard() {
                     {/* Transactions Table */}
                     <div className="rounded-2xl border border-slate-200/80 bg-white shadow-xs overflow-hidden">
                       <div className="border-b border-slate-100 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div>
-                          <h3 className="text-base font-bold text-slate-900 font-heading">
-                            Lịch sử Giao Dịch VIP Recruiter
-                          </h3>
-                          <p className="text-xs text-slate-500">
-                            Chi tiết các đơn hàng thanh toán kích hoạt quyền lợi tuyển dụng
-                          </p>
-                        </div>
+                        <h3 className="text-base font-semibold text-slate-900">
+                          Lịch sử giao dịch ({transactions.length})
+                        </h3>
                         <div className="relative w-full sm:w-64">
                           <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
                           <input
@@ -1770,13 +1819,13 @@ export default function AdminDashboard() {
                       <div className="overflow-x-auto">
                         <table className="w-full text-left text-xs">
                           <thead>
-                            <tr className="border-b border-slate-100 bg-slate-50/80 text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                              <th className="px-5 py-3.5">Mã giao dịch</th>
-                              <th className="px-5 py-3.5">Nhà tuyển dụng</th>
-                              <th className="px-5 py-3.5">Gói dịch vụ</th>
-                              <th className="px-5 py-3.5">Số tiền</th>
-                              <th className="px-5 py-3.5">Thời gian</th>
-                              <th className="px-5 py-3.5 text-right">Trạng thái</th>
+                            <tr className="border-b border-slate-100 bg-slate-50/60 text-[11px] font-semibold text-slate-500">
+                              <th className="px-5 py-3">Mã đơn</th>
+                              <th className="px-5 py-3">Nhà tuyển dụng</th>
+                              <th className="px-5 py-3">Gói</th>
+                              <th className="px-5 py-3">Số tiền</th>
+                              <th className="px-5 py-3">Thời gian</th>
+                              <th className="px-5 py-3 text-right">Trạng thái</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-slate-100">
@@ -1886,35 +1935,35 @@ export default function AdminDashboard() {
                     {/* Stat cards for Feedbacks */}
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                       <HeroKpiCard
-                        title="Tổng Lượt Đóng Góp"
+                        title="Tổng góp ý"
                         value={stats.totalFeedbacks.toString()}
-                        subtext="Từ người dùng & khách"
+                        subtext="Toàn hệ thống"
                         icon={<MessageSquare className="h-5 w-5 text-indigo-700" />}
                         badge="Phản hồi"
                         accentColor="teal"
                       />
                       <HeroKpiCard
-                        title="Chờ Tiếp Nhận"
+                        title="Chờ xử lý"
                         value={stats.pendingFeedbacks.toString()}
-                        subtext="Cần phản hồi hoặc fix"
+                        subtext="Cần phản hồi"
                         icon={<AlertCircle className="h-5 w-5 text-amber-700" />}
                         badge="Pending"
                         accentColor="amber"
                       />
                       <HeroKpiCard
-                        title="Điểm Đánh Giá TB"
+                        title="Đánh giá TB"
                         value={`${stats.avgRating} / 5.0`}
-                        subtext="Dựa trên khảo sát"
+                        subtext="Khảo sát người dùng"
                         icon={<Star className="h-5 w-5 fill-amber-400 text-amber-500" />}
                         badge="Hài lòng"
                         accentColor="amber"
                       />
                       <HeroKpiCard
-                        title="Đã Tiếp Nhận & Xử Lý"
+                        title="Đã xử lý"
                         value={feedbacks
                           .filter((f) => f.status === "resolved")
                           .length.toString()}
-                        subtext="Đã hoàn thành ghi chú"
+                        subtext="Hoàn tất ghi chú"
                         icon={<CheckCircle2 className="h-5 w-5 text-emerald-700" />}
                         badge="Resolved"
                         accentColor="emerald"
@@ -1958,10 +2007,10 @@ export default function AdminDashboard() {
                           className="h-9 rounded-xl border border-slate-200 bg-white px-3 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 cursor-pointer"
                         >
                           <option value="all">Mọi thể loại</option>
-                          <option value="feature">💡 Ý tưởng / Tính năng</option>
-                          <option value="bug">🐛 Báo lỗi sự cố</option>
-                          <option value="ux">🎨 Giao diện &amp; Trải nghiệm</option>
-                          <option value="general">💬 Góp ý chung</option>
+                          <option value="feature">Tính năng</option>
+                          <option value="bug">Báo lỗi</option>
+                          <option value="ux">Giao diện</option>
+                          <option value="general">Góp ý khác</option>
                         </select>
 
                         <div className="relative w-full sm:w-56">
@@ -2181,14 +2230,14 @@ export default function AdminDashboard() {
 }
 
 /* ========================================================================= */
-/* MINT REFINED HERO KPI CARD COMPONENT                                      */
+/* CLEAN MINIMAL HERO KPI CARD COMPONENT                                     */
 /* ========================================================================= */
 interface HeroKpiCardProps {
   title: string
   value: string
   subtext: string
   icon: React.ReactNode
-  badge: string
+  badge?: string
   accentColor?: "emerald" | "teal" | "cyan" | "amber"
 }
 
@@ -2198,55 +2247,33 @@ function HeroKpiCard({
   subtext,
   icon,
   badge,
-  accentColor = "emerald",
 }: HeroKpiCardProps) {
-  const borderGradientMap = {
-    emerald: "from-emerald-400 via-teal-400 to-emerald-500",
-    teal: "from-teal-400 via-emerald-400 to-cyan-500",
-    cyan: "from-cyan-400 via-teal-400 to-emerald-500",
-    amber: "from-amber-400 via-orange-400 to-amber-500",
-  }
-
-  const iconBgMap = {
-    emerald: "bg-emerald-50 text-emerald-700 border-emerald-200/80 shadow-emerald-500/10",
-    teal: "bg-teal-50 text-teal-700 border-teal-200/80 shadow-teal-500/10",
-    cyan: "bg-cyan-50 text-cyan-700 border-cyan-200/80 shadow-cyan-500/10",
-    amber: "bg-amber-50 text-amber-700 border-amber-200/80 shadow-amber-500/10",
-  }
-
   return (
-    <div className="relative group overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-5 shadow-xs transition-all duration-300 hover:shadow-lg hover:shadow-emerald-500/5 hover:border-emerald-300/60">
-      {/* Top Gradient Stripe */}
-      <div
-        className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${borderGradientMap[accentColor]}`}
-      />
-
+    <div className="rounded-xl border border-slate-200/90 bg-white p-5 shadow-xs transition-colors hover:border-slate-300">
       <div className="flex items-start justify-between">
         <div>
-          <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+          <span className="text-xs font-medium text-slate-500">
             {title}
           </span>
-          <div className="mt-1 flex items-baseline gap-2">
-            <span className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900 font-heading">
-              {value}
-            </span>
+          <div className="mt-2 text-2xl font-bold tracking-tight text-slate-900 font-heading">
+            {value}
           </div>
-          <p className="mt-1 text-xs text-slate-500 font-medium">{subtext}</p>
+          <p className="mt-1 text-xs text-slate-500">{subtext}</p>
         </div>
 
-        <div
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border shadow-sm transition-transform duration-300 group-hover:scale-105 ${iconBgMap[accentColor]}`}
-        >
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
           {icon}
         </div>
       </div>
 
-      <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
-        <span className="text-slate-400 font-medium">Hạng mục:</span>
-        <span className="rounded-md bg-slate-100 px-2 py-0.5 font-semibold text-slate-700">
-          {badge}
-        </span>
-      </div>
+      {badge && (
+        <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px]">
+          <span className="text-slate-400">Phân loại:</span>
+          <span className="rounded bg-slate-100 px-2 py-0.5 font-medium text-slate-600 text-[10px]">
+            {badge}
+          </span>
+        </div>
+      )}
     </div>
   )
 }
