@@ -585,62 +585,17 @@ export default function HeroSearchBanner({
             </div>
           </div>
 
-          {/* === RIGHT COLUMN: Large Pastel Mint Card Container with Staff Pass === */}
+          {/* === RIGHT COLUMN: Event Operations Hero Illustration === */}
           <div className="lg:col-span-5 flex items-center justify-center">
-            <div className="relative w-full aspect-[4/3.6] max-w-[460px] rounded-2xl bg-gradient-to-br from-[#E6F8F0] via-[#F0FAF5] to-[#DDF5EA] border border-teal-100 p-8 flex items-center justify-center shadow-xs overflow-hidden">
-
-              {/* Very Faint Background Wordmark */}
-              <span className="absolute text-[90px] font-black text-teal-900/[0.03] tracking-widest select-none pointer-events-none uppercase">
-                Events
-              </span>
-
-              {/* Floating Frosted Mint Badge (exact match to the floating green square icon in reference image) */}
-              <div className="absolute top-8 left-10 z-20 w-12 h-12 rounded-xl bg-gradient-to-tr from-[#2DD4BF] to-[#99F6E4] p-0.5 shadow-md shadow-teal-500/20 rotate-[-6deg]">
-                <div className="w-full h-full rounded-[10px] bg-[#0D9488] flex items-center justify-center text-white border border-white/30">
-                  <Sparkles className="w-5 h-5 text-white" />
-                </div>
-              </div>
-
-              {/* Realistic Corporate Event Staff Badge Card */}
-              <div className="relative z-10 w-[84%] aspect-[1.58/1] rounded-xl bg-slate-900 p-5 shadow-xl border border-slate-700/80 rotate-[-3deg] flex flex-col justify-between text-white">
-
-                {/* Card Top: Chip & EventMate Logo */}
-                <div className="flex items-center justify-between">
-                  <div className="w-8 h-6 rounded bg-gradient-to-r from-amber-200 to-yellow-400 border border-amber-400/50 flex items-center justify-center">
-                    <div className="w-6 h-3 border-y border-amber-600/30 grid grid-cols-2 gap-0.5" />
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[12px] font-extrabold tracking-wider uppercase text-white">
-                      EVENTMATE
-                    </span>
-                    <span className="text-[8px] font-bold px-1.5 py-0.5 rounded bg-teal-400/20 text-[#2DD4BF] border border-teal-400/30">
-                      CORP
-                    </span>
-                  </div>
-                </div>
-
-                {/* Card Middle: Code */}
-                <div className="font-mono text-xs text-slate-400 tracking-[0.2em]">
-                  EV • DANANG • 2026
-                </div>
-
-                {/* Card Bottom: Holder Name & Verified Role */}
-                <div className="flex items-end justify-between pt-1 border-t border-slate-700/60">
-                  <div>
-                    <span className="text-[9px] uppercase font-medium text-slate-400 block">Staff Pass</span>
-                    <span className="text-xs font-bold text-white tracking-wide">
-                      Nguyễn Minh Anh
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <span className="text-[9px] uppercase font-medium text-slate-400 block">Xác thực</span>
-                    <span className="text-[11px] font-bold text-[#2DD4BF]">
-                      Verified Talent
-                    </span>
-                  </div>
-                </div>
-              </div>
-
+            <div className="relative w-full max-w-[480px] lg:max-w-[500px] flex items-center justify-center">
+              <img
+                src="/images/home/hero-banner.png"
+                alt="EventMate - Cung ứng nhân sự và vận hành sự kiện"
+                className="w-full h-auto object-contain rounded-2xl drop-shadow-sm hover:drop-shadow-md transition-all duration-300"
+                width={1024}
+                height={910}
+                loading="eager"
+              />
             </div>
           </div>
 
