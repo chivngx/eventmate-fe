@@ -29,3 +29,9 @@ out/
 *.sw?
 
 .env
+
+# Python & Private EKYC
+modal_ekyc.py
+__pycache__/
+*.pyc
+*.pyo

@@ -163,6 +163,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshProfile = useCallback(async () => {
     if (!user) return;
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      if (userData?.user) {
+        setUser(userData.user);
+      }
+    } catch (e) {
+      console.warn("[AuthProvider] refreshUser failed:", e);
+    }
     const p = await fetchProfile(user.id);
     setProfile(p);
   }, [user]);
@@ -181,6 +189,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const p = await ensureProfile(session.user);
         if (!active) return;
         setProfile(p);
+
+        // Fetch fresh user in background to load updated identities & providers
+        supabase.auth.getUser().then(({ data }) => {
+          if (active && data?.user) {
+            setUser(data.user);
+          }
+        }).catch(() => {});
       }
       setLoading(false);
     };
