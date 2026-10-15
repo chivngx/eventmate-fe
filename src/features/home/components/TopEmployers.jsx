@@ -38,10 +38,6 @@ export default function TopEmployers() {
     }
   }, [])
 
-  if (!loading && employers.length === 0) {
-    return null
-  }
-
   const handleEmployerClick = (emp) => {
     if (emp.slug || emp.id) {
       router.push(`/companies/${emp.slug || emp.id}`)
@@ -50,7 +46,7 @@ export default function TopEmployers() {
     }
   }
 
-  // Ensure sufficient items to create seamless infinite loop animation
+  // Ensure sufficient items to create seamless infinite loop animation if real data exists
   const repeatCount = employers.length > 0 ? Math.max(1, Math.ceil(8 / employers.length)) : 0
   const baseItems = Array(repeatCount).fill(employers).flat()
   const marqueeItems = [...baseItems, ...baseItems]
@@ -64,10 +60,10 @@ export default function TopEmployers() {
       <div className="pt-6 pb-4 px-6 md:px-8 border-b border-gray-100 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
         <div>
           <h2 className="text-xl font-bold text-slate-900 tracking-tight">
-            Ban tổ chức tiêu biểu tại Đà Nẵng
+            Ban tổ chức & Nhà tuyển dụng tiêu biểu tại Đà Nẵng
           </h2>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            Các đơn vị tổ chức, trung tâm hội nghị và khách sạn hợp tác chính thức
+            Các đơn vị tổ chức, trung tâm hội nghị và đối tác hợp tác chính thức
           </p>
         </div>
         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-semibold bg-teal-50 text-teal-800 border border-teal-200 self-start sm:self-auto">
@@ -76,7 +72,7 @@ export default function TopEmployers() {
         </span>
       </div>
 
-      {/* Infinite Horizontal Marquee Track */}
+      {/* Content: Skeleton / Empty State / Real Data Marquee */}
       <div className="h-[150px] overflow-hidden relative w-full group bg-slate-50/40">
         {loading ? (
           <div className="flex items-center">
@@ -89,6 +85,16 @@ export default function TopEmployers() {
                 <div className="h-3.5 bg-slate-200 rounded w-20 mt-3" />
               </div>
             ))}
+          </div>
+        ) : employers.length === 0 ? (
+          <div className="h-full flex flex-col items-center justify-center text-center px-4">
+            <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 mb-2">
+              <Building2 className="w-5 h-5 text-slate-400" />
+            </div>
+            <p className="text-sm font-semibold text-slate-700">Chưa có ban tổ chức nào trên hệ thống</p>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Danh sách các đơn vị tổ chức và nhà tuyển dụng xác thực sẽ hiển thị tại đây khi có tài khoản tham gia.
+            </p>
           </div>
         ) : (
           <div className="flex items-center animate-marquee-scroll group-hover:[animation-play-state:paused]">

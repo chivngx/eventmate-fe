@@ -416,7 +416,7 @@ export function NotchNavbar({
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <Sparkles className="size-4 shrink-0 text-amber-500" />
+                      <Sparkles className="size-4 shrink-0 text-teal-400" />
                       <span>Bảng giá & Dịch vụ VIP</span>
                     </Link>
                   </>
@@ -488,7 +488,7 @@ export function NotchNavbar({
                       )}
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <Sparkles className="size-4 shrink-0 text-amber-500" />
+                      <Sparkles className="size-4 shrink-0 text-teal-400" />
                       <span>Bảng giá dịch vụ</span>
                     </Link>
                   </>
