@@ -171,7 +171,7 @@ export default function AdminDashboard() {
       const avgScore =
         ratedFbs.length > 0
           ? ratedFbs.reduce((acc: number, f: any) => acc + f.rating, 0) /
-            ratedFbs.length
+          ratedFbs.length
           : 5.0
 
       const pendingKycs = (studs || []).filter(
@@ -331,11 +331,11 @@ export default function AdminDashboard() {
         prev.map((s) =>
           s.id === studentId
             ? {
-                ...s,
-                is_verified: false,
-                kyc_status: "rejected",
-                kyc_data: updatedKycData,
-              }
+              ...s,
+              is_verified: false,
+              kyc_status: "rejected",
+              kyc_data: updatedKycData,
+            }
             : s
         )
       )
@@ -381,13 +381,12 @@ export default function AdminDashboard() {
       }))
       showToast({
         title: "Thành công",
-        message: `Đã đổi trạng thái sang "${
-          nextStatus === "resolved"
+        message: `Đã đổi trạng thái sang "${nextStatus === "resolved"
             ? "Đã giải quyết"
             : nextStatus === "reviewed"
-            ? "Đã xem"
-            : "Chờ xử lý"
-        }".`,
+              ? "Đã xem"
+              : "Chờ xử lý"
+          }".`,
         type: "success",
       })
     }
@@ -603,7 +602,7 @@ export default function AdminDashboard() {
       <div className="min-h-screen flex items-center justify-center bg-radial from-[#0e171b] via-[#090e12] to-[#060a0c] px-4 text-slate-100">
         <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-emerald-500/20 bg-slate-900/80 p-8 shadow-2xl backdrop-blur-xl text-center space-y-6">
           <div className="pointer-events-none absolute -top-24 -right-24 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl" />
-          
+
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 shadow-[0_0_25px_rgba(16,185,129,0.2)]">
             <ShieldAlert className="h-8 w-8 text-emerald-400" />
           </div>
@@ -656,11 +655,10 @@ export default function AdminDashboard() {
       <div className="flex">
         {/* ==================== MINT MINERAL SIDEBAR ==================== */}
         <aside
-          className={`fixed lg:sticky top-0 bottom-0 left-0 z-50 flex h-screen shrink-0 flex-col border-r border-emerald-950/30 bg-[#0B1215] text-slate-200 transition-all duration-300 shadow-xl ${
-            isSidebarOpen
+          className={`fixed lg:sticky top-0 bottom-0 left-0 z-50 flex h-screen shrink-0 flex-col border-r border-emerald-950/30 bg-[#0B1215] text-slate-200 transition-all duration-300 shadow-xl ${isSidebarOpen
               ? "w-72 translate-x-0"
               : "w-72 -translate-x-full lg:translate-x-0"
-          }`}
+            }`}
         >
           {/* Ambient Glow */}
           <div className="pointer-events-none absolute -top-12 -left-12 h-44 w-44 rounded-full bg-emerald-500/15 blur-3xl" />
@@ -745,18 +743,16 @@ export default function AdminDashboard() {
                     setActiveTab(item.id)
                     if (window.innerWidth < 1024) setIsSidebarOpen(false)
                   }}
-                  className={`group relative flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-medium transition-all duration-200 cursor-pointer ${
-                    isActive
+                  className={`group relative flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-xs font-medium transition-all duration-200 cursor-pointer ${isActive
                       ? "bg-gradient-to-r from-emerald-500/20 via-emerald-500/10 to-teal-500/5 text-emerald-300 border-l-[3px] border-emerald-400 shadow-[0_4px_20px_-4px_rgba(16,185,129,0.25)] font-semibold"
                       : "text-slate-300 hover:bg-white/[0.05] hover:text-white"
-                  }`}
+                    }`}
                 >
                   <div
-                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors ${
-                      isActive
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors ${isActive
                         ? "bg-emerald-400/20 text-emerald-300"
                         : "text-slate-400 group-hover:text-emerald-400 group-hover:bg-emerald-400/10"
-                    }`}
+                      }`}
                   >
                     <Icon className="h-4 w-4" />
                   </div>
@@ -764,9 +760,8 @@ export default function AdminDashboard() {
 
                   {item.badge ? (
                     <span
-                      className={`rounded-full px-2 py-0.5 text-[10px] font-bold text-white shadow-xs ${
-                        item.badgeColor || "bg-emerald-500"
-                      }`}
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-bold text-white shadow-xs ${item.badgeColor || "bg-emerald-500"
+                        }`}
                     >
                       {item.badge}
                     </span>
@@ -853,9 +848,8 @@ export default function AdminDashboard() {
                 className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-50 hover:border-slate-300 transition-colors cursor-pointer shadow-2xs"
               >
                 <RefreshCw
-                  className={`h-3.5 w-3.5 ${
-                    isRefreshing ? "animate-spin text-emerald-600" : "text-slate-500"
-                  }`}
+                  className={`h-3.5 w-3.5 ${isRefreshing ? "animate-spin text-emerald-600" : "text-slate-500"
+                    }`}
                 />
                 <span className="hidden md:inline">
                   {isRefreshing ? "Đang đồng bộ..." : "Làm mới dữ liệu"}
@@ -1034,10 +1028,10 @@ export default function AdminDashboard() {
                           <span className="text-lg font-bold text-slate-900">
                             {stats.totalStudents > 0
                               ? Math.round(
-                                  ((stats.totalStudents - stats.pendingKycCount) /
-                                    stats.totalStudents) *
-                                    100
-                                )
+                                ((stats.totalStudents - stats.pendingKycCount) /
+                                  stats.totalStudents) *
+                                100
+                              )
                               : 100}
                             %
                           </span>
@@ -1138,11 +1132,10 @@ export default function AdminDashboard() {
                                   </td>
                                   <td className="px-5 py-3 text-right">
                                     <span
-                                      className={`inline-block rounded-md px-2 py-0.5 text-[10px] font-medium border ${
-                                        ev.status === "upcoming"
+                                      className={`inline-block rounded-md px-2 py-0.5 text-[10px] font-medium border ${ev.status === "upcoming"
                                           ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                                           : "bg-slate-50 text-slate-600 border-slate-200"
-                                      }`}
+                                        }`}
                                     >
                                       {ev.status === "upcoming" ? "Đang mở tuyển" : "Hoàn tất"}
                                     </span>
@@ -1240,19 +1233,18 @@ export default function AdminDashboard() {
                                     {fb.full_name || fb.profiles?.full_name || "Thành viên"}
                                   </span>
                                   <span
-                                    className={`text-[10px] px-1.5 py-0.2 rounded border font-medium ${
-                                      fb.status === "resolved"
+                                    className={`text-[10px] px-1.5 py-0.2 rounded border font-medium ${fb.status === "resolved"
                                         ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                                         : fb.status === "reviewed"
-                                        ? "bg-blue-50 text-blue-700 border-blue-200"
-                                        : "bg-amber-50 text-amber-700 border-amber-200"
-                                    }`}
+                                          ? "bg-blue-50 text-blue-700 border-blue-200"
+                                          : "bg-amber-50 text-amber-700 border-amber-200"
+                                      }`}
                                   >
                                     {fb.status === "resolved"
                                       ? "Đã xử lý"
                                       : fb.status === "reviewed"
-                                      ? "Đã xem"
-                                      : "Chờ xử lý"}
+                                        ? "Đã xem"
+                                        : "Chờ xử lý"}
                                   </span>
                                 </div>
                                 <p className="text-xs text-slate-500 line-clamp-1">
@@ -1316,11 +1308,10 @@ export default function AdminDashboard() {
                               <button
                                 key={tab.id}
                                 onClick={() => setOrganizerStatusFilter(tab.id)}
-                                className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer ${
-                                  organizerStatusFilter === tab.id
+                                className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer ${organizerStatusFilter === tab.id
                                     ? "bg-white text-emerald-700 font-bold shadow-2xs"
                                     : "text-slate-600 hover:text-slate-900"
-                                }`}
+                                  }`}
                               >
                                 {tab.label}
                               </button>
@@ -1424,11 +1415,10 @@ export default function AdminDashboard() {
                                         org.is_verified
                                       )
                                     }
-                                    className={`h-8 rounded-xl px-3 text-xs font-semibold cursor-pointer transition-all ${
-                                      org.is_verified
+                                    className={`h-8 rounded-xl px-3 text-xs font-semibold cursor-pointer transition-all ${org.is_verified
                                         ? "border border-rose-200 bg-white text-rose-600 hover:bg-rose-50"
                                         : "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-xs"
-                                    }`}
+                                      }`}
                                   >
                                     {org.is_verified ? "Thu hồi tích xanh" : "Cấp Tích Xanh"}
                                   </Button>
@@ -1491,11 +1481,10 @@ export default function AdminDashboard() {
                               <button
                                 key={tab.id}
                                 onClick={() => setStudentKycFilter(tab.id)}
-                                className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
-                                  studentKycFilter === tab.id
+                                className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer flex items-center gap-1.5 ${studentKycFilter === tab.id
                                     ? "bg-white text-emerald-700 font-bold shadow-2xs"
                                     : "text-slate-600 hover:text-slate-900"
-                                }`}
+                                  }`}
                               >
                                 <span>{tab.label}</span>
                                 {tab.count ? (
@@ -1680,11 +1669,10 @@ export default function AdminDashboard() {
                               <button
                                 key={tab.id}
                                 onClick={() => setEventStatusFilter(tab.id)}
-                                className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer ${
-                                  eventStatusFilter === tab.id
+                                className={`px-2.5 py-1 rounded-lg font-medium transition-all cursor-pointer ${eventStatusFilter === tab.id
                                     ? "bg-white text-emerald-700 font-bold shadow-2xs"
                                     : "text-slate-600 hover:text-slate-900"
-                                }`}
+                                  }`}
                               >
                                 {tab.label}
                               </button>
@@ -1737,11 +1725,10 @@ export default function AdminDashboard() {
                                 </td>
                                 <td className="px-5 py-3.5">
                                   <Badge
-                                    className={`text-[10px] ${
-                                      ev.status === "upcoming"
+                                    className={`text-[10px] ${ev.status === "upcoming"
                                         ? "bg-emerald-100 text-emerald-800 border-emerald-200"
                                         : "bg-slate-100 text-slate-600"
-                                    }`}
+                                      }`}
                                   >
                                     {ev.status === "upcoming"
                                       ? "Đang mở"
@@ -1871,11 +1858,11 @@ export default function AdminDashboard() {
                                 </tr>
                               ))
                             ) : organizers.filter(
-                                (org) =>
-                                  org.is_premium &&
-                                  (!org.premium_until ||
-                                    new Date(org.premium_until) > new Date())
-                              ).length === 0 ? (
+                              (org) =>
+                                org.is_premium &&
+                                (!org.premium_until ||
+                                  new Date(org.premium_until) > new Date())
+                            ).length === 0 ? (
                               <tr>
                                 <td
                                   colSpan={6}
@@ -1983,11 +1970,10 @@ export default function AdminDashboard() {
                             key={tab.id}
                             type="button"
                             onClick={() => setFeedbackStatusFilter(tab.id)}
-                            className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${
-                              feedbackStatusFilter === tab.id
+                            className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer ${feedbackStatusFilter === tab.id
                                 ? "bg-emerald-600 text-white shadow-xs"
                                 : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                            }`}
+                              }`}
                           >
                             {tab.label}
                             {tab.id === "pending" && stats.pendingFeedbacks > 0 && (
@@ -2057,8 +2043,8 @@ export default function AdminDashboard() {
                                         {fb.profiles.role === "organizer"
                                           ? "Nhà tuyển dụng"
                                           : fb.profiles.role === "student"
-                                          ? "Sinh viên"
-                                          : fb.profiles.role}
+                                            ? "Sinh viên"
+                                            : fb.profiles.role}
                                       </span>
                                     )}
                                   </div>
@@ -2073,10 +2059,10 @@ export default function AdminDashboard() {
                                   {fb.category === "bug"
                                     ? "🐛 Báo lỗi"
                                     : fb.category === "feature"
-                                    ? "💡 Tính năng"
-                                    : fb.category === "ux"
-                                    ? "🎨 Giao diện"
-                                    : "💬 Góp ý"}
+                                      ? "💡 Tính năng"
+                                      : fb.category === "ux"
+                                        ? "🎨 Giao diện"
+                                        : "💬 Góp ý"}
                                 </Badge>
                                 {typeof fb.rating === "number" && fb.rating > 0 && (
                                   <span className="text-xs font-bold text-amber-500">
