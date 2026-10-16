@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Building2, CheckCircle2 } from "lucide-react"
+import { VerifiedBadge } from "@/components/ui/verified-badge"
 import { supabase } from "@/lib/supabase"
 
 export default function TopEmployers() {
@@ -17,8 +18,9 @@ export default function TopEmployers() {
       try {
         const { data, error } = await supabase
           .from("profiles")
-          .select("id, full_name, avatar_url, slug, reliability_score")
+          .select("id, full_name, avatar_url, slug, reliability_score, is_verified")
           .eq("role", "organizer")
+          .eq("is_verified", true)
           .order("reliability_score", { ascending: false, nullsFirst: false })
 
         if (!error && data && isMounted) {
@@ -94,9 +96,9 @@ export default function TopEmployers() {
             <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 mb-2">
               <Building2 className="w-5 h-5 text-slate-400" />
             </div>
-            <p className="text-sm font-semibold text-slate-700">Chưa có ban tổ chức nào trên hệ thống</p>
+            <p className="text-sm font-semibold text-slate-700">Chưa có ban tổ chức được xác thực</p>
             <p className="text-xs text-slate-400 mt-0.5">
-              Danh sách các đơn vị tổ chức và nhà tuyển dụng xác thực sẽ hiển thị tại đây khi có tài khoản tham gia.
+              Danh sách các đơn vị tổ chức và nhà tuyển dụng đã được duyệt tick xanh bởi Admin sẽ hiển thị tại đây.
             </p>
           </div>
         ) : (
@@ -139,11 +141,14 @@ export default function TopEmployers() {
                   )}
                 </div>
 
-                {/* Employer Name */}
+                {/* Employer Name with Verified Badge */}
                 <div className="w-full text-center mt-2.5 px-1">
-                  <p className="m-0 text-xs font-semibold text-slate-800 truncate">
-                    {emp.full_name}
-                  </p>
+                  <div className="flex items-center justify-center gap-1 max-w-full">
+                    <p className="m-0 text-xs font-semibold text-slate-800 truncate">
+                      {emp.full_name}
+                    </p>
+                    <VerifiedBadge className="size-3.5 shrink-0" text="Đã xác thực" />
+                  </div>
                 </div>
               </div>
             ))}
