@@ -46,10 +46,9 @@ export default function TopEmployers() {
     }
   }
 
-  // Ensure sufficient items to create seamless infinite loop animation if real data exists
-  const repeatCount = employers.length > 0 ? Math.max(1, Math.ceil(8 / employers.length)) : 0
-  const baseItems = Array(repeatCount).fill(employers).flat()
-  const marqueeItems = [...baseItems, ...baseItems]
+  // Chỉ kích hoạt hiệu ứng cuộn Marquee khi có từ 6 đối tác trở lên để tránh lặp hình ảnh
+  const isMarquee = employers.length >= 6
+  const displayItems = isMarquee ? [...employers, ...employers] : employers
 
   return (
     <section
@@ -72,8 +71,12 @@ export default function TopEmployers() {
         </span>
       </div>
 
-      {/* Content: Skeleton / Empty State / Real Data Marquee */}
-      <div className="h-[150px] overflow-hidden relative w-full group bg-slate-50/40">
+      {/* Content: Skeleton / Empty State / Real Data */}
+      <div
+        className={`h-[150px] relative w-full group bg-slate-50/40 ${
+          isMarquee ? "overflow-hidden" : "overflow-x-auto"
+        }`}
+      >
         {loading ? (
           <div className="flex items-center">
             {Array.from({ length: 8 }).map((_, idx) => (
@@ -97,8 +100,14 @@ export default function TopEmployers() {
             </p>
           </div>
         ) : (
-          <div className="flex items-center animate-marquee-scroll group-hover:[animation-play-state:paused]">
-            {marqueeItems.map((emp, index) => (
+          <div
+            className={`flex items-center ${
+              isMarquee
+                ? "animate-marquee-scroll group-hover:[animation-play-state:paused]"
+                : ""
+            }`}
+          >
+            {displayItems.map((emp, index) => (
               <div
                 key={`${emp.id}-${index}`}
                 onClick={() => handleEmployerClick(emp)}
