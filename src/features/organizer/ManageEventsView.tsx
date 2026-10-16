@@ -399,7 +399,7 @@ export default function ManageEventsView() {
   }
 
   const handleEditClick = (ev: any) => {
-    router.push(`/post-job?edit=${ev.id}`)
+    router.push(`/dashboard/post-job?edit=${ev.id}`)
   }
 
   const handleDeleteEvent = async (id: string) => {
@@ -496,7 +496,7 @@ export default function ManageEventsView() {
           onUpdateStatus={handleUpdateEventStatus}
           onBumpEvent={handleBumpEvent}
           isPremium={isPremium}
-          onCreateNew={() => router.push("/post-job")}
+          onCreateNew={() => router.push("/dashboard/post-job")}
         />
       )}
 
