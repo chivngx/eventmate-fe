@@ -29,3 +29,19 @@ out/
 *.sw?
 
 .env
+
+# Python & Private EKYC
+modal_ekyc.py
+__pycache__/
+*.pyc
+*.pyo
+ekyc.md
+
+# Private Documentation & Agent Configs
+.agents/
+AGENTS.md
+FEATURES.md
+skills-lock.json
+
+# Private Database Schemas
+supabase/

@@ -63,8 +63,20 @@ export function useAccountSettings() {
     setUserId(user.id)
     setEmail(user.email || "")
 
-    const providers = user.app_metadata?.providers || []
-    setHasPassword(providers.includes("email"))
+    // Accurate password check: check fresh identities, app_metadata providers, and user_metadata flag
+    try {
+      const { data: userData } = await supabase.auth.getUser()
+      const effectiveUser = userData?.user || user
+      const providers = effectiveUser.app_metadata?.providers || []
+      const hasEmailIdentity = effectiveUser.identities?.some((id) => id.provider === "email")
+      const metaHasPassword = Boolean(effectiveUser.user_metadata?.has_password)
+      setHasPassword(providers.includes("email") || Boolean(hasEmailIdentity) || metaHasPassword)
+    } catch {
+      const providers = user.app_metadata?.providers || []
+      const hasEmailIdentity = user.identities?.some((id) => id.provider === "email")
+      const metaHasPassword = Boolean(user.user_metadata?.has_password)
+      setHasPassword(providers.includes("email") || Boolean(hasEmailIdentity) || metaHasPassword)
+    }
 
     // Fetch full profile row from DB to get the most up-to-date attributes
     const { data: dbProfile } = await supabase
@@ -310,8 +322,24 @@ export function useAccountSettings() {
     setUpdating(true)
     setMessage(null)
 
+    // Nếu đã có mật khẩu và người dùng có nhập mật khẩu hiện tại, kiểm tra tính chính xác
+    if (hasPassword && currentPassword && (user?.email || email)) {
+      const { error: verifyErr } = await supabase.auth.signInWithPassword({
+        email: (user?.email || email)!,
+        password: currentPassword,
+      })
+      if (verifyErr) {
+        setUpdating(false)
+        const errText = "Mật khẩu hiện tại không chính xác!"
+        setMessage({ type: "error", text: errText })
+        showToast({ title: "Lỗi", message: errText, type: "error" })
+        return
+      }
+    }
+
     const { error } = await supabase.auth.updateUser({
       password: newPassword,
+      data: { has_password: true },
     })
 
     setUpdating(false)
@@ -321,12 +349,16 @@ export function useAccountSettings() {
       setMessage({ type: "error", text: errText })
       showToast({ title: "Lỗi", message: errText, type: "error" })
     } else {
+      setHasPassword(true)
       const successText = "Đã cập nhật mật khẩu mới thành công!"
       setMessage({ type: "success", text: successText })
       showToast({ title: "Thành công", message: successText, type: "success" })
       setCurrentPassword("")
       setNewPassword("")
       setConfirmPassword("")
+      if (refreshProfile) {
+        await refreshProfile()
+      }
     }
   }
 
